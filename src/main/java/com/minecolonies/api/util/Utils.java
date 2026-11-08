@@ -30,6 +30,32 @@ import java.util.regex.Pattern;
  */
 public final class Utils
 {
+    /**
+     * FABRIC-PORT: replacement for the removed {@code FriendlyByteBuf#writeCollection}.
+     */
+    public static <B extends net.minecraft.network.FriendlyByteBuf, T> void writeCollection(final B buf, final java.util.Collection<T> collection, final java.util.function.BiConsumer<B, T> writer)
+    {
+        buf.writeVarInt(collection.size());
+        for (final T element : collection)
+        {
+            writer.accept(buf, element);
+        }
+    }
+
+    /**
+     * FABRIC-PORT: replacement for the removed {@code FriendlyByteBuf#readList}.
+     */
+    public static <B extends net.minecraft.network.FriendlyByteBuf, T> java.util.List<T> readList(final B buf, final java.util.function.Function<B, T> reader)
+    {
+        final int size = buf.readVarInt();
+        final java.util.List<T> list = new java.util.ArrayList<>(size);
+        for (int i = 0; i < size; i++)
+        {
+            list.add(reader.apply(buf));
+        }
+        return list;
+    }
+
     private static final NavigableMap<Long, String> suffixes = new TreeMap<> ();
     
     static

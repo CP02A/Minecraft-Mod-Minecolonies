@@ -46,12 +46,12 @@ public record ColonyId(int id, ResourceKey<Level> dimension) implements TooltipP
 
     public void writeToItemStack(final ItemStack itemStack)
     {
-        itemStack.set(ModDataComponents.COLONY_ID_COMPONENT, this);
+        itemStack.set(ModDataComponents.COLONY_ID_COMPONENT.get(), this);
     }
 
     public static ColonyId readFromItemStack(final ItemStack itemStack)
     {
-        return itemStack.getOrDefault(ModDataComponents.COLONY_ID_COMPONENT, ColonyId.EMPTY);
+        return itemStack.getOrDefault(ModDataComponents.COLONY_ID_COMPONENT.get(), ColonyId.EMPTY);
     }
 
     @Nullable
@@ -74,7 +74,7 @@ public record ColonyId(int id, ResourceKey<Level> dimension) implements TooltipP
     }
 
     @Override
-    public void addToTooltip(@NotNull final Item.TooltipContext context, @NotNull final Consumer<Component> tooltip, @NotNull final TooltipFlag flags)
+    public void addToTooltip(@NotNull final Item.TooltipContext context, @NotNull final Consumer<Component> tooltip, @NotNull final TooltipFlag flags, @NotNull final net.minecraft.core.component.DataComponentGetter components)
     {
         final IColonyView colony = IMinecoloniesAPI.getInstance().getColonyManager().getColonyView(id(), dimension());
         final Component name = colony != null ? Component.literal(colony.getName()) : Component.translatable("item.minecolonies.hut.unknowncolony");

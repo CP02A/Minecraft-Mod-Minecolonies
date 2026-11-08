@@ -25,7 +25,7 @@ public record Timestamp(long time)
 
     public void writeToItemStack(final ItemStack itemStack)
     {
-        itemStack.set(ModDataComponents.TIME_COMPONENT, this);
+        itemStack.set(ModDataComponents.TIME_COMPONENT.get(), this);
     }
 
     public boolean hasTime()
@@ -35,7 +35,7 @@ public record Timestamp(long time)
 
     public static Timestamp readFromItemStack(final ItemStack itemStack)
     {
-        return itemStack.getOrDefault(ModDataComponents.TIME_COMPONENT, Timestamp.EMPTY);
+        return itemStack.getOrDefault(ModDataComponents.TIME_COMPONENT.get(), Timestamp.EMPTY);
     }
 
     public static void updateItemStack(final ItemStack itemStack, final UnaryOperator<Timestamp> updater)

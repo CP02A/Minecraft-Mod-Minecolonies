@@ -435,7 +435,7 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
                                     damageToDo += EnchantmentHelper.modifyDamage((ServerLevel) worker.level(), sword, mob, worker.level().damageSources().source(DamageSourceKeys.DEFAULT, worker), 1f) / 2.5f;
                                     if (doDamage)
                                     {
-                                        sword.hurtAndBreak(1, (ServerLevel) worker.level(), worker, item -> {
+                                        sword.hurtAndBreak(1, (ServerLevel) worker.level(), null, item -> {
                                             // the sword broke; try to find another sword
                                             worker.setItemSlot(EquipmentSlot.MAINHAND, findTool(ModEquipmentTypes.sword.get()));
                                         });
@@ -495,7 +495,7 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
                             {
                                 // Generate loot for this mob, with all the right modifiers
                                 LootParams context = this.getLootContext();
-                                LootTable loot = world.getServer().reloadableRegistries().getLootTable(mob.getLootTable());
+                                LootTable loot = mob.getLootTable().map(key -> world.getServer().reloadableRegistries().getLootTable(key)).orElse(LootTable.EMPTY);
                                 List<ItemStack> mobLoot = loot.getRandomItems(context);
                                 job.addProcessedResultsList(mobLoot);
 
@@ -525,12 +525,12 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
                             for (int i = 0; i < currStack.getCount() && !tool.isEmpty(); i++)
                             {
                                 LootParams context = this.getLootContext();
-                                LootTable loot = world.getServer().reloadableRegistries().getLootTable(block.getLootTable());
+                                LootTable loot = block.getLootTable().map(key -> world.getServer().reloadableRegistries().getLootTable(key)).orElse(LootTable.EMPTY);
                                 List<ItemStack> mobLoot = loot.getRandomItems(context);
 
                                 job.addProcessedResultsList(mobLoot);
                                 expeditionLog.addLoot(mobLoot);
-                                tool.hurtAndBreak(1, (ServerLevel) worker.level(), worker, item -> {});
+                                tool.hurtAndBreak(1, (ServerLevel) worker.level(), null, item -> {});
                                 if (tool.isEmpty())
                                 {
                                     // it's unlikely the worker will have a spare tool (mobs probably don't drop any), but
@@ -677,7 +677,7 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
             if (!block.is(Blocks.NETHER_PORTAL))
             {
                 useFlintAndSteel();
-                ps.get().createPortalBlocks();
+                ps.get().createPortalBlocks(world);
                 return NETHER_LEAVE;
             }
         }
@@ -718,7 +718,7 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
     private void useFlintAndSteel()
     {
         final ItemStack tool = findTool(ModEquipmentTypes.flint_and_steel.get());
-        tool.hurtAndBreak(1, (ServerLevel) world, worker, item -> {});
+        tool.hurtAndBreak(1, (ServerLevel) world, null, item -> {});
     }
 
     private ItemStack findItem(@NotNull final Predicate<ItemStack> predicate)

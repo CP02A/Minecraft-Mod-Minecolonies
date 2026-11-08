@@ -3,7 +3,10 @@ package com.minecolonies.api.tileentities;
 import com.minecolonies.api.util.WorldUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import com.mojang.serialization.Codec;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.Connection;
@@ -51,33 +54,24 @@ public class AbstractTileEntityNamedGrave extends BlockEntity
     }
 
     @Override
-    public void loadAdditional(final CompoundTag compound, @NotNull final HolderLookup.Provider provider)
+    protected void loadAdditional(final ValueInput input)
     {
-        super.loadAdditional(compound, provider);
+        super.loadAdditional(input);
 
         textLines.clear();
-        if (compound.contains(TAG_CONTENT))
-        {
-            final ListTag lines = compound.getListOrEmpty(TAG_CONTENT);
-            for (int i = 0; i < lines.size(); i++)
-            {
-                final String line = lines.getStringOr(i, "");
-                textLines.add(line);
-            }
-        }
+        input.listOrEmpty(TAG_CONTENT, Codec.STRING).stream().forEach(textLines::add);
     }
 
     @Override
-    public void saveAdditional(final CompoundTag compound, @NotNull final HolderLookup.Provider provider)
+    protected void saveAdditional(final ValueOutput output)
     {
-        super.saveAdditional(compound, provider);
+        super.saveAdditional(output);
 
-        @NotNull final ListTag lines = new ListTag();
+        final ValueOutput.TypedOutputList<String> lines = output.list(TAG_CONTENT, Codec.STRING);
         for (@NotNull final String line : textLines)
         {
-            lines.add(StringTag.valueOf(line));
+            lines.add(line);
         }
-        compound.put(TAG_CONTENT, lines);
     }
 
     @Override
@@ -90,20 +84,10 @@ public class AbstractTileEntityNamedGrave extends BlockEntity
     @Override
     public CompoundTag getUpdateTag(@NotNull final HolderLookup.Provider provider)
     {
-        return this.saveWithId(provider);
+        return this.saveWithoutMetadata(provider);
     }
 
-    @Override
-    public void onDataPacket(final Connection net, final ClientboundBlockEntityDataPacket packet, @NotNull final HolderLookup.Provider provider)
-    {
-        this.loadAdditional(packet.getTag(), provider);
-    }
-
-    @Override
-    public void handleUpdateTag(final CompoundTag tag, @NotNull final HolderLookup.Provider provider)
-    {
-        this.loadAdditional(tag, provider);
-    }
+    // FABRIC-PORT: onDataPacket/handleUpdateTag were NeoForge extensions; vanilla 26.x loads the update tag through loadAdditional.
 
     @Override
     public void setChanged()

@@ -114,7 +114,7 @@ public class ClientEventHandler
             return;
         }
 
-        final Identifier soundLocation = event.getSound().getLocation();
+        final Identifier soundLocation = event.getSound().getIdentifier();
         if (!MinecoloniesAPIProxy.getInstance().getConfig().getClient().citizenVoices.get()
             && soundLocation.getNamespace().equals(Constants.MOD_ID)
             && soundLocation.getPath().startsWith(CITIZEN_SOUND_EVENT_PREFIX)

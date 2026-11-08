@@ -68,7 +68,7 @@ public class NewBobberEntity extends Projectile implements IEntityWithComplexSpa
     private NewBobberEntity(EntityType<? extends Projectile> type, Level level, int luck, int lure)
     {
         super(type, level);
-        this.noCulling = true;
+        // FABRIC-PORT: Entity#noCulling no longer exists in 26.x (render culling handled by the renderer).
         this.luck = Math.max(0, luck);
         this.lureSpeed = Math.max(0, lure);
     }
@@ -91,7 +91,7 @@ public class NewBobberEntity extends Projectile implements IEntityWithComplexSpa
         double d0 = citizen.getX() - (double)f3 * 0.3;
         double d1 = citizen.getEyeY();
         double d2 = citizen.getZ() - (double)f2 * 0.3;
-        this.moveTo(d0, d1, d2, f1, f);
+        this.snapTo(d0, d1, d2, f1, f);
         Vec3 vec3 = new Vec3((double)(-f3), (double)Mth.clamp(-(f5 / f4), -5.0F, 5.0F), (double)(-f2));
         double d3 = vec3.length();
         vec3 = vec3.multiply(
@@ -139,7 +139,6 @@ public class NewBobberEntity extends Projectile implements IEntityWithComplexSpa
     }
 
     @OnlyIn(Dist.CLIENT)
-    @Override
     public void lerpTo(
       final double x,
       final double y,
@@ -254,8 +253,8 @@ public class NewBobberEntity extends Projectile implements IEntityWithComplexSpa
     {
         ItemStack mainHandItem = citizen.getMainHandItem();
         ItemStack offHandItem = citizen.getOffhandItem();
-        boolean flag = mainHandItem.canPerformAction(com.ldtteam.shim.neoforge.common.ItemAbilities.FISHING_ROD_CAST);
-        boolean flag1 = offHandItem.canPerformAction(com.ldtteam.shim.neoforge.common.ItemAbilities.FISHING_ROD_CAST);
+        boolean flag = (mainHandItem.getItem() instanceof net.minecraft.world.item.FishingRodItem);
+        boolean flag1 = (offHandItem.getItem() instanceof net.minecraft.world.item.FishingRodItem);
         if (!citizen.isRemoved() && citizen.isAlive() && (flag || flag1) && !(this.distanceToSqr(citizen) > 1024.0))
         {
             return false;

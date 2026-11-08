@@ -7,6 +7,7 @@ import com.ldtteam.blockui.PaneParams;
 import com.ldtteam.blockui.Parsers;
 import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.resources.Identifier;
@@ -184,7 +185,10 @@ public class BOWindow extends View
      */
     public void open()
     {
-        mc.submit(() -> mc.setScreen(screen));
+        mc.submit(() -> {
+            layerParent = null;
+            mc.gui.setScreen(screen);
+        });
     }
 
     /**
@@ -192,7 +196,12 @@ public class BOWindow extends View
      */
     public void openAsLayer()
     {
-        mc.submit(() -> mc.pushGuiLayer(screen));
+        // Fabric: vanilla has no screen layers, the previous screen is restored on close()
+        mc.submit(() -> {
+            final Screen current = mc.gui.screen();
+            layerParent = current == screen ? layerParent : current;
+            mc.gui.setScreen(screen);
+        });
     }
 
     /**
@@ -284,8 +293,18 @@ public class BOWindow extends View
      */
     public void close()
     {
-        Minecraft.getInstance().popGuiLayer();
+        final Screen parent = layerParent;
+        layerParent = null;
+        if (Minecraft.getInstance().gui.screen() == screen)
+        {
+            Minecraft.getInstance().gui.setScreen(parent);
+        }
     }
+
+    /**
+     * Fabric: screen to return to when a window opened with {@link #openAsLayer()} closes (NeoForge gui layers).
+     */
+    private @org.jspecify.annotations.Nullable Screen layerParent = null;
 
     /**
      * Called when the Window is displayed.

@@ -129,7 +129,7 @@ public class EntityAIWorkShepherd extends AbstractEntityAIHerder<JobShepherd, Bu
                 return getState();
             }
 
-            int enchantmentLevel = worker.getMainHandItem().getEnchantmentLevel(Utils.getRegistryValue(Enchantments.FORTUNE, world));
+            int enchantmentLevel = net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(Utils.getRegistryValue(Enchantments.FORTUNE, world), worker.getMainHandItem());
             enchantmentLevel *= Math.max(1.0, (getPrimarySkillLevel() / 5.0));
 
             worker.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);

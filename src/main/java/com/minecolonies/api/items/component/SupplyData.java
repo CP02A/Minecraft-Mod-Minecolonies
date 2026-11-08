@@ -48,12 +48,12 @@ public record SupplyData(boolean sawStory, boolean instantPlacement, long random
 
     public void writeToItemStack(final ItemStack itemStack)
     {
-        itemStack.set(ModDataComponents.SUPPLY_COMPONENT, this);
+        itemStack.set(ModDataComponents.SUPPLY_COMPONENT.get(), this);
     }
 
     public static SupplyData readFromItemStack(final ItemStack itemStack)
     {
-        return itemStack.getOrDefault(ModDataComponents.SUPPLY_COMPONENT, SupplyData.EMPTY);
+        return itemStack.getOrDefault(ModDataComponents.SUPPLY_COMPONENT.get(), SupplyData.EMPTY);
     }
 
     public static void updateItemStack(final ItemStack itemStack, final UnaryOperator<SupplyData> updater)

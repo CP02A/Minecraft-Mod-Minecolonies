@@ -68,7 +68,7 @@ public class BlockColonySign extends AbstractBlockMinecolonies<BlockColonySign> 
      */
     public BlockColonySign()
     {
-        super(Properties.of().mapColor(MapColor.WOOD).sound(SoundType.WOOD).strength(BLOCK_HARDNESS, RESISTANCE).noCollission());
+        super(Properties.of().mapColor(MapColor.WOOD).sound(SoundType.WOOD).strength(BLOCK_HARDNESS, RESISTANCE).noCollision());
         this.registerDefaultState(this.defaultBlockState().setValue(CONNECTED, false));
     }
 
@@ -114,25 +114,12 @@ public class BlockColonySign extends AbstractBlockMinecolonies<BlockColonySign> 
         super.destroy(level, pos, state);
     }
 
-    @Override
-    public void onRemove(final BlockState currentState, final Level level, final BlockPos pos, final BlockState p_60518_, final boolean p_60519_)
-    {
-        BlockEntity tileEntity = level.getBlockEntity(pos);
-        if (!level.isClientSide() && tileEntity instanceof TileEntityColonySign tileEntityColonySign)
-        {
-            final IColony colony = IColonyManager.getInstance().getColonyByDimension(tileEntityColonySign.getColonyId(), level.dimension());
-            if (colony != null)
-            {
-                colony.getConnectionManager().removeConnectionNode(pos);
-            }
-        }
-        super.onRemove(currentState, level, pos, p_60518_, p_60519_);
-    }
+    // FABRIC-PORT: removal side effects (inventory drop / connection cleanup) moved to the block entity's preRemoveSideEffects.
 
     @Override
     public RenderShape getRenderShape(final BlockState p_60550_)
     {
-        return RenderShape.ENTITYBLOCK_ANIMATED;
+        return RenderShape.INVISIBLE;
     }
 
     @Override

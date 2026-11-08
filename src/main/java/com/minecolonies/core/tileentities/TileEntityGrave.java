@@ -263,4 +263,5 @@ public class TileEntityGrave extends AbstractTileEntityGrave implements Clearabl
             this.getInventory().setStackInSlot(i, ItemStack.EMPTY);
         }
     }
+
 }

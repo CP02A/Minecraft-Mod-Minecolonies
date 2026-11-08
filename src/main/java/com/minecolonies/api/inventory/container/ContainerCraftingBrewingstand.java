@@ -7,7 +7,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -156,11 +156,11 @@ public class ContainerCraftingBrewingstand extends AbstractContainerMenu
             {
                 if (slot == 3)
                 {
-                    return getWorldObj().potionBrewing().isIngredient(stack);
+                    return getWorldObj().recipeAccess().propertySet(net.minecraft.world.item.crafting.RecipePropertySet.BREWING_REAGENTS).test(stack);
                 }
                 else if (slot >= 0 && slot < 3)
                 {
-                    return getWorldObj().potionBrewing().isInput(stack);
+                    return net.minecraft.world.item.crafting.PotionIngredient.isPotionInput(stack, getWorldObj().recipeAccess());
                 }
                 else
                 {
@@ -247,14 +247,14 @@ public class ContainerCraftingBrewingstand extends AbstractContainerMenu
     }
 
     @Override
-    public void clicked(final int slotId, final int clickedButton, final ClickType mode, final Player playerIn)
+    public void clicked(final int slotId, final int clickedButton, final ContainerInput mode, final Player playerIn)
     {
         if (slotId >= 0 && slotId < brewingStandInventory.getSlots())
         {
-            if (mode == ClickType.PICKUP
-                  || mode == ClickType.PICKUP_ALL
-                  || mode == ClickType.SWAP
-                  || mode == ClickType.QUICK_MOVE)
+            if (mode == ContainerInput.PICKUP
+                  || mode == ContainerInput.PICKUP_ALL
+                  || mode == ContainerInput.SWAP
+                  || mode == ContainerInput.QUICK_MOVE)
             {
                 final Slot slot = this.slots.get(slotId);
                 handleSlotClick(slot, this.getCarried());
@@ -336,12 +336,12 @@ public class ContainerCraftingBrewingstand extends AbstractContainerMenu
                 return ItemStack.EMPTY;
             }
 
-            if (getWorldObj().potionBrewing().isIngredient(stack))
+            if (getWorldObj().recipeAccess().propertySet(net.minecraft.world.item.crafting.RecipePropertySet.BREWING_REAGENTS).test(stack))
             {
                 setInput(stack);
                 return ItemStack.EMPTY;
             }
-            else if (getWorldObj().potionBrewing().isInput(stack) && stack.getCount() == 1)
+            else if (net.minecraft.world.item.crafting.PotionIngredient.isPotionInput(stack, getWorldObj().recipeAccess()) && stack.getCount() == 1)
             {
                 setContainer(stack);
                 return ItemStack.EMPTY;

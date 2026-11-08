@@ -19,7 +19,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
 import com.ldtteam.shim.neoforge.items.SlotItemHandler;
 import org.jetbrains.annotations.NotNull;
@@ -260,7 +259,7 @@ public class ContainerCitizenInventory extends AbstractContainerMenu
             @Override
             public boolean mayPlace(final @NotNull ItemStack stack)
             {
-                if (stack.getItem() instanceof ArmorItem armorItem && armorItem.getEquipmentSlot() == equipmentSlot)
+                if (com.minecolonies.api.util.ItemStackUtils.getArmorSlot(stack) == equipmentSlot)
                 {
                     for (final GuardGear gear : guardGear)
                     {
@@ -275,7 +274,7 @@ public class ContainerCitizenInventory extends AbstractContainerMenu
             }
 
             @Override
-            public Pair<Identifier, Identifier> getNoItemIcon()
+            public Identifier getNoItemIcon()
             {
                 final Identifier icon = switch (equipmentSlot)
                 {
@@ -285,7 +284,7 @@ public class ContainerCitizenInventory extends AbstractContainerMenu
                     case FEET -> InventoryMenu.EMPTY_ARMOR_SLOT_BOOTS;
                     default -> null;
                 };
-                return icon == null ? null : Pair.of(InventoryMenu.BLOCK_ATLAS, icon);
+                return icon;
             }
         });
     }

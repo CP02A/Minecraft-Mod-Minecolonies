@@ -1,1 +1,7 @@
 classTweaker v1 official
+
+# blockui: BOGuiGraphics subclasses the pose-stack constructor of GuiGraphicsExtractor
+accessible method net/minecraft/client/gui/GuiGraphicsExtractor <init> (Lnet/minecraft/client/Minecraft;Lorg/joml/Matrix3x2fStack;Lnet/minecraft/client/renderer/state/gui/GuiRenderState;II)V
+# blockui: OutOfJarResourceLocation extends Identifier
+extendable class net/minecraft/resources/Identifier
+extendable method net/minecraft/resources/Identifier <init> (Ljava/lang/String;Ljava/lang/String;)V

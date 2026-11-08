@@ -288,8 +288,10 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
 
 
     @Override
-    public void onLoad()
+    public void setLevel(final net.minecraft.world.level.Level level)
     {
+        // Former NeoForge BlockEntity#onLoad.
+        super.setLevel(level);
         if (building != null)
         {
             building.setTileEntity(null);

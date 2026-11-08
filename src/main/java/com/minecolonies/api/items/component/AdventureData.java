@@ -31,13 +31,13 @@ public record AdventureData(EntityType<?> entityType, float damage, int xp)
 
     public void writeToItemStack(final ItemStack itemStack)
     {
-        itemStack.set(ModDataComponents.ADVENTURE_COMPONENT, this);
+        itemStack.set(ModDataComponents.ADVENTURE_COMPONENT.get(), this);
     }
 
     @Nullable
     public static AdventureData readFromItemStack(final ItemStack itemStack)
     {
-        return itemStack.get(ModDataComponents.ADVENTURE_COMPONENT);
+        return itemStack.get(ModDataComponents.ADVENTURE_COMPONENT.get());
     }
 
     public static void updateItemStack(final ItemStack itemStack, final UnaryOperator<AdventureData> updater)

@@ -75,7 +75,7 @@ public class BlockMinecoloniesGrave extends AbstractBlockMinecoloniesGrave<Block
     }
 
     @Override
-    public boolean propagatesSkylightDown(final BlockState state, @NotNull final BlockGetter reader, @NotNull final BlockPos pos)
+    protected boolean propagatesSkylightDown(final BlockState state)
     {
         return false;
     }
@@ -159,7 +159,7 @@ public class BlockMinecoloniesGrave extends AbstractBlockMinecoloniesGrave<Block
             final TileEntityGrave grave = (TileEntityGrave) tileEntity;
             if (!worldIn.isClientSide())
             {
-                ((ServerPlayer) player).openMenu(grave, buf -> buf.writeBlockPos(grave.getBlockPos()));
+                com.ldtteam.shim.neoforge.common.extensions.IMenuTypeExtension.openMenu((ServerPlayer) player, grave, buf -> buf.writeBlockPos(grave.getBlockPos()));
             }
             return InteractionResult.SUCCESS;
         }
@@ -198,23 +198,5 @@ public class BlockMinecoloniesGrave extends AbstractBlockMinecoloniesGrave<Block
         return new TileEntityGrave(blockPos, blockState);
     }
 
-    @Override
-    public void onRemove(BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos, BlockState newState, boolean isMoving)
-    {
-        if (state.getBlock() != newState.getBlock())
-        {
-            BlockEntity tileEntity = worldIn.getBlockEntity(pos);
-            if (tileEntity instanceof TileEntityGrave tileEntityGrave)
-            {
-                InventoryUtils.dropItemHandler(tileEntityGrave.getInventory(),
-                    worldIn,
-                    tileEntityGrave.getBlockPos().getX(),
-                    tileEntityGrave.getBlockPos().getY(),
-                    tileEntityGrave.getBlockPos().getZ());
-                worldIn.updateNeighbourForOutputSignal(pos, this);
-            }
-
-            super.onRemove(state, worldIn, pos, newState, isMoving);
-        }
-    }
+    // FABRIC-PORT: removal side effects (inventory drop / connection cleanup) moved to the block entity's preRemoveSideEffects.
 }

@@ -3,7 +3,6 @@ package com.minecolonies.api.client;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import com.ldtteam.shim.neoforge.client.event.RegisterKeyMappingsEvent;
-import com.ldtteam.shim.neoforge.client.settings.KeyConflictContext;
 import com.ldtteam.shim.neoforge.common.util.Lazy;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,13 +11,15 @@ import org.jetbrains.annotations.NotNull;
  */
 public class ModKeyMappings
 {
-    private static final String CATEGORY = "key.minecolonies.categories.general";
+    // FABRIC-PORT: 26.x key categories are registered records (translation key derived from the id).
+    private static final Lazy<KeyMapping.Category> CATEGORY =
+      Lazy.of(() -> KeyMapping.Category.register(net.minecraft.resources.Identifier.fromNamespaceAndPath("minecolonies", "general")));
 
     /**
      * Toggle
      */
     public static final Lazy<KeyMapping> TOGGLE_GOGGLES = Lazy.of(() -> new KeyMapping("key.minecolonies.toggle_goggles",
-            KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), CATEGORY));
+            InputConstants.Type.KEYBOARD, InputConstants.UNKNOWN.getValue(), CATEGORY.get()));
 
     /**
      * Register key mappings

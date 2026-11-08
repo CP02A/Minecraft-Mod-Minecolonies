@@ -20,7 +20,7 @@ public class ModParticleTypesInitializer
     /**
      * Particle type
      */
-    public static final SimpleParticleType SLEEPINGPARTICLE_TYPE = new SimpleParticleType(true);
+    public static final SimpleParticleType SLEEPINGPARTICLE_TYPE = net.fabricmc.fabric.api.particle.v1.FabricParticleTypes.simple(true);
     public static final Identifier  SLEEPING_TEXTURE      = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "particle/sleeping");
 
     /**

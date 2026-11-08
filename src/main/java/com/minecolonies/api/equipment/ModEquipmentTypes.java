@@ -20,7 +20,10 @@ import com.ldtteam.shim.neoforge.common.ItemAbility;
 import com.ldtteam.shim.neoforge.registries.DeferredHolder;
 import com.ldtteam.shim.neoforge.registries.DeferredRegister;
 
+import java.util.Optional;
 import java.util.Set;
+import net.minecraft.core.component.DataComponents;
+import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 
 /**
@@ -104,7 +107,7 @@ public class ModEquipmentTypes
         crossbow = register("crossbow",
             builder -> builder.setDisplayName(Component.translatable(ToolTranslationConstants.TOOL_TYPE_CROSSBOW))
                 .setIsEquipment((itemStack, equipmentType) -> itemStack.getItem() instanceof CrossbowItem)
-                .setEquipmentLevel((itemStack, equipmentType) -> durabilityBasedLevel(itemStack, Items.CROSSBOW.getMaxDamage(itemStack)))
+                .setEquipmentLevel((itemStack, equipmentType) -> durabilityBasedLevel(itemStack, Items.CROSSBOW.getDefaultInstance().getMaxDamage()))
                 .build());
 
         fishing_rod = register("rod",
@@ -127,25 +130,25 @@ public class ModEquipmentTypes
 
         helmet = register("helmet",
           builder -> builder.setDisplayName(Component.translatable(ToolTranslationConstants.TOOL_TYPE_HELMET))
-                       .setIsEquipment((itemStack, equipmentType) -> itemStack.getItem() instanceof ArmorItem armor && EquipmentSlot.HEAD.equals(armor.getEquipmentSlot()))
+                       .setIsEquipment((itemStack, equipmentType) -> EquipmentSlot.HEAD.equals(ItemStackUtils.getArmorSlot(itemStack)))
                        .setEquipmentLevel((itemStack, equipmentType) -> Compatibility.getItemLevel(itemStack))
                   .build());
 
         leggings = register("leggings",
           builder -> builder.setDisplayName(Component.translatable(ToolTranslationConstants.TOOL_TYPE_LEGGINGS))
-                       .setIsEquipment((itemStack, equipmentType) -> itemStack.getItem() instanceof ArmorItem armor && EquipmentSlot.LEGS.equals(armor.getEquipmentSlot()))
+                       .setIsEquipment((itemStack, equipmentType) -> EquipmentSlot.LEGS.equals(ItemStackUtils.getArmorSlot(itemStack)))
                        .setEquipmentLevel((itemStack, equipmentType) -> Compatibility.getItemLevel(itemStack))
                   .build());
 
         chestplate = register("chestplate",
           builder -> builder.setDisplayName(Component.translatable(ToolTranslationConstants.TOOL_TYPE_CHEST_PLATE))
-                       .setIsEquipment((itemStack, equipmentType) -> itemStack.getItem() instanceof ArmorItem armor && EquipmentSlot.CHEST.equals(armor.getEquipmentSlot()))
+                       .setIsEquipment((itemStack, equipmentType) -> EquipmentSlot.CHEST.equals(ItemStackUtils.getArmorSlot(itemStack)))
                        .setEquipmentLevel((itemStack, equipmentType) -> Compatibility.getItemLevel(itemStack))
                   .build());
 
         boots = register("boots",
           builder -> builder.setDisplayName(Component.translatable(ToolTranslationConstants.TOOL_TYPE_BOOTS))
-                       .setIsEquipment((itemStack, equipmentType) -> itemStack.getItem() instanceof ArmorItem armor && EquipmentSlot.FEET.equals(armor.getEquipmentSlot()))
+                       .setIsEquipment((itemStack, equipmentType) -> EquipmentSlot.FEET.equals(ItemStackUtils.getArmorSlot(itemStack)))
                        .setEquipmentLevel((itemStack, equipmentType) -> Compatibility.getItemLevel(itemStack))
                   .build());
 
@@ -164,7 +167,7 @@ public class ModEquipmentTypes
         spear = register("spear",
           builder -> builder.setDisplayName(Component.translatable(ToolTranslationConstants.TOOL_TYPE_SPEAR))
                       .setIsEquipment((itemStack, equipmentType) -> itemStack.is(ModItems.spear))
-                      .setEquipmentLevel((itemStack, equipmentType) -> durabilityBasedLevel(itemStack, ModItems.spear.getMaxDamage(itemStack)))
+                      .setEquipmentLevel((itemStack, equipmentType) -> durabilityBasedLevel(itemStack, ModItems.spear.getDefaultInstance().getMaxDamage()))
                   .build());
 
     }
@@ -231,6 +234,39 @@ public class ModEquipmentTypes
      * Called once during FMLCommonSetupEvent via MineColonies.preInit.
      */
     @SuppressWarnings("null")
+    /**
+     * FABRIC-PORT: TieredItem was removed in 26.x; the vanilla tool material of a tool/weapon is derived from its repair tag.
+     *
+     * @param stack the stack.
+     * @return the matching vanilla tool material or null.
+     */
+    @Nullable
+    private static ToolMaterial toolMaterialOf(final ItemStack stack)
+    {
+        if (!stack.has(DataComponents.TOOL) && !stack.has(DataComponents.WEAPON))
+        {
+            return null;
+        }
+        final net.minecraft.world.item.enchantment.Repairable repairable = stack.get(DataComponents.REPAIRABLE);
+        if (repairable == null)
+        {
+            return null;
+        }
+        final Optional<net.minecraft.tags.TagKey<Item>> repairTag = repairable.items().unwrapKey();
+        if (repairTag.isEmpty())
+        {
+            return null;
+        }
+        for (final ToolMaterial material : new ToolMaterial[] {ToolMaterial.WOOD, ToolMaterial.STONE, ToolMaterial.COPPER, ToolMaterial.IRON, ToolMaterial.DIAMOND, ToolMaterial.GOLD, ToolMaterial.NETHERITE})
+        {
+            if (material.repairItems().equals(repairTag.get()))
+            {
+                return material;
+            }
+        }
+        return null;
+    }
+
     public static void initRegisterEquipmentTiers()
     {
         int bowRef    = 0;
@@ -260,11 +296,12 @@ public class ModEquipmentTypes
             {
                 final ItemStack dummy = new ItemStack(item);
 
-                if (item instanceof final TieredItem tiered)
+                final ToolMaterial material = toolMaterialOf(dummy);
+                if (material != null)
                 {
-                    Compatibility.registerItemTierIfAbsent(item, tiered.getTier(), (int) tiered.getTier().getAttackDamageBonus());
+                    Compatibility.registerItemTierIfAbsent(item, material, (int) material.attackDamageBonus());
                 }
-                else if (item instanceof ArmorItem)
+                else if (ItemStackUtils.isArmor(dummy))
                 {
                     final int level = ItemStackUtils.getArmorLevel(dummy);
                     if (level > 0)
@@ -311,7 +348,7 @@ public class ModEquipmentTypes
     {
         for (final ItemAbility toolAction : actions)
         {
-            if (!itemStack.canPerformAction(toolAction))
+            if (!ItemAbilities.canPerformAction(itemStack, toolAction))
             {
                 return false;
             }

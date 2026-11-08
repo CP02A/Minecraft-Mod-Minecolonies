@@ -140,7 +140,7 @@ public abstract class AbstractAdvancedPathNavigate extends GroundPathNavigation
     protected abstract PathResult<? extends IPathJob> walkToRandomPos(
       final int range,
       final double speed,
-      final net.minecraft.util.Tuple<BlockPos, BlockPos> corners);
+      final com.minecolonies.api.util.Tuple<BlockPos, BlockPos> corners);
 
     /**
      * Used to path towards a random pos within some restrictions
@@ -153,7 +153,7 @@ public abstract class AbstractAdvancedPathNavigate extends GroundPathNavigation
     protected abstract PathResult<PathJobRandomPos> walkToRandomPos(
         final int range,
         final double speed,
-        final net.minecraft.util.Tuple<BlockPos, BlockPos> corners, final boolean preferInside);
+        final com.minecolonies.api.util.Tuple<BlockPos, BlockPos> corners, final boolean preferInside);
 
     /**
      * Used to find a tree.

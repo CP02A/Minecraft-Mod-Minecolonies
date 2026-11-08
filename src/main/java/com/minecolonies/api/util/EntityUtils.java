@@ -65,7 +65,7 @@ public final class EntityUtils
     @NotNull
     public static Player getPlayerOfFakePlayer(@NotNull final Player player, @NotNull final Level world)
     {
-        if (player instanceof FakePlayer)
+        if (FakePlayer.isFake(player))
         {
             final Player tempPlayer = world.getPlayerByUUID(player.getUUID());
             if (tempPlayer != null)

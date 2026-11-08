@@ -31,12 +31,12 @@ public record PatrolTarget(BlockPos pos)
 
     public void writeToItemStack(final ItemStack itemStack)
     {
-        itemStack.set(ModDataComponents.PATROL_TARGET, this);
+        itemStack.set(ModDataComponents.PATROL_TARGET.get(), this);
     }
 
     public static PatrolTarget readFromItemStack(final ItemStack itemStack)
     {
-        return itemStack.getOrDefault(ModDataComponents.PATROL_TARGET, PatrolTarget.EMPTY);
+        return itemStack.getOrDefault(ModDataComponents.PATROL_TARGET.get(), PatrolTarget.EMPTY);
     }
 
     public static void updateItemStack(final ItemStack itemStack, final UnaryOperator<PatrolTarget> updater)

@@ -115,6 +115,7 @@ public class MineColoniesFabric implements ModInitializer
         // 6. Game event bridges (Fabric callbacks / mixins -> NeoForge.EVENT_BUS) and loot modifiers.
         ShimGameEvents.init();
         ShimLoot.init();
+        com.ldtteam.shim.fabric.ShimItemHooks.init();
 
         // 26.x no longer syncs recipes to clients: request the ones the client UIs look up.
         RecipeSynchronization.synchronizeRecipeSerializer(ShapedRecipe.SERIALIZER);

@@ -319,4 +319,15 @@ public class EntityNavigationUtils
         return false;
     }
 
+
+    /**
+     * Convert a Structurize corner tuple to the MineColonies tuple type.
+     *
+     * @param tuple the structurize tuple.
+     * @return the same corners as MineColonies tuple.
+     */
+    public static com.minecolonies.api.util.Tuple<BlockPos, BlockPos> toApiTuple(final com.ldtteam.structurize.api.Tuple<BlockPos, BlockPos> tuple)
+    {
+        return new com.minecolonies.api.util.Tuple<>(tuple.getA(), tuple.getB());
+    }
 }

@@ -61,7 +61,7 @@ public class ThreatTable<T extends LivingEntity & IThreatTableEntity>
      */
     public void addThreat(final LivingEntity attacker, final int additionalThreat)
     {
-        if (attacker instanceof FakePlayer)
+        if (FakePlayer.isFake(attacker))
         {
             return;
         }

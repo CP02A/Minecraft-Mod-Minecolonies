@@ -44,7 +44,7 @@ public class CitizenMournHandler implements ICitizenMournHandler
         final ListTag tag = compound.getListOrEmpty(TAG_DECEASED);
         for (int i = 0; i < tag.size(); i++)
         {
-            deceasedCitizens.add(tag.getString(i));
+            deceasedCitizens.add(tag.getStringOr(i, ""));
         }
     }
 

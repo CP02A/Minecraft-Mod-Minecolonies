@@ -22,6 +22,30 @@ import java.util.stream.Collectors;
  */
 public final class CraftingUtils
 {
+    /**
+     * FABRIC-PORT: replacement for the removed 1.21.1 {@code RecipeManager#getAllRecipesFor(RecipeType)}.
+     *
+     * @param recipeManager the (server) recipe manager.
+     * @param type          the recipe type.
+     * @param <T>           the recipe class.
+     * @return all recipes of that type.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T extends net.minecraft.world.item.crafting.Recipe<?>> List<net.minecraft.world.item.crafting.RecipeHolder<T>> getAllRecipesFor(
+      final net.minecraft.world.item.crafting.RecipeManager recipeManager,
+      final net.minecraft.world.item.crafting.RecipeType<T> type)
+    {
+        final List<net.minecraft.world.item.crafting.RecipeHolder<T>> result = new ArrayList<>();
+        for (final net.minecraft.world.item.crafting.RecipeHolder<?> holder : recipeManager.getRecipes())
+        {
+            if (holder.value().getType() == type)
+            {
+                result.add((net.minecraft.world.item.crafting.RecipeHolder<T>) holder);
+            }
+        }
+        return result;
+    }
+
 
     private CraftingUtils()
     {

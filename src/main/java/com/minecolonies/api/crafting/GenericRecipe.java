@@ -22,6 +22,8 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
+import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -336,19 +338,73 @@ public class GenericRecipe implements IGenericRecipe
      * @param world the world.
      * @return the recipe, or null.
      */
+    /**
+     * FABRIC-PORT: replacement for the removed 1.21.1 {@code Recipe#getIngredients()} (empty optionals mark empty grid slots of shaped recipes).
+     *
+     * @param recipe the recipe.
+     * @return the ingredients.
+     */
+    @NotNull
+    public static List<Optional<Ingredient>> getRecipeIngredients(@NotNull final Recipe<?> recipe)
+    {
+        if (recipe instanceof final ShapedRecipe shaped)
+        {
+            return shaped.getIngredients();
+        }
+        final PlacementInfo placementInfo = recipe.placementInfo();
+        if (placementInfo.isImpossibleToPlace())
+        {
+            return List.of();
+        }
+        return placementInfo.ingredients().stream().map(Optional::of).toList();
+    }
+
+    /**
+     * FABRIC-PORT: replacement for the removed 1.21.1 {@code Recipe#getResultItem(RegistryAccess)}, resolved through the recipe display.
+     *
+     * @param recipe the recipe.
+     * @param world  the world.
+     * @return the result stack (EMPTY if unknown).
+     */
+    @NotNull
+    public static ItemStack getRecipeResult(@NotNull final Recipe<?> recipe, @NotNull final Level world)
+    {
+        final List<net.minecraft.world.item.crafting.display.RecipeDisplay> displays = recipe.display();
+        if (displays.isEmpty())
+        {
+            return ItemStack.EMPTY;
+        }
+        return displays.get(0).result().resolveForFirstStack(net.minecraft.world.item.crafting.display.SlotDisplayContext.fromLevel(world));
+    }
+
+    /**
+     * FABRIC-PORT: replacement for the removed 1.21.1 {@code Recipe#canCraftInDimensions(2, 2)}.
+     *
+     * @param recipe the recipe.
+     * @return true if it fits a 2x2 grid.
+     */
+    public static boolean fitsIn2x2(@NotNull final Recipe<?> recipe)
+    {
+        if (recipe instanceof final ShapedRecipe shaped)
+        {
+            return shaped.getWidth() <= 2 && shaped.getHeight() <= 2;
+        }
+        return recipe.placementInfo().ingredients().size() <= 4;
+    }
+
     @Nullable
     public static IGenericRecipe of(@Nullable final RecipeHolder<?> holder, @NotNull final Level world)
     {
         if (holder == null) return null;
 
         final Recipe<?> recipe = holder.value();
-        final List<List<ItemStack>> inputs = compactInputs(recipe.getIngredients().stream()
-                .map(ingredient -> Arrays.asList(ingredient.getItems()))
+        final List<List<ItemStack>> inputs = compactInputs(getRecipeIngredients(recipe).stream()
+                .map(ingredient -> ingredient.map(i -> Arrays.asList(ItemStackUtils.getIngredientItems(i))).orElseGet(List::of))
                 .toList());
 
         final Builder builder = builder()
-                .withRecipeId(holder.id())
-                .withOutput(recipe.getResultItem(world.registryAccess()))
+                .withRecipeId(holder.id().identifier())
+                .withOutput(getRecipeResult(recipe, world))
                 .withAdditionalOutputs(calculateSecondaryOutputs(recipe, world))
                 .withInputs(inputs);
 
@@ -358,7 +414,7 @@ public class GenericRecipe implements IGenericRecipe
         }
         else
         {
-            builder.withGridSize(recipe.canCraftInDimensions(2, 2) ? 2 : 3);
+            builder.withGridSize(fitsIn2x2(recipe) ? 2 : 3);
         }
 
         return builder.build();
@@ -510,7 +566,7 @@ public class GenericRecipe implements IGenericRecipe
     {
         if (recipe instanceof final CraftingRecipe craftingRecipe)
         {
-            final List<Ingredient> inputs = recipe.getIngredients();
+            final List<Optional<Ingredient>> inputs = getRecipeIngredients(recipe);
             final CraftingContainer inv = new TransientCraftingContainer(new AbstractContainerMenu(MenuType.CRAFTING, 0)
             {
                 @Override
@@ -528,7 +584,7 @@ public class GenericRecipe implements IGenericRecipe
             }, 3, 3);
             for (int slot = 0; slot < inputs.size(); ++slot)
             {
-                final ItemStack[] stacks = inputs.get(slot).getItems();
+                final ItemStack[] stacks = inputs.get(slot).map(ItemStackUtils::getIngredientItems).orElseGet(() -> new ItemStack[0]);
                 if (stacks.length > 0)
                 {
                     inv.setItem(slot, stacks[0].copy());

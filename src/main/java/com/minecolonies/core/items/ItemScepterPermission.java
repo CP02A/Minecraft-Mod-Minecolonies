@@ -52,7 +52,7 @@ public class ItemScepterPermission extends AbstractItemMinecolonies implements I
      */
     public ItemScepterPermission(final Item.Properties properties)
     {
-        super("scepterpermission", properties.stacksTo(1).durability(2).component(ModDataComponents.PERMISSION_MODE, PermissionMode.EMPTY));
+        super("scepterpermission", properties.stacksTo(1).durability(2).component(ModDataComponents.PERMISSION_MODE.get(), PermissionMode.EMPTY));
     }
 
     @NotNull
@@ -65,7 +65,7 @@ public class ItemScepterPermission extends AbstractItemMinecolonies implements I
         final BlockState blockState = iColonyView.getWorld().getBlockState(pos);
         final Block block = blockState.getBlock();
 
-        final ChangeFreeToInteractBlockMessage.MessageType type = Screen.hasControlDown()
+        final ChangeFreeToInteractBlockMessage.MessageType type = net.minecraft.client.Minecraft.getInstance().hasControlDown()
                 ? ChangeFreeToInteractBlockMessage.MessageType.REMOVE_BLOCK
                 : ChangeFreeToInteractBlockMessage.MessageType.ADD_BLOCK;
         final ChangeFreeToInteractBlockMessage message = new ChangeFreeToInteractBlockMessage(
@@ -84,7 +84,7 @@ public class ItemScepterPermission extends AbstractItemMinecolonies implements I
       final BlockPos pos,
       final IColonyView iColonyView)
     {
-        final ChangeFreeToInteractBlockMessage.MessageType type = Screen.hasControlDown()
+        final ChangeFreeToInteractBlockMessage.MessageType type = net.minecraft.client.Minecraft.getInstance().hasControlDown()
                 ? ChangeFreeToInteractBlockMessage.MessageType.REMOVE_BLOCK
                 : ChangeFreeToInteractBlockMessage.MessageType.ADD_BLOCK;
         final ChangeFreeToInteractBlockMessage message = new ChangeFreeToInteractBlockMessage(iColonyView, pos, type);
@@ -171,18 +171,18 @@ public class ItemScepterPermission extends AbstractItemMinecolonies implements I
         {
             case BLOCK:
                 final Set<Block> freeBlocks = new HashSet<>(colony.getFreeBlocks());
-                for (final BlockPos pos : BlockPos.withinManhattan(player.blockPosition(), BLOCK_OVERLAY_RANGE_XZ, BLOCK_OVERLAY_RANGE_Y, BLOCK_OVERLAY_RANGE_XZ))
+                for (final BlockPos pos : BlockPos.betweenClosed(player.blockPosition().offset(-BLOCK_OVERLAY_RANGE_XZ, -BLOCK_OVERLAY_RANGE_Y, -BLOCK_OVERLAY_RANGE_XZ), player.blockPosition().offset(BLOCK_OVERLAY_RANGE_XZ, BLOCK_OVERLAY_RANGE_Y, BLOCK_OVERLAY_RANGE_XZ)))
                 {
                     if (world.isLoaded(pos) && freeBlocks.contains(world.getBlockState(pos).getBlock()))
                     {
-                        boxes.add(new OverlayBox(pos, GREEN_OVERLAY, 0.02f, true));
+                        boxes.add(new OverlayBox(pos.immutable(), GREEN_OVERLAY, 0.02f, true));
                     }
                 }
                 break;
             case LOCATION:
                 for (final BlockPos pos : colony.getFreePositions())
                 {
-                    boxes.add(new OverlayBox(pos, GREEN_OVERLAY, 0.02f, true));
+                    boxes.add(new OverlayBox(pos.immutable(), GREEN_OVERLAY, 0.02f, true));
                 }
                 break;
         }

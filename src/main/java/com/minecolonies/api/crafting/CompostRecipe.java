@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 public class CompostRecipe implements Recipe<SingleRecipeInput>
 {
     public static final MapCodec<CompostRecipe> CODEC = RecordCodecBuilder.mapCodec(builder -> builder
-        .group(Ingredient.CODEC_NONEMPTY.fieldOf("input").forGetter(CompostRecipe::getInput),
+        .group(Ingredient.CODEC.fieldOf("input").forGetter(CompostRecipe::getInput),
           ExtraCodecs.POSITIVE_INT.optionalFieldOf("strength", 1).forGetter(CompostRecipe::getStrength))
         .apply(builder, CompostRecipe::new));
 
@@ -35,6 +35,11 @@ public class CompostRecipe implements Recipe<SingleRecipeInput>
                     Ingredient.CONTENTS_STREAM_CODEC, CompostRecipe::getInput,
                     ByteBufCodecs.VAR_INT, CompostRecipe::getStrength,
                     CompostRecipe::new);
+
+    /**
+     * FABRIC-PORT: 26.x recipe serializers are plain records.
+     */
+    public static final RecipeSerializer<CompostRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
 
     private static final int FERMENT_TIME = 24000;
     private static final int COMPOST_RESULT = 6;
@@ -52,7 +57,7 @@ public class CompostRecipe implements Recipe<SingleRecipeInput>
 
     @NotNull
     @Override
-    public RecipeType<?> getType() { return ModRecipeSerializer.CompostRecipeType.get(); }
+    public RecipeType<CompostRecipe> getType() { return ModRecipeSerializer.CompostRecipeType.get(); }
 
     /**
      * Get the input ingredient for this recipe (this is multiple alternative item types).
@@ -86,29 +91,55 @@ public class CompostRecipe implements Recipe<SingleRecipeInput>
 
     @NotNull
     @Override
-    public ItemStack assemble(@NotNull final SingleRecipeInput input, @NotNull final HolderLookup.Provider provider)
+    public ItemStack assemble(@NotNull final SingleRecipeInput input)
     {
         return this.output.copy();
     }
 
-    @Override
-    public boolean canCraftInDimensions(final int width, final int height)
-    {
-        return true;
-    }
-
     @NotNull
-    @Override
     public ItemStack getResultItem(@Nullable final HolderLookup.Provider provider)
     {
         return this.output;
     }
 
+    @Override
+    public boolean isSpecial()
+    {
+        return true;
+    }
+
+    @Override
+    public boolean showNotification()
+    {
+        return false;
+    }
+
     @NotNull
     @Override
-    public RecipeSerializer<?> getSerializer()
+    public String group()
     {
-        return ModRecipeSerializer.CompostRecipeSerializer.get();
+        return "";
+    }
+
+    @NotNull
+    @Override
+    public PlacementInfo placementInfo()
+    {
+        return PlacementInfo.NOT_PLACEABLE;
+    }
+
+    @NotNull
+    @Override
+    public RecipeBookCategory recipeBookCategory()
+    {
+        return RecipeBookCategories.CRAFTING_MISC;
+    }
+
+    @NotNull
+    @Override
+    public RecipeSerializer<CompostRecipe> getSerializer()
+    {
+        return SERIALIZER;
     }
 
     /**
@@ -118,7 +149,6 @@ public class CompostRecipe implements Recipe<SingleRecipeInput>
      * @return The list of input ingredients.
      */
     @NotNull
-    @Override
     public NonNullList<Ingredient> getIngredients()
     {
         final NonNullList<Ingredient> ingredients = NonNullList.create();
@@ -137,22 +167,5 @@ public class CompostRecipe implements Recipe<SingleRecipeInput>
     public static CompostRecipe individualize(@NotNull final Item item, @NotNull final RecipeHolder<CompostRecipe> recipe)
     {
         return new CompostRecipe(Ingredient.of(item), recipe.value().getStrength());
-    }
-
-    public static class Serializer implements RecipeSerializer<CompostRecipe>
-    {
-        @NotNull
-        @Override
-        public MapCodec<CompostRecipe> codec()
-        {
-            return CompostRecipe.CODEC;
-        }
-
-        @NotNull
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, CompostRecipe> streamCodec()
-        {
-            return CompostRecipe.STREAM_CODEC;
-        }
     }
 }

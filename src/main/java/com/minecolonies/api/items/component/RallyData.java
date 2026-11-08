@@ -48,12 +48,12 @@ public record RallyData(List<BlockPos> towers, boolean active)
 
     public void writeToItemStack(final ItemStack itemStack)
     {
-        itemStack.set(ModDataComponents.RALLY_COMPONENT, this);
+        itemStack.set(ModDataComponents.RALLY_COMPONENT.get(), this);
     }
 
     public static RallyData readFromItemStack(final ItemStack itemStack)
     {
-        return itemStack.getOrDefault(ModDataComponents.RALLY_COMPONENT, RallyData.EMPTY);
+        return itemStack.getOrDefault(ModDataComponents.RALLY_COMPONENT.get(), RallyData.EMPTY);
     }
 
     public static void updateItemStack(final ItemStack itemStack, final UnaryOperator<RallyData> updater)

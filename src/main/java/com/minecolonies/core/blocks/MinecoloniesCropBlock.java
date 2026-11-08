@@ -87,7 +87,7 @@ public class MinecoloniesCropBlock extends AbstractBlockMinecolonies<Minecolonie
      */
     public MinecoloniesCropBlock(final String blockName, final Block preferredFarmland, final List<Block> droppedFrom, @Nullable final TagKey<Biome> preferredBiome)
     {
-        super(BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).noCollission().instabreak().sound(SoundType.CROP).pushReaction(PushReaction.DESTROY));
+        super(BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).noCollision().instabreak().sound(SoundType.CROP).pushReaction(PushReaction.POPPED));
         this.registerDefaultState(this.stateDefinition.any().setValue(AGE, 0));
         this.blockId = Identifier.fromNamespaceAndPath(Constants.MOD_ID, blockName);
         this.preferredFarmland = preferredFarmland;
@@ -129,7 +129,7 @@ public class MinecoloniesCropBlock extends AbstractBlockMinecolonies<Minecolonie
      */
     public void attemptGrow(BlockState state, ServerLevel level, BlockPos pos)
     {
-        if (level.isAreaLoaded(pos, 1))
+        if (level.hasChunksAt(pos.offset(-1, -1, -1), pos.offset(1, 1, 1)))
         {
             if (level.getRawBrightness(pos, 0) >= 9)
             {
@@ -197,13 +197,13 @@ public class MinecoloniesCropBlock extends AbstractBlockMinecolonies<Minecolonie
 
     @NotNull
     @Override
-    public BlockState updateShape(BlockState state, @NotNull Direction dir, @NotNull BlockState newState, @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos)
+    public BlockState updateShape(final BlockState state, final net.minecraft.world.level.LevelReader level, final net.minecraft.world.level.ScheduledTickAccess scheduledTickAccess, final BlockPos pos, final Direction dir, final BlockPos neighborPos, final BlockState newState, final net.minecraft.util.RandomSource randomSource)
     {
-        return !state.canSurvive(level, pos) ? Blocks.AIR.defaultBlockState() : super.updateShape(state, dir, newState, level, pos, neighborPos);
+        return !state.canSurvive(level, pos) ? Blocks.AIR.defaultBlockState() : super.updateShape(state, level, scheduledTickAccess, pos, dir, neighborPos, newState, randomSource);
     }
 
     @Override
-    public boolean propagatesSkylightDown(BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos)
+    protected boolean propagatesSkylightDown(final BlockState state)
     {
         return state.getFluidState().isEmpty();
     }

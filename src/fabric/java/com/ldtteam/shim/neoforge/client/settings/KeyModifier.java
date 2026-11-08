@@ -4,7 +4,6 @@ package com.ldtteam.shim.neoforge.client.settings;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 /**
  * Key modifiers. Vanilla/Fabric key mappings do not support modifiers; this only offers the query helpers.
@@ -17,8 +16,8 @@ public enum KeyModifier
           public boolean matches(final InputConstants.Key key)
           {
               final int keyCode = key.getValue();
-              return keyCode == GLFW.GLFW_KEY_LEFT_CONTROL || keyCode == GLFW.GLFW_KEY_RIGHT_CONTROL
-                       || keyCode == GLFW.GLFW_KEY_LEFT_SUPER || keyCode == GLFW.GLFW_KEY_RIGHT_SUPER;
+              return keyCode == InputConstants.KEY_LCONTROL || keyCode == InputConstants.KEY_RCONTROL
+;
           }
 
           @Override
@@ -32,7 +31,7 @@ public enum KeyModifier
           @Override
           public boolean matches(final InputConstants.Key key)
           {
-              return key.getValue() == GLFW.GLFW_KEY_LEFT_SHIFT || key.getValue() == GLFW.GLFW_KEY_RIGHT_SHIFT;
+              return key.getValue() == InputConstants.KEY_LSHIFT || key.getValue() == InputConstants.KEY_RSHIFT;
           }
 
           @Override
@@ -46,7 +45,7 @@ public enum KeyModifier
           @Override
           public boolean matches(final InputConstants.Key key)
           {
-              return key.getValue() == GLFW.GLFW_KEY_LEFT_ALT || key.getValue() == GLFW.GLFW_KEY_RIGHT_ALT;
+              return key.getValue() == InputConstants.KEY_LALT || key.getValue() == InputConstants.KEY_RALT;
           }
 
           @Override

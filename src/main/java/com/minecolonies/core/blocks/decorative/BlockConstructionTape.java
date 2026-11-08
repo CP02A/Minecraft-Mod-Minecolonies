@@ -35,7 +35,6 @@ import net.minecraft.core.Direction.Plane;
  */
 public class BlockConstructionTape extends AbstractBlockMinecoloniesConstructionTape<BlockConstructionTape>
 {
-    public static final MapCodec<BlockConstructionTape> CODEC = simpleCodec(BlockConstructionTape::new);
 
     /**
      * This blocks name.
@@ -51,10 +50,10 @@ public class BlockConstructionTape extends AbstractBlockMinecoloniesConstruction
                 .mapColor(MapColor.PLANT)
                 .sound(SoundType.WOOD)
                 .replaceable()
-                .pushReaction(PushReaction.DESTROY)
+                .pushReaction(PushReaction.POPPED)
                 .isRedstoneConductor((state, getter, pos) -> false)
                 .forceSolidOff()
-                .strength(0.0f).noCollission().noLootTable());
+                .strength(0.0f).noCollision().noLootTable());
     }
 
     public BlockConstructionTape(final Properties properties)
@@ -72,12 +71,6 @@ public class BlockConstructionTape extends AbstractBlockMinecoloniesConstruction
                 .setValue(WATERLOGGED, false)
                 .setValue(CORNER, false)
         );
-    }
-
-    @Override
-    protected MapCodec<BlockConstructionTape> codec()
-    {
-        return CODEC;
     }
 
     @Override
@@ -110,21 +103,15 @@ public class BlockConstructionTape extends AbstractBlockMinecoloniesConstruction
 
     @NotNull
     @Override
-    public BlockState updateShape(
-      @NotNull final BlockState stateIn,
-      final Direction dir,
-      final BlockState state,
-      final LevelAccessor worldIn,
-      @NotNull final BlockPos currentPos,
-      final BlockPos pos)
+    public BlockState updateShape(final BlockState stateIn, final net.minecraft.world.level.LevelReader worldIn, final net.minecraft.world.level.ScheduledTickAccess scheduledTickAccess, final BlockPos currentPos, final Direction dir, final BlockPos pos, final BlockState state, final net.minecraft.util.RandomSource randomSource)
     {
         if (stateIn.getValue(WATERLOGGED))
         {
-            worldIn.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(worldIn));
+            scheduledTickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(worldIn));
         }
 
         return BlockConstructionTape.getPlacementState(
-          super.updateShape(stateIn, dir, state, worldIn, currentPos, pos), worldIn, currentPos, stateIn.getValue(FACING)
+          super.updateShape(stateIn, worldIn, scheduledTickAccess, currentPos, dir, pos, state, randomSource), worldIn, currentPos, stateIn.getValue(FACING)
         );
     }
 
@@ -246,7 +233,7 @@ public class BlockConstructionTape extends AbstractBlockMinecoloniesConstruction
     }
 
     @Override
-    public boolean propagatesSkylightDown(final BlockState state, @NotNull final BlockGetter reader, @NotNull final BlockPos pos)
+    protected boolean propagatesSkylightDown(final BlockState state)
     {
         return true;
     }
@@ -263,5 +250,11 @@ public class BlockConstructionTape extends AbstractBlockMinecoloniesConstruction
     protected void createBlockStateDefinition(final StateDefinition.Builder<Block, BlockState> builder)
     {
         builder.add(NORTH, EAST, SOUTH, WEST, FACING, CORNER, WATERLOGGED);
+    }
+
+    @Override
+    public int getDustColor(final BlockState state, final net.minecraft.world.level.BlockGetter level, final BlockPos pos)
+    {
+        return -16777216;
     }
 }

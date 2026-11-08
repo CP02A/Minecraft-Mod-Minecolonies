@@ -27,7 +27,6 @@ import com.ldtteam.shim.neoforge.client.event.RenderGuiLayerEvent;
 import com.ldtteam.shim.neoforge.client.event.InputEvent.MouseScrollingEvent;
 import com.ldtteam.shim.neoforge.client.gui.VanillaGuiLayers;
 import com.ldtteam.shim.neoforge.event.TagsUpdatedEvent;
-import org.lwjgl.glfw.GLFW;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -64,8 +63,8 @@ public class ClientEventSubscriber
     {
         if (Minecraft.getInstance().hasAltDown() && Minecraft.getInstance().hasControlDown() && Minecraft.getInstance().hasShiftDown())
         {
-            if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow(), GLFW.GLFW_KEY_X) &&
-                !(Minecraft.getInstance().screen instanceof final BOScreen screen &&
+            if (InputConstants.isKeyDown(InputConstants.KEY_X) &&
+                !(Minecraft.getInstance().gui.screen() instanceof final BOScreen screen &&
                     screen.getWindow().getXmlResourceLocation().getPath().equals("test_gui")))
             {
                 final BOWindow window = new BOWindow(BlockUI.resLoc("test_gui"), false)
@@ -215,7 +214,7 @@ public class ClientEventSubscriber
     @SubscribeEvent
     public static void renderOverlay(final RenderGuiLayerEvent.Pre event)
     {
-        if (Minecraft.getInstance().screen instanceof BOScreen && event.getName().equals(VanillaGuiLayers.CROSSHAIR))
+        if (Minecraft.getInstance().gui.screen() instanceof BOScreen && event.getName().equals(VanillaGuiLayers.CROSSHAIR))
         {
             event.setCanceled(true);
         }

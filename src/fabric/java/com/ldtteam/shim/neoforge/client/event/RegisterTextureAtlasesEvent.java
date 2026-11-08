@@ -4,7 +4,7 @@ package com.ldtteam.shim.neoforge.client.event;
 import com.ldtteam.shim.bus.api.Event;
 import com.ldtteam.shim.fml.event.IModBusEvent;
 import net.fabricmc.fabric.api.client.rendering.v1.AtlasRegistry;
-import net.minecraft.client.resources.model.AtlasManager;
+import net.minecraft.client.resources.model.sprite.AtlasManager;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.metadata.MetadataSectionType;
 

@@ -111,7 +111,7 @@ public class SpearEntity extends ThrownTrident implements ICustomAttackSound
         this.dealtDamage = true;
         if (targetEntity.hurtOrSimulate(damageSource, damageAmount))
         {
-            if (targetEntity.getType() == EntityType.ENDERMAN)
+            if (targetEntity.getType() == net.minecraft.world.entity.EntityTypes.ENDERMAN)
             {
                 return;
             }
@@ -145,7 +145,7 @@ public class SpearEntity extends ThrownTrident implements ICustomAttackSound
         super.readAdditionalSaveData(valueInput);
         final CompoundTag nbt = com.minecolonies.core.entity.NbtValueIO.read(valueInput);
 
-        this.dealtDamage = nbt.getBoolean(NBT_DEALT_DAMAGE);
+        this.dealtDamage = nbt.getBooleanOr(NBT_DEALT_DAMAGE, false);
         }
 
     @Override
@@ -212,13 +212,13 @@ public class SpearEntity extends ThrownTrident implements ICustomAttackSound
     }
 
     @Override
-    public boolean save(@NotNull CompoundTag nbt)
+    public boolean save(final net.minecraft.world.level.storage.ValueOutput output)
     {
         return false;
     }
 
     @Override
-    public void load(@NotNull CompoundTag nbt)
+    public void load(final net.minecraft.world.level.storage.ValueInput input)
     {
         discard();
     }

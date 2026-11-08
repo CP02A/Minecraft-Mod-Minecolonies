@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.minecolonies.api.MinecoloniesAPIProxy;
 import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
-import com.minecolonies.api.compatibility.dynamictrees.DynamicTreeCompat;
 import com.minecolonies.api.compatibility.resourcefulbees.ResourcefulBeesCompat;
 import com.minecolonies.api.compatibility.tinkers.SlimeTreeCheck;
 import com.minecolonies.api.compatibility.tinkers.TinkersToolHelper;
@@ -271,26 +270,26 @@ public class CompatibilityManager implements ICompatibilityManager
       @NotNull final RegistryFriendlyByteBuf buf,
       @NotNull final Collection<ItemStorage> list)
     {
-        buf.writeCollection(list, (buffer, storage) -> StandardFactoryController.getInstance().serialize((RegistryFriendlyByteBuf) buffer, storage));
+        Utils.writeCollection(buf, list, (buffer, storage) -> StandardFactoryController.getInstance().serialize((RegistryFriendlyByteBuf) buffer, storage));
     }
 
     @NotNull
     private static List<ItemStorage> deserializeItemStorageList(@NotNull final RegistryFriendlyByteBuf buf)
     {
-        return buf.readList((buffer) -> StandardFactoryController.getInstance().deserialize((RegistryFriendlyByteBuf) buffer));
+        return Utils.readList(buf, (buffer) -> StandardFactoryController.getInstance().deserialize((RegistryFriendlyByteBuf) buffer));
     }
 
     private static void serializeBlockList(
       @NotNull final RegistryFriendlyByteBuf buf,
       @NotNull final Collection<Block> list)
     {
-        buf.writeCollection(list.stream().map(ItemStack::new).toList(), (b, stack) -> Utils.serializeCodecMess((RegistryFriendlyByteBuf) b, stack));
+        Utils.writeCollection(buf, list.stream().map(ItemStack::new).toList(), (b, stack) -> Utils.serializeCodecMess((RegistryFriendlyByteBuf) b, stack));
     }
 
     @NotNull
     private static List<Block> deserializeBlockList(@NotNull final RegistryFriendlyByteBuf buf)
     {
-        final List<ItemStack> stacks = buf.readList(b -> Utils.deserializeCodecMess((RegistryFriendlyByteBuf) b));
+        final List<ItemStack> stacks = Utils.readList(buf, b -> Utils.deserializeCodecMess((RegistryFriendlyByteBuf) b));
         return stacks.stream()
           .flatMap(stack -> stack.getItem() instanceof BlockItem blockItem
                               ? Stream.of(blockItem.getBlock()) : Stream.empty())
@@ -302,7 +301,7 @@ public class CompatibilityManager implements ICompatibilityManager
       @NotNull final Registry<?> registry,
       @NotNull final Collection<Identifier> ids)
     {
-        buf.writeCollection(ids, (b, id) -> b.writeIdentifier(id));
+        Utils.writeCollection(buf, ids, (b, id) -> b.writeIdentifier(id));
     }
 
     @NotNull
@@ -311,7 +310,7 @@ public class CompatibilityManager implements ICompatibilityManager
       @NotNull final RegistryFriendlyByteBuf buf,
       @NotNull final Registry<T> registry)
     {
-        return buf.readList(b -> b.readIdentifier());
+        return Utils.readList(buf, b -> b.readIdentifier());
     }
 
     private static final StreamCodec<RegistryFriendlyByteBuf, List<RecipeHolder<?>>> RECIPE_LIST_STREAM_CODEC =
@@ -323,14 +322,14 @@ public class CompatibilityManager implements ICompatibilityManager
     {
         final List<RecipeHolder<CompostRecipe>> recipes = compostRecipes.values().stream().distinct().toList();
         //RECIPE_LIST_STREAM_CODEC.encode(buf, recipes);
-        buf.writeCollection(recipes, (b, holder) -> RecipeHolder.STREAM_CODEC.encode((RegistryFriendlyByteBuf) b, holder));
+        Utils.writeCollection(buf, recipes, (b, holder) -> RecipeHolder.STREAM_CODEC.encode((RegistryFriendlyByteBuf) b, holder));
     }
 
     @NotNull
     private static List<RecipeHolder<CompostRecipe>> deserializeCompostRecipes(@NotNull final RegistryFriendlyByteBuf buf)
     {
         //return RECIPE_LIST_STREAM_CODEC.decode(buf).stream().map(r -> (RecipeHolder<CompostRecipe>) r).toList();
-        return buf.readList(b -> (RecipeHolder<CompostRecipe>) RecipeHolder.STREAM_CODEC.decode((RegistryFriendlyByteBuf) b));
+        return Utils.readList(buf, b -> (RecipeHolder<CompostRecipe>) RecipeHolder.STREAM_CODEC.decode((RegistryFriendlyByteBuf) b));
     }
 
     /**
@@ -435,7 +434,7 @@ public class CompatibilityManager implements ICompatibilityManager
         final Set<ItemStorage> filteredEdibles = new HashSet<>();
         for (final ItemStorage storage : edibles)
         {
-            if ((storage.getItemStack().getFoodProperties(null) != null && storage.getItemStack().getFoodProperties(null).nutrition() >= minNutrition))
+            if ((storage.getItemStack().get(DataComponents.FOOD) != null && storage.getItemStack().get(DataComponents.FOOD).nutrition() >= minNutrition))
             {
                 filteredEdibles.add(storage);
             }
@@ -536,7 +535,7 @@ public class CompatibilityManager implements ICompatibilityManager
             final Block block = Block.byItem(stack.getItem());
             if (!block.defaultBlockState().isAir())
             {
-                final List<LootTableAnalyzer.LootDrop> drops = CustomRecipeManager.getInstance().getLootDrops(block.getLootTable());
+                final List<LootTableAnalyzer.LootDrop> drops = block.getLootTable().isPresent() ? CustomRecipeManager.getInstance().getLootDrops(block.getLootTable().get()) : List.of();
                 for (final LootTableAnalyzer.LootDrop drop : drops)
                 {
                     for (final ItemStack dropStack : drop.getItemStacks())
@@ -627,7 +626,7 @@ public class CompatibilityManager implements ICompatibilityManager
             {
                 monsterSet.add(entry.getKey().identifier());
             }
-            else if (entry.getValue().is(ModTags.hostile))
+            else if (entry.getValue().builtInRegistryHolder().is(ModTags.hostile))
             {
                 monsterSet.add(entry.getKey().identifier());
             }
@@ -695,7 +694,7 @@ public class CompatibilityManager implements ICompatibilityManager
      */
     private void discoverBeekeeperFlowers(final ItemStack item, final Set<ItemStorage> tempFlowers)
     {
-        if (item.is(ItemTags.FLOWERS))
+        if (item.is(net.minecraft.tags.BlockItemTags.FLOWERS.item()))
         {
             tempFlowers.add(new ItemStorage(item));
         }
@@ -752,7 +751,7 @@ public class CompatibilityManager implements ICompatibilityManager
     {
         if (compostRecipes.isEmpty())
         {
-            discoverCompostRecipes(recipeManager.getAllRecipesFor(ModRecipeSerializer.CompostRecipeType.get()));
+            discoverCompostRecipes(CraftingUtils.getAllRecipesFor(recipeManager, ModRecipeSerializer.CompostRecipeType.get()));
             Log.getLogger().info("Finished discovering compostables " + compostRecipes.size());
         }
     }
@@ -761,7 +760,7 @@ public class CompatibilityManager implements ICompatibilityManager
     {
         for (final RecipeHolder<CompostRecipe> recipe : recipes)
         {
-            for (final ItemStack stack : recipe.value().getInput().getItems())
+            for (final ItemStack stack : ItemStackUtils.getIngredientItems(recipe.value().getInput()))
             {
                 // there can be duplicates due to overlapping tags.  weakest one wins.
                 compostRecipes.merge(stack.getItem(), recipe,
@@ -789,7 +788,7 @@ public class CompatibilityManager implements ICompatibilityManager
      */
     private void discoverFuel(final ItemStack stack)
     {
-        if (FurnaceBlockEntity.isFuel(stack))
+        if (stack.has(DataComponents.COOKING_FUEL))
         {
             fuel.add(new ItemStorage(stack));
         }
@@ -819,7 +818,7 @@ public class CompatibilityManager implements ICompatibilityManager
 
     private static Tuple<BlockState, ItemStorage> readLeafSaplingEntryFromNBT(@NotNull final HolderLookup.Provider provider, final CompoundTag compound)
     {
-        return new Tuple<>(NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), compound), new ItemStorage(ItemStackUtils.parseOptional(provider, compound.getCompoundOrEmpty(NbtTagConstants.STACK)), false, true));
+        return new Tuple<>(NbtUtils.readBlockState(BuiltInRegistries.BLOCK, compound), new ItemStorage(ItemStackUtils.parseOptional(provider, compound.getCompoundOrEmpty(NbtTagConstants.STACK)), false, true));
     }
 
     /**
@@ -836,10 +835,7 @@ public class CompatibilityManager implements ICompatibilityManager
             Compatibility.tinkersCompat = new TinkersToolHelper();
             Compatibility.tinkersSlimeCompat = new SlimeTreeCheck();
         }
-        if (ModList.get().isLoaded("dynamictrees"))
-        {
-            Compatibility.dynamicTreesCompat = new DynamicTreeCompat();
-        }
+        // FABRIC-PORT TODO: Dynamic Trees has no Fabric 26.x release; DynamicTreeCompat (compiled against it) was removed, the no-op proxy stays active.
     }
 
     @Override
@@ -857,7 +853,7 @@ public class CompatibilityManager implements ICompatibilityManager
     @Override
     public Optional<DyeColor> getDyeColor(final ItemStack stack)
     {
-        if (stack.is(ItemTags.DYEABLE))
+        if (stack.has(DataComponents.DYED_COLOR))
         {
             final int color = DyedItemColor.getOrDefault(stack, -1);
             if (color != -1)
@@ -870,7 +866,7 @@ public class CompatibilityManager implements ICompatibilityManager
                     final Int2IntMap map = new Int2IntOpenHashMap();
                     for (final DyeColor dye : DyeColor.values())
                     {
-                        final ItemStack dyed = DyedItemColor.applyDyes(undyedStack, List.of(DyeItem.byColor(dye)));
+                        final ItemStack dyed = DyedItemColor.applyDyes(undyedStack, List.of(dye));
                         if (!dyed.isEmpty())
                         {
                             map.put(DyedItemColor.getOrDefault(dyed, -1), dye.getId());

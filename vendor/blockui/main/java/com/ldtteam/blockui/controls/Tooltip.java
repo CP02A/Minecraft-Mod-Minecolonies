@@ -24,7 +24,7 @@ public class Tooltip extends AbstractTextElement
     public static final int DEFAULT_MAX_HEIGHT = AbstractTextElement.SIZE_FOR_UNLIMITED_ELEMENTS;
 
     private static final int CURSOR_BOX_SIZE = 12;
-    private static final int CONTENT_PADDING = TooltipRenderUtil.PADDING; // one direction
+    private static final int CONTENT_PADDING = 3; // TooltipRenderUtil.PADDING (private on 26.3) // one direction
 
     public static final int DEFAULT_TEXT_COLOR = 0xFFffffff; // white
 
@@ -160,11 +160,11 @@ public class Tooltip extends AbstractTextElement
         {
             if (backgroundBlit == null)
             {
-                backgroundBlit = Image.resolveBlit(TooltipRenderUtil.getBackgroundSprite(style), 0, 0, 0, 0);
+                backgroundBlit = Image.resolveBlit(com.ldtteam.blockui.fabric.mixin.TooltipRenderUtilAccessor.blockui$getBackgroundSprite(style), 0, 0, 0, 0);
             }
             if (frameBlit == null)
             {
-                frameBlit = Image.resolveBlit(TooltipRenderUtil.getFrameSprite(style), 0, 0, 0, 0);
+                frameBlit = Image.resolveBlit(com.ldtteam.blockui.fabric.mixin.TooltipRenderUtilAccessor.blockui$getFrameSprite(style), 0, 0, 0, 0);
             }
             if (tooltipComponentSize == null)
             {
@@ -212,7 +212,7 @@ public class Tooltip extends AbstractTextElement
             // INLINE: update from net.minecraft.client.gui.screens.inventory.tooltip.TooltipRenderUtil
             ms.pushMatrix();
 
-            final int shift = TooltipRenderUtil.MARGIN;
+            final int shift = 9; // TooltipRenderUtil.MARGIN (private on 26.3)
             backgroundBlit.blit(target, x - shift, y - shift, width + 2 * shift, height + 2 * shift);
             frameBlit.blit(target, x - shift, y - shift, width + 2 * shift, height + 2 * shift);
 

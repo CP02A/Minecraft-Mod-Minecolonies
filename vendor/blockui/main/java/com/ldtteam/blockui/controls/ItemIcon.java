@@ -24,7 +24,6 @@ import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.AirBlock;
-import com.ldtteam.shim.neoforge.client.ClientTooltipFlag;
 import com.ldtteam.shim.neoforge.common.CreativeModeTabRegistry;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3x2fStack;
@@ -258,7 +257,7 @@ public class ItemIcon extends Pane
             tooltipFlags = tooltipFlags.asCreative();
         }
 
-        final List<Component> tooltipList = itemStack.getTooltipLines(TooltipContext.of(mc.level, mc.player), mc.player, ClientTooltipFlag.of(tooltipFlags));
+        final List<Component> tooltipList = itemStack.getTooltipLines(TooltipContext.of(mc.level), mc.player, tooltipFlags);
         int nameOffset = 1;
 
         nameOffset = modifyTooltipName(tooltipList, tooltipFlags, nameOffset);

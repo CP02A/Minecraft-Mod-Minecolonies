@@ -4,6 +4,8 @@
   "package": "com.minecolonies.fabric.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
+    "entity.AbstractArrowShouldFallMixin",
+    "entity.AbstractHorseAccessor",
     "entity.MobAccessor",
     "entity.AbstractFurnaceBlockEntityInvoker",
     "entity.BrewingStandBlockEntityAccessor",

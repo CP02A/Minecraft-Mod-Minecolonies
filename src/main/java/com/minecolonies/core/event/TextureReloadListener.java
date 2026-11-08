@@ -1,6 +1,10 @@
 package com.minecolonies.core.event;
 
-import com.ldtteam.blockui.AtlasManager;
+import com.ldtteam.blockui.mod.BlockUI;
+import com.ldtteam.shim.neoforge.client.event.RegisterTextureAtlasesEvent;
+import net.minecraft.client.resources.metadata.gui.GuiMetadataSection;
+import net.minecraft.client.resources.model.sprite.AtlasManager.AtlasConfig;
+import net.minecraft.resources.Identifier;
 import com.minecolonies.api.util.constant.Constants;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -73,9 +77,20 @@ public class TextureReloadListener extends SimplePreparableReloadListener<Textur
     public static void modInitClient(final RegisterClientReloadListenersEvent event)
     {
         event.registerReloadListener(new TextureReloadListener());
+    }
 
-        // registry minecolonies gui atlas
-        AtlasManager.INSTANCE.addAtlas(event::registerReloadListener, Constants.MOD_ID);
+    /**
+     * Register the minecolonies gui atlas (assets/minecolonies/atlases/minecolonies_gui.json).
+     * FABRIC-PORT: 26.x/BlockUI registers gui atlases through the texture atlas registration event instead of BlockUI's old AtlasManager.
+     *
+     * @param event the event.
+     */
+    @SubscribeEvent
+    public static void onRegisterTextureAtlases(final RegisterTextureAtlasesEvent event)
+    {
+        final Identifier atlasKey = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "minecolonies_gui");
+        BlockUI.NAMESPACE_TO_ATLAS_MAP.put(Constants.MOD_ID, atlasKey);
+        event.register(new AtlasConfig(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/atlas/minecolonies_gui.png"), atlasKey, false, Set.of(GuiMetadataSection.TYPE)));
     }
 }
 

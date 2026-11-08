@@ -202,7 +202,7 @@ public class RangeCombatAI extends AttackMoveAI<EntityCitizen>
             // Add bow enchant effects: Knocback and fire
             final ItemStack bow = user.getItemInHand(InteractionHand.MAIN_HAND);
 
-            if (bow.getEnchantmentLevel(Utils.getRegistryValue(Enchantments.FLAME, user.level())) > 0)
+            if (net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(Utils.getRegistryValue(Enchantments.FLAME, user.level()), bow) > 0)
             {
                 arrow.setRemainingFireTicks(5 * 20);
             }
@@ -210,7 +210,7 @@ public class RangeCombatAI extends AttackMoveAI<EntityCitizen>
             double damage = calculateDamage(arrow);
             if (isMarksman())
             {
-                arrow.shotFromCrossbow();
+                // (was a no-op arrow.shotFromCrossbow() call)
             }
             arrow.setBaseDamage(damage);
 
@@ -272,7 +272,7 @@ public class RangeCombatAI extends AttackMoveAI<EntityCitizen>
 
         final ItemStack heldItem = user.getItemInHand(InteractionHand.MAIN_HAND);
         damage += EnchantmentHelper.modifyDamage((ServerLevel) user.level(), heldItem, target, user.level().damageSources().mobAttack(user), 1) / 2.5;
-        damage += heldItem.getEnchantmentLevel(Utils.getRegistryValue(Enchantments.POWER, user.level()));
+        damage += net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(Utils.getRegistryValue(Enchantments.POWER, user.level()), heldItem);
         damage += user.getCitizenColonyHandler().getColony().getResearchManager().getResearchEffects().getEffectStrength(ARCHER_DAMAGE);
 
         if (user.getCitizenColonyHandler().getColonyOrRegister().getResearchManager().getResearchEffects().getEffectStrength(ARCHER_USE_ARROWS) > 0)
@@ -296,7 +296,7 @@ public class RangeCombatAI extends AttackMoveAI<EntityCitizen>
                             if (isMarksman())
                             {
                                 // Calculate true damage from reduced arrow damage.
-                                entityRayTraceResult.getEntity().hurtOrSimulate(user.level().damageSources().source(DamageSourceKeys.PIERCE, user), (float) arrow.getBaseDamage() * (float) marksManTrueDamageShare() * 10);
+                                entityRayTraceResult.getEntity().hurtOrSimulate(user.level().damageSources().source(DamageSourceKeys.PIERCE, user), (float) ((com.minecolonies.fabric.mixin.entity.AbstractArrowInvoker) arrow).minecolonies$getBaseDamage() * (float) marksManTrueDamageShare() * 10);
                             }
 
                             return true;

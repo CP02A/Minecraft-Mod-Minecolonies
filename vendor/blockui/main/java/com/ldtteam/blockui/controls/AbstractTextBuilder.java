@@ -159,7 +159,18 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
     {
         newLine();
 
-        Style style = new Style(Color.toVanilla(color), shadowColor, bold, italic, underlined, strikeThrough, obfuscated, clickEvent, null, insertionEvent, null);
+        Style style = Style.EMPTY.withColor(Color.toVanilla(color))
+            .withBold(bold)
+            .withItalic(italic)
+            .withUnderlined(underlined)
+            .withStrikethrough(strikeThrough)
+            .withObfuscated(obfuscated)
+            .withClickEvent(clickEvent)
+            .withInsertion(insertionEvent);
+        if (shadowColor != null)
+        {
+            style = style.withShadowColor(shadowColor);
+        }
         if (style.equals(Style.EMPTY))
         {
             style = Style.EMPTY;
@@ -253,11 +264,11 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
                 return underlined();
 
             default:
-                if (!textFormatting.isColor())
+                if (vanillaColor(textFormatting) == null)
                 {
                     throw new IllegalArgumentException("Unknown non-color textformatting.");
                 }
-                return color(textFormatting.getColor() == null ? defaultColor : textFormatting.getColor());
+                return color(vanillaColor(textFormatting) == null ? defaultColor : vanillaColor(textFormatting));
         }
     }
 
@@ -270,7 +281,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
     public R colorVanillaCode(final char code)
     {
         final ChatFormatting tf = ChatFormatting.getByCode(code);
-        return color(tf == null || tf.getColor() == null ? defaultColor : tf.getColor());
+        return color(vanillaColor(tf) == null ? defaultColor : vanillaColor(tf));
     }
 
     /**
@@ -281,8 +292,8 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
      */
     public R colorName(final String name)
     {
-        final ChatFormatting tf = ChatFormatting.getByName(name);
-        return color(Color.getByName(name, tf == null || tf.getColor() == null ? color : tf.getColor()));
+        final ChatFormatting tf = vanillaFormattingByName(name);
+        return color(Color.getByName(name, vanillaColor(tf) == null ? color : vanillaColor(tf)));
     }
 
     /**
@@ -310,7 +321,7 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
     public R shadowColorVanillaCode(final char code)
     {
         final ChatFormatting tf = ChatFormatting.getByCode(code);
-        return shadowColor(tf == null || tf.getColor() == null ? null : tf.getColor());
+        return shadowColor(vanillaColor(tf) == null ? null : vanillaColor(tf));
     }
 
     /**
@@ -321,8 +332,8 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
      */
     public R shadowColorName(final String name)
     {
-        final ChatFormatting tf = ChatFormatting.getByName(name);
-        return shadowColor(Color.getByName(name, tf == null || tf.getColor() == null ? shadowColor : tf.getColor()));
+        final ChatFormatting tf = vanillaFormattingByName(name);
+        return shadowColor(Color.getByName(name, vanillaColor(tf) == null ? shadowColor : vanillaColor(tf)));
     }
 
     /**
@@ -537,5 +548,29 @@ public abstract class AbstractTextBuilder<P extends AbstractTextElement, R exten
         {
             super(Text::new, Text.DEFAULT_TEXT_COLOR);
         }
+    }
+
+    /**
+     * 26.3: ChatFormatting no longer carries colors/names.
+     */
+    private static @org.jspecify.annotations.Nullable Integer vanillaColor(final @org.jspecify.annotations.Nullable ChatFormatting format)
+    {
+        final net.minecraft.network.chat.TextColor textColor = format == null ? null : net.minecraft.network.chat.TextColor.fromLegacyFormat(format);
+        return textColor == null ? null : textColor.getValue();
+    }
+
+    private static @org.jspecify.annotations.Nullable ChatFormatting vanillaFormattingByName(final @org.jspecify.annotations.Nullable String name)
+    {
+        if (name != null)
+        {
+            for (final ChatFormatting format : ChatFormatting.values())
+            {
+                if (format.name().equalsIgnoreCase(name))
+                {
+                    return format;
+                }
+            }
+        }
+        return null;
     }
 }

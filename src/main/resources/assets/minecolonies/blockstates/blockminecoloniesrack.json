@@ -1,56 +1,56 @@
 {
   "variants": {
     "facing=east,variant=blockrackempty": {
-      "type": "domum_ornamentum:materially_textured",
+      "fabric:type": "domum_ornamentum:materially_textured",
       "parent": "minecolonies:block/rack/blockrackemptydouble"
     },
     "facing=south,variant=blockrackempty": {
-      "type": "domum_ornamentum:materially_textured",
+      "fabric:type": "domum_ornamentum:materially_textured",
       "parent": "minecolonies:block/rack/blockrackemptydouble",
       "y": 90
     },
     "facing=west,variant=blockrackempty": {
-      "type": "domum_ornamentum:materially_textured",
+      "fabric:type": "domum_ornamentum:materially_textured",
       "parent": "minecolonies:block/rack/blockrackemptydouble",
       "y": 180
     },
     "facing=north,variant=blockrackempty": {
-      "type": "domum_ornamentum:materially_textured",
+      "fabric:type": "domum_ornamentum:materially_textured",
       "parent": "minecolonies:block/rack/blockrackemptydouble",
       "y": 270
     },
     "facing=east,variant=blockrackfull": [
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfulldouble",
         "weight": 40
       },
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfulldouble_1",
         "weight": 30
       },
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfulldouble_2",
         "weight": 30
       }
     ],
     "facing=south,variant=blockrackfull": [
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfulldouble",
         "y": 90,
         "weight": 40
       },
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfulldouble_1",
         "y": 90,
         "weight": 30
       },
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfulldouble_2",
         "y": 90,
         "weight": 30
@@ -58,19 +58,19 @@
     ],
     "facing=west,variant=blockrackfull": [
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfulldouble",
         "y": 180,
         "weight": 40
       },
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfulldouble_1",
         "y": 180,
         "weight": 30
       },
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfulldouble_2",
         "y": 180,
         "weight": 30
@@ -78,19 +78,19 @@
     ],
     "facing=north,variant=blockrackfull": [
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfulldouble",
         "y": 270,
         "weight": 40
       },
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfulldouble_1",
         "y": 270,
         "weight": 30
       },
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfulldouble_2",
         "y": 270,
         "weight": 30
@@ -114,36 +114,36 @@
     },
     "facing=east,variant=blockrackfullsingle": [
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfull",
         "weight": 40
       },
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfull_1",
         "weight": 30
       },
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfull_2",
         "weight": 30
       }
     ],
     "facing=south,variant=blockrackfullsingle": [
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfull",
         "y": 90,
         "weight": 40
       },
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfull_1",
         "y": 90,
         "weight": 30
       },
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfull_2",
         "y": 90,
         "weight": 30
@@ -151,19 +151,19 @@
     ],
     "facing=west,variant=blockrackfullsingle": [
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfull",
         "y": 180,
         "weight": 40
       },
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfull_1",
         "y": 180,
         "weight": 30
       },
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfull_2",
         "y": 180,
         "weight": 30
@@ -171,19 +171,19 @@
     ],
     "facing=north,variant=blockrackfullsingle": [
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfull",
         "y": 270,
         "weight": 40
       },
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfull_1",
         "y": 270,
         "weight": 30
       },
       {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "minecolonies:block/rack/blockrackfull_2",
         "y": 270,
         "weight": 30

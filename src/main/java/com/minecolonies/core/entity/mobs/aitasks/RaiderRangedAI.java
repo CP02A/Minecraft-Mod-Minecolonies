@@ -194,7 +194,7 @@ public class RaiderRangedAI<T extends AbstractEntityMinecoloniesMonster & IThrea
     @Override
     protected boolean isAttackableTarget(final LivingEntity target)
     {
-        return (target.getType().is(ModTags.raider_targets) && !target.isInvisible())
+        return (target.is(ModTags.raider_targets) && !target.isInvisible())
             || (target instanceof Player && !((Player) target).isCreative() && !target.isSpectator());
     }
 

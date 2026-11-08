@@ -414,7 +414,7 @@ public class WorldUtil
                 continue;
             }
 
-            double invisPct = entity.getVisibilityPercent(livingEntity);
+            double invisPct = entity.level() instanceof net.minecraft.server.level.ServerLevel serverLevel ? entity.getVisibilityPercent(serverLevel, livingEntity) : 1.0D;
             double invisPctModifier = Math.max(lookDistance * invisPct, 2.0D);
             if (entityDistance > invisPctModifier * invisPctModifier)
             {

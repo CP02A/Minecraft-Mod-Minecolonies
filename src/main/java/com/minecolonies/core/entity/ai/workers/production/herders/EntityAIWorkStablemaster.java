@@ -129,7 +129,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
                 Entity holder = horseToRetrieve.getLeashHolder();
                 if (holder != null && holder.equals(worker)) 
                 {
-                    horseToRetrieve.dropLeash(true, false);
+                    horseToRetrieve.removeLeash();
                 }
             }
         }
@@ -590,8 +590,8 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
             {
                 if (!walkToSafePos(building.getNextStallPosition())) 
                 {
-                    horseToRetrieve.clearRestriction();
-                    horseToRetrieve.restrictTo(worker.blockPosition(), 3);
+                    horseToRetrieve.clearHome();
+                    horseToRetrieve.setHomeTo(worker.blockPosition(), 3);
                     return HERDER_GATHER_MOUNTS;
                 }
                 
@@ -679,7 +679,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
         // If leashed to somebody else, drop that leash first
         if (horse.isLeashed())
         {
-            horse.dropLeash(true, true);
+            horse.dropLeash();
         }
 
         if (worker.getOffhandItem().isEmpty())
@@ -688,7 +688,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
         }
 
         horse.setLeashedTo(worker, true);
-        horse.restrictTo(worker.blockPosition(), 3);
+        horse.setHomeTo(worker.blockPosition(), 3);
 
         return true;
     }
@@ -707,14 +707,14 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
             return;
         }
 
-        horse.clearRestriction();
+        horse.clearHome();
 
         if (!horse.isLeashed())
         {
             return;
         } 
 
-        horse.dropLeash(true, false);
+        horse.removeLeash();
 
         if (worker.getOffhandItem().is(Items.LEAD))
         {

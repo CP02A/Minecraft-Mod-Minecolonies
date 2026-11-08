@@ -17,10 +17,17 @@ public final class ModRecipeSerializerInitializer
 
     static
     {
-        ModRecipeSerializer.CompostRecipeSerializer = RECIPE_SERIALIZER.register("composting", CompostRecipe.Serializer::new);
-        ModRecipeSerializer.CompostRecipeType = RECIPE_TYPES.register("composting", () -> RecipeType.<CompostRecipe>simple(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "composting")));
+        ModRecipeSerializer.CompostRecipeSerializer = RECIPE_SERIALIZER.register("composting", () -> CompostRecipe.SERIALIZER);
+        ModRecipeSerializer.CompostRecipeType = RECIPE_TYPES.register("composting", () -> new RecipeType<CompostRecipe>()
+        {
+            @Override
+            public String toString()
+            {
+                return Constants.MOD_ID + ":composting";
+            }
+        });
 
-        ModRecipeSerializer.ZeroWasteRecipeSerializer = RECIPE_SERIALIZER.register("zero_waste", ZeroWasteRecipe.Serializer::new);
+        ModRecipeSerializer.ZeroWasteRecipeSerializer = RECIPE_SERIALIZER.register("zero_waste", () -> ZeroWasteRecipe.SERIALIZER);
     }
 
     private ModRecipeSerializerInitializer()

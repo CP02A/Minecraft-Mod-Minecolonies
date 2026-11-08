@@ -14,7 +14,6 @@ import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
-import static net.minecraft.world.item.BoneMealItem.applyBonemeal;
 
 /**
  * Class used to handle the compost item.
@@ -60,7 +59,7 @@ public class ItemCompost extends AbstractItemMinecolonies
             return false;
         }
 
-        return applyBonemeal(stack, level, pos, player);
+        return net.minecraft.world.item.BoneMealItem.growCrop(stack, level, pos);
     }
 
     @Override

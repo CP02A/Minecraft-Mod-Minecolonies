@@ -18,7 +18,7 @@ import java.util.Objects;
  */
 public class ButtonImage extends Button
 {
-    public static final WidgetSprites VANILLA_BUTTON = AbstractButton.SPRITES;
+    public static final WidgetSprites VANILLA_BUTTON = com.ldtteam.blockui.fabric.mixin.AbstractButtonAccessor.blockui$getSprites();
 
     /**
      * Default size is a vanilla button.

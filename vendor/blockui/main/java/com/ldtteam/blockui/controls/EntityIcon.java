@@ -19,6 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3x2fStack;
 import org.joml.Quaternionf;
@@ -59,7 +60,7 @@ public class EntityIcon<STATE extends EntityIcon.EntityIconState> extends Pane
         EntityRenderState ers = new EntityRenderState();
         ers.entityType = BuiltInRegistries.ENTITY_TYPE.get(entityName).get().value();
 
-        if (ers.entityType == EntityType.MANNEQUIN || ers.entityType == EntityType.PLAYER)
+        if (ers.entityType == EntityTypes.MANNEQUIN || ers.entityType == EntityTypes.PLAYER)
         {
             requireNonNull(null, "Cannot load avatar entityType");
             ers = new AvatarRenderState();

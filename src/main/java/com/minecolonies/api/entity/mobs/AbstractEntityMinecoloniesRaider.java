@@ -424,7 +424,7 @@ public abstract class AbstractEntityMinecoloniesRaider extends AbstractEntityMin
     @Override
     public boolean hurtServer(@NotNull final ServerLevel level, @NotNull final DamageSource damageSource, final float damage)
     {
-        if (!(damageSource.getEntity() instanceof LivingEntity) || damageSource.getEntity() instanceof FakePlayer)
+        if (!(damageSource.getEntity() instanceof LivingEntity) || FakePlayer.isFake(damageSource.getEntity()))
         {
             if (tempEnvDamageImmunity)
             {

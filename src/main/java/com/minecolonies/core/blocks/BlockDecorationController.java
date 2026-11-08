@@ -51,7 +51,6 @@ import static com.minecolonies.api.util.constant.SchematicTagConstants.TAG_LEISU
  */
 public class BlockDecorationController extends AbstractBlockMinecoloniesDirectional<BlockDecorationController> implements IBuilderUndestroyable, IAnchorBlock, EntityBlock, ILeveledBlueprintAnchorBlock, SimpleWaterloggedBlock
 {
-    public static final MapCodec<BlockDecorationController> CODEC = simpleCodec(BlockDecorationController::new);
 
     /**
      * The hardness this block has.
@@ -93,19 +92,13 @@ public class BlockDecorationController extends AbstractBlockMinecoloniesDirectio
      */
     public BlockDecorationController()
     {
-        this(Properties.of().mapColor(MapColor.WOOD).sound(SoundType.WOOD).strength(BLOCK_HARDNESS, RESISTANCE).noCollission());
+        this(Properties.of().mapColor(MapColor.WOOD).sound(SoundType.WOOD).strength(BLOCK_HARDNESS, RESISTANCE).noCollision());
     }
 
     public BlockDecorationController(final Properties properties)
     {
         super(properties);
         this.registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.NORTH).setValue(MIRROR, false).setValue(WATERLOGGED, false));
-    }
-
-    @Override
-    protected MapCodec<BlockDecorationController> codec()
-    {
-        return CODEC;
     }
 
     @Override
@@ -147,21 +140,15 @@ public class BlockDecorationController extends AbstractBlockMinecoloniesDirectio
 
     @NotNull
     @Override
-    public BlockState updateShape(
-      @NotNull final BlockState stateIn,
-      final Direction dir,
-      final BlockState state,
-      final LevelAccessor worldIn,
-      @NotNull final BlockPos currentPos,
-      final BlockPos pos)
+    public BlockState updateShape(final BlockState stateIn, final net.minecraft.world.level.LevelReader worldIn, final net.minecraft.world.level.ScheduledTickAccess scheduledTickAccess, final BlockPos currentPos, final Direction dir, final BlockPos pos, final BlockState state, final net.minecraft.util.RandomSource randomSource)
     {
         if (stateIn.getValue(WATERLOGGED))
         {
-            worldIn.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(worldIn));
+            scheduledTickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(worldIn));
         }
 
 
-        return super.updateShape(stateIn, dir, state, worldIn, currentPos, pos);
+        return super.updateShape(stateIn, worldIn, scheduledTickAccess, currentPos, dir, pos, state, randomSource);
     }
 
     @Override

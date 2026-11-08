@@ -406,7 +406,22 @@ public class VisitorCitizen extends AbstractEntityCitizen
      * @return If citizen should interact or not.
      */
     @Override
-    public InteractionResult checkAndHandleImportantInteractions(final Player player, @NotNull final InteractionHand hand)
+    public InteractionResult interact(final Player player, final InteractionHand hand, final net.minecraft.world.phys.Vec3 location)
+    {
+        if (!this.isAlive())
+        {
+            return InteractionResult.PASS;
+        }
+        final InteractionResult importantResult = checkAndHandleImportantInteractions(player, hand);
+        if (importantResult.consumesAction())
+        {
+            this.gameEvent(net.minecraft.world.level.gameevent.GameEvent.ENTITY_INTERACT, player);
+            return importantResult;
+        }
+        return super.interact(player, hand, location);
+    }
+
+    private InteractionResult checkAndHandleImportantInteractions(final Player player, @NotNull final InteractionHand hand)
     {
         final IColonyView iColonyView = IColonyManager.getInstance().getColonyView(citizenColonyHandler.getColonyId(), player.level().dimension());
         if (iColonyView != null && !iColonyView.getPermissions().hasPermission(player, Action.ACCESS_HUTS))
@@ -416,7 +431,7 @@ public class VisitorCitizen extends AbstractEntityCitizen
 
         if (!ItemStackUtils.isEmpty(player.getItemInHand(hand)) && player.getItemInHand(hand).getItem() instanceof NameTagItem)
         {
-            return super.checkAndHandleImportantInteractions(player, hand);
+            return player.getItemInHand(hand).interactLivingEntity(player, this, hand);
         }
 
         final InteractionResult result = directPlayerInteraction(player, hand);
@@ -504,7 +519,7 @@ public class VisitorCitizen extends AbstractEntityCitizen
     {
         super.aiStep();
 
-        if (lastHurtByPlayerTime > 0)
+        if (lastHurtByPlayerMemoryTime > 0)
         {
             markDirty(0);
         }
@@ -596,7 +611,7 @@ public class VisitorCitizen extends AbstractEntityCitizen
     }
 
     @Override
-    protected void dropEquipment()
+    protected void dropEquipment(final net.minecraft.server.level.ServerLevel level)
     {
         //Drop actual inventory
         for (int i = 0; i < getInventoryCitizen().getSlots(); i++)
@@ -632,10 +647,10 @@ public class VisitorCitizen extends AbstractEntityCitizen
     }
 
     @Override
-    public void setRemoved(final RemovalReason reason)
+    public void onRemoval(final RemovalReason reason)
     {
         citizenColonyHandler.onCitizenRemoved();
-        super.setRemoved(reason);
+        super.onRemoval(reason);
     }
 
     @Override

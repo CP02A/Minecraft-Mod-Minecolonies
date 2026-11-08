@@ -3,7 +3,7 @@ package com.ldtteam.shim.neoforge.client.event;
 
 import com.ldtteam.shim.bus.api.Event;
 import com.ldtteam.shim.fml.event.IModBusEvent;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 
 import java.util.ArrayList;
 import java.util.Collections;

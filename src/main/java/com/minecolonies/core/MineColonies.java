@@ -74,6 +74,7 @@ import net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization;
 import net.minecraft.world.entity.animal.equine.Horse;
 import net.minecraft.world.item.crafting.BrewingRecipe;
 import com.minecolonies.api.crafting.registry.ModRecipeSerializer;
+import net.minecraft.core.registries.BuiltInRegistries;
 import com.ldtteam.shim.api.distmarker.Dist;
 import com.ldtteam.shim.bus.api.EventPriority;
 import com.ldtteam.shim.bus.api.IEventBus;
@@ -134,7 +135,7 @@ public class MineColonies
         ModInteractionsInitializer.DEFERRED_REGISTER.register(modBus);
         ModResearchEffectInitializer.DEFERRED_REGISTER.register(modBus);
         ModLootConditions.DEFERRED_REGISTER.register(modBus);
-        ModItemsInitializer.DEFERRED_REGISTER.register(modBus);
+        // FABRIC-PORT: armor materials are no longer registered in 26.x (ModItemsInitializer.DEFERRED_REGISTER removed).
         ModEquipmentTypes.DEFERRED_REGISTER.register(modBus);
 
         ModQuestInitializer.DEFERRED_REGISTER_OBJECTIVE.register(modBus);
@@ -226,8 +227,8 @@ public class MineColonies
         // FABRIC-PORT: 26.x does not sync recipes to the client anymore. The vanilla crafting/smelting and the Domum cutter serializers are
         // synced by the Fabric entrypoint; additionally sync brewing (brewing teaching / crafting GUIs) and our own recipe types.
         RecipeSynchronization.synchronizeRecipeSerializer(BrewingRecipe.SERIALIZER);
-        RecipeSynchronization.synchronizeRecipeSerializer(ModRecipeSerializer.CompostRecipeSerializer.get());
-        RecipeSynchronization.synchronizeRecipeSerializer(ModRecipeSerializer.ZeroWasteRecipeSerializer.get());
+        RecipeSynchronization.synchronizeRecipeSerializer(BuiltInRegistries.RECIPE_SERIALIZER.getValue(ModRecipeSerializer.CompostRecipeSerializer.getId()));
+        RecipeSynchronization.synchronizeRecipeSerializer(BuiltInRegistries.RECIPE_SERIALIZER.getValue(ModRecipeSerializer.ZeroWasteRecipeSerializer.getId()));
     }
 
     /**

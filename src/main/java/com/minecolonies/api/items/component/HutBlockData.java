@@ -32,13 +32,13 @@ public record HutBlockData(int level, boolean pastable) implements TooltipProvid
 
     public void writeToItemStack(final ItemStack itemStack)
     {
-        itemStack.set(ModDataComponents.HUT_COMPONENT, this);
+        itemStack.set(ModDataComponents.HUT_COMPONENT.get(), this);
     }
 
     @Nullable
     public static HutBlockData readFromItemStack(final ItemStack itemStack)
     {
-        return itemStack.get(ModDataComponents.HUT_COMPONENT);
+        return itemStack.get(ModDataComponents.HUT_COMPONENT.get());
     }
 
     public static void updateItemStack(final ItemStack itemStack, final UnaryOperator<HutBlockData> updater)
@@ -47,7 +47,7 @@ public record HutBlockData(int level, boolean pastable) implements TooltipProvid
     }
 
     @Override
-    public void addToTooltip(@NotNull final Item.TooltipContext context, @NotNull final Consumer<Component> tooltip, @NotNull final TooltipFlag flags)
+    public void addToTooltip(@NotNull final Item.TooltipContext context, @NotNull final Consumer<Component> tooltip, @NotNull final TooltipFlag flags, @NotNull final net.minecraft.core.component.DataComponentGetter components)
     {
         final Component level = Component.literal(String.valueOf(this.level)).withStyle(ChatFormatting.GOLD);
         tooltip.accept(Component.translatable("item.minecolonies.hut.level", level).withStyle(ChatFormatting.GREEN));

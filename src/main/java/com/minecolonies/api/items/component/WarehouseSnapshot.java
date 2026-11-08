@@ -34,12 +34,12 @@ public record WarehouseSnapshot(Map<String, Integer> snapshot, String hash)
 
     public void writeToItemStack(final ItemStack itemStack)
     {
-        itemStack.set(ModDataComponents.WAREHOUSE_SNAPSHOT_COMPONENT, this);
+        itemStack.set(ModDataComponents.WAREHOUSE_SNAPSHOT_COMPONENT.get(), this);
     }
 
     public static WarehouseSnapshot readFromItemStack(final ItemStack itemStack)
     {
-        return itemStack.getOrDefault(ModDataComponents.WAREHOUSE_SNAPSHOT_COMPONENT, WarehouseSnapshot.EMPTY);
+        return itemStack.getOrDefault(ModDataComponents.WAREHOUSE_SNAPSHOT_COMPONENT.get(), WarehouseSnapshot.EMPTY);
     }
 
     public static void updateItemStack(final ItemStack itemStack, final UnaryOperator<WarehouseSnapshot> updater)

@@ -13,8 +13,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -33,7 +33,6 @@ import static com.minecolonies.api.blocks.decorative.AbstractBlockGate.WOODEN_GA
 @EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public final class ModItemsInitializer
 {
-    public final static DeferredRegister<ArmorMaterial> DEFERRED_REGISTER = DeferredRegister.create(Registries.ARMOR_MATERIAL, Constants.MOD_ID);
 
     /**
      * Spawn egg colors.
@@ -65,6 +64,17 @@ public final class ModItemsInitializer
      * @param registry the registry.
      */
     @SuppressWarnings("PMD.ExcessiveMethodLength")
+    /**
+     * FABRIC-PORT: 26.x items need their id at construction time.
+     *
+     * @param name the registry path.
+     * @return item properties with the id set.
+     */
+    private static Item.Properties props(final String name)
+    {
+        return new Item.Properties().setId(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ITEM, Identifier.fromNamespaceAndPath(Constants.MOD_ID, name)));
+    }
+
     public static void init(final Registry<Item> registry)
     {
         ModItems.scepterLumberjack = new ItemScepterLumberjack(props("scepterlumberjack"));
@@ -116,33 +126,33 @@ public final class ModItemsInitializer
         ModItems.scrollHighLight = new ItemScrollHighlight(props("scroll_highlight").stacksTo(16));
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "scroll_highlight"), ModItems.scrollHighLight);
 
-        ModItems.santaHat = new ItemSantaHead("santa_hat", SANTA_HAT, ArmorItem.Type.HELMET, props("santa_hat"));
-        ModItems.irongate = new ItemGate(IRON_GATE, ModBlocks.blockIronGate, new Item.Properties());
-        ModItems.woodgate = new ItemGate(WOODEN_GATE, ModBlocks.blockWoodenGate, new Item.Properties());
+        ModItems.santaHat = new ItemSantaHead("santa_hat", SANTA_HAT, ArmorType.HELMET, props("santa_hat").component(net.minecraft.core.component.DataComponents.UNBREAKABLE, net.minecraft.util.Unit.INSTANCE));
+        ModItems.irongate = new ItemGate(IRON_GATE, ModBlocks.blockIronGate, props(IRON_GATE).useBlockDescriptionPrefix());
+        ModItems.woodgate = new ItemGate(WOODEN_GATE, ModBlocks.blockWoodenGate, props(WOODEN_GATE).useBlockDescriptionPrefix());
 
         ModItems.flagBanner = new ItemColonyFlagBanner("colony_banner", props("colony_banner"));
-        ModItems.pirateHelmet_1 = new ItemPirateGear("pirate_hat", PIRATE_ARMOR_1, ArmorItem.Type.HELMET, props("pirate_hat").durability(350));
-        ModItems.pirateChest_1 = new ItemPirateGear("pirate_top", PIRATE_ARMOR_1, ArmorItem.Type.CHESTPLATE, props("pirate_top").durability(550));
-        ModItems.pirateLegs_1 = new ItemPirateGear("pirate_leggins", PIRATE_ARMOR_1, ArmorItem.Type.LEGGINGS, props("pirate_leggins").durability(500));
-        ModItems.pirateBoots_1 = new ItemPirateGear("pirate_boots", PIRATE_ARMOR_1, ArmorItem.Type.BOOTS, props("pirate_boots").durability(400));
+        ModItems.pirateHelmet_1 = new ItemPirateGear("pirate_hat", PIRATE_ARMOR_1, ArmorType.HELMET, props("pirate_hat").durability(350));
+        ModItems.pirateChest_1 = new ItemPirateGear("pirate_top", PIRATE_ARMOR_1, ArmorType.CHESTPLATE, props("pirate_top").durability(550));
+        ModItems.pirateLegs_1 = new ItemPirateGear("pirate_leggins", PIRATE_ARMOR_1, ArmorType.LEGGINGS, props("pirate_leggins").durability(500));
+        ModItems.pirateBoots_1 = new ItemPirateGear("pirate_boots", PIRATE_ARMOR_1, ArmorType.BOOTS, props("pirate_boots").durability(400));
 
-        ModItems.pirateHelmet_2 = new ItemPirateGear("pirate_cap", PIRATE_ARMOR_2, ArmorItem.Type.HELMET, props("pirate_cap").durability(200));
-        ModItems.pirateChest_2 = new ItemPirateGear("pirate_chest", PIRATE_ARMOR_2, ArmorItem.Type.CHESTPLATE, props("pirate_chest").durability(350));
-        ModItems.pirateLegs_2 = new ItemPirateGear("pirate_legs", PIRATE_ARMOR_2, ArmorItem.Type.LEGGINGS, props("pirate_legs").durability(300));
-        ModItems.pirateBoots_2 = new ItemPirateGear("pirate_shoes", PIRATE_ARMOR_2, ArmorItem.Type.BOOTS, props("pirate_shoes").durability(250));
+        ModItems.pirateHelmet_2 = new ItemPirateGear("pirate_cap", PIRATE_ARMOR_2, ArmorType.HELMET, props("pirate_cap").durability(200));
+        ModItems.pirateChest_2 = new ItemPirateGear("pirate_chest", PIRATE_ARMOR_2, ArmorType.CHESTPLATE, props("pirate_chest").durability(350));
+        ModItems.pirateLegs_2 = new ItemPirateGear("pirate_legs", PIRATE_ARMOR_2, ArmorType.LEGGINGS, props("pirate_legs").durability(300));
+        ModItems.pirateBoots_2 = new ItemPirateGear("pirate_shoes", PIRATE_ARMOR_2, ArmorType.BOOTS, props("pirate_shoes").durability(250));
 
-        ModItems.plateArmorHelmet = new ItemPlateArmor("plate_armor_helmet", PLATE_ARMOR, ArmorItem.Type.HELMET, props("plate_armor_helmet").durability(350));
-        ModItems.plateArmorChest = new ItemPlateArmor("plate_armor_chest", PLATE_ARMOR, ArmorItem.Type.CHESTPLATE, props("plate_armor_chest").durability(500));
-        ModItems.plateArmorLegs = new ItemPlateArmor("plate_armor_legs", PLATE_ARMOR, ArmorItem.Type.LEGGINGS, props("plate_armor_legs").durability(450));
-        ModItems.plateArmorBoots = new ItemPlateArmor("plate_armor_boots", PLATE_ARMOR, ArmorItem.Type.BOOTS, props("plate_armor_boots").durability(400));
+        ModItems.plateArmorHelmet = new ItemPlateArmor("plate_armor_helmet", PLATE_ARMOR, ArmorType.HELMET, props("plate_armor_helmet").durability(350));
+        ModItems.plateArmorChest = new ItemPlateArmor("plate_armor_chest", PLATE_ARMOR, ArmorType.CHESTPLATE, props("plate_armor_chest").durability(500));
+        ModItems.plateArmorLegs = new ItemPlateArmor("plate_armor_legs", PLATE_ARMOR, ArmorType.LEGGINGS, props("plate_armor_legs").durability(450));
+        ModItems.plateArmorBoots = new ItemPlateArmor("plate_armor_boots", PLATE_ARMOR, ArmorType.BOOTS, props("plate_armor_boots").durability(400));
 
-        ModItems.sifterMeshString = new ItemSifterMesh("sifter_mesh_string", props("sifter_mesh_string").durability(500).setNoRepair());
-        ModItems.sifterMeshFlint = new ItemSifterMesh("sifter_mesh_flint", props("sifter_mesh_flint").durability(1000).setNoRepair());
-        ModItems.sifterMeshIron = new ItemSifterMesh("sifter_mesh_iron", props("sifter_mesh_iron").durability(1500).setNoRepair());
-        ModItems.sifterMeshDiamond = new ItemSifterMesh("sifter_mesh_diamond", props("sifter_mesh_diamond").durability(2000).setNoRepair());
+        ModItems.sifterMeshString = new ItemSifterMesh("sifter_mesh_string", props("sifter_mesh_string").durability(500));
+        ModItems.sifterMeshFlint = new ItemSifterMesh("sifter_mesh_flint", props("sifter_mesh_flint").durability(1000));
+        ModItems.sifterMeshIron = new ItemSifterMesh("sifter_mesh_iron", props("sifter_mesh_iron").durability(1500));
+        ModItems.sifterMeshDiamond = new ItemSifterMesh("sifter_mesh_diamond", props("sifter_mesh_diamond").durability(2000));
 
         ModItems.magicpotion = new ItemMagicPotion("magicpotion", props("magicpotion"));
-        ModItems.buildGoggles = new ItemBuildGoggles("build_goggles", props("build_goggles"));
+        ModItems.buildGoggles = new ItemBuildGoggles("build_goggles", props("build_goggles").component(net.minecraft.core.component.DataComponents.UNBREAKABLE, net.minecraft.util.Unit.INSTANCE));
         ModItems.scanAnalyzer = new ItemScanAnalyzer("scan_analyzer", props("scan_analyzer"));
         ModItems.colonyMap = new ItemColonyMap(props("colonymap"));
 
@@ -150,7 +160,7 @@ public final class ModItemsInitializer
         // Tier 1 Food Items
         ModItems.cheddar_cheese = new ItemFood((props("cheddar_cheese")).food(new FoodProperties.Builder().nutrition(6).saturationModifier(0.1F).build()), 1);
         ModItems.feta_cheese = new ItemFood((props("feta_cheese")).food(new FoodProperties.Builder().nutrition(6).saturationModifier(0.1F).build()), 1);
-        ModItems.cooked_rice = new ItemFood((props("cooked_rice")).food(new FoodProperties.Builder().nutrition(6).saturationModifier(0.1F).usingConvertsTo(Items.BOWL).build()), 1);
+        ModItems.cooked_rice = new ItemFood((props("cooked_rice")).usingConvertsTo(Items.BOWL).food(new FoodProperties.Builder().nutrition(6).saturationModifier(0.1F).build()), 1);
         ModItems.tofu = new ItemFood((props("tofu")).food(new FoodProperties.Builder().nutrition(6).saturationModifier(0.1F).build()), 1);
         ModItems.flatbread = new ItemFood((props("flatbread")).food(new FoodProperties.Builder().nutrition(6).saturationModifier(0.1F).build()), 1);
         ModItems.cheese_ravioli = new ItemFood((props("cheese_ravioli")).food(new FoodProperties.Builder().nutrition(7).saturationModifier(0.1F).build()), 1);
@@ -167,8 +177,8 @@ public final class ModItemsInitializer
         // Tier 2 Food Items
         ModItems.lembas_scone = new ItemFood((props("lembas_scone")).food(new FoodProperties.Builder().nutrition(8).saturationModifier(0.25F).build()), 2);
         ModItems.muffin = new ItemFood((props("muffin")).food(new FoodProperties.Builder().nutrition(8).saturationModifier(0.25F).build()), 2);
-        ModItems.pottage = new ItemFood((props("pottage")).food(new FoodProperties.Builder().nutrition(9).saturationModifier(0.25F).usingConvertsTo(Items.BOWL).build()), 2);
-        ModItems.pasta_plain = new ItemFood((props("pasta_plain")).food(new FoodProperties.Builder().nutrition(11).saturationModifier(0.25F).usingConvertsTo(Items.BOWL).build()), 2);
+        ModItems.pottage = new ItemFood((props("pottage")).usingConvertsTo(Items.BOWL).food(new FoodProperties.Builder().nutrition(9).saturationModifier(0.25F).build()), 2);
+        ModItems.pasta_plain = new ItemFood((props("pasta_plain")).usingConvertsTo(Items.BOWL).food(new FoodProperties.Builder().nutrition(11).saturationModifier(0.25F).build()), 2);
         ModItems.apple_pie = new ItemFood((props("apple_pie")).food(new FoodProperties.Builder().nutrition(7).saturationModifier(0.25F).build()), 2);
         ModItems.plain_cheesecake = new ItemFood((props("plain_cheesecake")).food(new FoodProperties.Builder().nutrition(11).saturationModifier(0.25F).build()), 2);
         ModItems.baked_salmon = new ItemFood((props("baked_salmon")).food(new FoodProperties.Builder().nutrition(9).saturationModifier(0.25F).build()), 2);
@@ -176,7 +186,7 @@ public final class ModItemsInitializer
         ModItems.fish_n_chips = new ItemFood((props("fish_n_chips")).food(new FoodProperties.Builder().nutrition(13).saturationModifier(0.25F).build()), 2);
         ModItems.pierogi = new ItemFood((props("pierogi")).food(new FoodProperties.Builder().nutrition(11).saturationModifier(0.25F).build()), 2);
         ModItems.veggie_soup = new ItemFood((props("veggie_soup")).food(new FoodProperties.Builder().nutrition(11).saturationModifier(0.25F).build()), 2);
-        ModItems.yogurt_with_berries = new ItemFood((props("yogurt_with_berries")).food(new FoodProperties.Builder().nutrition(9).saturationModifier(0.25F).usingConvertsTo(Items.BOWL).build()), 2);
+        ModItems.yogurt_with_berries = new ItemFood((props("yogurt_with_berries")).usingConvertsTo(Items.BOWL).food(new FoodProperties.Builder().nutrition(9).saturationModifier(0.25F).build()), 2);
         ModItems.borscht = new ItemFood((props("borscht")).food(new FoodProperties.Builder().nutrition(9).saturationModifier(0.25F).build()), 2);
 
         // Tier 3 Food items
@@ -189,10 +199,10 @@ public final class ModItemsInitializer
         // Tier 1
         ModItems.squash_soup = new ItemFood((props("squash_soup")).food(new FoodProperties.Builder().nutrition(6).saturationModifier(0.1F).build()), 1);
         // Tier 2
-        ModItems.cabochis = new ItemFood((props("cabochis")).food(new FoodProperties.Builder().nutrition(11).saturationModifier(0.25F).usingConvertsTo(Items.BOWL).build()), 2);
+        ModItems.cabochis = new ItemFood((props("cabochis")).usingConvertsTo(Items.BOWL).food(new FoodProperties.Builder().nutrition(11).saturationModifier(0.25F).build()), 2);
         ModItems.veggie_quiche = new ItemFood((props("veggie_quiche")).food(new FoodProperties.Builder().nutrition(7).saturationModifier(0.25F).build()), 2);
         // Tier 3
-        ModItems.lamb_stew = new ItemFood((props("lamb_stew")).food(new FoodProperties.Builder().nutrition(13).saturationModifier(0.25F).usingConvertsTo(Items.BOWL).build()), 3);
+        ModItems.lamb_stew = new ItemFood((props("lamb_stew")).usingConvertsTo(Items.BOWL).food(new FoodProperties.Builder().nutrition(13).saturationModifier(0.25F).build()), 3);
         ModItems.fish_dinner = new ItemFood((props("fish_dinner")).food(new FoodProperties.Builder().nutrition(12).saturationModifier(0.25F).build()), 3);
 
         // Hot Humid Biomes
@@ -211,7 +221,7 @@ public final class ModItemsInitializer
         ModItems.corn_chowder = new ItemFood((props("corn_chowder")).food(new FoodProperties.Builder().nutrition(7).saturationModifier(0.1F).build()), 1);
         ModItems.tortillas = new ItemFood((props("tortillas")).food(new FoodProperties.Builder().nutrition(6).saturationModifier(0.1F).build()), 1);
         // Tier 2
-        ModItems.pasta_tomato = new ItemFood((props("pasta_tomato")).food(new FoodProperties.Builder().nutrition(11).saturationModifier(0.25F).usingConvertsTo(Items.BOWL).build()), 2);
+        ModItems.pasta_tomato = new ItemFood((props("pasta_tomato")).usingConvertsTo(Items.BOWL).food(new FoodProperties.Builder().nutrition(11).saturationModifier(0.25F).build()), 2);
         ModItems.cheese_pizza = new ItemFood((props("cheese_pizza")).food(new FoodProperties.Builder().nutrition(13).saturationModifier(0.25F).build()), 2);
         // Tier 3
         ModItems.eggplant_dolma = new ItemFood((props("eggplant_dolma")).food(new FoodProperties.Builder().nutrition(12).saturationModifier(0.25F).build()), 3);
@@ -230,7 +240,7 @@ public final class ModItemsInitializer
 
         // Require trading
         // Tier 2
-        ModItems.congee = new ItemFood((props("congee")).food(new FoodProperties.Builder().nutrition(9).saturationModifier(0.25F).usingConvertsTo(Items.BOWL).build()), 2);
+        ModItems.congee = new ItemFood((props("congee")).usingConvertsTo(Items.BOWL).food(new FoodProperties.Builder().nutrition(9).saturationModifier(0.25F).build()), 2);
         ModItems.kimchi = new ItemFood((props("kimchi")).food(new FoodProperties.Builder().nutrition(11).saturationModifier(0.25F).build()), 2);
         // Tier 3
         ModItems.stew_trencher = new ItemFood((props("stew_trencher")).food(new FoodProperties.Builder().nutrition(13).saturationModifier(0.25F).build()), 3);
@@ -394,169 +404,112 @@ public final class ModItemsInitializer
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "barbarianegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_BARBARIAN,
                 Color.getByName("orange"),
                 Color.getByName("black"),
-                (new Item.Properties())));
+                (props("barbarianegg"))));
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "barbarcheregg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_ARCHERBARBARIAN,
                 Color.getByName("orange"),
                 Color.getByName("green"),
-                (new Item.Properties())));
+                (props("barbarcheregg"))));
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "barbchiefegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_CHIEFBARBARIAN,
                 Color.getByName("orange"),
                 Color.getByName("yellow"),
-                (new Item.Properties())));
+                (props("barbchiefegg"))));
 
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "pirateegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_PIRATE,
                 Color.getByName("red"),
                 Color.getByName("white"),
-                (new Item.Properties())));
+                (props("pirateegg"))));
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "piratearcheregg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_ARCHERPIRATE,
                 Color.getByName("red"),
                 Color.getByName("green"),
-                (new Item.Properties())));
+                (props("piratearcheregg"))));
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "piratecaptainegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_CHIEFPIRATE,
                 Color.getByName("red"),
                 Color.getByName("yellow"),
-                (new Item.Properties())));
+                (props("piratecaptainegg"))));
 
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "mummyegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_MUMMY,
                 Color.getByName("yellow"),
                 Color.getByName("white"),
-                (new Item.Properties())));
+                (props("mummyegg"))));
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "mummyarcheregg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_ARCHERMUMMY,
                 Color.getByName("yellow"),
                 Color.getByName("green"),
-                (new Item.Properties())));
+                (props("mummyarcheregg"))));
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "pharaoegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_PHARAO,
                 Color.getByName("yellow"),
                 Color.getByName("yellow"),
-                (new Item.Properties())));
+                (props("pharaoegg"))));
 
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "shieldmaidenegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_SHIELDMAIDEN,
                 Color.getByName("black"),
                 Color.getByName("white"),
-                (new Item.Properties())));
+                (props("shieldmaidenegg"))));
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "norsemenarcheregg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_NORSEMEN_ARCHER,
                 Color.getByName("black"),
                 Color.getByName("green"),
-                (new Item.Properties())));
+                (props("norsemenarcheregg"))));
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "norsemenchiefegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_NORSEMEN_CHIEF,
                 Color.getByName("black"),
                 Color.getByName("yellow"),
-                (new Item.Properties())));
+                (props("norsemenchiefegg"))));
 
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "amazonegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_AMAZON,
                 Color.getByName("green"),
                 Color.getByName("white"),
-                (new Item.Properties())));
+                (props("amazonegg"))));
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "amazonspearmanegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_AMAZONSPEARMAN,
                 Color.getByName("green"),
                 Color.getByName("green"),
-                new Item.Properties()));
+                props("amazonspearmanegg")));
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "amazonchiefegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_AMAZONCHIEF,
                 Color.getByName("green"),
                 Color.getByName("yellow"),
-                (new Item.Properties())));
+                (props("amazonchiefegg"))));
 
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "drownedpirateegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_DROWNED_PIRATE,
                 Color.getByName("blue"),
                 Color.getByName("white"),
-                (new Item.Properties())));
+                (props("drownedpirateegg"))));
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "drownedpiratearcheregg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_DROWNED_ARCHERPIRATE,
                 Color.getByName("blue"),
                 Color.getByName("green"),
-                new Item.Properties()));
+                props("drownedpiratearcheregg")));
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "drownedpiratecaptainegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_DROWNED_CHIEFPIRATE,
                 Color.getByName("blue"),
                 Color.getByName("yellow"),
-                (new Item.Properties())));
+                (props("drownedpiratecaptainegg"))));
     }
 
-    public static final Holder<ArmorMaterial> SANTA_HAT = DEFERRED_REGISTER.register("santa_hat", () -> new ArmorMaterial(
-      // Determines the defense value of this armor material, depending on what armor piece it is.
-      Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
-          map.put(ArmorItem.Type.BOOTS, 0);
-          map.put(ArmorItem.Type.LEGGINGS, 0);
-          map.put(ArmorItem.Type.CHESTPLATE, 0);
-          map.put(ArmorItem.Type.HELMET, 0);
-      }),
-      500,
-      SoundEvents.ARMOR_EQUIP_LEATHER,
-      () -> Ingredient.EMPTY,
-      List.of(
-        new ArmorMaterial.Layer(Identifier.fromNamespaceAndPath(Constants.MOD_ID,"santa_hat"), "", true)
-      ),
-      0,
-      0
-    ));
+    /**
+     * FABRIC-PORT: 26.x armor materials are plain records (no registry); the textures are looked up through equipment assets
+     * (assets/minecolonies/equipment/<asset>.json). Repair ingredients are now item tags; materials without a repair item use an empty tag.
+     */
+    private static final net.minecraft.tags.TagKey<Item> NO_REPAIR =
+      net.minecraft.tags.TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "repairs_nothing"));
 
-    public static final Holder<ArmorMaterial> PLATE_ARMOR = DEFERRED_REGISTER.register("plate_armor", () -> new ArmorMaterial(
-      // Determines the defense value of this armor material, depending on what armor piece it is.
-      Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
-          map.put(ArmorItem.Type.BOOTS, 3);
-          map.put(ArmorItem.Type.LEGGINGS, 6);
-          map.put(ArmorItem.Type.CHESTPLATE, 8);
-          map.put(ArmorItem.Type.HELMET, 3);
-      }),
-      37,
-      SoundEvents.ARMOR_EQUIP_IRON,
-      () -> Ingredient.of(Items.IRON_INGOT),
-      List.of(
-        new ArmorMaterial.Layer(Identifier.fromNamespaceAndPath(Constants.MOD_ID,"plate_armor"), "", true)
-      ),
-      0,
-      0
-    ));
+    private static net.minecraft.resources.ResourceKey<net.minecraft.world.item.equipment.EquipmentAsset> asset(final String name)
+    {
+        return net.minecraft.resources.ResourceKey.create(net.minecraft.world.item.equipment.EquipmentAssets.ROOT_ID, Identifier.fromNamespaceAndPath(Constants.MOD_ID, name));
+    }
 
-    public static final Holder<ArmorMaterial> GOGGLES = DEFERRED_REGISTER.register("build_goggles", () -> new ArmorMaterial(
-      // Determines the defense value of this armor material, depending on what armor piece it is.
-      Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
-          map.put(ArmorItem.Type.BOOTS, 0);
-          map.put(ArmorItem.Type.LEGGINGS, 0);
-          map.put(ArmorItem.Type.CHESTPLATE, 0);
-          map.put(ArmorItem.Type.HELMET, 0);
-      }),
-      20,
-      SoundEvents.ARMOR_EQUIP_LEATHER,
-      () -> Ingredient.EMPTY,
-      List.of(
-        new ArmorMaterial.Layer(Identifier.fromNamespaceAndPath(Constants.MOD_ID,"build_goggles"), "", true)
-      ),
-      0,
-      0
-    ));
+    private static java.util.Map<ArmorType, Integer> defense(final int boots, final int legs, final int chest, final int helmet)
+    {
+        return Util.make(new EnumMap<>(ArmorType.class), map -> {
+            map.put(ArmorType.BOOTS, boots);
+            map.put(ArmorType.LEGGINGS, legs);
+            map.put(ArmorType.CHESTPLATE, chest);
+            map.put(ArmorType.HELMET, helmet);
+            map.put(ArmorType.BODY, chest);
+        });
+    }
 
-    public static final Holder<ArmorMaterial> PIRATE_ARMOR_1 = DEFERRED_REGISTER.register("pirate_armor_1", () -> new ArmorMaterial(
-      // Determines the defense value of this armor material, depending on what armor piece it is.
-      Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
-          map.put(ArmorItem.Type.BOOTS, 2);
-          map.put(ArmorItem.Type.LEGGINGS, 5);
-          map.put(ArmorItem.Type.CHESTPLATE, 6);
-          map.put(ArmorItem.Type.HELMET, 2);
-      }),
-      5,
-      SoundEvents.ARMOR_EQUIP_LEATHER,
-      () -> Ingredient.of(Items.DIAMOND),
-      List.of(
-        new ArmorMaterial.Layer(Identifier.fromNamespaceAndPath(Constants.MOD_ID,"pirate"), "", true)
-      ),
-      0,
-      0
-    ));
+    public static final ArmorMaterial SANTA_HAT = new ArmorMaterial(0, defense(0, 0, 0, 0), 500, SoundEvents.ARMOR_EQUIP_LEATHER, 0.0F, 0.0F, NO_REPAIR, asset("santa_hat"));
 
-    public static final Holder<ArmorMaterial> PIRATE_ARMOR_2 = DEFERRED_REGISTER.register("pirate_armor_2", () -> new ArmorMaterial(
-      // Determines the defense value of this armor material, depending on what armor piece it is.
-      Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
-          map.put(ArmorItem.Type.BOOTS, 3);
-          map.put(ArmorItem.Type.LEGGINGS, 6);
-          map.put(ArmorItem.Type.CHESTPLATE, 8);
-          map.put(ArmorItem.Type.HELMET, 3);
-      }),
-      5,
-      SoundEvents.ARMOR_EQUIP_LEATHER,
-      () -> Ingredient.of(Items.DIAMOND),
-      List.of(
-        new ArmorMaterial.Layer(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "pirate2"), "", true)
-      ),
-      2,
-      0
-    ));
+    public static final ArmorMaterial PLATE_ARMOR = new ArmorMaterial(31, defense(3, 6, 8, 3), 37, SoundEvents.ARMOR_EQUIP_IRON, 0.0F, 0.0F, net.minecraft.tags.ItemTags.REPAIRS_IRON_ARMOR, asset("plate_armor"));
+
+    public static final ArmorMaterial GOGGLES = new ArmorMaterial(0, defense(0, 0, 0, 0), 20, SoundEvents.ARMOR_EQUIP_LEATHER, 0.0F, 0.0F, NO_REPAIR, asset("build_goggles"));
+
+    public static final ArmorMaterial PIRATE_ARMOR_1 = new ArmorMaterial(33, defense(2, 5, 6, 2), 5, SoundEvents.ARMOR_EQUIP_LEATHER, 0.0F, 0.0F, net.minecraft.tags.ItemTags.REPAIRS_DIAMOND_ARMOR, asset("pirate"));
+
+    public static final ArmorMaterial PIRATE_ARMOR_2 = new ArmorMaterial(20, defense(3, 6, 8, 3), 5, SoundEvents.ARMOR_EQUIP_LEATHER, 2.0F, 0.0F, net.minecraft.tags.ItemTags.REPAIRS_DIAMOND_ARMOR, asset("pirate2"));
 }

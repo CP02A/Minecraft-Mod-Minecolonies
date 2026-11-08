@@ -75,7 +75,7 @@ public class CustomArrowEntity extends Arrow
     @Override
     protected void onHitEntity(EntityHitResult traceResult)
     {
-        final double prevDamage = getBaseDamage();
+        final double prevDamage = ((com.minecolonies.fabric.mixin.entity.AbstractArrowInvoker) this).minecolonies$getBaseDamage();
 
         // Reduce damage by motion before vanilla increases it by the same factor, so our damage stays.
         float f = (float) this.getDeltaMovement().length();
@@ -99,7 +99,7 @@ public class CustomArrowEntity extends Arrow
                 {
                     source = level().damageSources().arrow(this, shooter);
                 }
-                player.hurtOrSimulate(source, (float) getBaseDamage());
+                player.hurtOrSimulate(source, (float) ((com.minecolonies.fabric.mixin.entity.AbstractArrowInvoker) this).minecolonies$getBaseDamage());
                 setBaseDamage(0);
             }
         }
@@ -132,10 +132,10 @@ public class CustomArrowEntity extends Arrow
         armorPiercePlayer = true;
     }
 
-    @Override
+    // Called through com.minecolonies.fabric.mixin.entity.AbstractArrowShouldFallMixin (AbstractArrow#shouldFall is private in 26.x).
     public boolean shouldFall()
     {
-        if (this.inGround)
+        if (this.isInGround())
         {
             final AABB aabb = (new AABB(this.position(), this.position())).inflate(0.06D);
             for(VoxelShape voxelshape : this.level().getBlockCollisions(null, aabb)) {
@@ -150,13 +150,13 @@ public class CustomArrowEntity extends Arrow
     }
 
     @Override
-    public boolean save(@NotNull CompoundTag nbt)
+    public boolean save(final net.minecraft.world.level.storage.ValueOutput output)
     {
         return false;
     }
 
     @Override
-    public void load(@NotNull CompoundTag nbt)
+    public void load(final net.minecraft.world.level.storage.ValueInput input)
     {
         discard();
     }

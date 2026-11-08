@@ -9,7 +9,12 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.projectile.ThrownPotion;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownSplashPotion;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -19,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.BiPredicate;
 
-public class DruidPotionEntity extends ThrownPotion
+public class DruidPotionEntity extends ThrownSplashPotion
 {
     /**
      * The X and Z size of the splash area
@@ -52,7 +57,7 @@ public class DruidPotionEntity extends ThrownPotion
      * @param type entity type.
      * @param world world to spawn it in.
      */
-    public DruidPotionEntity(final EntityType<? extends ThrownPotion> type, final Level world)
+    public DruidPotionEntity(final EntityType<? extends ThrownSplashPotion> type, final Level world)
     {
         super(type, world);
     }
@@ -67,8 +72,10 @@ public class DruidPotionEntity extends ThrownPotion
     }
 
     @Override
-    public void applySplash(Iterable<MobEffectInstance> effects, @Nullable Entity entity)
+    public void onHitAsPotion(final ServerLevel level, final ItemStack potionItem, final HitResult hitResult)
     {
+        final Iterable<MobEffectInstance> effects = potionItem.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY).getAllEffects();
+        final Entity entity = hitResult instanceof EntityHitResult entityHitResult ? entityHitResult.getEntity() : null;
         final AbstractEntityCitizen citizen = this.getOwner();
         if (citizen != null && citizen.getCitizenData() != null && citizen.getCitizenData().getJob() instanceof JobDruid)
         {
@@ -93,9 +100,9 @@ public class DruidPotionEntity extends ThrownPotion
                                 final MobEffect effect = effectinstance.getEffect().value();
                                 if (entitySelectionPredicate == null || entitySelectionPredicate.test(livingentity, effect))
                                 {
-                                    if (effect.isInstantenous())
+                                    if (effect.isInstantaneous())
                                     {
-                                        effect.applyInstantenousEffect(this, this.getOwner(), livingentity, effectinstance.getAmplifier(), d1);
+                                        effect.applyInstantaneousEffect(level, this, this.getOwner(), livingentity, effectinstance.getAmplifier(), d1);
                                     }
                                     else
                                     {

@@ -102,7 +102,7 @@ public record BlockStateRenderingData(BlockState blockState,
         ModelData model = ModelData.EMPTY;
         try
         {
-            model = blockEntity.getModelData();
+            model = com.ldtteam.shim.neoforge.model.data.ModelDataHelper.getModelData(blockEntity);
         }
         catch (final Exception e)
         {

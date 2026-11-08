@@ -90,7 +90,7 @@ public class TargetAI<T extends Mob & IThreatTableEntity> implements IStateAI
      */
     public boolean isEntityValidTarget(final LivingEntity target)
     {
-        if (target == user || target == null || !target.isAlive() || !isWithinPersecutionDistance(target) || target instanceof FakePlayer)
+        if (target == user || target == null || !target.isAlive() || !isWithinPersecutionDistance(target) || FakePlayer.isFake(target))
         {
             return false;
         }

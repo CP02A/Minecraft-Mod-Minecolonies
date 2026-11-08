@@ -392,6 +392,18 @@ public final class ItemStackUtils
     }
 
     /**
+     * FABRIC-PORT: replacement for the removed 1.21.1 {@code Ingredient#getItems()}.
+     *
+     * @param ingredient the ingredient.
+     * @return one stack per matching item.
+     */
+    @NotNull
+    public static ItemStack[] getIngredientItems(@NotNull final net.minecraft.world.item.crafting.Ingredient ingredient)
+    {
+        return ingredient.items().map(ItemStack::new).toArray(ItemStack[]::new);
+    }
+
+    /**
      * FABRIC-PORT: replacement for the NeoForge {@code ItemStack#getCraftingRemainingItem()} extension.
      *
      * @param stack the stack.
@@ -1073,7 +1085,7 @@ public final class ItemStackUtils
     @OnlyIn(Dist.CLIENT)
     public static Component getTranslatedName(@NotNull final SizedIngredient ingredient)
     {
-        if (ingredient.ingredient().hasNoItems())
+        if (ingredient.ingredient().isEmpty())
         {
             return Component.empty();
         }

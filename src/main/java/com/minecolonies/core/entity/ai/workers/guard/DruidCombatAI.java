@@ -169,7 +169,7 @@ public class DruidCombatAI extends AttackMoveAI<EntityCitizen>
             InventoryUtils.removeStackFromItemHandler(user.getCitizenData().getInventory(), new ItemStack(ModItems.magicpotion, 1), 1);
         }
 
-        this.instantEffect = effect.value().isInstantenous();
+        this.instantEffect = effect.value().isInstantaneous();
 
         user.setItemInHand(InteractionHand.MAIN_HAND, stack);
 

@@ -54,7 +54,7 @@ public class BlockMinecoloniesRack extends AbstractBlockMinecoloniesRack<BlockMi
      * Normal translation we use.
      */
     private static final Long2ObjectMap<Direction> BY_NORMAL = Arrays.stream(Direction.values()).collect(Collectors.toMap((p_235679_) -> {
-        return (new BlockPos(p_235679_.getNormal())).asLong();
+        return BlockPos.asLong(p_235679_.getStepX(), p_235679_.getStepY(), p_235679_.getStepZ());
     }, (p_235675_) -> {
         return p_235675_;
     }, (p_235670_, p_235671_) -> {
@@ -94,7 +94,7 @@ public class BlockMinecoloniesRack extends AbstractBlockMinecoloniesRack<BlockMi
     }
 
     @Override
-    public boolean propagatesSkylightDown(final BlockState state, @NotNull final BlockGetter reader, @NotNull final BlockPos pos)
+    protected boolean propagatesSkylightDown(final BlockState state)
     {
         return true;
     }
@@ -150,23 +150,17 @@ public class BlockMinecoloniesRack extends AbstractBlockMinecoloniesRack<BlockMi
 
     @Override
     @NotNull
-    public BlockState updateShape(
-      @NotNull final BlockState state,
-      @NotNull final Direction dir,
-      final BlockState neighbourState,
-      @NotNull final LevelAccessor level,
-      @NotNull final BlockPos pos,
-      @NotNull final BlockPos neighbourPos)
+    public BlockState updateShape(final BlockState state, final net.minecraft.world.level.LevelReader level, final net.minecraft.world.level.ScheduledTickAccess scheduledTickAccess, final BlockPos pos, final Direction dir, final BlockPos neighbourPos, final BlockState neighbourState, final net.minecraft.util.RandomSource randomSource)
     {
         if (state.getBlock() != this || pos.subtract(neighbourPos).getY() != 0)
         {
-            return super.updateShape(state, dir, neighbourState, level, pos, neighbourPos);
+            return super.updateShape(state, level, scheduledTickAccess, pos, dir, neighbourPos, neighbourState, randomSource);
         }
 
         final BlockEntity here = level.getBlockEntity(pos);
         if (!(here instanceof TileEntityRack hereRack))
         {
-            return super.updateShape(state, dir, neighbourState, level, pos, neighbourPos);
+            return super.updateShape(state, level, scheduledTickAccess, pos, dir, neighbourPos, neighbourState, randomSource);
         }
 
         if (neighbourState.getBlock() != this)
@@ -177,7 +171,7 @@ public class BlockMinecoloniesRack extends AbstractBlockMinecoloniesRack<BlockMi
                 return state.setValue(VARIANT, hereRack.isEmpty() ? RackType.EMPTY : RackType.FULL);
             }
 
-            return super.updateShape(state, dir, neighbourState, level, pos, neighbourPos);
+            return super.updateShape(state, level, scheduledTickAccess, pos, dir, neighbourPos, neighbourState, randomSource);
         }
 
 
@@ -189,12 +183,12 @@ public class BlockMinecoloniesRack extends AbstractBlockMinecoloniesRack<BlockMi
 
             if (!(neighbour instanceof TileEntityRack neighborRack))
             {
-                return super.updateShape(state, dir, neighbourState, level, pos, neighbourPos);
+                return super.updateShape(state, level, scheduledTickAccess, pos, dir, neighbourPos, neighbourState, randomSource);
             }
 
             boolean isEmpty = hereRack.isEmpty() && neighborRack.isEmpty();
 
-            level.setBlock(neighbourPos,
+            if (level instanceof net.minecraft.world.level.LevelAccessor levelAccessor) levelAccessor.setBlock(neighbourPos,
               neighbourState.setValue(FACING, BY_NORMAL.get(neighbourPos.subtract(pos).asLong()).getOpposite()).setValue(VARIANT, RackType.NO_RENDER),
               1);
             return state.setValue(VARIANT, isEmpty ? RackType.EMPTY_DOUBLE : RackType.FULL_DOUBLE)
@@ -215,7 +209,7 @@ public class BlockMinecoloniesRack extends AbstractBlockMinecoloniesRack<BlockMi
             }
         }
 
-        return super.updateShape(state, dir, neighbourState, level, pos, neighbourPos);
+        return super.updateShape(state, level, scheduledTickAccess, pos, dir, neighbourPos, neighbourState, randomSource);
     }
 
     @Override
@@ -237,7 +231,7 @@ public class BlockMinecoloniesRack extends AbstractBlockMinecoloniesRack<BlockMi
             final TileEntityRack rack = (TileEntityRack) tileEntity;
             if (!worldIn.isClientSide())
             {
-                ((ServerPlayer) player).openMenu(rack,
+                com.ldtteam.shim.neoforge.common.extensions.IMenuTypeExtension.openMenu((ServerPlayer) player, rack,
                   buf -> buf.writeBlockPos(rack.getBlockPos()).writeBlockPos(rack.getOtherChest() == null ? BlockPos.ZERO : rack.getOtherChest().getBlockPos()));
             }
             return InteractionResult.SUCCESS;
@@ -266,26 +260,7 @@ public class BlockMinecoloniesRack extends AbstractBlockMinecoloniesRack<BlockMi
         return drops;
     }
 
-    @Override
-    public void onRemove(BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos, BlockState newState, boolean isMoving)
-    {
-        if (state.getBlock() != newState.getBlock())
-        {
-            BlockEntity tileEntity = worldIn.getBlockEntity(pos);
-            if (tileEntity instanceof TileEntityRack)
-            {
-                TileEntityRack tileEntityRack = (TileEntityRack) tileEntity;
-                InventoryUtils.dropItemHandler(tileEntityRack.getInventory(),
-                  worldIn,
-                  tileEntityRack.getBlockPos().getX(),
-                  tileEntityRack.getBlockPos().getY(),
-                  tileEntityRack.getBlockPos().getZ());
-                worldIn.updateNeighbourForOutputSignal(pos, this);
-            }
-
-            super.onRemove(state, worldIn, pos, newState, isMoving);
-        }
-    }
+    // FABRIC-PORT: removal side effects (inventory drop / connection cleanup) moved to the block entity's preRemoveSideEffects.
 
     @Override
     public @NotNull Collection<IMateriallyTexturedBlockComponent> getComponents()

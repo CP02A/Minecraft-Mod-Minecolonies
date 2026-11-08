@@ -38,7 +38,7 @@ public class ItemMilkyBread extends ItemFood
      */
     public ItemMilkyBread(final Properties properties)
     {
-        super((new Item.Properties()).food(milkBread), 1);
+        super(properties.food(milkBread), 1);
     }
 
    /**
@@ -49,7 +49,7 @@ public class ItemMilkyBread extends ItemFood
         
         if (!worldIn.isClientSide())
         {
-            entityLiving.removeEffectsCuredBy(EffectCures.MILK);
+            EffectCures.removeEffectsCuredBy(entityLiving, EffectCures.MILK);
         }
 
         return super.finishUsingItem(stack, worldIn, entityLiving);

@@ -12,4 +12,7 @@ public interface AbstractArrowInvoker
 {
     @Invoker("setPierceLevel")
     void minecolonies$setPierceLevel(byte pierceLevel);
+
+    @org.spongepowered.asm.mixin.gen.Accessor("baseDamage")
+    double minecolonies$getBaseDamage();
 }

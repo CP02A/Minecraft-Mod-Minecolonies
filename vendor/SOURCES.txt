@@ -1,3 +1,3 @@
-structurize from ldtteam/Structurize@9ad76cfd3a9705a2f0a57cb15bc245b557f7cb8f (HEAD)
-blockui from ldtteam/BlockUI@0763e9bbdb48da023dd404537c36f6f1647d3c97 (HEAD)
+structurize from ldtteam/Structurize@9ad76cfd3a9705a2f0a57cb15bc245b557f7cb8f (version/1.21)
+blockui from ldtteam/BlockUI@bc14ca5688c220f10fc93e7f759cde941fee994b (port/26)
 domumornamentum from ldtteam/Domum-Ornamentum@71d91c6df77cb656ca9d20eb5205efd7eb5bdd94 (port/26.1)

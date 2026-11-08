@@ -11,7 +11,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.Identifier;
-import org.lwjgl.glfw.GLFW;
+import com.ldtteam.blockui.fabric.mixin.CursorTypeAccessor;
+import org.lwjgl.sdl.SDLMouse;
+import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,23 +34,23 @@ public class Cursor
     public static final CursorType HAND = CursorTypes.POINTING_HAND;
     public static final CursorType HORIZONTAL_RESIZE = CursorTypes.RESIZE_EW;
     public static final CursorType VERTICAL_RESIZE = CursorTypes.RESIZE_NS;
-    public static final CursorType RESIZE_NWSE = CursorType.createStandardCursor(GLFW.GLFW_RESIZE_NWSE_CURSOR, "resize_nwse", Cursor.DEFAULT);
-    public static final CursorType RESIZE_NESW = CursorType.createStandardCursor(GLFW.GLFW_RESIZE_NESW_CURSOR, "resize_nesw", Cursor.DEFAULT);
+    public static final CursorType RESIZE_NWSE = CursorType.createStandardCursor(SDLMouse.SDL_SYSTEM_CURSOR_NWSE_RESIZE, "resize_nwse", Cursor.DEFAULT);
+    public static final CursorType RESIZE_NESW = CursorType.createStandardCursor(SDLMouse.SDL_SYSTEM_CURSOR_NESW_RESIZE, "resize_nesw", Cursor.DEFAULT);
     public static final CursorType RESIZE = CursorTypes.RESIZE_ALL;
     public static final CursorType NOT_ALLOWED = CursorTypes.NOT_ALLOWED;
 
     private static final Map<String, CursorType> CURSOR_MAP = Map.ofEntries(
-        Map.entry(DEFAULT.name, DEFAULT),
-        Map.entry(ARROW.name, ARROW),
-        Map.entry(TEXT_CURSOR.name, TEXT_CURSOR),
-        Map.entry(CROSSHAIR.name, CROSSHAIR),
-        Map.entry(HAND.name, HAND),
-        Map.entry(HORIZONTAL_RESIZE.name, HORIZONTAL_RESIZE),
-        Map.entry(VERTICAL_RESIZE.name, VERTICAL_RESIZE),
-        Map.entry(RESIZE_NWSE.name, RESIZE_NWSE),
-        Map.entry(RESIZE_NESW.name, RESIZE_NESW),
-        Map.entry(RESIZE.name, RESIZE),
-        Map.entry(NOT_ALLOWED.name, NOT_ALLOWED)
+        Map.entry(DEFAULT.toString(), DEFAULT),
+        Map.entry(ARROW.toString(), ARROW),
+        Map.entry(TEXT_CURSOR.toString(), TEXT_CURSOR),
+        Map.entry(CROSSHAIR.toString(), CROSSHAIR),
+        Map.entry(HAND.toString(), HAND),
+        Map.entry(HORIZONTAL_RESIZE.toString(), HORIZONTAL_RESIZE),
+        Map.entry(VERTICAL_RESIZE.toString(), VERTICAL_RESIZE),
+        Map.entry(RESIZE_NWSE.toString(), RESIZE_NWSE),
+        Map.entry(RESIZE_NESW.toString(), RESIZE_NESW),
+        Map.entry(RESIZE.toString(), RESIZE),
+        Map.entry(NOT_ALLOWED.toString(), NOT_ALLOWED)
     );
 
     public static CursorType of(final Identifier resLoc)
@@ -70,30 +72,37 @@ public class Cursor
             texManager.registerAndLoad(resLoc, new CursorTexture(resLoc));
         }
 
-        return new TexturedCursorType(resLoc);
+        return TEXTURED_BY_RESLOC.computeIfAbsent(resLoc, key -> {
+            final CursorType type = CursorTypeAccessor.blockui$create(BlockUI.MOD_ID + "_tex_cursor:" + key, 0L);
+            TEXTURED.put(type, key);
+            return type;
+        });
     }
 
-    public static class TexturedCursorType extends CursorType
+    /** Textured cursor types (created through the private vanilla constructor) and their texture. */
+    private static final Map<Identifier, CursorType> TEXTURED_BY_RESLOC = new ConcurrentHashMap<>();
+    private static final Map<CursorType, Identifier> TEXTURED = new ConcurrentHashMap<>();
+
+    /**
+     * Fabric: called from {@code CursorTypeMixin#select} - selects the textured cursor if the type is one of ours.
+     *
+     * @return true if handled
+     */
+    public static boolean selectTextured(final CursorType type)
     {
-        private final Identifier resLoc;
-
-        protected TexturedCursorType(final Identifier resLoc)
+        final Identifier resLoc = TEXTURED.get(type);
+        if (resLoc == null)
         {
-            super(BlockUI.MOD_ID + "_tex_cursor:" + resLoc.toString(), -1L);
-            this.resLoc = resLoc;
+            return false;
         }
 
-        @Override
-        public void select(final Window window)
+        final AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(resLoc);
+        if (!(texture instanceof final CursorTexture cursorTexture))
         {
-            final AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(resLoc);
-
-            if (!(texture instanceof final CursorTexture cursorTexture))
-            {
-                throw new IllegalArgumentException("Did you forget to load CursorTexture (or create CursorType) for: " + resLoc);
-            }
-
-            GLFW.glfwSetCursor(window.handle(), cursorTexture.getGlfwCursorAddress());
+            throw new IllegalArgumentException("Did you forget to load CursorTexture (or create CursorType) for: " + resLoc);
         }
+
+        SDLMouse.SDL_SetCursor(cursorTexture.getGlfwCursorAddress());
+        return true;
     }
 }

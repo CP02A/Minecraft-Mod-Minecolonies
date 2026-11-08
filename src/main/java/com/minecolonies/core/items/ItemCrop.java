@@ -72,10 +72,10 @@ public class ItemCrop extends BlockItem
     public void appendHoverText(@NotNull final ItemStack stack, @Nullable final TooltipContext ctx, final net.minecraft.world.item.component.TooltipDisplay tooltipDisplay, @NotNull final java.util.function.Consumer<Component> tooltip, @NotNull final TooltipFlag flagIn)
     {
         tooltip.accept(Component.translatable(TranslationConstants.CROP_TOOLTIP).withStyle(ChatFormatting.GRAY));
-        if (preferredBiome != null && ctx.level() != null)
+        if (preferredBiome != null && net.minecraft.client.Minecraft.getInstance().level != null)
         {
             tooltip.accept(Component.translatable(TranslationConstants.BIOME_TOOLTIP + "." + preferredBiome.location().getPath()));
-            if (ctx.level().getBiome(Minecraft.getInstance().player.blockPosition()).is(preferredBiome))
+            if (net.minecraft.client.Minecraft.getInstance().level.getBiome(Minecraft.getInstance().player.blockPosition()).is(preferredBiome))
             {
                 tooltip.accept(Component.translatable("com.minecolonies.core.item.crop.tooltip.biome.match").withStyle(ChatFormatting.GREEN));
             }

@@ -121,29 +121,29 @@ public final class ModCreativeTabs
 
           if (SpawnEggItem.byId(ModEntities.CAMP_BARBARIAN) != null)
           {
-                output.accept(SpawnEggItem.byId(ModEntities.CAMP_BARBARIAN));
-                output.accept(SpawnEggItem.byId(ModEntities.CAMP_ARCHERBARBARIAN));
-                output.accept(SpawnEggItem.byId(ModEntities.CAMP_CHIEFBARBARIAN));
+                SpawnEggItem.byId(ModEntities.CAMP_BARBARIAN).ifPresent(egg -> output.accept(new ItemStack(egg)));
+                SpawnEggItem.byId(ModEntities.CAMP_ARCHERBARBARIAN).ifPresent(egg -> output.accept(new ItemStack(egg)));
+                SpawnEggItem.byId(ModEntities.CAMP_CHIEFBARBARIAN).ifPresent(egg -> output.accept(new ItemStack(egg)));
 
-                output.accept(SpawnEggItem.byId(ModEntities.CAMP_PIRATE));
-                output.accept(SpawnEggItem.byId(ModEntities.CAMP_ARCHERPIRATE));
-                output.accept(SpawnEggItem.byId(ModEntities.CAMP_CHIEFPIRATE));
+                SpawnEggItem.byId(ModEntities.CAMP_PIRATE).ifPresent(egg -> output.accept(new ItemStack(egg)));
+                SpawnEggItem.byId(ModEntities.CAMP_ARCHERPIRATE).ifPresent(egg -> output.accept(new ItemStack(egg)));
+                SpawnEggItem.byId(ModEntities.CAMP_CHIEFPIRATE).ifPresent(egg -> output.accept(new ItemStack(egg)));
 
-                output.accept(SpawnEggItem.byId(ModEntities.CAMP_MUMMY));
-                output.accept(SpawnEggItem.byId(ModEntities.CAMP_ARCHERMUMMY));
-                output.accept(SpawnEggItem.byId(ModEntities.CAMP_PHARAO));
+                SpawnEggItem.byId(ModEntities.CAMP_MUMMY).ifPresent(egg -> output.accept(new ItemStack(egg)));
+                SpawnEggItem.byId(ModEntities.CAMP_ARCHERMUMMY).ifPresent(egg -> output.accept(new ItemStack(egg)));
+                SpawnEggItem.byId(ModEntities.CAMP_PHARAO).ifPresent(egg -> output.accept(new ItemStack(egg)));
 
-                output.accept(SpawnEggItem.byId(ModEntities.CAMP_SHIELDMAIDEN));
-                output.accept(SpawnEggItem.byId(ModEntities.CAMP_NORSEMEN_ARCHER));
-                output.accept(SpawnEggItem.byId(ModEntities.CAMP_NORSEMEN_CHIEF));
+                SpawnEggItem.byId(ModEntities.CAMP_SHIELDMAIDEN).ifPresent(egg -> output.accept(new ItemStack(egg)));
+                SpawnEggItem.byId(ModEntities.CAMP_NORSEMEN_ARCHER).ifPresent(egg -> output.accept(new ItemStack(egg)));
+                SpawnEggItem.byId(ModEntities.CAMP_NORSEMEN_CHIEF).ifPresent(egg -> output.accept(new ItemStack(egg)));
 
-                output.accept(SpawnEggItem.byId(ModEntities.CAMP_AMAZON));
-                output.accept(SpawnEggItem.byId(ModEntities.CAMP_AMAZONSPEARMAN));
-                output.accept(SpawnEggItem.byId(ModEntities.CAMP_AMAZONCHIEF));
+                SpawnEggItem.byId(ModEntities.CAMP_AMAZON).ifPresent(egg -> output.accept(new ItemStack(egg)));
+                SpawnEggItem.byId(ModEntities.CAMP_AMAZONSPEARMAN).ifPresent(egg -> output.accept(new ItemStack(egg)));
+                SpawnEggItem.byId(ModEntities.CAMP_AMAZONCHIEF).ifPresent(egg -> output.accept(new ItemStack(egg)));
 
-                output.accept(SpawnEggItem.byId(ModEntities.CAMP_DROWNED_PIRATE));
-                output.accept(SpawnEggItem.byId(ModEntities.CAMP_DROWNED_ARCHERPIRATE));
-                output.accept(SpawnEggItem.byId(ModEntities.CAMP_DROWNED_CHIEFPIRATE));
+                SpawnEggItem.byId(ModEntities.CAMP_DROWNED_PIRATE).ifPresent(egg -> output.accept(new ItemStack(egg)));
+                SpawnEggItem.byId(ModEntities.CAMP_DROWNED_ARCHERPIRATE).ifPresent(egg -> output.accept(new ItemStack(egg)));
+                SpawnEggItem.byId(ModEntities.CAMP_DROWNED_CHIEFPIRATE).ifPresent(egg -> output.accept(new ItemStack(egg)));
           }
 
       }).build());

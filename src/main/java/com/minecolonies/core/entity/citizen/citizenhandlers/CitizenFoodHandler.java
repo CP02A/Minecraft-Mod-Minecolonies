@@ -140,7 +140,7 @@ public class CitizenFoodHandler implements ICitizenFoodHandler
         @NotNull final ListTag lastFoodNbt = compound.getListOrEmpty(TAG_LAST_FOODS);
         for (int i = 0; i < lastFoodNbt.size(); i++)
         {
-            final Item lastFood = BuiltInRegistries.ITEM.get(Identifier.parse(lastFoodNbt.getString(i)));
+            final Item lastFood = BuiltInRegistries.ITEM.getValue(Identifier.parse(lastFoodNbt.getStringOr(i, "")));
             if (lastFood != Items.AIR)
             {
                 lastEatenFoods.add(lastFood);

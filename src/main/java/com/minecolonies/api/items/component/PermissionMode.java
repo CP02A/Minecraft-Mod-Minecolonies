@@ -19,12 +19,12 @@ public enum PermissionMode
 
     public void writeToItemStack(final ItemStack itemStack)
     {
-        itemStack.set(ModDataComponents.PERMISSION_MODE, this);
+        itemStack.set(ModDataComponents.PERMISSION_MODE.get(), this);
     }
 
     public static PermissionMode readFromItemStack(final ItemStack itemStack)
     {
-        return itemStack.getOrDefault(ModDataComponents.PERMISSION_MODE, PermissionMode.EMPTY);
+        return itemStack.getOrDefault(ModDataComponents.PERMISSION_MODE.get(), PermissionMode.EMPTY);
     }
 
     public static void updateItemStack(final ItemStack itemStack, final UnaryOperator<PermissionMode> updater)

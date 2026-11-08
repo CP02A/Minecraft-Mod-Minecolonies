@@ -393,7 +393,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     protected void addPassenger(@Nonnull Entity passenger)
     {
         super.addPassenger(passenger);
-        dropLeash(true, false);
+        removeLeash();
         lastDismountTime = -1;
     }
 
@@ -422,17 +422,6 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         super.setLeashedTo(entity, sendPacket);
     }
 
-    /**
-     * Drops the leash for this horse, optionally sending a packet to clients and dropping the lead item.
-     * 
-     * @param broadcastPacket whether to send a packet to clients
-     * @param dropLeadItem whether to drop the lead item
-     */
-    @Override
-    public void dropLeash(boolean broadcastPacket, boolean dropLeadItem)
-    {
-        super.dropLeash(broadcastPacket, dropLeadItem);
-    }
 
     /**
      * Returns the attachment point for the given passenger entity, taking into account the entity dimensions and the partial tick.
@@ -674,7 +663,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
 
         // --- Snapshot generic AbstractHorse state ---
         final boolean wasTamed = vanilla.isTamed();
-        final UUID owner = vanilla.getOwnerUUID();
+        final net.minecraft.world.entity.EntityReference<net.minecraft.world.entity.LivingEntity> owner = vanilla.getOwnerReference();
         final int temper = vanilla.getTemper();
         final double health = vanilla.getHealth();
         final String customName = vanilla.hasCustomName() ? vanilla.getName().getString() : null;
@@ -701,7 +690,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         Entity leashHolder = vanilla.getLeashHolder();
 
         // Convert to CavalryHorseEntity
-        CavalryHorseEntity cav = vanilla.convertTo(ModEntities.CAVALRY_HORSE, true);
+        CavalryHorseEntity cav = vanilla.convertTo(ModEntities.CAVALRY_HORSE, net.minecraft.world.entity.ConversionParams.single(vanilla, true, true), converted -> {});
         if (cav == null) return null;
 
         // Re-apply attributes & health
@@ -733,14 +722,14 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
 
         // Re-apply AbstractHorse state
         cav.setTamed(wasTamed);
-        cav.setOwnerUUID(owner);
+        ((com.minecolonies.fabric.mixin.entity.AbstractHorseAccessor) cav).minecolonies$setOwnerReference(owner);
         cav.setTemper(temper);
         cav.setPersistenceRequired();
 
         // Re-apply Horse-specific visuals
         if (variant != null)
         {
-            cav.setVariant(variant);
+            cav.setComponent(net.minecraft.core.component.DataComponents.HORSE_VARIANT, variant);
         }
 
         // Name & leash
@@ -852,7 +841,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
      * @return true if the damage was applied, false otherwise
      */
     @Override
-    public boolean hurtServer(final net.minecraft.server.level.ServerLevel level, final DamageSource damageSource, final float damageAmount)
+    public boolean hurtServer(final net.minecraft.server.level.ServerLevel level, final DamageSource damageSource, float damageAmount)
     {
        
         if (level().isClientSide())

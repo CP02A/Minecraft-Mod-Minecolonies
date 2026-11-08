@@ -769,4 +769,16 @@ public class TileEntityRack extends AbstractTileEntityRack implements IMateriall
             this.getInventory().setStackInSlot(i, ItemStack.EMPTY);
         }
     }
+
+    @Override
+    public void preRemoveSideEffects(final BlockPos pos, final net.minecraft.world.level.block.state.BlockState state)
+    {
+        // Former block onRemove: drop the inventory when the block is replaced.
+        if (level != null)
+        {
+            com.minecolonies.api.util.InventoryUtils.dropItemHandler(getInventory(), level, pos.getX(), pos.getY(), pos.getZ());
+            level.updateNeighbourForOutputSignal(pos, state.getBlock());
+        }
+        super.preRemoveSideEffects(pos, state);
+    }
 }

@@ -128,7 +128,6 @@ public class FakeChunk extends LevelChunk
         return getBlockEntities().keySet();
     }
 
-    @Override
     public ModelData getModelData(BlockPos pos)
     {
         return fakeLevel.getModelData(pos);
@@ -256,7 +255,7 @@ public class FakeChunk extends LevelChunk
     }
 
     @Override
-    public void replaceWithPacketData(FriendlyByteBuf p_187972_, Map<Types, long[]> p_187973_, Consumer<BlockEntityTagOutput> p_187974_)
+    public void replaceWithPacketData(final int chunkX, final int chunkZ, final net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData chunkData)
     {
         // Noop
     }
@@ -294,7 +293,7 @@ public class FakeChunk extends LevelChunk
     }
 
     @Override
-    public void fillBiomesFromNoise(BiomeResolver p_187638_, Sampler p_187639_)
+    public void fillBiomesFromNoise(BiomeResolver p_187638_)
     {
         // Noop
     }

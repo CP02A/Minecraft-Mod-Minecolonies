@@ -2,10 +2,10 @@ package com.ldtteam.blockui;
 
 import com.ldtteam.blockui.mod.BlockUI;
 import com.ldtteam.blockui.util.color.IColour;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat.Mode;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.TextureSetup;
@@ -36,26 +36,26 @@ public class UiRenderMacros
         .withLocation(BlockUI.resLoc("gui_pos_color_triangles"))
         .withVertexShader("core/position_color")
         .withFragmentShader("core/position_color")
-        .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, Mode.TRIANGLES)
+        .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR).withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
         .build();
     /** alpha/blending enabled by default */
     public static final RenderPipeline GUI_POS_TEX_TRIANGLES = RenderPipeline.builder(RenderPipelines.GUI_TEXTURED_SNIPPET)
         .withLocation(BlockUI.resLoc("gui_pos_tex_triangles"))
         .withVertexShader("core/position_tex")
         .withFragmentShader("core/position_tex")
-        .withVertexFormat(DefaultVertexFormat.POSITION_TEX, Mode.TRIANGLES)
+        .withVertexBinding(0, DefaultVertexFormat.POSITION_TEX).withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
         .build();
     /** alpha/blending enabled by default */
     public static final RenderPipeline GUI_POS_TEX_COLOR_TRIANGLES = RenderPipeline.builder(RenderPipelines.GUI_TEXTURED_SNIPPET)
         .withLocation(BlockUI.resLoc("gui_pos_tex_color_triangles"))
         .withVertexShader("core/position_tex_color")
         .withFragmentShader("core/position_tex_color")
-        .withVertexFormat(DefaultVertexFormat.POSITION_TEX_COLOR, Mode.TRIANGLES)
+        .withVertexBinding(0, DefaultVertexFormat.POSITION_TEX_COLOR).withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
         .build();
     /** alpha/blending enabled by default */
     public static final RenderPipeline GUI_POS_COLOR_LINES = RenderPipeline.builder(RenderPipelines.GUI_SNIPPET)
         .withLocation(BlockUI.resLoc("gui_pos_color_lines"))
-        .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, Mode.DEBUG_LINES)
+        .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR).withPrimitiveTopology(PrimitiveTopology.DEBUG_LINES)
         .build();
 
     public static void drawLineRectGradient(final GuiGraphicsExtractor ps,
@@ -803,7 +803,7 @@ public class UiRenderMacros
             y,
             w,
             h,
-            (pose, bounds, scissors) -> target.submitGuiElementRenderState(
+            (pose, bounds, scissors) -> target.guiRenderState.addGuiElement(
                 new UiRenderMacrosGuiElementRenderState(pose, task, pipeline, TextureSetup.noTexture(), bounds, scissors)));
     }
 
@@ -817,9 +817,9 @@ public class UiRenderMacros
         final BiConsumer<Matrix3x2f, VertexConsumer> task)
     {
         innerSubmit(target, x, y, w, h, (pose, bounds, scissors) -> {
-            final AbstractTexture texture = target.minecraft.getTextureManager().getTexture(texResLoc);
+            final AbstractTexture texture = net.minecraft.client.Minecraft.getInstance().getTextureManager().getTexture(texResLoc);
             final TextureSetup textureSetup = TextureSetup.singleTexture(texture.getTextureView(), texture.getSampler());
-            target.submitGuiElementRenderState(
+            target.guiRenderState.addGuiElement(
                 new UiRenderMacrosGuiElementRenderState(pose, task, pipeline, textureSetup, bounds, scissors));
         });
     }
@@ -832,7 +832,7 @@ public class UiRenderMacros
         final SubmitTask task)
     {
         final Matrix3x2f pose = new Matrix3x2f(target.pose());
-        final ScreenRectangle scissors = target.peekScissorStack();
+        final ScreenRectangle scissors = target.scissorStack.peek();
 
         ScreenRectangle bounds = new ScreenRectangle(x, y, w, h);
         bounds = bounds.transformMaxBounds(pose);

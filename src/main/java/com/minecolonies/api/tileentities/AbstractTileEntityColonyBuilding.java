@@ -275,9 +275,10 @@ public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack im
     }
 
     @Override
-    public void loadAdditional(@NotNull final CompoundTag compound, @NotNull final HolderLookup.Provider provider)
+    public void loadAdditional(@NotNull final net.minecraft.world.level.storage.ValueInput input)
     {
-        super.loadAdditional(compound, provider);
+        super.loadAdditional(input);
+        final CompoundTag compound = com.minecolonies.core.entity.NbtValueIO.read(input);
         readSchematicDataFromNBT(compound);
         this.version = compound.getIntOr(TAG_VERSION, 0);
     }
@@ -302,11 +303,13 @@ public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack im
     }
 
     @Override
-    public void saveAdditional(@NotNull final CompoundTag compound, @NotNull final HolderLookup.Provider provider)
+    public void saveAdditional(@NotNull final net.minecraft.world.level.storage.ValueOutput output)
     {
-        super.saveAdditional(compound, provider);
+        super.saveAdditional(output);
+        final CompoundTag compound = new CompoundTag();
         writeSchematicDataToNBT(compound);
         compound.putInt(TAG_VERSION, this.version);
+        com.minecolonies.core.entity.NbtValueIO.write(output, compound);
     }
 
     @Override

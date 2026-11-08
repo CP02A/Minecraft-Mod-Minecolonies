@@ -61,7 +61,7 @@ public class BlockScarecrow extends AbstractBlockMinecoloniesDefault<BlockScarec
      */
     public BlockScarecrow()
     {
-        super(Properties.of().mapColor(MapColor.WOOD).sound(SoundType.WOOD).strength(HARDNESS, RESISTANCE));
+        super(Properties.of().mapColor(MapColor.WOOD).sound(SoundType.WOOD).strength(HARDNESS, RESISTANCE).lightLevel(s -> s.getValue(LANTERN) ? 15 : 0));
         this.registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.NORTH).setValue(HALF, DoubleBlockHalf.LOWER).setValue(LANTERN, false));
     }
 
@@ -69,12 +69,6 @@ public class BlockScarecrow extends AbstractBlockMinecoloniesDefault<BlockScarec
     public Identifier getRegistryName()
     {
         return Identifier.fromNamespaceAndPath(Constants.MOD_ID, REGISTRY_NAME);
-    }
-
-    @Override
-    public int getLightEmission(final BlockState state, final BlockGetter level, final BlockPos pos)
-    {
-        return state.getValue(LANTERN) ? Blocks.LANTERN.defaultBlockState().getLightEmission(level, pos) : 0;
     }
 
     @Nullable
@@ -172,15 +166,12 @@ public class BlockScarecrow extends AbstractBlockMinecoloniesDefault<BlockScarec
     }
 
     @Override
-    public void neighborChanged(final BlockState state, final Level worldIn, final BlockPos pos, final Block block, final BlockPos fromPos, final boolean isMoving)
+    public void neighborChanged(final BlockState state, final Level worldIn, final BlockPos pos, final Block block, final @Nullable net.minecraft.world.level.redstone.Orientation fromPos, final boolean isMoving)
     {
         super.neighborChanged(state, worldIn, pos, block, fromPos, isMoving);
         final DoubleBlockHalf half = state.getValue(HALF);
         final BlockPos otherPos = half == DoubleBlockHalf.LOWER ? pos.above() : pos.below();
-        if (!fromPos.equals(otherPos))
-        {
-            return;
-        }
+        // 26.x neighborChanged no longer passes the neighbour position; always sync with the other half.
         final BlockState otherState = worldIn.getBlockState(otherPos);
         if (otherState.getBlock() == this && otherState.getValue(HALF) != half && otherState.getValue(LANTERN) != state.getValue(LANTERN))
         {
@@ -200,7 +191,7 @@ public class BlockScarecrow extends AbstractBlockMinecoloniesDefault<BlockScarec
     }
 
     @Override
-    public void wasExploded(final Level worldIn, final BlockPos pos, final Explosion explosionIn)
+    public void wasExploded(final net.minecraft.server.level.ServerLevel worldIn, final BlockPos pos, final Explosion explosionIn)
     {
         notifyColonyAboutDestruction(worldIn, pos);
         super.wasExploded(worldIn, pos, explosionIn);

@@ -15,4 +15,7 @@ public interface CombatTrackerAccessor
 {
     @Accessor("entries")
     List<CombatEntry> minecolonies$getEntries();
+
+    @org.spongepowered.asm.mixin.gen.Invoker("getMostSignificantFall")
+    @org.jspecify.annotations.Nullable CombatEntry minecolonies$getMostSignificantFall();
 }

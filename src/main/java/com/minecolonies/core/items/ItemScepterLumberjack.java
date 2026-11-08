@@ -41,7 +41,7 @@ public class ItemScepterLumberjack extends AbstractItemMinecolonies implements I
      */
     public ItemScepterLumberjack(final Properties properties)
     {
-        super("scepterlumberjack", properties.stacksTo(1).component(ModDataComponents.POS_SELECTION, PosSelection.EMPTY));
+        super("scepterlumberjack", properties.stacksTo(1).component(ModDataComponents.POS_SELECTION.get(), PosSelection.EMPTY));
     }
 
     @NotNull
@@ -62,8 +62,12 @@ public class ItemScepterLumberjack extends AbstractItemMinecolonies implements I
     }
 
     @Override
-    public boolean canAttackBlock(@NotNull final BlockState state, @NotNull final Level world, @NotNull final BlockPos pos, @NotNull final Player player)
+    public boolean canDestroyBlock(@NotNull final ItemStack stack, @NotNull final BlockState state, @NotNull final Level world, @NotNull final BlockPos pos, @NotNull final net.minecraft.world.entity.LivingEntity user)
     {
+        if (!(user instanceof Player player))
+        {
+            return false;
+        }
         if (!world.isClientSide())
         {
             final ItemStack scepter = player.getMainHandItem();

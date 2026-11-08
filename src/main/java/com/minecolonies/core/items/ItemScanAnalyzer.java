@@ -55,9 +55,9 @@ public class ItemScanAnalyzer extends AbstractItemWithPosSelector
       final Item.Properties properties)
     {
         super(properties.durability(0)
-            .setNoRepair()
+            .component(net.minecraft.core.component.DataComponents.REPAIRABLE, null)
             .rarity(Rarity.UNCOMMON)
-            .component(ModDataComponents.POS_SELECTION, PosSelection.EMPTY));
+            .component(ModDataComponents.POS_SELECTION.get(), PosSelection.EMPTY));
     }
 
     /**
@@ -75,10 +75,10 @@ public class ItemScanAnalyzer extends AbstractItemWithPosSelector
      * {@inheritDoc}
      */
     @Override
-    public boolean canAttackBlock(final BlockState state, final Level worldIn, final BlockPos pos, final Player player)
+    public boolean canDestroyBlock(final ItemStack stack, final BlockState state, final Level worldIn, final BlockPos pos, final net.minecraft.world.entity.LivingEntity player)
     {
         checkTimeout(player.getMainHandItem(), worldIn);
-        boolean result = super.canAttackBlock(state, worldIn, pos, player);
+        boolean result = super.canDestroyBlock(stack, state, worldIn, pos, player);
         openAreaBox(player.getMainHandItem());
         return result;
     }

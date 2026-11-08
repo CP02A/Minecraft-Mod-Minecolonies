@@ -9,7 +9,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.core.Direction;
@@ -36,11 +35,7 @@ import net.minecraft.world.level.block.state.BlockState;
  */
 public class BlockColonyFlagWallBanner extends AbstractColonyFlagBanner<BlockColonyFlagWallBanner>
 {
-    public static final MapCodec<BlockColonyFlagWallBanner> CODEC = RecordCodecBuilder.mapCodec(builder -> builder
-        .group(DyeColor.CODEC.fieldOf("color").forGetter(BlockColonyFlagWallBanner::getColor),
-            propertiesCodec())
-        .apply(builder, BlockColonyFlagWallBanner::new));
-    public static final DirectionProperty          HORIZONTAL_FACING = HorizontalDirectionalBlock.FACING;
+    public static final net.minecraft.world.level.block.state.properties.EnumProperty<Direction>          HORIZONTAL_FACING = HorizontalDirectionalBlock.FACING;
     private static final Map<Direction, VoxelShape> BANNER_SHAPES     = Maps.newEnumMap(ImmutableMap.of(
             Direction.NORTH, Block.box(0.0D, 0.0D, 14.0D, 16.0D, 12.5D, 16.0D),
             Direction.SOUTH, Block.box(0.0D, 0.0D, 0.0D, 16.0D, 12.5D, 2.0D),
@@ -52,7 +47,7 @@ public class BlockColonyFlagWallBanner extends AbstractColonyFlagBanner<BlockCol
         this(DyeColor.WHITE,
             Properties.of().mapColor(MapColor.WOOD)
               .sound(SoundType.WOOD)
-                .noCollission()
+                .noCollision()
                 .strength(1F)
                 .sound(SoundType.WOOD));
     }
@@ -61,12 +56,6 @@ public class BlockColonyFlagWallBanner extends AbstractColonyFlagBanner<BlockCol
     {
         super(dyeColor, properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(HORIZONTAL_FACING, Direction.NORTH));
-    }
-
-    @Override
-    protected MapCodec<BlockColonyFlagWallBanner> codec()
-    {
-        return CODEC;
     }
 
     // FABRIC-PORT: Block#getDescriptionId is final in 26.x; the registration should use Properties#overrideDescription(<banner item description id>).
@@ -78,9 +67,9 @@ public class BlockColonyFlagWallBanner extends AbstractColonyFlagBanner<BlockCol
     }
 
     @Override
-    public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn, BlockPos currentPos, BlockPos facingPos)
+    public BlockState updateShape(final BlockState stateIn, final net.minecraft.world.level.LevelReader worldIn, final net.minecraft.world.level.ScheduledTickAccess scheduledTickAccess, final BlockPos currentPos, final Direction facing, final BlockPos facingPos, final BlockState facingState, final net.minecraft.util.RandomSource randomSource)
     {
-        return facing == stateIn.getValue(HORIZONTAL_FACING).getOpposite() && !stateIn.canSurvive(worldIn, currentPos) ? Blocks.AIR.defaultBlockState() : super.updateShape(stateIn, facing, facingState, worldIn, currentPos, facingPos);
+        return facing == stateIn.getValue(HORIZONTAL_FACING).getOpposite() && !stateIn.canSurvive(worldIn, currentPos) ? Blocks.AIR.defaultBlockState() : super.updateShape(stateIn, worldIn, scheduledTickAccess, currentPos, facing, facingPos, facingState, randomSource);
     }
 
     @Override

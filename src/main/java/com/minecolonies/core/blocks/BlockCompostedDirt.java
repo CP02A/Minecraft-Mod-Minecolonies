@@ -58,7 +58,7 @@ public class BlockCompostedDirt extends AbstractBlockMinecolonies<BlockComposted
         return SHAPE;
     }
 
-    @Override
+    // FABRIC-PORT TODO: NeoForge IBlockExtension#canSustainPlant has no Fabric equivalent (plants use vanilla mayPlaceOn / dirt tags).
     public TriState canSustainPlant(final BlockState state, final BlockGetter level, final BlockPos soilPosition, final Direction facing, final BlockState plant)
     {
         return TriState.TRUE;

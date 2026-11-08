@@ -175,7 +175,7 @@ public class ItemAssistantHammer extends AbstractItemMinecolonies
 
             if (buildAttemptResult.areBlocksToBuildNearby() && buildAttemptResult.didTryBuilding() && !player.isCreative())
             {
-                player.getMainHandItem().hurtAndBreak(player.getMainHandItem().getItem().damageItem(player.getMainHandItem(), 1, player, s -> {}), player, EquipmentSlot.MAINHAND);
+                player.getMainHandItem().hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
             }
         }
     }

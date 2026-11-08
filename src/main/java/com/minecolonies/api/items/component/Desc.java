@@ -16,7 +16,7 @@ import java.util.function.UnaryOperator;
 public record Desc(MutableComponent desc)
 {
     public static final Desc EMPTY = new Desc(Component.empty());
-    public static final Codec<Desc> CODEC = ComponentSerialization.FLAT_CODEC.xmap(Desc::new, Desc::desc);
+    public static final Codec<Desc> CODEC = ComponentSerialization.CODEC.xmap(Desc::new, Desc::desc);
     public static final StreamCodec<RegistryFriendlyByteBuf, Desc> STREAM_CODEC = ComponentSerialization.STREAM_CODEC.map(Desc::new, Desc::desc);
 
     public Desc(Component comp)
@@ -31,12 +31,12 @@ public record Desc(MutableComponent desc)
 
     public void writeToItemStack(final ItemStack itemStack)
     {
-        itemStack.set(ModDataComponents.DESC_COMPONENT, this);
+        itemStack.set(ModDataComponents.DESC_COMPONENT.get(), this);
     }
 
     public static Desc readFromItemStack(final ItemStack itemStack)
     {
-        return itemStack.getOrDefault(ModDataComponents.DESC_COMPONENT, Desc.EMPTY);
+        return itemStack.getOrDefault(ModDataComponents.DESC_COMPONENT.get(), Desc.EMPTY);
     }
 
     public static void updateItemStack(final ItemStack itemStack, final UnaryOperator<Desc> updater)

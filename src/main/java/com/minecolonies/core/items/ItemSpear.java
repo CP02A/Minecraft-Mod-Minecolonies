@@ -19,7 +19,7 @@ import com.ldtteam.shim.neoforge.common.ItemAbility;
 import org.jetbrains.annotations.NotNull;
 
 
-public class ItemSpear extends TridentItem
+public class ItemSpear extends TridentItem implements com.ldtteam.shim.neoforge.common.extensions.IItemExtension
 {
     protected static final int SPEAR_BASE_DAMAGE = 3;
 
@@ -85,7 +85,7 @@ public class ItemSpear extends TridentItem
      * @param itemAbility the item ability.
      * @return true if the action can be performed.
      */
-    // FABRIC-PORT TODO: NeoForge IItemExtension#canPerformAction has no Fabric equivalent; kept for callers.
+    @Override
     public boolean canPerformAction(ItemStack stack, ItemAbility itemAbility)
     {
         return ItemAbilities.DEFAULT_SWORD_ACTIONS.contains(itemAbility);

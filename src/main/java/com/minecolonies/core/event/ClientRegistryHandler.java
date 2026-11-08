@@ -39,6 +39,8 @@ import net.minecraft.client.renderer.entity.MinecartRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.entity.TippableArrowRenderer;
 import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
 import com.minecolonies.core.client.render.SpearItemTileEntityRenderer;
 import net.minecraft.resources.Identifier;
 import com.ldtteam.shim.api.distmarker.Dist;
@@ -337,7 +339,7 @@ public class ClientRegistryHandler
 
         event.registerEntityRenderer(ModEntities.MERCENARY, RenderMercenary::new);
         event.registerEntityRenderer(ModEntities.SITTINGENTITY, RenderSitting::new);
-        event.registerEntityRenderer(ModEntities.MINECART, (context) -> new MinecartRenderer(context, ModelLayers.MINECART));
+        event.<AbstractMinecart>registerEntityRenderer(ModEntities.MINECART, (context) -> new MinecartRenderer(context, ModelLayers.MINECART));
         event.registerEntityRenderer(ModEntities.CAVALRY_HORSE, HorseRenderer::new);
 
         event.registerBlockEntityRenderer(MinecoloniesTileEntities.BUILDING.get(), EmptyTileEntitySpecialRenderer::new);
@@ -365,7 +367,7 @@ public class ClientRegistryHandler
         {
             if (entityType == ModEntities.CAVALRY_HORSE && entityRenderer instanceof HorseRenderer horseRenderer)
             {
-                registrationHelper.register(new CavalryOverlayLayer(horseRenderer));
+                registrationHelper.register((RenderLayer) new CavalryOverlayLayer(horseRenderer));
             }
         });
     }

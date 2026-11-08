@@ -32,10 +32,6 @@ import net.minecraft.world.level.LevelReader;
  */
 public class BlockColonyFlagBanner extends AbstractColonyFlagBanner<BlockColonyFlagBanner>
 {
-    public static final MapCodec<BlockColonyFlagBanner> CODEC = RecordCodecBuilder.mapCodec(builder -> builder
-        .group(DyeColor.CODEC.fieldOf("color").forGetter(BlockColonyFlagBanner::getColor),
-            propertiesCodec())
-        .apply(builder, BlockColonyFlagBanner::new));
     public static final IntegerProperty ROTATION = BlockStateProperties.ROTATION_16;
     private static final VoxelShape SHAPE = Block.box(4.0D, 0.0D, 4.0D, 12.0D, 16.0D, 12.0D);
 
@@ -44,7 +40,7 @@ public class BlockColonyFlagBanner extends AbstractColonyFlagBanner<BlockColonyF
         super(DyeColor.WHITE,
             Properties.of().mapColor(MapColor.WOOD)
               .sound(SoundType.WOOD)
-                .noCollission()
+                .noCollision()
                 .strength(1F)
                 .sound(SoundType.WOOD));
     }
@@ -53,12 +49,6 @@ public class BlockColonyFlagBanner extends AbstractColonyFlagBanner<BlockColonyF
     {
         super(dyeColor, properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(ROTATION, Integer.valueOf(0)));
-    }
-
-    @Override
-    protected MapCodec<BlockColonyFlagBanner> codec()
-    {
-        return CODEC;
     }
 
     @Override
@@ -81,11 +71,11 @@ public class BlockColonyFlagBanner extends AbstractColonyFlagBanner<BlockColonyF
     }
 
     @Override
-    public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn, BlockPos currentPos, BlockPos facingPos)
+    public BlockState updateShape(final BlockState stateIn, final net.minecraft.world.level.LevelReader worldIn, final net.minecraft.world.level.ScheduledTickAccess scheduledTickAccess, final BlockPos currentPos, final Direction facing, final BlockPos facingPos, final BlockState facingState, final net.minecraft.util.RandomSource randomSource)
     {
         return facing == Direction.DOWN && !stateIn.canSurvive(worldIn, currentPos)
                 ? Blocks.AIR.defaultBlockState()
-                : super.updateShape(stateIn, facing, facingState, worldIn, currentPos, facingPos);
+                : super.updateShape(stateIn, worldIn, scheduledTickAccess, currentPos, facing, facingPos, facingState, randomSource);
     }
 
     @Override

@@ -129,9 +129,7 @@ public class CitizenExperienceHandler implements ICitizenExperienceHandler
     {
         int experience;
 
-        if (!CompatibilityUtils.getWorldFromCitizen(citizen).isClientSide() && citizen.getRecentlyHit() > 0 && citizen.checkCanDropLoot() && CompatibilityUtils.getWorldFromCitizen(
-          citizen).getGameRules().getBoolean(
-          GameRules.RULE_DOMOBLOOT))
+        if (!CompatibilityUtils.getWorldFromCitizen(citizen).isClientSide() && citizen.getRecentlyHit() > 0 && citizen.checkCanDropLoot() && ((net.minecraft.server.level.ServerLevel) CompatibilityUtils.getWorldFromCitizen(citizen)).getGameRules().get(GameRules.MOB_DROPS))
         {
             experience = (int) (citizen.getCitizenData().getCitizenSkillHandler().getTotalXP());
 

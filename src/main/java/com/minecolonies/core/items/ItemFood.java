@@ -67,7 +67,7 @@ public class ItemFood extends Item implements IMinecoloniesFoodItem
             qty++;
         }
 
-        return Optional.of(new BundleTooltip(new BundleContents(nonnulllist)));
+        return Optional.of(new BundleTooltip(new BundleContents(nonnulllist.stream().filter(s -> !s.isEmpty()).map(net.minecraft.world.item.ItemStackTemplate::fromNonEmptyStack).toList())));
     }
 
     @Override

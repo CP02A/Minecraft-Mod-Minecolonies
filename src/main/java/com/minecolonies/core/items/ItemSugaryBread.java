@@ -30,7 +30,6 @@ public class ItemSugaryBread extends ItemFood
     private static FoodProperties sweetBread = (new FoodProperties.Builder())
                                         .nutrition(6)
                                         .saturationModifier(0.7F)
-                                        .effect(() -> new MobEffectInstance(MobEffects.SPEED, 600), 1.0F)
                                         .build(); 
 
     /**
@@ -40,7 +39,8 @@ public class ItemSugaryBread extends ItemFood
      */
     public ItemSugaryBread(final Properties properties)
     {
-        super((new Item.Properties()).food(sweetBread), 1);
+        super(properties.food(sweetBread, net.minecraft.world.item.component.Consumables.defaultFood()
+            .onConsume(new net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect(new MobEffectInstance(MobEffects.SPEED, 600), 1.0F)).build()), 1);
     }
 
    /**

@@ -19,9 +19,15 @@
     "ReloadableServerResourcesMixin",
     "ServerExplosionMixin",
     "ServerLevelMixin",
-    "ServerPlayerMixin"
+    "ServerPlayerMixin",
+    "items.AbstractHorseAccessor",
+    "items.BlockEntityTypeAccessor",
+    "common.ShearableBlocksMixin"
   ],
-  "client": [],
+  "client": [
+    "client.MouseHandlerMixin",
+    "client.SoundEngineMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

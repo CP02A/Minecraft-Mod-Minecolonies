@@ -18,7 +18,7 @@ import net.minecraft.network.chat.Component;
 import org.joml.Matrix2f;
 import org.joml.Matrix3x2f;
 import org.joml.Matrix4f;
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 
 import java.util.Objects;
 
@@ -53,11 +53,11 @@ public class BOScreen extends Screen
     @Override
     public void extractRenderState(final GuiGraphicsExtractor ms, final int mx, final int my, final float f)
     {
-        if (ms.minecraft == null || !isOpen) // should never happen though
+        if (minecraft == null || !isOpen) // should never happen though
         {
             return;
         }
-        final WindowRenderState windowState = ms.minecraft.gameRenderer.getGameRenderState().windowRenderState;
+        final WindowRenderState windowState = minecraft.gameRenderer.gameRenderState().windowRenderState;
 
         absoluteMouseX = mx;
         absoluteMouseY = my;
@@ -67,7 +67,7 @@ public class BOScreen extends Screen
         final int guiHeight = Math.max(framebufferHeight, Window.BASE_HEIGHT);
 
         mcScale = windowState.guiScale;
-        renderScale = window.getRenderType().calcRenderScale(ms.minecraft.getWindow(), window);
+        renderScale = window.getRenderType().calcRenderScale(minecraft.getWindow(), window);
 
         width = window.getWidth();
         height = window.getHeight();
@@ -109,14 +109,21 @@ public class BOScreen extends Screen
         try
         {
             final double newMx = calcRelativeX(mx), newMy = calcRelativeY(my);
-            final BOGuiGraphics target = new BOGuiGraphics(ms.minecraft, newMs, ms.guiRenderState, (int) newMx, (int) newMy);
+            final BOGuiGraphics target = new BOGuiGraphics(minecraft, newMs, ms.guiRenderState, (int) newMx, (int) newMy);
 
-            if (window.hasBlurredBackground() && ms.minecraft.screen == this && target.guiRenderState.firstStratumAfterBlur == Integer.MAX_VALUE)
+            if (window.hasBlurredBackground() && minecraft.gui.screen() == this)
             {
-                target.blurBeforeThisStratum();
+                try
+                {
+                    target.blurBeforeThisStratum();
+                }
+                catch (final IllegalStateException e)
+                {
+                    // already blurred this frame (26.3: firstStratumAfterBlur is private)
+                }
             }
 
-            if (window.hasLightbox() && ms.minecraft.screen == this)
+            if (window.hasLightbox() && minecraft.gui.screen() == this)
             {
                 UiRenderMacros.fillGradient(target, 0, 0, framebufferWidth, framebufferHeight, -1072689136, -804253680);
                 // super.extractTransparentBackground(target);
@@ -127,7 +134,7 @@ public class BOScreen extends Screen
 
             window.draw(target, newMx, newMy);
 
-            if (ms.minecraft.screen == this)
+            if (minecraft.gui.screen() == this)
             {
                 int debugX = (int) (-x / renderScale) + 3;
                 if (Pane.debugging)
@@ -160,7 +167,7 @@ public class BOScreen extends Screen
 
     @Override // INLINE: partial inline - completely remove any extraction
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-        this.minecraft.gui.extractDeferredSubtitles();
+        this.minecraft.gui.hud.extractDeferredSubtitles();
     }
 
     @Override
@@ -168,7 +175,7 @@ public class BOScreen extends Screen
     {
         final int key = event.key();
         // keys without printable representation
-        if (key >= 0 && key <= GLFW.GLFW_KEY_LAST)
+        if (key >= 0 && key <= org.lwjgl.sdl.SDLScancode.SDL_SCANCODE_COUNT)
         {
             try
             {
@@ -218,13 +225,13 @@ public class BOScreen extends Screen
         final double my = calcRelativeY(event.y());
         try
         {
-            if (keyCode == GLFW.GLFW_MOUSE_BUTTON_LEFT)
+            if (keyCode == InputConstants.MOUSE_BUTTON_LEFT)
             {
                 // Adjust coordinate to origin of window
                 isMouseLeftDown = true;
                 return window.click(mx, my);
             }
-            else if (keyCode == GLFW.GLFW_MOUSE_BUTTON_RIGHT)
+            else if (keyCode == InputConstants.MOUSE_BUTTON_RIGHT)
             {
                 return window.rightClick(mx, my);
             }
@@ -281,7 +288,7 @@ public class BOScreen extends Screen
     public boolean mouseReleased(final MouseButtonEvent event)
     {
         final int keyCode = event.button();
-        if (keyCode == GLFW.GLFW_MOUSE_BUTTON_LEFT)
+        if (keyCode == InputConstants.MOUSE_BUTTON_LEFT)
         {
             // Adjust coordinate to origin of window
             isMouseLeftDown = false;
@@ -327,7 +334,7 @@ public class BOScreen extends Screen
                     window.onUpdate();
 
                     final LocalPlayer player = minecraft == null ? null : minecraft.player;
-                    if (player != null && (!player.isAlive() || player.dead))
+                    if (player != null && (!player.isAlive() || player.isDeadOrDying()))
                     {
                         player.closeContainer();
                     }

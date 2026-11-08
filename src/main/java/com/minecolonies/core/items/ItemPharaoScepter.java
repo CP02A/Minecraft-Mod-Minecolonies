@@ -97,14 +97,27 @@ public class ItemPharaoScepter extends BowItem
         {
             return projectile;
         }
+        final AbstractArrow custom = customArrow(arrow, projectileStack, weaponStack);
+        custom.setCritArrow(isCrit);
+        return custom;
+    }
 
+    /**
+     * Replaces the arrow with a fire arrow (former NeoForge BowItem#customArrow override).
+     *
+     * @param arrow           the original arrow.
+     * @param projectileStack the projectile stack.
+     * @param weaponStack     the weapon.
+     * @return the arrow to shoot.
+     */
+    public AbstractArrow customArrow(final AbstractArrow arrow, final ItemStack projectileStack, final ItemStack weaponStack)
+    {
         if (arrow.getOwner() == null)
         {
             return arrow;
         }
 
         AbstractArrow entity = ((ArrowItem) ModItems.firearrow).createArrow(arrow.level(), new ItemStack(ModItems.firearrow, 1), (LivingEntity) arrow.getOwner(), weaponStack);
-        entity.setCritArrow(isCrit);
         entity.pickup = AbstractArrow.Pickup.DISALLOWED;
         entity.setRemainingFireTicks(3 * TICKS_PER_SECOND);
 

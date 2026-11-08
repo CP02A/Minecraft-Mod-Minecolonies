@@ -33,9 +33,6 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import com.ldtteam.shim.neoforge.common.CommonHooks;
-import com.ldtteam.shim.neoforge.common.FarmlandWaterManager;
-import com.ldtteam.shim.neoforge.common.SpecialPlantable;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -61,7 +58,7 @@ public class MinecoloniesFarmland extends AbstractBlockMinecolonies<Minecolonies
 
     public MinecoloniesFarmland(@NotNull final String blockName, final boolean waterLogged, final double height)
     {
-        super(BlockBehaviour.Properties.of().mapColor(MapColor.DIRT).randomTicks().strength(0.6F).sound(SoundType.GRAVEL).isViewBlocking((s,g,p) -> true).isSuffocating((s,g,p) -> true));
+        super(BlockBehaviour.Properties.of().mapColor(MapColor.DIRT).randomTicks().strength(0.6F).sound(SoundType.GRAVEL).isViewBlocking((s,g,p,a) -> true).isSuffocating((s,g,p) -> true));
         this.registerDefaultState(this.stateDefinition.any().setValue(MOISTURE, 0));
         this.blockId = Identifier.fromNamespaceAndPath(Constants.MOD_ID, blockName);
         this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, Boolean.valueOf(waterLogged)));
@@ -72,18 +69,18 @@ public class MinecoloniesFarmland extends AbstractBlockMinecolonies<Minecolonies
 
     @NotNull
     @Override
-    public BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState newState, @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos)
+    public BlockState updateShape(final BlockState state, final net.minecraft.world.level.LevelReader level, final net.minecraft.world.level.ScheduledTickAccess scheduledTickAccess, final BlockPos pos, final Direction direction, final BlockPos neighborPos, final BlockState newState, final net.minecraft.util.RandomSource randomSource)
     {
         if (direction == Direction.UP && !state.canSurvive(level, pos))
         {
-            level.scheduleTick(pos, this, 1);
+            scheduledTickAccess.scheduleTick(pos, this, 1);
         }
         if (state.getValue(WATERLOGGED) && waterLogged)
         {
-            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+            scheduledTickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
 
-        return super.updateShape(state, direction, newState, level, pos, neighborPos);
+        return super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, newState, randomSource);
     }
 
     @Override
@@ -169,9 +166,14 @@ public class MinecoloniesFarmland extends AbstractBlockMinecolonies<Minecolonies
     }
 
     @Override
-    public void fallOn(Level level, @NotNull BlockState state, @NotNull BlockPos pos, @NotNull Entity entity, float light)
+    public void fallOn(Level level, @NotNull BlockState state, @NotNull BlockPos pos, @NotNull Entity entity, double light)
     {
-        if (!level.isClientSide() && CommonHooks.onFarmlandTrample(level, pos, Blocks.DIRT.defaultBlockState(), light, entity))
+        // Vanilla FarmlandBlock trample check (was NeoForge CommonHooks.onFarmlandTrample).
+        if (level instanceof net.minecraft.server.level.ServerLevel serverLevel && level.getRandom().nextFloat() < light - 0.5 && entity instanceof net.minecraft.world.entity.LivingEntity
+              && (entity instanceof net.minecraft.world.entity.player.Player player
+                    ? !level.getServer().isUnderSpawnProtection(serverLevel, pos, player)
+                    : serverLevel.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING))
+              && entity.getBbWidth() * entity.getBbWidth() * entity.getBbHeight() > 0.512F)
         {
             turnToDirt(entity, state, level, pos);
         }
@@ -190,7 +192,7 @@ public class MinecoloniesFarmland extends AbstractBlockMinecolonies<Minecolonies
     {
         BlockState plant = p_279219_.getBlockState(p_279209_.above());
         BlockState state = p_279219_.getBlockState(p_279209_);
-        return plant.getBlock() instanceof SpecialPlantable && state.canSustainPlant(p_279219_, p_279209_, Direction.UP, plant.getBlock().defaultBlockState()).isTrue();
+        return plant.is(net.minecraft.tags.BlockTags.MAINTAINS_FARMLAND) || plant.getBlock() instanceof net.minecraft.world.level.block.CropBlock;
     }
 
     private static boolean isNearWater(LevelReader level, BlockPos thisPos)
@@ -204,7 +206,7 @@ public class MinecoloniesFarmland extends AbstractBlockMinecolonies<Minecolonies
                 for (int y = thisPos.getY() - 1; y <= thisPos.getY(); y++)
                 {
                     blockPos.set(x,y,z);
-                    if (state.canBeHydrated(level, thisPos, level.getFluidState(blockPos), blockPos))
+                    if (level.getFluidState(blockPos).is(net.minecraft.tags.FluidTags.WATER))
                     {
                         return true;
                     }
@@ -212,7 +214,8 @@ public class MinecoloniesFarmland extends AbstractBlockMinecolonies<Minecolonies
             }
         }
 
-        return FarmlandWaterManager.hasBlockWaterTicket(level, thisPos);
+        // NeoForge FarmlandWaterManager tickets do not exist on Fabric.
+        return false;
     }
 
     @Override

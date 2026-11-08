@@ -86,7 +86,7 @@ public class OutOfJarResourceLocation extends Identifier
         {
             final OutOfJarResourceLocation mcmeta = nioResLoc.withSuffix(".mcmeta");
             return fileExists(mcmeta, fallbackManager) ?
-                new OutOfJarResource(nioResLoc, FallbackResourceManager.convertToMetadata(() -> Files.newInputStream(mcmeta.getNioPath()))) :
+                new OutOfJarResource(nioResLoc, com.ldtteam.blockui.fabric.mixin.FallbackResourceManagerAccessor.blockui$convertToMetadata(() -> Files.newInputStream(mcmeta.getNioPath()))) :
                 new OutOfJarResource(nioResLoc);
         }
         return fallbackManager.getResource(resLoc).orElseThrow(() -> new FileNotFoundException("File not found: " + resLoc));
@@ -152,7 +152,7 @@ public class OutOfJarResourceLocation extends Identifier
         return of(getNamespace(), nioPath.resolveSibling(nioPath.getFileName().toString() + suffix));
     }
 
-    @Override
+    // FABRIC-PORT: Identifier#compareNamespaced was removed in 26.3
     public int compareNamespaced(final Identifier o)
     {
         if (o instanceof final OutOfJarResourceLocation nioResLoc)
@@ -160,7 +160,7 @@ public class OutOfJarResourceLocation extends Identifier
             final int ret = this.getNamespace().compareTo(nioResLoc.getNamespace());
             return ret != 0 ? ret : this.nioPath.compareTo(nioResLoc.nioPath);
         }
-        return super.compareNamespaced(o);
+        return super.compareTo(o);
     }
 
     @Override

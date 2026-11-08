@@ -401,4 +401,19 @@ public class TileEntityColonySign extends BlockEntity implements ITickable
     {
         return nextPosition;
     }
+
+    @Override
+    public void preRemoveSideEffects(final BlockPos pos, final BlockState state)
+    {
+        // Former BlockColonySign#onRemove.
+        if (level != null && !level.isClientSide())
+        {
+            final IColony colony = IColonyManager.getInstance().getColonyByDimension(getColonyId(), level.dimension());
+            if (colony != null)
+            {
+                colony.getConnectionManager().removeConnectionNode(pos);
+            }
+        }
+        super.preRemoveSideEffects(pos, state);
+    }
 }

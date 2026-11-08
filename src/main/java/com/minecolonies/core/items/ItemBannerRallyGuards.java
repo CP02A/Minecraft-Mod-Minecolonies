@@ -153,7 +153,7 @@ public class ItemBannerRallyGuards extends AbstractItemMinecolonies
         return InteractionResult.SUCCESS;
     }
 
-    @Override
+    // FABRIC-PORT TODO: NeoForge IItemExtension#onDroppedByPlayer hook does not exist on Fabric; rally is not deactivated on drop.
     public boolean onDroppedByPlayer(final ItemStack item, final Player player)
     {
         if (!player.level().isClientSide())
@@ -162,7 +162,7 @@ public class ItemBannerRallyGuards extends AbstractItemMinecolonies
             broadcastPlayerToRally(item, player.level(), null);
         }
 
-        return super.onDroppedByPlayer(item, player);
+        return true;
     }
 
     /**

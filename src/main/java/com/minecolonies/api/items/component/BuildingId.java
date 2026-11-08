@@ -34,12 +34,12 @@ public record BuildingId(BlockPos id)
 
     public void writeToItemStack(final ItemStack itemStack)
     {
-        itemStack.set(ModDataComponents.HUT_ID_COMPONENT, this);
+        itemStack.set(ModDataComponents.HUT_ID_COMPONENT.get(), this);
     }
 
     public static BuildingId readFromItemStack(final ItemStack itemStack)
     {
-        return itemStack.getOrDefault(ModDataComponents.HUT_ID_COMPONENT, BuildingId.EMPTY);
+        return itemStack.getOrDefault(ModDataComponents.HUT_ID_COMPONENT.get(), BuildingId.EMPTY);
     }
 
     public static void updateItemStack(final ItemStack itemStack, final UnaryOperator<BuildingId> updater)

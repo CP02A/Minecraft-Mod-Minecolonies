@@ -32,7 +32,7 @@ public class ItemScepterGuard extends AbstractItemMinecolonies implements IScept
      */
     public ItemScepterGuard(final Item.Properties properties)
     {
-        super("scepterguard", properties.stacksTo(1).durability(2).component(ModDataComponents.PATROL_TARGET, PatrolTarget.EMPTY));
+        super("scepterguard", properties.stacksTo(1).durability(2).component(ModDataComponents.PATROL_TARGET.get(), PatrolTarget.EMPTY));
     }
 
     @NotNull

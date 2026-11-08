@@ -98,7 +98,7 @@ public class CitizenSleepHandler implements ICitizenSleepHandler
     public boolean trySleep(final BlockPos bedLocation)
     {
         final BlockState state = WorldUtil.isEntityBlockLoaded(citizen.level(), bedLocation) ? citizen.level().getBlockState(bedLocation) : null;
-        final boolean isBed = state != null && state.getBlock().isBed(state, citizen.level(), bedLocation, citizen);
+        final boolean isBed = state != null && state.is(net.minecraft.tags.BlockTags.BEDS);
 
         if (!isBed)
         {
@@ -118,7 +118,7 @@ public class CitizenSleepHandler implements ICitizenSleepHandler
         citizen.setSleepingPos(bedLocation);
 
         citizen.setDeltaMovement(Vec3.ZERO);
-        citizen.hasImpulse = true;
+        citizen.needsSync = true;
 
         //Remove item while citizen is asleep.
         CitizenItemUtils.removeHeldItem(citizen);
@@ -262,7 +262,7 @@ public class CitizenSleepHandler implements ICitizenSleepHandler
 
         // Estimated arrival is 1hour past night
         final double timeLeft = (citizen.getCitizenColonyHandler().getColony().getResearchManager().getResearchEffects().getEffectStrength(WORK_LONGER) == 0
-                                   ? NIGHT : NIGHT + citizen.getCitizenColonyHandler().getColony().getResearchManager().getResearchEffects().getEffectStrength(WORK_LONGER) * 1000) - (citizen.level().getDayTime() % 24000);
+                                   ? NIGHT : NIGHT + citizen.getCitizenColonyHandler().getColony().getResearchManager().getResearchEffects().getEffectStrength(WORK_LONGER) * 1000) - (citizen.level().getOverworldClockTime() % 24000);
         if (timeLeft <= 0 || (timeLeft - timeNeeded <= 0))
         {
             if (citizen.getCitizenData().getWorkBuilding() != null)

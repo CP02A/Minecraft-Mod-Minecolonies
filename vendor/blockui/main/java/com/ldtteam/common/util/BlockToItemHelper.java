@@ -89,7 +89,7 @@ public class BlockToItemHelper
     public static ItemStack getItemStackUsingPlayerPick(final Level level, final BlockPos pos, final Player player, @Nullable HitResult hitResult)
     {
         final BlockState blockState = level.getBlockState(pos);
-        ItemStack result = blockState.getCloneItemStack(pos, level, true, player);
+        ItemStack result = blockState.getCloneItemStack(level, pos, true);
 
         if (result.isEmpty())
         {
@@ -108,7 +108,7 @@ public class BlockToItemHelper
         final Block block = blockState.getBlock();
         if (block instanceof final LiquidBlock liquid)
         {
-            return liquid.fluid.getBucket();
+            return liquid.defaultBlockState().getFluidState().getType().getBucket();
         }
         else if (block instanceof BubbleColumnBlock)
         {

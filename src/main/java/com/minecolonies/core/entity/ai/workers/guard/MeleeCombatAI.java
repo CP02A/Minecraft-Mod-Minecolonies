@@ -205,7 +205,7 @@ public class MeleeCombatAI extends AttackMoveAI<EntityCitizen>
             source = target.level().damageSources().source(DamageSourceKeys.GUARD_PVP, user);
         }
 
-        final int fireLevel = user.getItemInHand(InteractionHand.MAIN_HAND).getEnchantmentLevel(Utils.getRegistryValue(Enchantments.FIRE_ASPECT, user.level()));
+        final int fireLevel = net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(Utils.getRegistryValue(Enchantments.FIRE_ASPECT, user.level()), user.getItemInHand(InteractionHand.MAIN_HAND));
         if (fireLevel > 0)
         {
             target.setRemainingFireTicks(fireLevel * 4 * 20);
@@ -272,7 +272,7 @@ public class MeleeCombatAI extends AttackMoveAI<EntityCitizen>
                     livingentity.knockback(
                       2F,
                       Mth.sin(livingentity.getYRot() * ((float) Math.PI)),
-                      (-Mth.cos(livingentity.getYRot() * ((float) Math.PI))));
+                      (-Mth.cos(livingentity.getYRot() * ((float) Math.PI))), source, 0F);
                     livingentity.hurtOrSimulate(source, (float) (damageToBeDealt / entities.size()));
                 }
             }
@@ -348,7 +348,7 @@ public class MeleeCombatAI extends AttackMoveAI<EntityCitizen>
         if (ColonyConstants.rand.nextDouble() > 1 / (1 + user.getCitizenColonyHandler().getColonyOrRegister().getResearchManager().getResearchEffects().getEffectStrength(GUARD_CRIT)))
         {
             addDmg *= 1.5;
-            ((ServerLevel) user.level()).getChunkSource().broadcastAndSend(user, new ClientboundAnimatePacket(target, 4));
+            ((ServerLevel) user.level()).getChunkSource().sendToTrackingPlayersAndSelf(user, new ClientboundAnimatePacket(target, 4));
         }
 
         return addDmg * MineColonies.getConfig().getServer().guardDamageMultiplier.get();

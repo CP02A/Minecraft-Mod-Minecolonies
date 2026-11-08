@@ -1,7 +1,6 @@
 package com.minecolonies.api.entity.mobs.vikings;
 
 import com.minecolonies.api.util.IItemHandlerCapProvider;
-import net.minecraft.commands.CommandSource;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Enemy;
@@ -9,7 +8,7 @@ import com.ldtteam.shim.neoforge.capabilities.Capabilities.ItemHandler;
 import com.ldtteam.shim.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
-public interface INorsemenEntity extends Enemy, CommandSource, IItemHandlerCapProvider
+public interface INorsemenEntity extends Enemy, IItemHandlerCapProvider
 {
     @Override
     @Nullable

@@ -35,7 +35,7 @@ public class BOGuiGraphics extends GuiGraphicsExtractor
                 return font;
             }
         }
-        return minecraft.font;
+        return Minecraft.getInstance().font;
     }
 
     public void renderItemDecorations(final ItemStack itemStack, final int x, final int y)
@@ -55,8 +55,8 @@ public class BOGuiGraphics extends GuiGraphicsExtractor
 
     public int drawString(final String text, final int x, final int y, final int color, final boolean shadow)
     {
-        super.text(minecraft.font, text, x, y, color, shadow);
-        return x + minecraft.font.width(text); // should return end pos
+        super.text(Minecraft.getInstance().font, text, x, y, color, shadow);
+        return x + Minecraft.getInstance().font.width(text); // should return end pos
     }
 
     public void setCursor(final CursorType cursor)
@@ -76,7 +76,7 @@ public class BOGuiGraphics extends GuiGraphicsExtractor
     {
         if (Pane.debugging)
         {
-            drawString(selectedCursor.toString(), debugXoffset, -minecraft.font.lineHeight, Color.getByName("white"));
+            drawString(selectedCursor.toString(), debugXoffset, -Minecraft.getInstance().font.lineHeight, Color.getByName("white"));
         }
 
         // requestCursor(selectedCursor);
