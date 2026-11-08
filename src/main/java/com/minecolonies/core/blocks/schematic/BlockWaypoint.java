@@ -2,7 +2,7 @@ package com.minecolonies.core.blocks.schematic;
 
 import com.minecolonies.api.blocks.AbstractBlockMinecolonies;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.MapColor;
 
@@ -35,8 +35,8 @@ public class BlockWaypoint extends AbstractBlockMinecolonies<BlockWaypoint>
     }
 
     @Override
-    public ResourceLocation getRegistryName()
+    public Identifier getRegistryName()
     {
-        return new ResourceLocation(Constants.MOD_ID, BLOCK_NAME);
+        return new Identifier(Constants.MOD_ID, BLOCK_NAME);
     }
 }

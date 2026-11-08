@@ -14,11 +14,11 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.event.RecipesUpdatedEvent;
-import net.neoforged.neoforge.event.OnDatapackSyncEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import com.ldtteam.shim.bus.api.EventPriority;
+import com.ldtteam.shim.bus.api.SubscribeEvent;
+import com.ldtteam.shim.neoforge.client.event.RecipesUpdatedEvent;
+import com.ldtteam.shim.neoforge.event.OnDatapackSyncEvent;
+import com.ldtteam.shim.neoforge.event.entity.player.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -87,7 +87,7 @@ public class DataPackSyncEventHandler
          * joins the server (with getPlayer() != null), and also on datapack reload (with null).
          * Note that at this point the client has not yet received the recipes/tags.
          *
-         * @param event {@link net.neoforged.neoforge.event.OnDatapackSyncEvent}
+         * @param event {@link com.ldtteam.shim.neoforge.event.OnDatapackSyncEvent}
          */
         @SubscribeEvent(priority = EventPriority.LOWEST)
         public static void onDataPackSync(final OnDatapackSyncEvent event)

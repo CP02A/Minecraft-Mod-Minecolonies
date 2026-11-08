@@ -4,7 +4,7 @@ import com.minecolonies.api.blocks.AbstractBlockMinecoloniesNamedGrave;
 import com.minecolonies.api.blocks.ModBlocks;
 import com.minecolonies.core.tileentities.TileEntityNamedGrave;
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -54,9 +54,9 @@ public class BlockMinecoloniesNamedGrave extends AbstractBlockMinecoloniesNamedG
     }
 
     @Override
-    public ResourceLocation getRegistryName()
+    public Identifier getRegistryName()
     {
-        return new ResourceLocation(Constants.MOD_ID, BLOCK_NAME);
+        return new Identifier(Constants.MOD_ID, BLOCK_NAME);
     }
 
     @Override

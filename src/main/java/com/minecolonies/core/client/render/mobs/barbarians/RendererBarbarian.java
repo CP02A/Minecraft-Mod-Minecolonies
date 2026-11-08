@@ -4,7 +4,7 @@ import com.minecolonies.api.entity.mobs.AbstractEntityMinecoloniesMonster;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Renderer used for Barbarians And Archer Barbarians.
@@ -14,7 +14,7 @@ public class RendererBarbarian extends AbstractRendererBarbarian<AbstractEntityM
     /**
      * Texture of the entity.
      */
-    private static final ResourceLocation TEXTURE = new ResourceLocation("minecolonies", "textures/entity/raiders/barbarian1.png");
+    private static final Identifier TEXTURE = new Identifier("minecolonies", "textures/entity/raiders/barbarian1.png");
 
     /**
      * Constructor method for renderer
@@ -28,7 +28,7 @@ public class RendererBarbarian extends AbstractRendererBarbarian<AbstractEntityM
 
 
     @Override
-    public ResourceLocation getTextureLocation(final AbstractEntityMinecoloniesMonster entity)
+    public Identifier getTextureLocation(final AbstractEntityMinecoloniesMonster entity)
     {
         return TEXTURE;
     }

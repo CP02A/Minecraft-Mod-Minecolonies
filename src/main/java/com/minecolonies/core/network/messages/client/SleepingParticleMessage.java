@@ -6,7 +6,7 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.apiimp.initializer.ModParticleTypesInitializer;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import com.ldtteam.shim.neoforge.network.handling.IPayloadContext;
 
 /**
  * Message for sleeping particles

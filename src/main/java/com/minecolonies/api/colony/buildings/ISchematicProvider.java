@@ -5,7 +5,7 @@ import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Tuple;
-import net.neoforged.neoforge.common.util.INBTSerializable;
+import com.ldtteam.shim.neoforge.common.util.INBTSerializable;
 import java.util.Set;
 
 public interface ISchematicProvider extends INBTSerializable<CompoundTag>

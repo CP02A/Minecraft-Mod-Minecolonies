@@ -8,7 +8,7 @@ import com.minecolonies.apiimp.CommonMinecoloniesAPIImpl;
 import com.minecolonies.core.recipes.ArchitectsCutterCraftingType;
 import com.minecolonies.core.recipes.BrewingCraftingType;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.ldtteam.shim.neoforge.registries.DeferredRegister;
 
 public final class ModCraftingTypesInitializer
 {

@@ -26,9 +26,9 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.capabilities.ICapabilityProvider;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import com.ldtteam.shim.neoforge.capabilities.ICapabilityProvider;
+import com.ldtteam.shim.neoforge.items.IItemHandler;
+import com.ldtteam.shim.neoforge.items.wrapper.InvWrapper;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

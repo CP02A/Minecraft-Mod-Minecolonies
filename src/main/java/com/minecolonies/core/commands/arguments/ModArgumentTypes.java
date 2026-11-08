@@ -4,8 +4,8 @@ import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.registries.Registries;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.ldtteam.shim.neoforge.registries.DeferredHolder;
+import com.ldtteam.shim.neoforge.registries.DeferredRegister;
 
 import static com.minecolonies.api.util.constant.Constants.MOD_ID;
 

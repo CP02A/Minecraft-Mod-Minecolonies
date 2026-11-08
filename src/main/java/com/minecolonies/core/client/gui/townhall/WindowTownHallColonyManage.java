@@ -14,7 +14,7 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -42,7 +42,7 @@ public class WindowTownHallColonyManage extends AbstractWindowSkeleton
 
     public WindowTownHallColonyManage(final BlockPos pos, final String closestName, final int closestDistance, final String preName, final boolean reactivate)
     {
-        super(new ResourceLocation(Constants.MOD_ID, "gui/townhall/windowcolonymanagement.xml"));
+        super(new Identifier(Constants.MOD_ID, "gui/townhall/windowcolonymanagement.xml"));
         this.pos = pos;
         this.reactivate = reactivate;
         mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.BOOK_PAGE_TURN, 1.0F));

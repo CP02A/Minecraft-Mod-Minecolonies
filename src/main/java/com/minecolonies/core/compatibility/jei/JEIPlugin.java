@@ -34,7 +34,7 @@ import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -83,9 +83,9 @@ public class JEIPlugin implements IModPlugin
 
     @NotNull
     @Override
-    public ResourceLocation getPluginUid()
+    public Identifier getPluginUid()
     {
-        return new ResourceLocation(Constants.MOD_ID, Constants.MOD_ID);
+        return new Identifier(Constants.MOD_ID, Constants.MOD_ID);
     }
 
     private final List<JobBasedRecipeCategory<?>> categories = new ArrayList<>();

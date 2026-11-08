@@ -12,7 +12,7 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -184,7 +184,7 @@ public class ZeroWasteRecipe extends ShapelessRecipe
             return this;
         }
 
-        public void save(@NotNull final RecipeOutput consumer, @NotNull final ResourceLocation id)
+        public void save(@NotNull final RecipeOutput consumer, @NotNull final Identifier id)
         {
             this.ensureValid(id);
 
@@ -201,7 +201,7 @@ public class ZeroWasteRecipe extends ShapelessRecipe
             consumer.accept(id, recipe, advancement);
         }
 
-        private void ensureValid(@NotNull final ResourceLocation id)
+        private void ensureValid(@NotNull final Identifier id)
         {
             if (this.criteria.isEmpty())
             {

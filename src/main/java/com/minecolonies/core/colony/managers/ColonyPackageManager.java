@@ -17,7 +17,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.neoforged.neoforge.common.util.FakePlayer;
+import com.ldtteam.shim.neoforge.common.util.FakePlayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;

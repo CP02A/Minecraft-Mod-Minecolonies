@@ -30,7 +30,7 @@ import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -49,7 +49,7 @@ import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.items.IItemHandler;
+import com.ldtteam.shim.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -88,7 +88,7 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
     /**
      * The default model.
      */
-    private ResourceLocation modelId = ModModelTypes.SETTLER_ID;
+    private Identifier modelId = ModModelTypes.SETTLER_ID;
 
     /**
      * The texture id.
@@ -108,7 +108,7 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
     /**
      * The texture.
      */
-    private ResourceLocation texture;
+    private Identifier texture;
 
     /**
      * Was the texture initiated with the citizen view.
@@ -274,7 +274,7 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
      * @return location of the texture.
      */
     @NotNull
-    public ResourceLocation getTexture()
+    public Identifier getTexture()
     {
         if (texture == null
               || textureDirty
@@ -299,7 +299,7 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
      *
      * @return the model.
      */
-    public ResourceLocation getModelType()
+    public Identifier getModelType()
     {
         return modelId;
     }
@@ -445,7 +445,7 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
      *
      * @param model the model.
      */
-    public void setModelId(final ResourceLocation model)
+    public void setModelId(final Identifier model)
     {
         this.modelId = model;
     }

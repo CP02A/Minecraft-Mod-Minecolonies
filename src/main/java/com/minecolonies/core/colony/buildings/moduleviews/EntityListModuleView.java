@@ -8,9 +8,9 @@ import com.minecolonies.core.client.gui.modules.building.EntityListModuleWindow;
 import com.minecolonies.core.network.messages.server.colony.building.AssignFilterableEntityMessage;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraft.resources.Identifier;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class EntityListModuleView extends AbstractBuildingModuleView implements 
     /**
      * The list of entities.
      */
-    private final List<ResourceLocation> listOfEntities = new ArrayList<>();
+    private final List<Identifier> listOfEntities = new ArrayList<>();
 
     /**
      * Unique string id of the module.
@@ -56,14 +56,14 @@ public class EntityListModuleView extends AbstractBuildingModuleView implements 
     }
 
     @Override
-    public void addEntity(final ResourceLocation entity)
+    public void addEntity(final Identifier entity)
     {
         new AssignFilterableEntityMessage(this.buildingView, getProducer().getRuntimeID(), entity, true).sendToServer();
         listOfEntities.add(entity);
     }
 
     @Override
-    public boolean isAllowedEntity(final ResourceLocation entity)
+    public boolean isAllowedEntity(final Identifier entity)
     {
         return listOfEntities.contains(entity);
     }
@@ -75,7 +75,7 @@ public class EntityListModuleView extends AbstractBuildingModuleView implements 
     }
 
     @Override
-    public void removeEntity(final ResourceLocation entity)
+    public void removeEntity(final Identifier entity)
     {
         new AssignFilterableEntityMessage(this.buildingView, getProducer().getRuntimeID(), entity, false).sendToServer();
         listOfEntities.remove(entity);
@@ -122,8 +122,8 @@ public class EntityListModuleView extends AbstractBuildingModuleView implements 
     }
 
     @Override
-    public ResourceLocation getIconResourceLocation()
+    public Identifier getIconResourceLocation()
     {
-        return new ResourceLocation(Constants.MOD_ID, "textures/gui/modules/workers.png");
+        return new Identifier(Constants.MOD_ID, "textures/gui/modules/workers.png");
     }
 }

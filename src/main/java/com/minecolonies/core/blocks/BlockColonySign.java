@@ -11,7 +11,7 @@ import com.minecolonies.core.items.ItemColonySign;
 import com.minecolonies.core.tileentities.TileEntityColonySign;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -73,9 +73,9 @@ public class BlockColonySign extends AbstractBlockMinecolonies<BlockColonySign> 
     }
 
     @Override
-    public ResourceLocation getRegistryName()
+    public Identifier getRegistryName()
     {
-        return new ResourceLocation(Constants.MOD_ID, BLOCK_NAME);
+        return new Identifier(Constants.MOD_ID, BLOCK_NAME);
     }
 
     @NotNull

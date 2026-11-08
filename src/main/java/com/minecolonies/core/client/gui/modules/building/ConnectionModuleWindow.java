@@ -20,10 +20,10 @@ import com.minecolonies.core.network.messages.server.colony.TeleportToColonyMess
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import com.ldtteam.shim.neoforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -62,7 +62,7 @@ public class ConnectionModuleWindow extends AbstractBuildingWindow<IBuildingView
      */
     public ConnectionModuleWindow(final IBuildingView buildingView, final boolean externalPlayer)
     {
-        super(buildingView, new ResourceLocation(Constants.MOD_ID, "gui/layouthuts/layoutcolonyconnection.xml"));
+        super(buildingView, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutcolonyconnection.xml"));
 
         if (externalPlayer)
         {

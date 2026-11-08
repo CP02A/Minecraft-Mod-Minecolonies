@@ -11,10 +11,10 @@ import com.minecolonies.core.entity.ai.workers.AbstractEntityAIBasic;
 import com.minecolonies.core.network.messages.server.colony.InteractionResponse;
 import com.minecolonies.core.quests.objectives.DialogueObjectiveTemplateTemplate;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.api.distmarker.OnlyIn;
 
 import static com.minecolonies.api.colony.interactionhandling.ModInteractionResponseHandlers.QUEST_ACTION;
 import static com.minecolonies.api.util.constant.Constants.TICKS_SECOND;
@@ -27,10 +27,10 @@ public class QuestDeliveryInteraction extends QuestDialogueInteraction
     /**
      * Two icon options.
      */
-    private static final ResourceLocation QUEST_START_ICON = new ResourceLocation(Constants.MOD_ID, "textures/icons/queststart.png");
-    private static final ResourceLocation QUEST_NEXT_TASK_ICON = new ResourceLocation(Constants.MOD_ID, "textures/icons/nexttask.png");
+    private static final Identifier QUEST_START_ICON = new Identifier(Constants.MOD_ID, "textures/icons/queststart.png");
+    private static final Identifier QUEST_NEXT_TASK_ICON = new Identifier(Constants.MOD_ID, "textures/icons/nexttask.png");
 
-    public QuestDeliveryInteraction(final Component inquiry, final IChatPriority priority, final ResourceLocation location, final int index, final ICitizenData citizenData)
+    public QuestDeliveryInteraction(final Component inquiry, final IChatPriority priority, final Identifier location, final int index, final ICitizenData citizenData)
     {
         super(inquiry, priority, location, index, citizenData);
     }
@@ -148,7 +148,7 @@ public class QuestDeliveryInteraction extends QuestDialogueInteraction
     }
 
     @Override
-    public ResourceLocation getInteractionIcon()
+    public Identifier getInteractionIcon()
     {
         return index == 0 ? QUEST_START_ICON : QUEST_NEXT_TASK_ICON;
     }

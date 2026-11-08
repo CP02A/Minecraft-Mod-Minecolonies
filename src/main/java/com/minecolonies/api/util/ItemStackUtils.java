@@ -29,7 +29,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
@@ -48,10 +48,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BrewingStandBlockEntity;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.phys.EntityHitResult;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.common.crafting.SizedIngredient;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.api.distmarker.OnlyIn;
+import com.ldtteam.shim.neoforge.common.Tags;
+import com.ldtteam.shim.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -770,7 +770,7 @@ public final class ItemStackUtils
         final Item item;
         try
         {
-            item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemId));
+            item = BuiltInRegistries.ITEM.get(Identifier.parse(itemId));
         }
         catch (Throwable t)
         {
@@ -811,7 +811,7 @@ public final class ItemStackUtils
      */
     @NotNull
     public static Tuple<Boolean, String> parseIdTemplate(@Nullable String itemId,
-                                                         @NotNull final ResourceLocation baseItemId)
+                                                         @NotNull final Identifier baseItemId)
     {
         if (itemId == null)
         {
@@ -828,7 +828,7 @@ public final class ItemStackUtils
             return baseItemId.getPath();
         });
 
-        return new Tuple<>(BuiltInRegistries.ITEM.containsKey(ResourceLocation.parse(itemId)), itemId);
+        return new Tuple<>(BuiltInRegistries.ITEM.containsKey(Identifier.parse(itemId)), itemId);
     }
 
     /**

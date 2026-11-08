@@ -15,7 +15,7 @@ import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
@@ -42,7 +42,7 @@ public class RaiderMeleeAI<T extends AbstractEntityMinecoloniesMonster & IThreat
         double damageToBeDealt = user.getAttribute(MOB_ATTACK_DAMAGE).getValue();
         if (user.getName().getContents() instanceof TranslatableContents translatableContents)
         {
-            target.hurt(target.level().damageSources().source(ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(Constants.MOD_ID, translatableContents.getKey().replace("entity.minecolonies.", ""))), user), (float) damageToBeDealt);
+            target.hurt(target.level().damageSources().source(ResourceKey.create(Registries.DAMAGE_TYPE, new Identifier(Constants.MOD_ID, translatableContents.getKey().replace("entity.minecolonies.", ""))), user), (float) damageToBeDealt);
         }
         else
         {

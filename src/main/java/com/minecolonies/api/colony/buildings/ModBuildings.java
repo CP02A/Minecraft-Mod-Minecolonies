@@ -1,7 +1,7 @@
 package com.minecolonies.api.colony.buildings;
 
 import com.minecolonies.api.colony.buildings.registry.BuildingEntry;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.ldtteam.shim.neoforge.registries.DeferredHolder;
 
 public final class ModBuildings
 {

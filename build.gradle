@@ -1,5 +1,102 @@
 plugins {
-  id "org.sonarqube" version "3.0"
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
 }
 
-apply from: 'https://raw.githubusercontent.com/ldtteam/OperaPublicaCreator/ng7/gradle/mod.gradle'
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    mavenCentral()
+    maven { name = 'JEI'; url = 'https://maven.blamejared.com/' }
+    maven { name = 'JourneyMap'; url = 'https://jm.gserv.me/repository/maven-public/' }
+}
+
+// MineColonies, plus its LDT Team library mods (Structurize, BlockUI, Domum Ornamentum) are
+// all compiled into a single Fabric mod jar. The library sources live in vendor/ - see vendor/SOURCES.txt.
+sourceSets {
+    main {
+        java {
+            srcDirs = [
+                'src/main/java',
+                'src/fabric/java',
+                'vendor/structurize/main/java',
+                'vendor/blockui/main/java',
+                'vendor/domumornamentum/main/java',
+                'vendor/domumornamentum/api/java',
+            ]
+        }
+        resources {
+            srcDirs = [
+                'src/main/resources',
+                'src/fabric/resources',
+                'src/datagen/generated/minecolonies',
+                'vendor/structurize/main/resources',
+                'vendor/structurize/datagen/generated/structurize',
+                'vendor/blockui/main/resources',
+                'vendor/domumornamentum/main/resources',
+                'vendor/domumornamentum/datagen/generated/domum_ornamentum/client',
+                'vendor/domumornamentum/datagen/generated/domum_ornamentum/server',
+            ]
+            // NeoForge-only metadata, replaced by fabric.mod.json / the access widener.
+            exclude 'META-INF/neoforge.mods.toml', 'META-INF/accesstransformer.cfg', '**/.cache/**'
+        }
+    }
+}
+
+loom {
+    accessWidenerPath = file('src/fabric/resources/minecolonies.classtweaker')
+
+    runs {
+        client {
+            runDir 'run'
+        }
+        server {
+            runDir 'run-server'
+        }
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+    // Optional integrations - compiled against, but not required at runtime.
+    compileOnly "mezz.jei:jei-${project.jei_mc_version}-fabric-api:${project.jei_version}"
+    compileOnly "info.journeymap:journeymap-api-fabric:${project.journeymap_api_version}"
+}
+
+processResources {
+    def version = project.version
+    inputs.property 'version', version
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+    filesMatching('fabric.mod.json') {
+        expand 'version': version
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 25
+    // Report every error at once rather than stopping at the first 100.
+    options.compilerArgs += ['-Xmaxerrs', '100000', '-Xmaxwarns', '0']
+}
+
+jar {
+    from('LICENSE') {
+        rename { "${it}_minecolonies" }
+    }
+}

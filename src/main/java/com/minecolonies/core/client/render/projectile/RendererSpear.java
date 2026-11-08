@@ -11,11 +11,11 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.projectile.ThrownTrident;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 @OnlyIn(Dist.CLIENT)
 public class RendererSpear extends EntityRenderer<ThrownTrident>
 {
-    private final ResourceLocation texture = new ResourceLocation(Constants.MOD_ID, "textures/entity/spear.png");
+    private final Identifier texture = new Identifier(Constants.MOD_ID, "textures/entity/spear.png");
     private final SpearModel       model ;
 
     /**
@@ -52,7 +52,7 @@ public class RendererSpear extends EntityRenderer<ThrownTrident>
 
     @NotNull
     @Override
-    public ResourceLocation getTextureLocation(@NotNull final ThrownTrident spearEntity)
+    public Identifier getTextureLocation(@NotNull final ThrownTrident spearEntity)
     {
         return texture;
     }

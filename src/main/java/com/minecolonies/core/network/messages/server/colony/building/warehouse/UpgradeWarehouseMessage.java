@@ -11,8 +11,8 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import com.ldtteam.shim.neoforge.items.wrapper.InvWrapper;
+import com.ldtteam.shim.neoforge.network.handling.IPayloadContext;
 
 /**
  * Issues the upgrade of the warehouse pos level 5.

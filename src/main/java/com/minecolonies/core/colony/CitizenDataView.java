@@ -26,7 +26,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -59,12 +59,12 @@ public class CitizenDataView implements ICitizenDataView
     /**
      * The resource location for the blocking overlay.
      */
-    private static final ResourceLocation BLOCKING_RESOURCE = new ResourceLocation(Constants.MOD_ID, "textures/icons/blocking.png");
+    private static final Identifier BLOCKING_RESOURCE = new Identifier(Constants.MOD_ID, "textures/icons/blocking.png");
 
     /**
      * The resource location for the pending overlay.
      */
-    private static final ResourceLocation PENDING_RESOURCE = new ResourceLocation(Constants.MOD_ID, "textures/icons/warning.png");
+    private static final Identifier PENDING_RESOURCE = new Identifier(Constants.MOD_ID, "textures/icons/warning.png");
 
     /**
      * Attributes.
@@ -167,12 +167,12 @@ public class CitizenDataView implements ICitizenDataView
     /**
      * The list of available quests the citizen can give out.
      */
-    private final List<ResourceLocation> availableQuests = new ArrayList<>();
+    private final List<Identifier> availableQuests = new ArrayList<>();
 
     /**
      * The list of participating quests the citizen can give out.
      */
-    private final List<ResourceLocation> participatingQuests = new ArrayList<>();
+    private final List<Identifier> participatingQuests = new ArrayList<>();
 
     /**
      * Texture UUID.
@@ -535,7 +535,7 @@ public class CitizenDataView implements ICitizenDataView
     }
 
     @Override
-    public ResourceLocation getStatusIcon()
+    public Identifier getStatusIcon()
     {
         if (statusIcon != null && statusIcon.shouldRender())
         {
@@ -547,7 +547,7 @@ public class CitizenDataView implements ICitizenDataView
             return null;
         }
 
-        ResourceLocation icon = sortedInteractions.get(0).getInteractionIcon();
+        Identifier icon = sortedInteractions.get(0).getInteractionIcon();
         if (icon == null)
         {
             if (hasBlockingInteractions())
@@ -601,7 +601,7 @@ public class CitizenDataView implements ICitizenDataView
     }
 
     @Override
-    public ResourceLocation getCustomTexture()
+    public Identifier getCustomTexture()
     {
         return null;
     }

@@ -3,7 +3,7 @@ package com.minecolonies.core.datalistener;
 import com.google.gson.*;
 import com.minecolonies.api.colony.CitizenNameFile;
 import com.minecolonies.api.util.Log;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -35,10 +35,10 @@ public class CitizenNameListener extends SimpleJsonResourceReloadListener
     }
 
     @Override
-    protected void apply(final Map<ResourceLocation, JsonElement> jsonElementMap, final @NotNull ResourceManager resourceManager, final @NotNull ProfilerFiller profiler)
+    protected void apply(final Map<Identifier, JsonElement> jsonElementMap, final @NotNull ResourceManager resourceManager, final @NotNull ProfilerFiller profiler)
     {
         nameFileMap.clear();
-        for (final Map.Entry<ResourceLocation, JsonElement> entry : jsonElementMap.entrySet())
+        for (final Map.Entry<Identifier, JsonElement> entry : jsonElementMap.entrySet())
         {
             tryParse(entry);
         }
@@ -49,7 +49,7 @@ public class CitizenNameListener extends SimpleJsonResourceReloadListener
      *
      * @param entry
      */
-    private void tryParse(final Map.Entry<ResourceLocation, JsonElement> entry)
+    private void tryParse(final Map.Entry<Identifier, JsonElement> entry)
     {
         try
         {

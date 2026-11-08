@@ -18,7 +18,7 @@ import com.minecolonies.core.colony.buildings.moduleviews.CraftingModuleView;
 import com.minecolonies.core.colony.requestsystem.requests.StandardRequests;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -53,7 +53,7 @@ public class WindowSelectRequest extends AbstractModuleWindow<CraftingModuleView
      */
     public WindowSelectRequest(final CraftingModuleView moduleView, final Predicate<IRequest<?>> predicate, final Consumer<@Nullable IRequest<?>> reopenWithRequest)
     {
-        super(moduleView, new ResourceLocation(Constants.MOD_ID, "gui/layouthuts/layoutselectrequest.xml"));
+        super(moduleView, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutselectrequest.xml"));
         this.predicate = predicate;
         this.reopenWithRequest = reopenWithRequest;
 

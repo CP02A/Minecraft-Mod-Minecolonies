@@ -13,7 +13,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -54,7 +54,7 @@ public class BuildingAlternatesResearchRequirement implements IResearchRequireme
     /**
      * The list of buildings, by level.
      */
-    private final Set<ResourceLocation> buildings;
+    private final Set<Identifier> buildings;
 
     /**
      * The building level.
@@ -99,7 +99,7 @@ public class BuildingAlternatesResearchRequirement implements IResearchRequireme
      *
      * @return the building description
      */
-    public Set<ResourceLocation> getBuildings()
+    public Set<Identifier> getBuildings()
     {
         return buildings;
     }
@@ -122,10 +122,10 @@ public class BuildingAlternatesResearchRequirement implements IResearchRequireme
     public MutableComponent getDesc()
     {
         final MutableComponent requirementList = Component.literal("");
-        final Iterator<ResourceLocation> iterator = buildings.iterator();
+        final Iterator<Identifier> iterator = buildings.iterator();
         while (iterator.hasNext())
         {
-            final ResourceLocation building = iterator.next();
+            final Identifier building = iterator.next();
 
             final BuildingEntry buildingEntry = IBuildingRegistry.getInstance().get(building);
             final MutableComponent buildingName = buildingEntry != null ? Component.translatable(buildingEntry.getTranslationKey()) : Component.empty();
@@ -143,7 +143,7 @@ public class BuildingAlternatesResearchRequirement implements IResearchRequireme
     @Override
     public boolean isFulfilled(final IColony colony)
     {
-        for (final ResourceLocation requirement : buildings)
+        for (final Identifier requirement : buildings)
         {
             if (colony.getCommonBuildingManager().hasBuilding(requirement, buildingLevel, false))
             {
@@ -159,7 +159,7 @@ public class BuildingAlternatesResearchRequirement implements IResearchRequireme
         final CompoundTag nbt = new CompoundTag();
         nbt.putInt(TAG_BUILDING_LVL, buildingLevel);
         final ListTag buildingsNBT = new ListTag();
-        for (final ResourceLocation building : buildings)
+        for (final Identifier building : buildings)
         {
             CompoundTag indNBT = new CompoundTag();
             indNBT.putString(TAG_BUILDING_NAME, building.toString());

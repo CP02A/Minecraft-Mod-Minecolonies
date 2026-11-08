@@ -34,7 +34,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -47,8 +47,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import com.ldtteam.shim.neoforge.items.IItemHandler;
+import com.ldtteam.shim.neoforge.items.IItemHandlerModifiable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -110,7 +110,7 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
     /**
      * The name of the building location.
      */
-    public ResourceLocation registryName;
+    public Identifier registryName;
 
     /**
      * Create the combined inv wrapper for the building.
@@ -426,7 +426,7 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
 
         if (compound.contains(TAG_BUILDING_TYPE))
         {
-            registryName = ResourceLocation.parse(compound.getString(TAG_BUILDING_TYPE));
+            registryName = Identifier.parse(compound.getString(TAG_BUILDING_TYPE));
         }
         buildingPos = worldPosition;
     }
@@ -603,11 +603,11 @@ public class TileEntityColonyBuilding extends AbstractTileEntityColonyBuilding i
     }
 
     @Override
-    public ResourceLocation getBuildingName()
+    public Identifier getBuildingName()
     {
         if (registryName != null && !registryName.getPath().isEmpty())
         {
-            return new ResourceLocation(registryName.getNamespace(), registryName.getPath().replace("home", "residence"));
+            return new Identifier(registryName.getNamespace(), registryName.getPath().replace("home", "residence"));
         }
         return getBlockState().getBlock() instanceof AbstractBlockHut<?> ? ((AbstractBlockHut<?>) getBlockState().getBlock()).getBuildingEntry().getRegistryName() : null;
     }

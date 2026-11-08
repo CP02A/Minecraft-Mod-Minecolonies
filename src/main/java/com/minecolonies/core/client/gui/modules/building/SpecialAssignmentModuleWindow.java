@@ -13,7 +13,7 @@ import com.minecolonies.core.client.gui.WindowHireWorker;
 import com.minecolonies.core.network.messages.server.colony.building.worker.RecallCitizenMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public class SpecialAssignmentModuleWindow extends AbstractModuleWindow<IAssignm
      *
      * @param resource Resource of the window.
      */
-    public SpecialAssignmentModuleWindow(final IAssignmentModuleView moduleView, final ResourceLocation resource)
+    public SpecialAssignmentModuleWindow(final IAssignmentModuleView moduleView, final Identifier resource)
     {
         super(moduleView, resource);
         super.registerButton(BUTTON_HIRE, this::hireClicked);

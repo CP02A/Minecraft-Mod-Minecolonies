@@ -14,7 +14,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -93,7 +93,7 @@ public class DiseasesListener extends SimpleJsonResourceReloadListener
         final int size = byteBuf.readInt();
         for (int i = 0; i < size; i++)
         {
-            final ResourceLocation id = byteBuf.readResourceLocation();
+            final Identifier id = byteBuf.readResourceLocation();
             final Component name = Utils.deserializeCodecMess(ComponentSerialization.STREAM_CODEC, byteBuf);
             final int rarity = byteBuf.readInt();
 
@@ -127,7 +127,7 @@ public class DiseasesListener extends SimpleJsonResourceReloadListener
      * @return the disease instance or null if it does not exist.
      */
     @Nullable
-    public static Disease getDisease(final ResourceLocation id)
+    public static Disease getDisease(final Identifier id)
     {
         for (final Disease disease : DISEASES.unwrap())
         {
@@ -153,12 +153,12 @@ public class DiseasesListener extends SimpleJsonResourceReloadListener
 
     @Override
     protected void apply(
-      final @NotNull Map<ResourceLocation, JsonElement> jsonElementMap,
+      final @NotNull Map<Identifier, JsonElement> jsonElementMap,
       final @NotNull ResourceManager resourceManager,
       final @NotNull ProfilerFiller profiler)
     {
         final List<Disease> diseases = new ArrayList<>();
-        for (final Map.Entry<ResourceLocation, JsonElement> entry : jsonElementMap.entrySet())
+        for (final Map.Entry<Identifier, JsonElement> entry : jsonElementMap.entrySet())
         {
             if (!entry.getValue().isJsonObject())
             {

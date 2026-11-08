@@ -4,7 +4,7 @@ import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.colony.ICitizenData;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +19,7 @@ public class DynamicHappinessSupplier implements IHappinessSupplierWrapper
     /**
      * Entry key.
      */
-    private ResourceLocation key;
+    private Identifier key;
 
     /**
      * Last value.
@@ -30,7 +30,7 @@ public class DynamicHappinessSupplier implements IHappinessSupplierWrapper
      * Create a new dynamic supplier.
      * @param key the key of the function.
      */
-    public DynamicHappinessSupplier(final ResourceLocation key)
+    public DynamicHappinessSupplier(final Identifier key)
     {
         this.key = key;
     }
@@ -55,7 +55,7 @@ public class DynamicHappinessSupplier implements IHappinessSupplierWrapper
     @Override
     public void deserializeNBT(@NotNull final HolderLookup.Provider provider, final CompoundTag nbt)
     {
-        this.key = ResourceLocation.parse(nbt.getString(TAG_ID));
+        this.key = Identifier.parse(nbt.getString(TAG_ID));
         this.lastValue = nbt.getDouble(TAG_VALUE);
     }
 

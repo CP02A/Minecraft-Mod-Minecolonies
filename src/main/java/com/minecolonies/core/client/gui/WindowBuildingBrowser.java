@@ -20,7 +20,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
@@ -69,7 +69,7 @@ public class WindowBuildingBrowser extends AbstractWindowSkeleton
      */
     public WindowBuildingBrowser(@NotNull final Block block)
     {
-        super(new ResourceLocation(Constants.MOD_ID, "gui/windowbrowsebuilding.xml"));
+        super(new Identifier(Constants.MOD_ID, "gui/windowbrowsebuilding.xml"));
         this.block = block;
     }
 

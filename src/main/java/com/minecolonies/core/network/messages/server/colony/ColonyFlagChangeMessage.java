@@ -10,7 +10,7 @@ import com.minecolonies.core.network.messages.server.AbstractColonyServerMessage
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BannerPatternLayers;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import com.ldtteam.shim.neoforge.network.handling.IPayloadContext;
 
 /**
  * Message to update the colony flag once set in the {@link com.minecolonies.core.client.gui.WindowBannerPicker}.

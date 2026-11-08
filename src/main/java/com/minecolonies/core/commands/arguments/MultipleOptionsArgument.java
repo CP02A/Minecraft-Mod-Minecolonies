@@ -12,8 +12,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.selector.EntitySelectorParser;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.loading.FMLLoader;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.fml.loading.FMLLoader;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

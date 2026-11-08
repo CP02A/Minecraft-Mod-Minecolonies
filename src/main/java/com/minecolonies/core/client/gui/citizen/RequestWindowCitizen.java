@@ -15,10 +15,10 @@ import com.minecolonies.core.client.gui.modules.RequestTreeWindowModule;
 import com.minecolonies.core.network.messages.server.colony.UpdateRequestStateMessage;
 import com.minecolonies.core.network.messages.server.colony.citizen.TransferItemsToCitizenRequestMessage;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import com.ldtteam.shim.neoforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,7 +35,7 @@ import static com.minecolonies.api.util.constant.TranslationConstants.COM_MINECO
  */
 public class RequestWindowCitizen extends AbstractWindowCitizen
 {
-    public static final ResourceLocation WINDOW_ID = new ResourceLocation(Constants.MOD_ID, "gui/citizen/requests.xml");
+    public static final Identifier WINDOW_ID = new Identifier(Constants.MOD_ID, "gui/citizen/requests.xml");
 
     /**
      * The request that should be opened.

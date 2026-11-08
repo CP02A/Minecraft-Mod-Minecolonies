@@ -2,7 +2,7 @@ package com.minecolonies.api.inventory;
 
 import com.minecolonies.api.inventory.container.*;
 import net.minecraft.world.inventory.MenuType;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.ldtteam.shim.neoforge.registries.DeferredHolder;
 
 public class ModContainers
 {

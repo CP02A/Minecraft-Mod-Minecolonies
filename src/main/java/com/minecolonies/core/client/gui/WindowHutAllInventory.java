@@ -17,7 +17,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -85,7 +85,7 @@ public class WindowHutAllInventory extends AbstractWindowSkeleton
      */
     public WindowHutAllInventory(final IBuildingView b, final BOWindow prev)
     {
-        super(new ResourceLocation(Constants.MOD_ID, "gui/windowhutallinventory.xml"));
+        super(new Identifier(Constants.MOD_ID, "gui/windowhutallinventory.xml"));
         this.building = b;
         registerButton(BUTTON_SORT, this::setSortFlag);
         registerButton(BUTTON_BACK, this::back);

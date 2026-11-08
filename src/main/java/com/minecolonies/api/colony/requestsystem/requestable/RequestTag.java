@@ -9,7 +9,7 @@ import com.minecolonies.api.util.constant.TypeConstants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -250,7 +250,7 @@ public class RequestTag implements IDeliverable
      */
     public static RequestTag deserialize(@NotNull final HolderLookup.Provider provider, final IFactoryController controller, final CompoundTag compound)
     {
-        final TagKey<Item> theTag = ItemTags.create(ResourceLocation.parse(compound.getString(NBT_TAG)));
+        final TagKey<Item> theTag = ItemTags.create(Identifier.parse(compound.getString(NBT_TAG)));
         final ItemStack result = compound.contains(NBT_RESULT) ? ItemStackUtils.deserializeFromNBT(compound.getCompound(NBT_RESULT), provider) : ItemStackUtils.EMPTY;
 
         int count = compound.getInt("size");

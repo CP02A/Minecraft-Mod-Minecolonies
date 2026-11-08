@@ -19,7 +19,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -177,9 +177,9 @@ public abstract class RequestTreeWindowModule implements IWindowWithLayoutModule
 
     @Override
     @NotNull
-    public final ResourceLocation getLayout()
+    public final Identifier getLayout()
     {
-        return new ResourceLocation(Constants.MOD_ID, "gui/layouthuts/layoutrequeststree.xml");
+        return new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutrequeststree.xml");
     }
 
     @Override

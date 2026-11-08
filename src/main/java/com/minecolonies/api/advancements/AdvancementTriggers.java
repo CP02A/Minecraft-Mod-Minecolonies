@@ -3,8 +3,8 @@ package com.minecolonies.api.advancements;
 import com.minecolonies.api.util.constant.Constants;
 import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.core.registries.Registries;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.ldtteam.shim.neoforge.registries.DeferredHolder;
+import com.ldtteam.shim.neoforge.registries.DeferredRegister;
 
 /**
  * The collection of advancement triggers for minecolonies.

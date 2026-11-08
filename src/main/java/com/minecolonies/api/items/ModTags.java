@@ -2,7 +2,7 @@ package com.minecolonies.api.items;
 
 import com.minecolonies.api.util.constant.TagConstants;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -148,11 +148,11 @@ public class ModTags
      */
     private static void initCrafterRules(@NotNull final String crafterName)
     {
-        final ResourceLocation products = new ResourceLocation(MOD_ID, crafterName.concat(PRODUCT));
-        final ResourceLocation ingredients = new ResourceLocation(MOD_ID, crafterName.concat(INGREDIENT));
-        final ResourceLocation productsExcluded = new ResourceLocation(MOD_ID, crafterName.concat(PRODUCT_EXCLUDED));
-        final ResourceLocation ingredientsExcluded = new ResourceLocation(MOD_ID, crafterName.concat(INGREDIENT_EXCLUDED));
-        final ResourceLocation doIngredients = new ResourceLocation(MOD_ID, crafterName.concat(DO_INGREDIENT));
+        final Identifier products = new Identifier(MOD_ID, crafterName.concat(PRODUCT));
+        final Identifier ingredients = new Identifier(MOD_ID, crafterName.concat(INGREDIENT));
+        final Identifier productsExcluded = new Identifier(MOD_ID, crafterName.concat(PRODUCT_EXCLUDED));
+        final Identifier ingredientsExcluded = new Identifier(MOD_ID, crafterName.concat(INGREDIENT_EXCLUDED));
+        final Identifier doIngredients = new Identifier(MOD_ID, crafterName.concat(DO_INGREDIENT));
 
         crafterProduct.put(crafterName, ItemTags.create(products));
         crafterProductExclusions.put(crafterName, ItemTags.create(productsExcluded));

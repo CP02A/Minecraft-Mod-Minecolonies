@@ -4,8 +4,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.capabilities.Capabilities.ItemHandler;
-import net.neoforged.neoforge.items.IItemHandler;
+import com.ldtteam.shim.neoforge.capabilities.Capabilities.ItemHandler;
+import com.ldtteam.shim.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 /**

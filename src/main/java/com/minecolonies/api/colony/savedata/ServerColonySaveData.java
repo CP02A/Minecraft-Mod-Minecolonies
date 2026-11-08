@@ -14,7 +14,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +32,7 @@ public class ServerColonySaveData extends SavedData implements IServerColonySave
     /**
      * World save data name.
      */
-    public static final String NAME = new ResourceLocation(Constants.MOD_ID, "colony_manager").toDebugFileName();
+    public static final String NAME = new Identifier(Constants.MOD_ID, "colony_manager").toDebugFileName();
 
     /**
      * Worldsavedata factory.

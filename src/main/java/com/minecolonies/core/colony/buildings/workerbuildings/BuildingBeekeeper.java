@@ -23,7 +23,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.animal.Animal;
@@ -47,7 +47,7 @@ public class BuildingBeekeeper extends AbstractBuilding
      * The beekeeper mode.
      */
     public static final ISettingKey<BeekeeperCollectionSetting> MODE =
-      new SettingKey<>(BeekeeperCollectionSetting.class, new ResourceLocation(com.minecolonies.api.util.constant.Constants.MOD_ID, "beekeeper"));
+      new SettingKey<>(BeekeeperCollectionSetting.class, new Identifier(com.minecolonies.api.util.constant.Constants.MOD_ID, "beekeeper"));
 
     /**
      * Both setting options.

@@ -44,7 +44,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.*;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -307,22 +307,22 @@ public class CitizenData implements ICitizenData
     /**
      * The list of available quests the citizen can give out.
      */
-    private final List<ResourceLocation> availableQuests = new ArrayList<>();
+    private final List<Identifier> availableQuests = new ArrayList<>();
 
     /**
      * The list of participating quests the citizen can give out.
      */
-    private final List<ResourceLocation> participatingQuests = new ArrayList<>();
+    private final List<Identifier> participatingQuests = new ArrayList<>();
 
     /**
      * Tracking quests the citizen was the quest giver in.
      */
-    private final List<ResourceLocation> finishedQuests = new ArrayList<>();
+    private final List<Identifier> finishedQuests = new ArrayList<>();
 
     /**
      * Tracking quests the citizen participated in.
      */
-    private final List<ResourceLocation> finishedQuestParticipation = new ArrayList<>();
+    private final List<Identifier> finishedQuestParticipation = new ArrayList<>();
 
     /**
      * The sound profile index.
@@ -1144,13 +1144,13 @@ public class CitizenData implements ICitizenData
         buf.writeUtf(parents.getB());
 
         buf.writeInt(availableQuests.size());
-        for (final ResourceLocation av : availableQuests)
+        for (final Identifier av : availableQuests)
         {
             buf.writeResourceLocation(av);
         }
 
         buf.writeInt(participatingQuests.size());
-        for (final ResourceLocation av : participatingQuests)
+        for (final Identifier av : participatingQuests)
         {
             buf.writeResourceLocation(av);
         }
@@ -1400,28 +1400,28 @@ public class CitizenData implements ICitizenData
         nbtTagCompound.putInt(TAG_LEISURE, this.leisureTime);
 
         @NotNull final ListTag avQuestNBT = new ListTag();
-        for (final ResourceLocation quest : availableQuests)
+        for (final Identifier quest : availableQuests)
         {
             avQuestNBT.add(StringTag.valueOf(quest.toString()));
         }
         nbtTagCompound.put(TAG_AV_QUESTS, avQuestNBT);
 
         @NotNull final ListTag partQuestNBT = new ListTag();
-        for (final ResourceLocation quest : participatingQuests)
+        for (final Identifier quest : participatingQuests)
         {
             partQuestNBT.add(StringTag.valueOf(quest.toString()));
         }
         nbtTagCompound.put(TAG_PART_QUESTS, partQuestNBT);
 
         @NotNull final ListTag finishedQuestNBT = new ListTag();
-        for (final ResourceLocation quest : finishedQuests)
+        for (final Identifier quest : finishedQuests)
         {
             finishedQuestNBT.add(StringTag.valueOf(quest.toString()));
         }
         nbtTagCompound.put(TAG_FINISHED_AV_QUESTS, finishedQuestNBT);
 
         @NotNull final ListTag finishedPartQuestNBT = new ListTag();
-        for (final ResourceLocation quest : finishedQuestParticipation)
+        for (final Identifier quest : finishedQuestParticipation)
         {
             finishedPartQuestNBT.add(StringTag.valueOf(quest.toString()));
         }
@@ -1581,25 +1581,25 @@ public class CitizenData implements ICitizenData
         @NotNull final ListTag availQuestNbt = nbtTagCompound.getList(TAG_AV_QUESTS, TAG_STRING);
         for (int i = 0; i < availQuestNbt.size(); i++)
         {
-            availableQuests.add(ResourceLocation.parse(availQuestNbt.getString(i)));
+            availableQuests.add(Identifier.parse(availQuestNbt.getString(i)));
         }
 
         @NotNull final ListTag partQuestsNbt = nbtTagCompound.getList(TAG_PART_QUESTS, TAG_STRING);
         for (int i = 0; i < partQuestsNbt.size(); i++)
         {
-            participatingQuests.add(ResourceLocation.parse(partQuestsNbt.getString(i)));
+            participatingQuests.add(Identifier.parse(partQuestsNbt.getString(i)));
         }
 
         @NotNull final ListTag finQuestNbt = nbtTagCompound.getList(TAG_FINISHED_AV_QUESTS, TAG_STRING);
         for (int i = 0; i < finQuestNbt.size(); i++)
         {
-            finishedQuests.add(ResourceLocation.parse(finQuestNbt.getString(i)));
+            finishedQuests.add(Identifier.parse(finQuestNbt.getString(i)));
         }
 
         @NotNull final ListTag finPartQuestsNbt = nbtTagCompound.getList(TAG_FINISHED_PART_QUESTS, TAG_STRING);
         for (int i = 0; i < finPartQuestsNbt.size(); i++)
         {
-            finishedQuestParticipation.add(ResourceLocation.parse(finPartQuestsNbt.getString(i)));
+            finishedQuestParticipation.add(Identifier.parse(finPartQuestsNbt.getString(i)));
         }
 
         if (nbtTagCompound.contains(TAG_TEXTURE_UUID))
@@ -2064,20 +2064,20 @@ public class CitizenData implements ICitizenData
     }
 
     @Override
-    public void onQuestDeletion(final ResourceLocation questId)
+    public void onQuestDeletion(final Identifier questId)
     {
         this.availableQuests.remove(questId);
         this.participatingQuests.remove(questId);
     }
 
     @Override
-    public boolean isParticipantOfQuest(final ResourceLocation questId)
+    public boolean isParticipantOfQuest(final Identifier questId)
     {
         return this.availableQuests.contains(questId) || this.participatingQuests.contains(questId);
     }
 
     @Override
-    public void onQuestCompletion(final ResourceLocation questId)
+    public void onQuestCompletion(final Identifier questId)
     {
         if (this.availableQuests.contains(questId))
         {

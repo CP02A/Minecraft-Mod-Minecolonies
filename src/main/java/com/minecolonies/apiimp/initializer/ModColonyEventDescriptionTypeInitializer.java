@@ -8,7 +8,7 @@ import com.minecolonies.core.colony.eventhooks.buildingEvents.BuildingDeconstruc
 import com.minecolonies.core.colony.eventhooks.buildingEvents.BuildingRepairedEvent;
 import com.minecolonies.core.colony.eventhooks.buildingEvents.BuildingUpgradedEvent;
 import com.minecolonies.core.colony.eventhooks.citizenEvents.*;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.ldtteam.shim.neoforge.registries.DeferredRegister;
 
 /**
  * Initializer for colony event types, register new event types here.

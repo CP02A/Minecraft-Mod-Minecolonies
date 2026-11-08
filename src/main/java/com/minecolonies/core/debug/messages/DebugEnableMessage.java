@@ -7,7 +7,7 @@ import com.minecolonies.core.debug.DebugPlayerManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import com.ldtteam.shim.neoforge.network.handling.IPayloadContext;
 
 /**
  * Enables debug mode for the client

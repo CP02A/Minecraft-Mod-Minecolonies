@@ -10,7 +10,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -78,7 +78,7 @@ public class EventDescriptionManager implements IEventDescriptionManager
         for (final Tag event : eventDescListNBT)
         {
             final CompoundTag eventCompound = (CompoundTag) event;
-            final ResourceLocation eventTypeID = new ResourceLocation(MOD_ID, eventCompound.getString(TAG_NAME));
+            final Identifier eventTypeID = new Identifier(MOD_ID, eventCompound.getString(TAG_NAME));
 
             final ColonyEventDescriptionTypeRegistryEntry registryEntry = MinecoloniesAPIProxy.getInstance().getColonyEventDescriptionRegistry().get(eventTypeID);
             if (registryEntry == null)

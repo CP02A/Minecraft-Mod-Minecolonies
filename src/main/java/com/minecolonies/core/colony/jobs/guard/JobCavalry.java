@@ -2,7 +2,7 @@ package com.minecolonies.core.colony.jobs.guard;
 
 import com.minecolonies.core.colony.jobs.AbstractJobGuard;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.core.component.DataComponents;
 import com.minecolonies.api.client.render.modeltype.ModModelTypes;
 import com.minecolonies.api.colony.ICitizenData;
@@ -80,7 +80,7 @@ public class JobCavalry extends AbstractJobGuard<JobCavalry>
     }
 
     @Override
-    public ResourceLocation getModel()
+    public Identifier getModel()
     {
         return ModModelTypes.KNIGHT_GUARD_ID;
     }

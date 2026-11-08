@@ -4,7 +4,7 @@ import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.MineColonies;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
@@ -47,7 +47,7 @@ public interface ISimpleModelType extends IModelType
      * @param entityCitizen The citizen in question to get the path.
      * @return The path to the citizen.
      */
-    default ResourceLocation getTexture(@NotNull final AbstractEntityCitizen entityCitizen)
+    default Identifier getTexture(@NotNull final AbstractEntityCitizen entityCitizen)
     {
         if (cachedHalloweenStyle == null)
         {
@@ -72,16 +72,16 @@ public interface ISimpleModelType extends IModelType
         final int moddedTextureId = (entityCitizen.getTextureId() % getNumTextures()) + 1;
         final String textureIdentifier =
           getName().getPath() + (entityCitizen.isFemale() ? "female" : "male") + moddedTextureId + entityCitizen.getEntityData().get(DATA_TEXTURE_SUFFIX);
-        final ResourceLocation modified = new ResourceLocation(Constants.MOD_ID, BASE_FOLDER + style + "/" + textureIdentifier + ".png");
+        final Identifier modified = new Identifier(Constants.MOD_ID, BASE_FOLDER + style + "/" + textureIdentifier + ".png");
         if (Minecraft.getInstance().getResourceManager().getResource(modified).isPresent())
         {
             return modified;
         }
 
-        return new ResourceLocation(Constants.MOD_ID, BASE_FOLDER + DEFAULT_FOLDER + "/" + textureIdentifier + ".png");
+        return new Identifier(Constants.MOD_ID, BASE_FOLDER + DEFAULT_FOLDER + "/" + textureIdentifier + ".png");
     }
 
-    default ResourceLocation getTextureIcon(@NotNull final AbstractEntityCitizen entityCitizen)
+    default Identifier getTextureIcon(@NotNull final AbstractEntityCitizen entityCitizen)
     {
         String style = entityCitizen.getEntityData().get(DATA_STYLE);
         if (cachedHalloweenStyle != null && !cachedHalloweenStyle.isEmpty())
@@ -93,6 +93,6 @@ public interface ISimpleModelType extends IModelType
         final String textureIdentifier =
           getTextureBase() + (entityCitizen.isFemale() ? "female" : "male") + moddedTextureId + entityCitizen.getEntityData()
             .get(DATA_TEXTURE_SUFFIX);
-        return new ResourceLocation(Constants.MOD_ID, "textures/entity_icon/citizen/" + style + "/" + textureIdentifier + ".png");
+        return new Identifier(Constants.MOD_ID, "textures/entity_icon/citizen/" + style + "/" + textureIdentifier + ".png");
     }
 }

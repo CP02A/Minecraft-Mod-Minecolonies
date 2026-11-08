@@ -28,7 +28,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -104,7 +104,7 @@ public class WindowBuildDecoration extends AbstractWindowSkeleton
       final RotationMirror rotationMirror,
       final Function<BlockPos, AbstractServerPlayMessage> buildRequestMessage)
     {
-        super(new ResourceLocation(Constants.MOD_ID, "gui/windowbuildbuilding.xml"));
+        super(new Identifier(Constants.MOD_ID, "gui/windowbuildbuilding.xml"));
         this.path = path;
         this.structurePos = pos;
 

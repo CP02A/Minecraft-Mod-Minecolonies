@@ -12,7 +12,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.common.util.FakePlayer;
+import com.ldtteam.shim.neoforge.common.util.FakePlayer;
 
 import java.util.List;
 

@@ -8,7 +8,7 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingChickenHerder;
 import com.minecolonies.core.colony.jobs.JobChickenHerder;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.animal.Animal;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +25,7 @@ public class EntityAIWorkChickenHerder extends AbstractEntityAIHerder<JobChicken
      * Get chicken icon
      */
     private final static VisibleCitizenStatus FIND_CHICKEN =
-      new VisibleCitizenStatus(new ResourceLocation(Constants.MOD_ID, "textures/icons/work/chickenherder.png"), "com.minecolonies.gui.visiblestatus.chickenherder");
+      new VisibleCitizenStatus(new Identifier(Constants.MOD_ID, "textures/icons/work/chickenherder.png"), "com.minecolonies.gui.visiblestatus.chickenherder");
 
     /**
      * Creates the abstract part of the AI. Always use this constructor!

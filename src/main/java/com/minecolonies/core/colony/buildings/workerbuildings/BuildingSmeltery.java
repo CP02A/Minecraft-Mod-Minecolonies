@@ -21,7 +21,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.*;
@@ -63,7 +63,7 @@ public class BuildingSmeltery extends AbstractBuilding
     /**
      * Key for min remainder at warehouse.
      */
-    public static final ISettingKey<IntSetting> MIN = new SettingKey<>(IntSetting.class, new ResourceLocation(com.minecolonies.api.util.constant.Constants.MOD_ID, "warehousemin"));
+    public static final ISettingKey<IntSetting> MIN = new SettingKey<>(IntSetting.class, new Identifier(com.minecolonies.api.util.constant.Constants.MOD_ID, "warehousemin"));
 
     /**
      * Instantiates a new smeltery building.
@@ -169,7 +169,7 @@ public class BuildingSmeltery extends AbstractBuilding
         }
 
         @Override
-        protected boolean isPreTaughtRecipe(final IRecipeStorage storage, final Map<ResourceLocation, CustomRecipe> crafterRecipes)
+        protected boolean isPreTaughtRecipe(final IRecipeStorage storage, final Map<Identifier, CustomRecipe> crafterRecipes)
         {
             if (storage.getPrimaryOutput().isEmpty() && storage.getLootTable() != null)
             {

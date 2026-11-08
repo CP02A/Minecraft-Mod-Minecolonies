@@ -12,9 +12,9 @@ import com.minecolonies.core.colony.buildings.modules.settings.SettingKey;
 import com.minecolonies.core.network.messages.server.AbstractColonyServerMessage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import com.ldtteam.shim.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -27,7 +27,7 @@ public class TriggerSettingMessage extends AbstractColonyServerMessage
     /**
      * The unique setting key.
      */
-    private ResourceLocation key;
+    private Identifier key;
 
     /**
      * The value of the setting.

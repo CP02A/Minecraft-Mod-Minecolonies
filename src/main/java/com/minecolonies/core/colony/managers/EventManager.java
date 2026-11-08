@@ -15,7 +15,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -228,7 +228,7 @@ public class EventManager implements IEventManager
             for (final Tag base : eventListNBT)
             {
                 final CompoundTag tagCompound = (CompoundTag) base;
-                final ResourceLocation eventTypeID = new ResourceLocation(MOD_ID, tagCompound.getString(TAG_NAME));
+                final Identifier eventTypeID = new Identifier(MOD_ID, tagCompound.getString(TAG_NAME));
 
                 final ColonyEventTypeRegistryEntry registryEntry = MinecoloniesAPIProxy.getInstance().getColonyEventRegistry().get(eventTypeID);
                 if (registryEntry == null)

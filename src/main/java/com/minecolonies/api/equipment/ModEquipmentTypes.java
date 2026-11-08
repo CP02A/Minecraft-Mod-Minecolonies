@@ -12,13 +12,13 @@ import com.minecolonies.apiimp.CommonMinecoloniesAPIImpl;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.*;
-import net.neoforged.neoforge.common.ItemAbilities;
-import net.neoforged.neoforge.common.ItemAbility;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.ldtteam.shim.neoforge.common.ItemAbilities;
+import com.ldtteam.shim.neoforge.common.ItemAbility;
+import com.ldtteam.shim.neoforge.registries.DeferredHolder;
+import com.ldtteam.shim.neoforge.registries.DeferredRegister;
 
 import java.util.Set;
 import java.util.function.Consumer;
@@ -189,7 +189,7 @@ public class ModEquipmentTypes
     private static DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> register(final String id, final Consumer<EquipmentTypeEntry.Builder> consumer)
     {
         EquipmentTypeEntry.Builder equipmentType = new EquipmentTypeEntry.Builder()
-                                           .setRegistryName(new ResourceLocation(Constants.MOD_ID, id));
+                                           .setRegistryName(new Identifier(Constants.MOD_ID, id));
         consumer.accept(equipmentType);
         return DEFERRED_REGISTER.register(id, equipmentType::build);
     }

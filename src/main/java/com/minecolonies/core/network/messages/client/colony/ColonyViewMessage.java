@@ -10,10 +10,10 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import com.ldtteam.shim.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,7 +64,7 @@ public class ColonyViewMessage extends AbstractClientPlayMessage
         super(buf, type);
         colonyId = buf.readInt();
         isNewSubscription = buf.readBoolean();
-        dim = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(buf.readUtf(32767)));
+        dim = ResourceKey.create(Registries.DIMENSION, Identifier.parse(buf.readUtf(32767)));
         this.colonyBuffer = new RegistryFriendlyByteBuf(Unpooled.copiedBuffer(buf.readSlice(buf.readVarInt())), buf.registryAccess());
     }
 

@@ -15,7 +15,7 @@ import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingHospital;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.item.ItemStack;

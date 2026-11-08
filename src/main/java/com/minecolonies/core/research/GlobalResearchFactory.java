@@ -18,8 +18,8 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.common.crafting.SizedIngredient;
+import net.minecraft.resources.Identifier;
+import com.ldtteam.shim.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -48,9 +48,9 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
     @NotNull
     @Override
     public IGlobalResearch getNewInstance(
-        final ResourceLocation id,
-        final ResourceLocation parent,
-        final ResourceLocation branch,
+        final Identifier id,
+        final Identifier parent,
+        final Identifier branch,
         final TranslatableContents name,
         final TranslatableContents subtitle,
         final int depth,
@@ -119,9 +119,9 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
     @Override
     public IGlobalResearch deserialize(final @NotNull HolderLookup.Provider provider, @NotNull final IFactoryController controller, @NotNull final CompoundTag nbt)
     {
-        final ResourceLocation id = ResourceLocation.parse(nbt.getString(TAG_ID));
-        final ResourceLocation parent = nbt.contains(TAG_PARENT) ? ResourceLocation.parse(nbt.getString(TAG_PARENT)) : null;
-        final ResourceLocation branch = ResourceLocation.parse(nbt.getString(TAG_BRANCH));
+        final Identifier id = Identifier.parse(nbt.getString(TAG_ID));
+        final Identifier parent = nbt.contains(TAG_PARENT) ? Identifier.parse(nbt.getString(TAG_PARENT)) : null;
+        final Identifier branch = Identifier.parse(nbt.getString(TAG_BRANCH));
         final TranslatableContents name = new TranslatableContents(nbt.getString(TAG_NAME), null, TranslatableContents.NO_ARGS);
         final TranslatableContents subtitle = new TranslatableContents(nbt.getString(TAG_SUBTITLE_NAME), null, TranslatableContents.NO_ARGS);
         final int depth = nbt.getInt(TAG_RESEARCH_LVL);
@@ -139,14 +139,14 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
         NBTUtils.streamCompound(nbt.getList(TAG_REQS, Tag.TAG_COMPOUND))
             .forEach(compound -> research.addRequirement(Objects.requireNonNull(IMinecoloniesAPI.getInstance()
                 .getResearchRequirementRegistry()
-                .get(ResourceLocation.tryParse(compound.getString(TAG_REQ_TYPE)))).readFromNBT(compound.getCompound(TAG_REQ_ITEM))));
+                .get(Identifier.tryParse(compound.getString(TAG_REQ_TYPE)))).readFromNBT(compound.getCompound(TAG_REQ_ITEM))));
 
         NBTUtils.streamCompound(nbt.getList(TAG_EFFECTS, Tag.TAG_COMPOUND))
             .forEach(compound -> research.addEffect(Objects.requireNonNull(IMinecoloniesAPI.getInstance()
                 .getResearchEffectRegistry()
-                .get(ResourceLocation.tryParse(compound.getString(TAG_EFFECT_TYPE)))).readFromNBT(compound.getCompound(TAG_EFFECT_ITEM))));
+                .get(Identifier.tryParse(compound.getString(TAG_EFFECT_TYPE)))).readFromNBT(compound.getCompound(TAG_EFFECT_ITEM))));
 
-        NBTUtils.streamCompound(nbt.getList(TAG_CHILDS, Tag.TAG_COMPOUND)).forEach(compound -> research.addChild(ResourceLocation.parse(compound.getString(TAG_RESEARCH_CHILD))));
+        NBTUtils.streamCompound(nbt.getList(TAG_CHILDS, Tag.TAG_COMPOUND)).forEach(compound -> research.addChild(Identifier.parse(compound.getString(TAG_RESEARCH_CHILD))));
         return research;
     }
 
@@ -183,7 +183,7 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
             packetBuffer.writeNbt(effect.writeToNBT());
         }
         packetBuffer.writeVarInt(input.getChildren().size());
-        for (ResourceLocation child : input.getChildren())
+        for (Identifier child : input.getChildren())
         {
             packetBuffer.writeResourceLocation(child);
         }
@@ -193,9 +193,9 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
     @Override
     public IGlobalResearch deserialize(final @NotNull IFactoryController controller, final @NotNull RegistryFriendlyByteBuf buffer) throws Throwable
     {
-        final ResourceLocation id = buffer.readResourceLocation();
-        final ResourceLocation parent = buffer.readBoolean() ? buffer.readResourceLocation() : null;
-        final ResourceLocation branch = buffer.readResourceLocation();
+        final Identifier id = buffer.readResourceLocation();
+        final Identifier parent = buffer.readBoolean() ? buffer.readResourceLocation() : null;
+        final Identifier branch = buffer.readResourceLocation();
         final TranslatableContents name = new TranslatableContents(buffer.readUtf(), null, TranslatableContents.NO_ARGS);
         final TranslatableContents subtitle = new TranslatableContents(buffer.readUtf(), null, TranslatableContents.NO_ARGS);
         final int depth = buffer.readVarInt();

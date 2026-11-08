@@ -6,9 +6,9 @@ import com.minecolonies.api.research.requirements.BuildingResearchRequirement;
 import com.minecolonies.api.research.requirements.ResearchResearchRequirement;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.apiimp.CommonMinecoloniesAPIImpl;
-import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraft.resources.Identifier;
+import com.ldtteam.shim.neoforge.registries.DeferredHolder;
+import com.ldtteam.shim.neoforge.registries.DeferredRegister;
 
 import static com.minecolonies.api.research.ModResearchRequirements.*;
 
@@ -40,7 +40,7 @@ public class ModResearchRequirementInitializer
      * @return the finalized registry object.
      */
     private static DeferredHolder<ResearchRequirementEntry, ResearchRequirementEntry> create(
-        final ResourceLocation registryName,
+        final Identifier registryName,
         final ReadFromNBTFunction readFromNBT,
         final ReadFromJsonFunction readFromJson)
     {

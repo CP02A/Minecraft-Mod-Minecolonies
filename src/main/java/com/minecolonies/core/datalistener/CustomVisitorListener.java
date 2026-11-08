@@ -22,7 +22,7 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.network.chat.Component;
 
 import java.util.Map;
@@ -71,10 +71,10 @@ public class CustomVisitorListener extends SimpleJsonResourceReloadListener
 
     @Override
     protected void apply(
-      final Map<ResourceLocation, JsonElement> jsonElementMap, final ResourceManager resourceManager, final ProfilerFiller profiler)
+      final Map<Identifier, JsonElement> jsonElementMap, final ResourceManager resourceManager, final ProfilerFiller profiler)
     {
         visitorDataPack = ImmutableList.of();
-        for (final Map.Entry<ResourceLocation, JsonElement> entry : jsonElementMap.entrySet())
+        for (final Map.Entry<Identifier, JsonElement> entry : jsonElementMap.entrySet())
         {
             tryParse(entry);
         }
@@ -85,7 +85,7 @@ public class CustomVisitorListener extends SimpleJsonResourceReloadListener
      *
      * @param entry
      */
-    private void tryParse(final Map.Entry<ResourceLocation, JsonElement> entry)
+    private void tryParse(final Map.Entry<Identifier, JsonElement> entry)
     {
         try
         {

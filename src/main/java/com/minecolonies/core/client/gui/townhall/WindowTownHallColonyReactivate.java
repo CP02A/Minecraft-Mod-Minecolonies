@@ -8,7 +8,7 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.biome.Biome;
 
@@ -33,7 +33,7 @@ public class WindowTownHallColonyReactivate extends AbstractWindowSkeleton
 
     public WindowTownHallColonyReactivate(final BlockPos pos, final String closestName, final int closestDistance)
     {
-        super(new ResourceLocation(Constants.MOD_ID, "gui/townhall/windowcolonyreactivate.xml"));
+        super(new Identifier(Constants.MOD_ID, "gui/townhall/windowcolonyreactivate.xml"));
         this.pos = pos;
         this.closestName = closestName;
         this.closestDistance = closestDistance;

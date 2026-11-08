@@ -14,7 +14,7 @@ import com.minecolonies.core.network.messages.server.colony.building.HireFireMes
 import com.minecolonies.core.network.messages.server.colony.building.worker.BuildingHiringModeMessage;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -61,7 +61,7 @@ public class WorkerBuildingModuleView extends AbstractBuildingModuleView impleme
     /**
      * Research requirement.
      */
-    private ResourceLocation researchRequirement = null;
+    private Identifier researchRequirement = null;
 
     @Override
     public List<Integer> getAssignedCitizens()
@@ -109,9 +109,9 @@ public class WorkerBuildingModuleView extends AbstractBuildingModuleView impleme
     }
 
     @Override
-    public ResourceLocation getIconResourceLocation()
+    public Identifier getIconResourceLocation()
     {
-        return new ResourceLocation(Constants.MOD_ID, "textures/gui/modules/custom.png");
+        return new Identifier(Constants.MOD_ID, "textures/gui/modules/custom.png");
     }
 
     @Override
@@ -201,7 +201,7 @@ public class WorkerBuildingModuleView extends AbstractBuildingModuleView impleme
     }
 
     @Override
-    public ResourceLocation getResearchRequirement()
+    public Identifier getResearchRequirement()
     {
         return researchRequirement;
     }

@@ -34,12 +34,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.common.util.BlockSnapshot;
-import net.neoforged.neoforge.event.level.BlockEvent;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.api.distmarker.OnlyIn;
+import com.ldtteam.shim.neoforge.common.NeoForge;
+import com.ldtteam.shim.neoforge.common.util.BlockSnapshot;
+import com.ldtteam.shim.neoforge.event.level.BlockEvent;
+import com.ldtteam.shim.neoforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.Nullable;
 
 import static com.minecolonies.api.util.constant.TranslationConstants.*;

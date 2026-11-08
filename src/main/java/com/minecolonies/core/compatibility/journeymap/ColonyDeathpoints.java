@@ -12,7 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -177,7 +177,7 @@ public class ColonyDeathpoints
                                               ? Component.translatableEscape(PARTIAL_JOURNEY_MAP_INFO + "deathpoint_name", grave.getCitizenName())
                                               : Component.translatableEscape(PARTIAL_JOURNEY_MAP_INFO + "deathpoint_namejob", grave.getCitizenName(), grave.getCitizenJobName());
                 final Waypoint waypoint = WaypointFactory.createClientWaypoint(MOD_ID, pos, text.getString(), colony.getDimension(), false);
-                waypoint.setIconResourceLoctaion(new ResourceLocation(MOD_ID, "textures/icons/grave_icon.png"));
+                waypoint.setIconResourceLoctaion(new Identifier(MOD_ID, "textures/icons/grave_icon.png"));
                 waypoint.setIconTextureSize(16, 16);
                 waypoint.setColor(0x888888);
                 jmap.getApi().addWaypoint(MOD_ID, waypoint);

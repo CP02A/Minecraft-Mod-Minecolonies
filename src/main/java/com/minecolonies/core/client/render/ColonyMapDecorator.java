@@ -10,7 +10,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.client.IItemDecorator;
+import com.ldtteam.shim.neoforge.client.IItemDecorator;
 
 public class ColonyMapDecorator implements IItemDecorator
 {

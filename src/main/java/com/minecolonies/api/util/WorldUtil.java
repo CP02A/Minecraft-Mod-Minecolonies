@@ -5,7 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.FullChunkStatus;
 import net.minecraft.server.level.ServerChunkCache;
@@ -222,7 +222,7 @@ public class WorldUtil
     public static boolean isOfWorldType(@NotNull final Level world, @NotNull final ResourceKey<DimensionType> type)
     {
         RegistryAccess dynRegistries = world.registryAccess();
-        ResourceLocation loc = dynRegistries.registry(Registries.DIMENSION_TYPE).get().getKey(world.dimensionType());
+        Identifier loc = dynRegistries.registry(Registries.DIMENSION_TYPE).get().getKey(world.dimensionType());
         if (loc == null)
         {
             if (world.isClientSide)

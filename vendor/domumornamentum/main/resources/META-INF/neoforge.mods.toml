@@ -1,0 +1,13 @@
+modLoader="javafml" #mandatory
+license="GPL3"
+loaderVersion="[4,)" #mandatory
+issueTrackerURL="https://github.com/ldtteam/Domum-Ornamentum/issues/new/choose"
+[[mods]] #mandatory
+modId="domum_ornamentum" #mandatory
+version="${file.jarVersion}" #mandatory
+displayName="Domum Ornamentum" #mandatory
+authors="LDTTeam, OrionDevelopment" #optional
+description='''
+Home decorations made easy. Out of several materials
+'''
+

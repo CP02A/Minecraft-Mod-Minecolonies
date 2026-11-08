@@ -24,7 +24,7 @@ import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
@@ -87,7 +87,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
      * Get horse icon
      */
     private final static VisibleCitizenStatus FIND_HORSE =
-      new VisibleCitizenStatus(new ResourceLocation(Constants.MOD_ID, "textures/icons/work/stablemaster.png"), "com.minecolonies.gui.visiblestatus.stablemaster");
+      new VisibleCitizenStatus(new Identifier(Constants.MOD_ID, "textures/icons/work/stablemaster.png"), "com.minecolonies.gui.visiblestatus.stablemaster");
 
     /**
      * Creates the abstract part of the AI. Always use this constructor!

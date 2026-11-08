@@ -9,9 +9,9 @@ import com.minecolonies.api.colony.buildings.modules.settings.ISetting;
 import com.minecolonies.api.colony.buildings.modules.settings.ISettingKey;
 import com.minecolonies.api.colony.buildings.modules.settings.ISettingsModuleView;
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
-import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraft.resources.Identifier;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.api.distmarker.OnlyIn;
 
 /**
  * Stores an integer setting.
@@ -68,9 +68,9 @@ public class IntSetting implements ISetting<Integer>
     }
 
     @Override
-    public ResourceLocation getLayoutItem()
+    public Identifier getLayoutItem()
     {
-        return new ResourceLocation("minecolonies", "gui/layouthuts/layoutintsetting.xml");
+        return new Identifier("minecolonies", "gui/layouthuts/layoutintsetting.xml");
     }
 
     @OnlyIn(Dist.CLIENT)

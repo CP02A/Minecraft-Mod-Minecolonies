@@ -4,7 +4,7 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -20,7 +20,7 @@ public class RenderSitting<T extends Entity> extends EntityRenderer<T>
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(final @NotNull T t)
+    public @NotNull Identifier getTextureLocation(final @NotNull T t)
     {
         return null;
     }

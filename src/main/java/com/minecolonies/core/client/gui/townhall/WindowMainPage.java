@@ -17,7 +17,7 @@ import com.minecolonies.core.network.messages.server.colony.ColonyStructureStyle
 import com.minecolonies.core.network.messages.server.colony.ColonyTextureStyleMessage;
 import com.minecolonies.core.network.messages.server.colony.TeamColonyColorChangeMessage;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;

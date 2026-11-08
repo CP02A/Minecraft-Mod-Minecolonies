@@ -15,7 +15,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashMap;
@@ -61,7 +61,7 @@ public class SettingsModule extends AbstractBuildingModule implements IPersisten
         for (int i = 0; i < list.size(); i++)
         {
             final CompoundTag entryCompound = list.getCompound(i);
-            final ResourceLocation key = ResourceLocation.parse(entryCompound.getString("key"));
+            final Identifier key = Identifier.parse(entryCompound.getString("key"));
             try
             {
                 final ISetting setting = StandardFactoryController.getInstance().deserializeTag(provider, entryCompound.getCompound("value"));

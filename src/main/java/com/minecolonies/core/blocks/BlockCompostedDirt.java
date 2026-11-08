@@ -4,7 +4,7 @@ import com.minecolonies.api.blocks.AbstractBlockMinecolonies;
 import com.minecolonies.api.blocks.interfaces.ITickableBlockMinecolonies;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.tileentities.TileEntityCompostedDirt;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -15,7 +15,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.level.BlockGetter;
-import net.neoforged.neoforge.common.util.TriState;
+import com.ldtteam.shim.neoforge.common.util.TriState;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -39,9 +39,9 @@ public class BlockCompostedDirt extends AbstractBlockMinecolonies<BlockComposted
     }
 
     @Override
-    public ResourceLocation getRegistryName()
+    public Identifier getRegistryName()
     {
-        return new ResourceLocation(Constants.MOD_ID, BLOCK_NAME);
+        return new Identifier(Constants.MOD_ID, BLOCK_NAME);
     }
 
     @Nullable

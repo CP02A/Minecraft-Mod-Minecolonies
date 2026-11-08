@@ -32,7 +32,7 @@ import com.minecolonies.api.research.IGlobalResearchTree;
 import com.minecolonies.api.research.ModResearchEffects;
 import com.minecolonies.api.research.ModResearchRequirements;
 import net.minecraft.core.Registry;
-import net.neoforged.neoforge.registries.NewRegistryEvent;
+import com.ldtteam.shim.neoforge.registries.NewRegistryEvent;
 
 public interface IMinecoloniesAPI
 {

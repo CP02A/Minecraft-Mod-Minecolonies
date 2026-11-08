@@ -12,10 +12,10 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import com.ldtteam.shim.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -55,7 +55,7 @@ public class ColonyViewWorkOrderMessage extends AbstractClientPlayMessage
     {
         super(buf, type);
         colonyId = buf.readInt();
-        dimension = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(buf.readUtf(32767)));
+        dimension = ResourceKey.create(Registries.DIMENSION, Identifier.parse(buf.readUtf(32767)));
         this.workOrderBuffer = new RegistryFriendlyByteBuf(Unpooled.copiedBuffer(buf.readSlice(buf.readVarInt())), buf.registryAccess());
     }
 

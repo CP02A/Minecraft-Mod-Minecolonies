@@ -11,7 +11,7 @@ import com.minecolonies.apiimp.CommonMinecoloniesAPIImpl;
 import com.minecolonies.core.colony.jobs.AbstractJobGuard;
 import com.minecolonies.core.colony.jobs.JobPupil;
 import com.minecolonies.core.entity.citizen.citizenhandlers.CitizenHappinessHandler;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.ldtteam.shim.neoforge.registries.DeferredRegister;
 
 import static com.minecolonies.api.entity.citizen.happiness.HappinessRegistry.*;
 import static com.minecolonies.core.entity.citizen.citizenhandlers.CitizenHappinessHandler.*;

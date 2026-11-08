@@ -53,7 +53,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.*;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -66,9 +66,9 @@ import net.minecraft.world.level.block.entity.BannerPatternLayers;
 import net.minecraft.world.level.block.entity.BannerPatterns;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import com.ldtteam.shim.neoforge.common.NeoForge;
+import com.ldtteam.shim.neoforge.event.tick.LevelTickEvent;
+import com.ldtteam.shim.neoforge.event.tick.ServerTickEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -734,7 +734,7 @@ public class Colony implements IColony
             final String name = compound.getString(TAG_NAME);
             final BlockPos center = BlockPosUtil.read(compound, TAG_CENTER);
             @NotNull final Colony c = new Colony(id, name, world, center);
-            c.dimensionId = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(compound.getString(TAG_DIMENSION)));
+            c.dimensionId = ResourceKey.create(Registries.DIMENSION, Identifier.parse(compound.getString(TAG_DIMENSION)));
 
             c.read(compound, provider);
 
@@ -754,7 +754,7 @@ public class Colony implements IColony
      */
     public void read(@NotNull final CompoundTag compound, @NotNull final HolderLookup.Provider provider)
     {
-        dimensionId = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(compound.getString(TAG_DIMENSION)));
+        dimensionId = ResourceKey.create(Registries.DIMENSION, Identifier.parse(compound.getString(TAG_DIMENSION)));
 
         mercenaryLastUse = compound.getLong(TAG_MERCENARY_TIME);
         additionalChildTime = compound.getInt(TAG_CHILD_TIME);
@@ -805,7 +805,7 @@ public class Colony implements IColony
         final ListTag freeBlockTagList = compound.getList(TAG_FREE_BLOCKS, Tag.TAG_STRING);
         for (int i = 0; i < freeBlockTagList.size(); ++i)
         {
-            tempFreeBlocks.add(BuiltInRegistries.BLOCK.get(ResourceLocation.parse(freeBlockTagList.getString(i))));
+            tempFreeBlocks.add(BuiltInRegistries.BLOCK.get(Identifier.parse(freeBlockTagList.getString(i))));
         }
         freeBlocks = ImmutableSet.copyOf(tempFreeBlocks);
 
@@ -1210,7 +1210,7 @@ public class Colony implements IColony
      * Any per-world-tick logic should be performed here. NOTE: If the Colony's world isn't loaded, it won't have a world tick. Use onServerTick for logic that should _always_
      * run.
      *
-     * @param event {@link net.neoforged.neoforge.event.tick.LevelTickEvent}
+     * @param event {@link com.ldtteam.shim.neoforge.event.tick.LevelTickEvent}
      */
     @Override
     public void onWorldTick(@NotNull final LevelTickEvent.Pre event)

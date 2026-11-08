@@ -30,7 +30,7 @@ import com.minecolonies.core.entity.pathfinding.pathjobs.PathJobMoveToLocation;
 import com.minecolonies.core.entity.pathfinding.pathresults.PathResult;
 import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -61,7 +61,7 @@ public class RangeCombatAI extends AttackMoveAI<EntityCitizen>
      * Visible combat icon
      */
     private final static VisibleCitizenStatus ARCHER_COMBAT =
-      new VisibleCitizenStatus(new ResourceLocation(Constants.MOD_ID, "textures/icons/work/archer_combat.png"), "com.minecolonies.gui.visiblestatus.archer_combat");
+      new VisibleCitizenStatus(new Identifier(Constants.MOD_ID, "textures/icons/work/archer_combat.png"), "com.minecolonies.gui.visiblestatus.archer_combat");
 
     private final AbstractEntityAIGuard parentAI;
 

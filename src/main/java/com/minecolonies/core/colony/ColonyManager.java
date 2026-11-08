@@ -45,11 +45,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import com.ldtteam.shim.neoforge.client.event.ClientTickEvent;
+import com.ldtteam.shim.neoforge.common.NeoForge;
+import com.ldtteam.shim.neoforge.event.tick.LevelTickEvent;
+import com.ldtteam.shim.neoforge.event.tick.ServerTickEvent;
+import com.ldtteam.shim.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -269,7 +269,7 @@ public final class ColonyManager implements IColonyManager
     @Nullable
     public IColony getColonyByDimension(final int id, final ResourceKey<Level> registryKey)
     {
-        final ServerLevel world = net.neoforged.neoforge.server.ServerLifecycleHooks.getCurrentServer().getLevel(registryKey);
+        final ServerLevel world = com.ldtteam.shim.neoforge.server.ServerLifecycleHooks.getCurrentServer().getLevel(registryKey);
         if (world == null)
         {
             return null;
@@ -373,7 +373,7 @@ public final class ColonyManager implements IColonyManager
     public List<IColony> getAllColonies()
     {
         final List<IColony> allColonies = new ArrayList<>();
-        for (final ServerLevel world : net.neoforged.neoforge.server.ServerLifecycleHooks.getCurrentServer().getAllLevels())
+        for (final ServerLevel world : com.ldtteam.shim.neoforge.server.ServerLifecycleHooks.getCurrentServer().getAllLevels())
         {
             final IServerColonySaveData cap = getColonySaveData(world);
             if (cap != null)

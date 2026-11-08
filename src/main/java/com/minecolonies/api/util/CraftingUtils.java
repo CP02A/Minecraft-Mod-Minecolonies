@@ -10,7 +10,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.*;
-import net.neoforged.neoforge.event.EventHooks;
+import com.ldtteam.shim.neoforge.event.EventHooks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;

@@ -11,13 +11,13 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import net.minecraft.world.item.Items;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -29,7 +29,7 @@ public class RenderFishHook extends EntityRenderer<NewBobberEntity>
     /**
      * The resource location containing the particle textures (Spawned by the fishHook).
      */
-    private static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/entity/fishing_hook.png");
+    private static final Identifier TEXTURE = Identifier.withDefaultNamespace("textures/entity/fishing_hook.png");
 
     /**
      * The render type of the hook.
@@ -145,7 +145,7 @@ public class RenderFishHook extends EntityRenderer<NewBobberEntity>
      */
     @NotNull
     @Override
-    public ResourceLocation getTextureLocation(@NotNull final NewBobberEntity entity)
+    public Identifier getTextureLocation(@NotNull final NewBobberEntity entity)
     {
         return getTexture();
     }
@@ -156,7 +156,7 @@ public class RenderFishHook extends EntityRenderer<NewBobberEntity>
      * @return the address of the resource
      */
     @NotNull
-    private static ResourceLocation getTexture()
+    private static Identifier getTexture()
     {
         return TEXTURE;
     }

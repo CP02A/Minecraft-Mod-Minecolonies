@@ -21,9 +21,9 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.api.distmarker.OnlyIn;
+import com.ldtteam.shim.neoforge.items.wrapper.InvWrapper;
 import java.util.function.Predicate;
 
 import static com.minecolonies.api.util.constant.Constants.*;

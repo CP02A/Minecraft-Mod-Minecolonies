@@ -14,7 +14,7 @@ import com.minecolonies.api.colony.buildings.modules.settings.ISettingsModuleVie
 import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -30,8 +30,8 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -106,9 +106,9 @@ public class BlockSetting implements ISetting<BlockItem>
     }
 
     @Override
-    public ResourceLocation getLayoutItem()
+    public Identifier getLayoutItem()
     {
-        return new ResourceLocation("minecolonies", "gui/layouthuts/layoutblocksetting.xml");
+        return new Identifier("minecolonies", "gui/layouthuts/layoutblocksetting.xml");
     }
 
     @OnlyIn(Dist.CLIENT)

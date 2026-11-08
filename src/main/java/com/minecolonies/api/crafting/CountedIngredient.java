@@ -6,8 +6,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.neoforged.neoforge.common.crafting.ICustomIngredient;
-import net.neoforged.neoforge.common.crafting.IngredientType;
+import com.ldtteam.shim.neoforge.common.crafting.ICustomIngredient;
+import com.ldtteam.shim.neoforge.common.crafting.IngredientType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 
 /**
  * An ingredient that can be used in a vanilla recipe to require more than one item in a particular input slot.
- * Similar to {@link net.neoforged.neoforge.common.crafting.SizedIngredient}, but this deliberately skips the
+ * Similar to {@link com.ldtteam.shim.neoforge.common.crafting.SizedIngredient}, but this deliberately skips the
  * count check in {@link #test(ItemStack)} to more easily support consuming across multiple inventory slots --
  * and unlike that, it participates as a custom ingredient directly.
  *

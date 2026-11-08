@@ -1,8 +1,8 @@
 package com.minecolonies.api.util.constant;
 
 import net.minecraft.client.gui.components.WidgetSprites;
-import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.common.util.Size2i;
+import net.minecraft.resources.Identifier;
+import com.ldtteam.shim.neoforge.common.util.Size2i;
 
 import static com.minecolonies.api.util.constant.Constants.MOD_ID;
 import static com.minecolonies.api.util.constant.TranslationConstants.*;
@@ -1042,15 +1042,15 @@ public final class WindowConstants
      * Crafting switch-output button.
      */
     public static final WidgetSprites CRAFTING_SWITCH = new WidgetSprites(
-        new ResourceLocation(MOD_ID, "craftingswitch"),
-        new ResourceLocation(MOD_ID, "craftingswitch_hover"));
+        new Identifier(MOD_ID, "craftingswitch"),
+        new Identifier(MOD_ID, "craftingswitch_hover"));
 
     /**
      * Crafting request-list button.
      */
     public static final WidgetSprites CRAFTING_LIST = new WidgetSprites(
-        new ResourceLocation(MOD_ID, "craftinglist"),
-        new ResourceLocation(MOD_ID, "craftinglist_hover"));
+        new Identifier(MOD_ID, "craftinglist"),
+        new Identifier(MOD_ID, "craftinglist_hover"));
 
     /**
      * Switch button size.

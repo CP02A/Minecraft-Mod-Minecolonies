@@ -13,7 +13,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -308,7 +308,7 @@ public class ExpeditionLog
         for (int i = 0; i < mobs.size(); ++i)
         {
             final CompoundTag mob = mobs.getCompound(i);
-            final ResourceLocation type = ResourceLocation.parse(mob.getString(TAG_TYPE));
+            final Identifier type = Identifier.parse(mob.getString(TAG_TYPE));
             final EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(type);
             if (entityType != null)
             {

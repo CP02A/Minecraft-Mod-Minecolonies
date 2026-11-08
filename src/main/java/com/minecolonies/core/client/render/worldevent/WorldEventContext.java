@@ -9,7 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent.Stage;
+import com.ldtteam.shim.neoforge.client.event.RenderLevelStageEvent.Stage;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4fStack;
 

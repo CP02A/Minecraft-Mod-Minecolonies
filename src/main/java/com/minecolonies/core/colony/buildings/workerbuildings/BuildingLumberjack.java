@@ -30,7 +30,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
@@ -55,10 +55,10 @@ public class BuildingLumberjack extends AbstractBuilding
     /**
      * Replant setting.
      */
-    public static final ISettingKey<BoolSetting> REPLANT = new SettingKey<>(BoolSetting.class, new ResourceLocation(com.minecolonies.api.util.constant.Constants.MOD_ID, "replant"));
-    public static final ISettingKey<BoolSetting> RESTRICT = new SettingKey<>(BoolSetting.class, new ResourceLocation(com.minecolonies.api.util.constant.Constants.MOD_ID, "restrict"));
-    public static final ISettingKey<BoolSetting> DEFOLIATE = new SettingKey<>(BoolSetting.class, new ResourceLocation(com.minecolonies.api.util.constant.Constants.MOD_ID, "defoliate"));
-    public static final ISettingKey<DynamicTreesSetting> DYNAMIC_TREES_SIZE = new SettingKey<>(DynamicTreesSetting.class, new ResourceLocation(com.minecolonies.api.util.constant.Constants.MOD_ID, "dynamictreeharvestsize"));
+    public static final ISettingKey<BoolSetting> REPLANT = new SettingKey<>(BoolSetting.class, new Identifier(com.minecolonies.api.util.constant.Constants.MOD_ID, "replant"));
+    public static final ISettingKey<BoolSetting> RESTRICT = new SettingKey<>(BoolSetting.class, new Identifier(com.minecolonies.api.util.constant.Constants.MOD_ID, "restrict"));
+    public static final ISettingKey<BoolSetting> DEFOLIATE = new SettingKey<>(BoolSetting.class, new Identifier(com.minecolonies.api.util.constant.Constants.MOD_ID, "defoliate"));
+    public static final ISettingKey<DynamicTreesSetting> DYNAMIC_TREES_SIZE = new SettingKey<>(DynamicTreesSetting.class, new Identifier(com.minecolonies.api.util.constant.Constants.MOD_ID, "dynamictreeharvestsize"));
 
     /**
      * NBT tag for lj restriction start

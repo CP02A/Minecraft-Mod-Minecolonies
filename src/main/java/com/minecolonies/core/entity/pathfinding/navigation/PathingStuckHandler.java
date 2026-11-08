@@ -22,7 +22,7 @@ import net.minecraft.world.level.block.LadderBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.fml.loading.FMLEnvironment;
+import com.ldtteam.shim.fml.loading.FMLEnvironment;
 
 import java.util.Objects;
 import java.util.Random;

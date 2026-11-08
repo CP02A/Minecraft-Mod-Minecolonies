@@ -48,7 +48,7 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -68,7 +68,7 @@ public abstract class JobBasedRecipeCategory<T> extends AbstractRecipeCategory<T
 {
     private static final Map<EquipmentTypeEntry, List<ItemStack>> TOOL_CACHE = new HashMap<>();
 
-    protected static final ResourceLocation TEXTURE = new ResourceLocation(Constants.MOD_ID, "textures/gui/jei_recipe.png");
+    protected static final Identifier TEXTURE = new Identifier(Constants.MOD_ID, "textures/gui/jei_recipe.png");
     @NotNull protected final IJob<?> job;
     @NotNull private final ItemStack catalyst;
     @NotNull private final IDrawableStatic background;
@@ -312,10 +312,10 @@ public abstract class JobBasedRecipeCategory<T> extends AbstractRecipeCategory<T
 
     protected static class RecipeIdTooltipCallback implements IRecipeSlotRichTooltipCallback
     {
-        private final ResourceLocation id;
+        private final Identifier id;
         private final IModIdHelper modIdHelper;
 
-        public RecipeIdTooltipCallback(final ResourceLocation id, final IModIdHelper modIdHelper)
+        public RecipeIdTooltipCallback(final Identifier id, final IModIdHelper modIdHelper)
         {
             this.id = id;
             this.modIdHelper = modIdHelper;

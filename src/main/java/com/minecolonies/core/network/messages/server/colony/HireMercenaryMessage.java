@@ -8,7 +8,7 @@ import com.minecolonies.core.network.messages.server.AbstractColonyServerMessage
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import com.ldtteam.shim.neoforge.network.handling.IPayloadContext;
 
 /**
  * The message sent when activating mercenaries

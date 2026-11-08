@@ -20,7 +20,7 @@ import com.minecolonies.core.entity.ai.workers.util.MineNode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -47,12 +47,12 @@ public class BuildingMiner extends AbstractBuildingStructureBuilder
     /**
      * Setting for solid filling block.
      */
-    public static final ISettingKey<BlockSetting> FILL_BLOCK = new SettingKey<>(BlockSetting.class, new ResourceLocation(Constants.MOD_ID, "fillblock"));
+    public static final ISettingKey<BlockSetting> FILL_BLOCK = new SettingKey<>(BlockSetting.class, new Identifier(Constants.MOD_ID, "fillblock"));
 
     /**
      * Max depth the miner is going for.
      */
-    public static final ISettingKey<IntSetting> MAX_DEPTH = new SettingKey<>(IntSetting.class, new ResourceLocation(Constants.MOD_ID, "maxdepth"));
+    public static final ISettingKey<IntSetting> MAX_DEPTH = new SettingKey<>(IntSetting.class, new Identifier(Constants.MOD_ID, "maxdepth"));
 
     /**
      * Mine height levels:

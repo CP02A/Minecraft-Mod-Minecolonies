@@ -4,7 +4,7 @@ import com.minecolonies.api.util.constant.Constants;
 import net.minecraft.client.particle.*;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Custom particle for sleeping.
@@ -27,7 +27,7 @@ public class SleepingParticle extends TextureSheetParticle
     /**
      * The resourcelocation for the sleeping image.
      */
-    public static final ResourceLocation SLEEPING_TEXTURE = new ResourceLocation(Constants.MOD_ID, "particle/sleeping");
+    public static final Identifier SLEEPING_TEXTURE = new Identifier(Constants.MOD_ID, "particle/sleeping");
 
     public SleepingParticle(SpriteSet spriteSet, ClientLevel worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn)
     {

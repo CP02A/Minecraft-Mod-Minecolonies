@@ -17,7 +17,7 @@ import com.minecolonies.core.network.messages.server.colony.building.worker.Togg
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
@@ -77,7 +77,7 @@ public class WindowListRecipes extends AbstractModuleWindow<CraftingModuleView>
      */
     public WindowListRecipes(final CraftingModuleView module)
     {
-        super(module, new ResourceLocation(Constants.MOD_ID, "gui/layouthuts/layoutlistrecipes.xml"));
+        super(module, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutlistrecipes.xml"));
         recipeList = findPaneOfTypeByID(RECIPE_LIST, ScrollingList.class);
         recipeStatus = findPaneOfTypeByID(RECIPE_STATUS, Text.class);
 

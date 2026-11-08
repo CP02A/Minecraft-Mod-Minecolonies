@@ -20,7 +20,7 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
@@ -52,7 +52,7 @@ public class CropRecipeCategory implements IRecipeCategory<CropRecipeCategory.Cr
         this.background = guiHelper.createBlankDrawable(WIDTH, HEIGHT);
         this.icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(Items.DIAMOND_HOE));
         this.slot = guiHelper.getSlotDrawable();
-        this.chanceSlot = guiHelper.createDrawable(new ResourceLocation(Constants.MOD_ID, "textures/gui/jei_recipe.png"), 0, 121, 18, 18);
+        this.chanceSlot = guiHelper.createDrawable(new Identifier(Constants.MOD_ID, "textures/gui/jei_recipe.png"), 0, 121, 18, 18);
     }
 
     @NotNull

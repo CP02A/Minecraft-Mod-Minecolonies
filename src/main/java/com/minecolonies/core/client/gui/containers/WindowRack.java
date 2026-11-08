@@ -7,12 +7,12 @@ import com.minecolonies.api.util.constant.Constants;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.network.chat.Component;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.api.distmarker.OnlyIn;
+import com.ldtteam.shim.neoforge.items.IItemHandler;
+import com.ldtteam.shim.neoforge.items.wrapper.CombinedInvWrapper;
 import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.InventoryConstants.*;
@@ -23,7 +23,7 @@ public class WindowRack extends AbstractContainerScreen<ContainerRack>
     /**
      * The resource LOCATION of the texture.
      */
-    private static final ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation(Constants.MOD_ID, "textures/gui/generic_108.png");
+    private static final Identifier CHEST_GUI_TEXTURE = new Identifier(Constants.MOD_ID, "textures/gui/generic_108.png");
 
     /**
      * The LOCATION of the additional styles.
@@ -112,7 +112,7 @@ public class WindowRack extends AbstractContainerScreen<ContainerRack>
     @Override
     protected void renderBg(@NotNull final GuiGraphics stack, final float partialTicks, final int mouseX, final int mouseY)
     {
-        final ResourceLocation loc = getCorrectTextureForSlots(inventoryRows);
+        final Identifier loc = getCorrectTextureForSlots(inventoryRows);
 
         if (inventoryRows <= GOOD_SIZE)
         {
@@ -133,7 +133,7 @@ public class WindowRack extends AbstractContainerScreen<ContainerRack>
      * @param inventoryRows the amount of rows.
      * @return the correct LOCATION.
      */
-    private static ResourceLocation getCorrectTextureForSlots(final int inventoryRows)
+    private static Identifier getCorrectTextureForSlots(final int inventoryRows)
     {
         if (inventoryRows <= GOOD_SIZE)
         {
@@ -141,7 +141,7 @@ public class WindowRack extends AbstractContainerScreen<ContainerRack>
         }
         else
         {
-            return new ResourceLocation(Constants.MOD_ID, String.format(LOCATION, inventoryRows * INVENTORY_COLUMNS));
+            return new Identifier(Constants.MOD_ID, String.format(LOCATION, inventoryRows * INVENTORY_COLUMNS));
         }
     }
 

@@ -13,7 +13,7 @@ import com.minecolonies.core.tileentities.TileEntityRack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -191,7 +191,7 @@ public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack im
      *
      * @return The buildings name.
      */
-    public abstract ResourceLocation getBuildingName();
+    public abstract Identifier getBuildingName();
 
     @Override
     public String getSchematicName()

@@ -18,10 +18,10 @@ import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.crafting.IRecipeStorage;
 import com.minecolonies.core.colony.buildings.moduleviews.CraftingModuleView;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.api.distmarker.OnlyIn;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -117,9 +117,9 @@ public class RecipeSetting implements ICraftingSetting
     }
 
     @Override
-    public ResourceLocation getLayoutItem()
+    public Identifier getLayoutItem()
     {
-        return new ResourceLocation("minecolonies", "gui/layouthuts/layoutcraftingsetting.xml");
+        return new Identifier("minecolonies", "gui/layouthuts/layoutcraftingsetting.xml");
     }
 
     @OnlyIn(Dist.CLIENT)

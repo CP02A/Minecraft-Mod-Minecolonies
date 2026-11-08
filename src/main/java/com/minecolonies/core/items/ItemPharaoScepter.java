@@ -42,7 +42,7 @@ public class ItemPharaoScepter extends BowItem
     {
         ItemStack itemstack = playerIn.getItemInHand(handIn);
 
-        InteractionResultHolder<ItemStack> ret = net.neoforged.neoforge.event.EventHooks.onArrowNock(itemstack, worldIn, playerIn, handIn, true);
+        InteractionResultHolder<ItemStack> ret = com.ldtteam.shim.neoforge.event.EventHooks.onArrowNock(itemstack, worldIn, playerIn, handIn, true);
         if (ret != null)
         {
             return ret;
@@ -59,7 +59,7 @@ public class ItemPharaoScepter extends BowItem
         {
             Player playerentity = (Player) entityLiving;
             int useDuration = this.getUseDuration(stack, entityLiving) - timeLeft;
-            useDuration = net.neoforged.neoforge.event.EventHooks.onArrowLoose(stack, worldIn, playerentity, useDuration, true);
+            useDuration = com.ldtteam.shim.neoforge.event.EventHooks.onArrowLoose(stack, worldIn, playerentity, useDuration, true);
             if (useDuration < 0)
             {
                 return;

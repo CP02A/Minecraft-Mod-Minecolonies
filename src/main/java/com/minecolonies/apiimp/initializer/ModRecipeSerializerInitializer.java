@@ -5,10 +5,10 @@ import com.minecolonies.api.crafting.CompostRecipe;
 import com.minecolonies.api.crafting.registry.ModRecipeSerializer;
 import com.minecolonies.api.util.constant.Constants;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.ldtteam.shim.neoforge.registries.DeferredRegister;
 
 public final class ModRecipeSerializerInitializer
 {
@@ -18,7 +18,7 @@ public final class ModRecipeSerializerInitializer
     static
     {
         ModRecipeSerializer.CompostRecipeSerializer = RECIPE_SERIALIZER.register("composting", CompostRecipe.Serializer::new);
-        ModRecipeSerializer.CompostRecipeType = RECIPE_TYPES.register("composting", () -> RecipeType.<CompostRecipe>simple(new ResourceLocation(Constants.MOD_ID, "composting")));
+        ModRecipeSerializer.CompostRecipeType = RECIPE_TYPES.register("composting", () -> RecipeType.<CompostRecipe>simple(new Identifier(Constants.MOD_ID, "composting")));
 
         ModRecipeSerializer.ZeroWasteRecipeSerializer = RECIPE_SERIALIZER.register("zero_waste", ZeroWasteRecipe.Serializer::new);
     }

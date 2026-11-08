@@ -5,7 +5,7 @@ import com.minecolonies.api.util.constant.Constants;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,7 +14,7 @@ public class WindowBuildingInventory extends AbstractContainerScreen<ContainerBu
     /**
      * Texture res loc.
      */
-    private static final ResourceLocation TEXT = new ResourceLocation(Constants.MOD_ID, "textures/gui/generic_108.png");
+    private static final Identifier TEXT = new Identifier(Constants.MOD_ID, "textures/gui/generic_108.png");
 
     /**
      * Offset inside the texture to use.

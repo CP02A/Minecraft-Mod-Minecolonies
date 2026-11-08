@@ -2,7 +2,7 @@ package com.minecolonies.api.crafting;
 
 import com.minecolonies.api.crafting.registry.CraftingType;
 import com.minecolonies.api.util.Log;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
@@ -29,7 +29,7 @@ public class RecipeCraftingType<C extends RecipeInput, T extends Recipe<C>> exte
      * @param recipeType the vanilla recipe type
      * @param predicate filter acceptable recipes, or null to accept all
      */
-    public RecipeCraftingType(@NotNull final ResourceLocation id,
+    public RecipeCraftingType(@NotNull final Identifier id,
                               @NotNull final RecipeType<T> recipeType,
                               @Nullable final Predicate<RecipeHolder<T>> predicate)
     {

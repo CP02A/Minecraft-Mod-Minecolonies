@@ -7,7 +7,7 @@ import com.minecolonies.core.client.render.worldevent.PathfindingDebugRenderer;
 import com.minecolonies.core.entity.pathfinding.MNode;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import com.ldtteam.shim.neoforge.network.handling.IPayloadContext;
 
 import java.util.HashSet;
 import java.util.Set;

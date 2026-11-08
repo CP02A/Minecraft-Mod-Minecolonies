@@ -17,7 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -265,8 +265,8 @@ public class SettingsFactories
         @Override
         public BlockSetting deserialize(@NotNull final HolderLookup.Provider provider, @NotNull final IFactoryController controller, @NotNull final CompoundTag nbt)
         {
-            final BlockItem value = (BlockItem) BuiltInRegistries.ITEM.get(ResourceLocation.parse(nbt.getString(TAG_VALUE)));
-            final BlockItem def = (BlockItem) BuiltInRegistries.ITEM.get(ResourceLocation.parse(nbt.getString(TAG_DEF)));
+            final BlockItem value = (BlockItem) BuiltInRegistries.ITEM.get(Identifier.parse(nbt.getString(TAG_VALUE)));
+            final BlockItem def = (BlockItem) BuiltInRegistries.ITEM.get(Identifier.parse(nbt.getString(TAG_DEF)));
             return this.getNewInstance(value, def);
         }
 

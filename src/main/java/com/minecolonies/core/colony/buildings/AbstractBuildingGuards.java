@@ -36,7 +36,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -67,15 +67,15 @@ public abstract class AbstractBuildingGuards extends AbstractBuilding implements
      * Settings.
      */
     public static final ISettingKey<BoolSetting>       RETREAT      =
-      new SettingKey<>(BoolSetting.class, new ResourceLocation(com.minecolonies.api.util.constant.Constants.MOD_ID, "retreat"));
+      new SettingKey<>(BoolSetting.class, new Identifier(com.minecolonies.api.util.constant.Constants.MOD_ID, "retreat"));
     public static final ISettingKey<BoolSetting>            HIRE_TRAINEE =
-      new SettingKey<>(BoolSetting.class, new ResourceLocation(com.minecolonies.api.util.constant.Constants.MOD_ID, "hiretrainee"));
+      new SettingKey<>(BoolSetting.class, new Identifier(com.minecolonies.api.util.constant.Constants.MOD_ID, "hiretrainee"));
     public static final ISettingKey<GuardPatrolModeSetting> PATROL_MODE =
-      new SettingKey<>(GuardPatrolModeSetting.class, new ResourceLocation(com.minecolonies.api.util.constant.Constants.MOD_ID, "patrolmode"));
+      new SettingKey<>(GuardPatrolModeSetting.class, new Identifier(com.minecolonies.api.util.constant.Constants.MOD_ID, "patrolmode"));
     public static final ISettingKey<GuardFollowModeSetting> FOLLOW_MODE =
-      new SettingKey<>(GuardFollowModeSetting.class, new ResourceLocation(com.minecolonies.api.util.constant.Constants.MOD_ID, "followmode"));
+      new SettingKey<>(GuardFollowModeSetting.class, new Identifier(com.minecolonies.api.util.constant.Constants.MOD_ID, "followmode"));
     public static final ISettingKey<GuardTaskSetting>       GUARD_TASK  =
-      new SettingKey<>(GuardTaskSetting.class, new ResourceLocation(com.minecolonies.api.util.constant.Constants.MOD_ID, "guardtask"));
+      new SettingKey<>(GuardTaskSetting.class, new Identifier(com.minecolonies.api.util.constant.Constants.MOD_ID, "guardtask"));
 
 
     //manual patroll. retreat, hire from training

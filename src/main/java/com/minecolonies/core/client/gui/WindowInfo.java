@@ -9,7 +9,7 @@ import com.minecolonies.api.colony.buildings.views.IBuildingView;
 import com.minecolonies.api.util.constant.Constants;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Arrays;
 import java.util.function.Supplier;
@@ -26,7 +26,7 @@ public class WindowInfo extends AbstractWindowSkeleton
      */
     public WindowInfo(final IBuildingView building)
     {
-        super(new ResourceLocation(Constants.MOD_ID, "gui/windowinfo.xml"));
+        super(new Identifier(Constants.MOD_ID, "gui/windowinfo.xml"));
 
         registerButton(BUTTON_EXIT, () -> building.openGui(false));
 

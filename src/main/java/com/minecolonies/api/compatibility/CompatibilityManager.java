@@ -34,7 +34,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -47,10 +47,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.common.Tags;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.api.distmarker.OnlyIn;
+import com.ldtteam.shim.fml.ModList;
+import com.ldtteam.shim.neoforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -131,7 +131,7 @@ public class CompatibilityManager implements ICompatibilityManager
     /**
      * Hashmap of mobs we may or may not attack.
      */
-    private ImmutableSet<ResourceLocation> monsters = ImmutableSet.of();
+    private ImmutableSet<Identifier> monsters = ImmutableSet.of();
 
     /**
      * Mapping of itemstorage to creativemodetab.
@@ -299,13 +299,13 @@ public class CompatibilityManager implements ICompatibilityManager
     private static void serializeRegistryIds(
       @NotNull final RegistryFriendlyByteBuf buf,
       @NotNull final Registry<?> registry,
-      @NotNull final Collection<ResourceLocation> ids)
+      @NotNull final Collection<Identifier> ids)
     {
         buf.writeCollection(ids, (b, id) -> b.writeResourceLocation(id));
     }
 
     @NotNull
-    private static <T> List<ResourceLocation>
+    private static <T> List<Identifier>
     deserializeRegistryIds(
       @NotNull final RegistryFriendlyByteBuf buf,
       @NotNull final Registry<T> registry)
@@ -602,7 +602,7 @@ public class CompatibilityManager implements ICompatibilityManager
     }
 
     @Override
-    public ImmutableSet<ResourceLocation> getAllMonsters()
+    public ImmutableSet<Identifier> getAllMonsters()
     {
         if (monsters.isEmpty())
         {
@@ -618,7 +618,7 @@ public class CompatibilityManager implements ICompatibilityManager
      */
     private void discoverMobs()
     {
-        Set<ResourceLocation> monsterSet = new HashSet<>();
+        Set<Identifier> monsterSet = new HashSet<>();
 
         for (final Map.Entry<ResourceKey<EntityType<?>>, EntityType<?>> entry : BuiltInRegistries.ENTITY_TYPE.entrySet())
         {

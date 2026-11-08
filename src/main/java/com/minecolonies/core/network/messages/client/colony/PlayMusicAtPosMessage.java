@@ -8,14 +8,14 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.api.distmarker.OnlyIn;
+import com.ldtteam.shim.neoforge.network.handling.IPayloadContext;
 
 /**
  * Asks the client to play a specific music
@@ -79,7 +79,7 @@ public class PlayMusicAtPosMessage extends AbstractClientPlayMessage
         super(buf, type);
         this.soundEvent = BuiltInRegistries.SOUND_EVENT.get(buf.readResourceLocation());
         this.pos = buf.readBlockPos();
-        this.dimensionID = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(buf.readUtf(32767)));
+        this.dimensionID = ResourceKey.create(Registries.DIMENSION, Identifier.parse(buf.readUtf(32767)));
         this.volume = buf.readFloat();
         this.pitch = buf.readFloat();
     }

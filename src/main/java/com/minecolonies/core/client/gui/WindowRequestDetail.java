@@ -18,7 +18,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,7 +33,7 @@ import static com.minecolonies.core.colony.requestsystem.requests.AbstractReques
  */
 public class WindowRequestDetail extends AbstractWindowSkeleton implements ButtonHandler
 {
-    public static final ResourceLocation WINDOW_ID = new ResourceLocation(Constants.MOD_ID, "gui/windowrequestdetail.xml");
+    public static final Identifier WINDOW_ID = new Identifier(Constants.MOD_ID, "gui/windowrequestdetail.xml");
 
     /**
      * ID of the requester label.

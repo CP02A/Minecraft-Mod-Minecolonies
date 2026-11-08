@@ -19,7 +19,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
@@ -41,7 +41,7 @@ import static com.minecolonies.api.util.constant.translation.BaseGameTranslation
  */
 public class WindowFurnaceCrafting extends AbstractContainerScreen<ContainerCraftingFurnace>
 {
-    private static final ResourceLocation CRAFTING_FURNACE = new ResourceLocation(Constants.MOD_ID, "textures/gui/furnace.png");
+    private static final Identifier CRAFTING_FURNACE = new Identifier(Constants.MOD_ID, "textures/gui/furnace.png");
 
     /**
      * X offset of the button.

@@ -1,0 +1,71 @@
+package com.ldtteam.domumornamentum.client.event.handlers;
+
+import com.ldtteam.domumornamentum.client.render.ModelGhostRenderer;
+import com.ldtteam.domumornamentum.util.Constants;
+import com.ldtteam.domumornamentum.util.ItemStackUtils;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.bus.api.SubscribeEvent;
+import com.ldtteam.shim.fml.common.EventBusSubscriber;
+import com.ldtteam.shim.neoforge.client.event.RenderLevelStageEvent;
+
+@EventBusSubscriber(modid = Constants.MOD_ID, value = Dist.CLIENT)
+public class MateriallyTexturedBlockPreviewRenderHandler
+{
+
+    @SubscribeEvent
+    public static void onRenderLevelStage(RenderLevelStageEvent.AfterLevel event)
+    {
+        final PoseStack poseStack = event.getPoseStack();
+        renderMateriallyTexturedBlockPreview(poseStack);
+    }
+
+    public static void renderMateriallyTexturedBlockPreview(final PoseStack poseStack)
+    {
+        final HitResult rayTraceResult = Minecraft.getInstance().hitResult;
+        if (!(rayTraceResult instanceof final BlockHitResult blockRayTraceResult) || blockRayTraceResult.getType() == HitResult.Type.MISS)
+            return;
+
+        final Player playerEntity = Minecraft.getInstance().player;
+        if (playerEntity == null || playerEntity.isSpectator())
+            return;
+
+        final ItemStack heldStack = ItemStackUtils.getMateriallyTexturedItemStackFromPlayer(playerEntity);
+        if (heldStack.isEmpty())
+            return;
+
+        Vec3 targetedRenderPos = Vec3.atLowerCornerOf(blockRayTraceResult.getBlockPos().offset(blockRayTraceResult.getDirection().getUnitVec3i()));
+
+        // Create a BufferSource for rendering the ghost
+        final MultiBufferSource.BufferSource bufferSource = MultiBufferSource.immediate(new ByteBufferBuilder(65536));
+        renderGhost(poseStack, bufferSource, heldStack, targetedRenderPos, blockRayTraceResult);
+        bufferSource.endBatch();
+    }
+
+    private static void renderGhost(
+            final PoseStack poseStack,
+            final MultiBufferSource.BufferSource bufferSource,
+            final ItemStack heldStack,
+            final Vec3 targetedRenderPos,
+            final BlockHitResult blockRayTraceResult)
+    {
+        ModelGhostRenderer.getInstance().renderGhost(
+                poseStack,
+                bufferSource,
+                heldStack,
+                targetedRenderPos,
+                blockRayTraceResult,
+                Minecraft.getInstance().level,
+                false
+        );
+    }
+
+}

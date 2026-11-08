@@ -6,7 +6,7 @@ import com.minecolonies.api.inventory.container.ContainerCrafting;
 import com.minecolonies.api.util.constant.Constants;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import com.ldtteam.shim.neoforge.network.handling.IPayloadContext;
 
 /**
  * Creates a message to switch recipe outputs when multiple are available.

@@ -10,7 +10,7 @@ import com.minecolonies.core.items.ItemCrop;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -78,7 +78,7 @@ public class MinecoloniesCropBlock extends AbstractBlockMinecolonies<Minecolonie
     private final Block preferredFarmland;
     private final List<Block> droppedFrom;
 
-    private final ResourceLocation blockId;
+    private final Identifier blockId;
     private final TagKey<Biome>    preferredBiome;
 
     /**
@@ -89,7 +89,7 @@ public class MinecoloniesCropBlock extends AbstractBlockMinecolonies<Minecolonie
     {
         super(BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).noCollission().instabreak().sound(SoundType.CROP).pushReaction(PushReaction.DESTROY));
         this.registerDefaultState(this.stateDefinition.any().setValue(AGE, 0));
-        this.blockId = new ResourceLocation(Constants.MOD_ID, blockName);
+        this.blockId = new Identifier(Constants.MOD_ID, blockName);
         this.preferredFarmland = preferredFarmland;
         this.droppedFrom = droppedFrom;
         this.preferredBiome = preferredBiome;
@@ -215,7 +215,7 @@ public class MinecoloniesCropBlock extends AbstractBlockMinecolonies<Minecolonie
     }
 
     @Override
-    public ResourceLocation getRegistryName()
+    public Identifier getRegistryName()
     {
         return blockId;
     }

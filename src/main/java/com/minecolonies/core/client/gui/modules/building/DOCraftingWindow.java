@@ -27,7 +27,7 @@ import com.minecolonies.core.network.messages.server.colony.building.worker.AddR
 import com.minecolonies.core.util.DomumOrnamentumUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
@@ -73,7 +73,7 @@ public class DOCraftingWindow extends AbstractModuleWindow<DOCraftingModuleView>
      */
     public DOCraftingWindow(final DOCraftingModuleView moduleView)
     {
-        super(moduleView, new ResourceLocation(Constants.MOD_ID, "gui/layouthuts/layoutdocrafting.xml"));
+        super(moduleView, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutdocrafting.xml"));
 
         validator = this.moduleView.getIngredientValidator();
         inputs = this.window.findPaneOfTypeByID(LIST_RESOURCES, ScrollingList.class);

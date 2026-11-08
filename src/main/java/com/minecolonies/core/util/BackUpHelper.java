@@ -12,14 +12,14 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.storage.LevelResource;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import com.ldtteam.shim.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -398,7 +398,7 @@ public final class BackUpHelper
      * @param location resource location
      * @return file name to look for
      */
-    private static String getFolderForDimension(final ResourceLocation location)
+    private static String getFolderForDimension(final Identifier location)
     {
         return location.getNamespace() + File.separator + location.getPath() + File.separator;
     }

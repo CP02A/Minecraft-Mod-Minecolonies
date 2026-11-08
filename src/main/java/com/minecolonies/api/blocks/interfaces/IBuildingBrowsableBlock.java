@@ -1,6 +1,6 @@
 package com.minecolonies.api.blocks.interfaces;
 
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import com.ldtteam.shim.neoforge.event.entity.player.PlayerInteractEvent;
 import org.jetbrains.annotations.NotNull;
 
 /**

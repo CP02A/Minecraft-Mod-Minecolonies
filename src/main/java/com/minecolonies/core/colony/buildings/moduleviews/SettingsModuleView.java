@@ -13,10 +13,10 @@ import com.minecolonies.core.network.messages.server.colony.building.TriggerSett
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +42,7 @@ public class SettingsModuleView extends AbstractBuildingModuleView implements IS
         final int size = buf.readInt();
         for (int i = 0; i < size; i++)
         {
-            final ResourceLocation key = buf.readResourceLocation();
+            final Identifier key = buf.readResourceLocation();
             final ISetting setting = StandardFactoryController.getInstance().deserialize(buf);
             if (setting != null)
             {
@@ -101,9 +101,9 @@ public class SettingsModuleView extends AbstractBuildingModuleView implements IS
     }
 
     @Override
-    public ResourceLocation getIconResourceLocation()
+    public Identifier getIconResourceLocation()
     {
-        return new ResourceLocation(Constants.MOD_ID, "textures/gui/modules/settings.png");
+        return new Identifier(Constants.MOD_ID, "textures/gui/modules/settings.png");
     }
 
     @Override

@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.PathfinderMob;
 
 /**
@@ -20,7 +20,7 @@ public class RenderMercenary extends MobRenderer<PathfinderMob, MercenaryModel>
     /**
      * Texture of the entity.
      */
-    private static final ResourceLocation TEXTURE = new ResourceLocation(Constants.MOD_ID, "textures/entity/citizen/default/settlermale1_b.png");
+    private static final Identifier TEXTURE = new Identifier(Constants.MOD_ID, "textures/entity/citizen/default/settlermale1_b.png");
 
     /**
      * Renders the mercenary mobs, with an held item and armorset.
@@ -36,7 +36,7 @@ public class RenderMercenary extends MobRenderer<PathfinderMob, MercenaryModel>
     }
 
     @Override
-    public ResourceLocation getTextureLocation(final PathfinderMob entity)
+    public Identifier getTextureLocation(final PathfinderMob entity)
     {
         return TEXTURE;
     }

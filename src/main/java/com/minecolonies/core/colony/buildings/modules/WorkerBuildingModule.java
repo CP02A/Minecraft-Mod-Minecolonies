@@ -23,7 +23,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -63,7 +63,7 @@ public class WorkerBuildingModule extends AbstractAssignedCitizenModule
     /**
      * Research requirement, default to null.
      */
-    private ResourceLocation researchRequirement = null;
+    private Identifier researchRequirement = null;
 
     public WorkerBuildingModule(
       final JobEntry entry,
@@ -85,7 +85,7 @@ public class WorkerBuildingModule extends AbstractAssignedCitizenModule
         final Skill secondary,
         final boolean canWorkingDuringRain,
         final Function<IBuilding, Integer> sizeLimit,
-        final ResourceLocation researchRequirement)
+        final Identifier researchRequirement)
     {
         this.jobEntry = entry;
         this.primary = primary;

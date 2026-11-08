@@ -5,7 +5,7 @@ import com.minecolonies.api.colony.interactionhandling.registry.InteractionRespo
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.apiimp.CommonMinecoloniesAPIImpl;
 import com.minecolonies.core.colony.interactionhandling.*;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.ldtteam.shim.neoforge.registries.DeferredRegister;
 
 public final class ModInteractionsInitializer
 {

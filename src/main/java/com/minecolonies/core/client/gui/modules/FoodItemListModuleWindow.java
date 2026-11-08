@@ -17,7 +17,7 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.modules.building.ItemListModuleWindow;
 import com.minecolonies.core.colony.buildings.moduleviews.ItemListModuleView;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,7 +42,7 @@ public class FoodItemListModuleWindow extends ItemListModuleWindow
       final IBuildingView building,
       final IItemListModuleView moduleView)
     {
-        super(moduleView, new ResourceLocation(Constants.MOD_ID, "gui/foodlist.xml"));
+        super(moduleView, new Identifier(Constants.MOD_ID, "gui/foodlist.xml"));
         groupedItemList.removeIf(c -> c.getItemStack().is(ModTags.excludedFood) || !FoodUtils.canEatLevel(c.getItemStack(), building.getBuildingLevel() - 1));
     }
 

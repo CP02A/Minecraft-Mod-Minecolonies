@@ -3,7 +3,7 @@ package com.minecolonies.api.configuration;
 import com.ldtteam.common.config.AbstractConfiguration;
 import com.minecolonies.api.colony.permissions.Explosions;
 import com.minecolonies.api.util.constant.CitizenConstants;
-import net.neoforged.neoforge.common.ModConfigSpec.*;
+import com.ldtteam.shim.neoforge.common.ModConfigSpec.*;
 
 import java.util.List;
 import java.util.function.Predicate;

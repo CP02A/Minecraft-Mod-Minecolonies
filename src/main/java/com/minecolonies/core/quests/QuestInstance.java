@@ -9,7 +9,7 @@ import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,7 +33,7 @@ public class QuestInstance implements IQuestInstance
     /**
      * The id of this quest
      */
-    private ResourceLocation questTemplateID;
+    private Identifier questTemplateID;
 
     /**
      * Quest giver.
@@ -71,7 +71,7 @@ public class QuestInstance implements IQuestInstance
      * @param colony the colony it belongs to.
      * @param triggerReturnData the trigger return data that made this quest available.
      */
-    public QuestInstance(final ResourceLocation questTemplateID, final IColony colony, final List<ITriggerReturnData<?>> triggerReturnData)
+    public QuestInstance(final Identifier questTemplateID, final IColony colony, final List<ITriggerReturnData<?>> triggerReturnData)
     {
         this.colony = colony;
         this.questTemplateID = questTemplateID;
@@ -155,7 +155,7 @@ public class QuestInstance implements IQuestInstance
     }
 
     @Override
-    public ResourceLocation getId()
+    public Identifier getId()
     {
         return questTemplateID;
     }
@@ -291,7 +291,7 @@ public class QuestInstance implements IQuestInstance
     @Override
     public void deserializeNBT(@NotNull final HolderLookup.Provider provider, final CompoundTag nbt)
     {
-        questTemplateID = ResourceLocation.parse(nbt.getString(TAG_ID));
+        questTemplateID = Identifier.parse(nbt.getString(TAG_ID));
         assignmentStart = nbt.getInt(TAG_ASSIGN_START);
         objectiveProgress = nbt.getInt(TAG_PROGRESS);
         questGiver = nbt.getInt(TAG_QUEST_GIVER);

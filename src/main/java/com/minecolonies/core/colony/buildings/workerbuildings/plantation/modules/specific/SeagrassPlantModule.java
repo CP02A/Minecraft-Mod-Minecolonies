@@ -7,7 +7,7 @@ import com.minecolonies.api.equipment.registry.EquipmentTypeEntry;
 import com.minecolonies.core.colony.buildings.workerbuildings.plantation.modules.generic.BoneMealedPlantModule;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BoneMealItem;
 import net.minecraft.world.item.Item;
@@ -47,7 +47,7 @@ public class SeagrassPlantModule extends BoneMealedPlantModule
     }
 
     @Override
-    public ResourceLocation getRequiredResearchEffect()
+    public Identifier getRequiredResearchEffect()
     {
         return PLANTATION_SEA;
     }

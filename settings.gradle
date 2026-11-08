@@ -1,22 +1,17 @@
 pluginManagement {
     repositories {
+        maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
+        mavenCentral()
         gradlePluginPortal()
-        maven {
-            name = 'MinecraftForge'
-            url = 'https://maven.minecraftforge.net/'
-        }
-        maven {
-            name 'LDTTeam - Modding'
-            url 'https://ldtteam.jfrog.io/ldtteam/modding/'
-        }
     }
 }
 
 plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.5.0'
+    // Lets Gradle download a Java 25 toolchain automatically if none is installed.
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
 }
 
-gradle.startParameter.setProjectProperties(new HashMap<>(gradle.startParameter.getProjectProperties()))
-gradle.startParameter.getProjectProperties().put("build.start", Long.toString(System.currentTimeMillis()))
-
-rootProject.name = "minecolonies"
+rootProject.name = 'minecolonies'

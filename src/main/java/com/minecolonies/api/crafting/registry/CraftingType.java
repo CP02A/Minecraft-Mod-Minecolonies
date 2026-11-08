@@ -1,7 +1,7 @@
 package com.minecolonies.api.crafting.registry;
 
 import com.minecolonies.api.crafting.IGenericRecipe;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
@@ -15,9 +15,9 @@ import java.util.Objects;
  */
 public abstract class CraftingType
 {
-    private ResourceLocation registryName;
+    private Identifier registryName;
 
-    protected CraftingType(@NotNull final ResourceLocation id)
+    protected CraftingType(@NotNull final Identifier id)
     {
         this.registryName = id;
     }

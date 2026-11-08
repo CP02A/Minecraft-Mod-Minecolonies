@@ -21,7 +21,7 @@ import com.minecolonies.core.colony.buildings.modules.settings.SettingKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.animal.horse.Horse;
@@ -54,7 +54,7 @@ public class BuildingStable extends AbstractBuildingGuards
      * Setting key for the patrol interval.
      */
     public static final ISettingKey<IntSetting> PATROL_INTERVAL =
-      new SettingKey<>(IntSetting.class, new ResourceLocation(com.minecolonies.api.util.constant.Constants.MOD_ID, "patrolinterval"));
+      new SettingKey<>(IntSetting.class, new Identifier(com.minecolonies.api.util.constant.Constants.MOD_ID, "patrolinterval"));
 
     /**
      * The last time the guards patrolled from this stable.

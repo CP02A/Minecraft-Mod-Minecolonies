@@ -17,7 +17,7 @@ import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -286,9 +286,9 @@ public abstract class AbstractColonyBlock<B extends AbstractColonyBlock<B>> exte
      * Get the registry name frm the blck hut.
      * @return the key.
      */
-    public ResourceLocation getRegistryName()
+    public Identifier getRegistryName()
     {
-        return new ResourceLocation(Constants.MOD_ID, getHutName());
+        return new Identifier(Constants.MOD_ID, getHutName());
     }
 
     @Override

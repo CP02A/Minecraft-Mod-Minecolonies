@@ -47,8 +47,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.portal.PortalShape;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.neoforged.neoforge.common.ItemAbilities;
-import net.neoforged.neoforge.items.IItemHandler;
+import com.ldtteam.shim.neoforge.common.ItemAbilities;
+import com.ldtteam.shim.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -4,7 +4,7 @@ import com.minecolonies.api.util.constant.Constants;
 import net.minecraft.client.renderer.entity.ArrowRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -15,14 +15,14 @@ public class FireArrowRenderer extends ArrowRenderer<AbstractArrow>
     /**
      * Array of different textures.
      */
-    private static final ResourceLocation[] RES = new ResourceLocation[]
+    private static final Identifier[] RES = new Identifier[]
                                                     {
-                                                      new ResourceLocation(Constants.MOD_ID, "textures/item/magicalarrows/magical_arrow1.png"),
-                                                      new ResourceLocation(Constants.MOD_ID, "textures/item/magicalarrows/magical_arrow2.png"),
-                                                      new ResourceLocation(Constants.MOD_ID, "textures/item/magicalarrows/magical_arrow3.png"),
-                                                      new ResourceLocation(Constants.MOD_ID, "textures/item/magicalarrows/magical_arrow4.png"),
-                                                      new ResourceLocation(Constants.MOD_ID, "textures/item/magicalarrows/magical_arrow5.png"),
-                                                      new ResourceLocation(Constants.MOD_ID, "textures/item/magicalarrows/magical_arrow6.png")
+                                                      new Identifier(Constants.MOD_ID, "textures/item/magicalarrows/magical_arrow1.png"),
+                                                      new Identifier(Constants.MOD_ID, "textures/item/magicalarrows/magical_arrow2.png"),
+                                                      new Identifier(Constants.MOD_ID, "textures/item/magicalarrows/magical_arrow3.png"),
+                                                      new Identifier(Constants.MOD_ID, "textures/item/magicalarrows/magical_arrow4.png"),
+                                                      new Identifier(Constants.MOD_ID, "textures/item/magicalarrows/magical_arrow5.png"),
+                                                      new Identifier(Constants.MOD_ID, "textures/item/magicalarrows/magical_arrow6.png")
                                                     };
 
     public FireArrowRenderer(final EntityRendererProvider.Context context)
@@ -32,7 +32,7 @@ public class FireArrowRenderer extends ArrowRenderer<AbstractArrow>
 
     @NotNull
     @Override
-    public ResourceLocation getTextureLocation(@NotNull final AbstractArrow entity)
+    public Identifier getTextureLocation(@NotNull final AbstractArrow entity)
     {
         return RES[entity.tickCount % 6];
     }

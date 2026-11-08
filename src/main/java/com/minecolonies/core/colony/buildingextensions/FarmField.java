@@ -13,7 +13,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -238,13 +238,13 @@ public class FarmField extends AbstractBuildingExtension
      */
     public enum Stage
     {
-        EMPTY(new ResourceLocation("minecraft", "textures/item/iron_hoe.png")), 
-        HOED(new ResourceLocation("minecraft", "textures/item/wheat_seeds.png")), 
-        PLANTED(new ResourceLocation(Constants.MOD_ID, "textures/item/crops/durum.png"));
+        EMPTY(new Identifier("minecraft", "textures/item/iron_hoe.png")), 
+        HOED(new Identifier("minecraft", "textures/item/wheat_seeds.png")), 
+        PLANTED(new Identifier(Constants.MOD_ID, "textures/item/crops/durum.png"));
 
-        protected final ResourceLocation stageIcon;
+        protected final Identifier stageIcon;
 
-        private Stage(ResourceLocation stageIcon)
+        private Stage(Identifier stageIcon)
         {
             this.stageIcon = stageIcon;
         }
@@ -254,7 +254,7 @@ public class FarmField extends AbstractBuildingExtension
          *
          * @return the status icon of the current stage.
          */
-        public ResourceLocation getStageIcon()
+        public Identifier getStageIcon()
         {
             return stageIcon;
         }

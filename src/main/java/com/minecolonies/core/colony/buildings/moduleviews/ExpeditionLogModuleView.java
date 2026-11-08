@@ -7,9 +7,9 @@ import com.minecolonies.core.client.gui.modules.building.ExpeditionLogModuleWind
 import com.minecolonies.core.colony.buildings.modules.expedition.ExpeditionLog;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraft.resources.Identifier;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -58,9 +58,9 @@ public class ExpeditionLogModuleView extends AbstractBuildingModuleView
     }
 
     @Override
-    public ResourceLocation getIconResourceLocation()
+    public Identifier getIconResourceLocation()
     {
-        return new ResourceLocation(Constants.MOD_ID, "textures/gui/modules/sword.png");
+        return new Identifier(Constants.MOD_ID, "textures/gui/modules/sword.png");
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.minecolonies.core.colony.jobs;
 
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import com.minecolonies.api.client.render.modeltype.ModModelTypes;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.util.BlockPosUtil;
@@ -49,7 +49,7 @@ public class JobEnchanter extends AbstractJobCrafter<EntityAIWorkEnchanter, JobE
      */
     @NotNull
     @Override
-    public ResourceLocation getModel()
+    public Identifier getModel()
     {
         return ModModelTypes.ENCHANTER_ID;
     }

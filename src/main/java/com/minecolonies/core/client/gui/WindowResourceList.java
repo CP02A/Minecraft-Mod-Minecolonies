@@ -20,10 +20,10 @@ import com.minecolonies.core.colony.buildings.utils.BuildingBuilderResource;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingBuilder;
 import com.minecolonies.core.network.messages.server.colony.building.MarkBuildingDirtyMessage;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import com.ldtteam.shim.neoforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -65,7 +65,7 @@ public class WindowResourceList extends AbstractWindowSkeleton
      */
     public WindowResourceList(final @NotNull BuildingBuilder.View builderView, @NotNull final Map<String, Integer> warehouseSnapshot)
     {
-        super(new ResourceLocation(Constants.MOD_ID, "gui/windowresourcescroll.xml"));
+        super(new Identifier(Constants.MOD_ID, "gui/windowresourcescroll.xml"));
 
         this.builder = builderView;
         this.warehouseSnapshot = warehouseSnapshot;

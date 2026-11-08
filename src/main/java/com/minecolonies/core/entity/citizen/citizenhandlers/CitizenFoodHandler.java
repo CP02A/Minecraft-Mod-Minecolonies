@@ -12,7 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
@@ -140,7 +140,7 @@ public class CitizenFoodHandler implements ICitizenFoodHandler
         @NotNull final ListTag lastFoodNbt = compound.getList(TAG_LAST_FOODS, TAG_STRING);
         for (int i = 0; i < lastFoodNbt.size(); i++)
         {
-            final Item lastFood = BuiltInRegistries.ITEM.get(ResourceLocation.parse(lastFoodNbt.getString(i)));
+            final Item lastFood = BuiltInRegistries.ITEM.get(Identifier.parse(lastFoodNbt.getString(i)));
             if (lastFood != Items.AIR)
             {
                 lastEatenFoods.add(lastFood);

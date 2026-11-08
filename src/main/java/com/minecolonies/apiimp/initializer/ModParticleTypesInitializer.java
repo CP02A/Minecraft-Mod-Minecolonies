@@ -4,13 +4,13 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.particles.SleepingParticle;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
-import net.neoforged.neoforge.registries.RegisterEvent;
+import net.minecraft.resources.Identifier;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.bus.api.SubscribeEvent;
+import com.ldtteam.shim.fml.common.EventBusSubscriber;
+import com.ldtteam.shim.fml.common.Mod;
+import com.ldtteam.shim.neoforge.client.event.RegisterParticleProvidersEvent;
+import com.ldtteam.shim.neoforge.registries.RegisterEvent;
 
 /**
  * Initializes the particle type.
@@ -21,7 +21,7 @@ public class ModParticleTypesInitializer
      * Particle type
      */
     public static final SimpleParticleType SLEEPINGPARTICLE_TYPE = new SimpleParticleType(true);
-    public static final ResourceLocation  SLEEPING_TEXTURE      = new ResourceLocation(Constants.MOD_ID, "particle/sleeping");
+    public static final Identifier  SLEEPING_TEXTURE      = new Identifier(Constants.MOD_ID, "particle/sleeping");
 
     /**
      * Register the particle

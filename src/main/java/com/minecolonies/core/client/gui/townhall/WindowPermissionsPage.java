@@ -26,7 +26,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -536,7 +536,7 @@ public class WindowPermissionsPage extends AbstractWindowTownHall
 
         try
         {
-            final Block block = BuiltInRegistries.BLOCK.get(ResourceLocation.parse(inputText));
+            final Block block = BuiltInRegistries.BLOCK.get(Identifier.parse(inputText));
 
             if (block != null && !block.defaultBlockState().isAir())
             {

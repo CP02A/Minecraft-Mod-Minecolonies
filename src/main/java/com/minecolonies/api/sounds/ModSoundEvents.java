@@ -5,9 +5,9 @@ import com.minecolonies.api.entity.mobs.RaiderType;
 import com.minecolonies.api.util.Tuple;
 import com.minecolonies.api.util.constant.Constants;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.ldtteam.shim.neoforge.registries.DeferredRegister;
 import java.util.*;
 
 import static com.minecolonies.core.generation.SoundsJson.createSoundJson;
@@ -51,12 +51,12 @@ public final class ModSoundEvents
      */
     static
     {
-        final List<ResourceLocation> mainTypes = new ArrayList<>(ModJobs.getJobs());
+        final List<Identifier> mainTypes = new ArrayList<>(ModJobs.getJobs());
         mainTypes.remove(ModJobs.placeHolder.getId());
-        mainTypes.add(new ResourceLocation(Constants.MOD_ID, "unemployed"));
-        mainTypes.add(new ResourceLocation(Constants.MOD_ID, "visitor"));
+        mainTypes.add(new Identifier(Constants.MOD_ID, "unemployed"));
+        mainTypes.add(new Identifier(Constants.MOD_ID, "visitor"));
 
-        for (final ResourceLocation job : mainTypes)
+        for (final Identifier job : mainTypes)
         {
             final Map<EventType, List<Tuple<SoundEvent, SoundEvent>>> map = new HashMap<>();
             for (final EventType event : EventType.values())
@@ -145,6 +145,6 @@ public final class ModSoundEvents
      */
     public static SoundEvent getSoundID(final String soundName)
     {
-        return SoundEvent.createVariableRangeEvent(new ResourceLocation(Constants.MOD_ID, soundName));
+        return SoundEvent.createVariableRangeEvent(new Identifier(Constants.MOD_ID, soundName));
     }
 }

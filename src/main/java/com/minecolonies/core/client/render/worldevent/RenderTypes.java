@@ -3,10 +3,10 @@ package com.minecolonies.core.client.render.worldevent;
 import com.ldtteam.structurize.util.WorldRenderMacros.RenderTypes.AlwaysDepthTestStateShard;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.function.Function;
 
@@ -18,7 +18,7 @@ public class RenderTypes
      * @param  resLoc texture location
      * @return        render type
      */
-    public static RenderType worldEntityIcon(final ResourceLocation resLoc)
+    public static RenderType worldEntityIcon(final Identifier resLoc)
     {
         return InnerRenderTypes.WORLD_ENTITY_ICON.apply(resLoc);
     }
@@ -38,7 +38,7 @@ public class RenderTypes
             throw new IllegalStateException();
         }
 
-        private static final Function<ResourceLocation, RenderType> WORLD_ENTITY_ICON = Util.memoize((p_173202_) -> {
+        private static final Function<Identifier, RenderType> WORLD_ENTITY_ICON = Util.memoize((p_173202_) -> {
             return create("minecolonies_entity_icon",
                 DefaultVertexFormat.POSITION_TEX,
                 VertexFormat.Mode.QUADS,

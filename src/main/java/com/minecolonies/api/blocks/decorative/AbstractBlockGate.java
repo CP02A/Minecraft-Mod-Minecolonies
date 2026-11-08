@@ -5,7 +5,7 @@ import com.minecolonies.api.util.constant.Constants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -490,7 +490,7 @@ public abstract class AbstractBlockGate extends DoorBlock implements LiquidBlock
      */
     public AbstractBlockGate registerBlock(final Registry<Block> registry)
     {
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, this.name), this);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, this.name), this);
         return this;
     }
 
@@ -502,7 +502,7 @@ public abstract class AbstractBlockGate extends DoorBlock implements LiquidBlock
      */
     public void registerBlockItem(final Registry<Item> registry, final Item.Properties properties)
     {
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, this.name), new BlockItem(this, properties));
+        Registry.register(registry, new Identifier(Constants.MOD_ID, this.name), new BlockItem(this, properties));
     }
 
     @Override

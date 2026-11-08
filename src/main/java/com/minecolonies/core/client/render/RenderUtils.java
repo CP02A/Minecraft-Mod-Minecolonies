@@ -6,7 +6,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import com.ldtteam.shim.neoforge.client.extensions.common.IClientItemExtensions;
 
 public class RenderUtils
 {

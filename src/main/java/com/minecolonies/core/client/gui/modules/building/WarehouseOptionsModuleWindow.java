@@ -19,10 +19,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import com.ldtteam.shim.neoforge.items.wrapper.InvWrapper;
 import net.minecraft.world.level.block.Blocks;
 
 import static com.minecolonies.api.util.constant.TranslationConstants.LABEL_X_OF_Z;
@@ -56,7 +56,7 @@ public class WarehouseOptionsModuleWindow extends AbstractModuleWindow<Warehouse
      */
     public WarehouseOptionsModuleWindow(final WarehouseOptionsModuleView module)
     {
-        super(module, new ResourceLocation(Constants.MOD_ID, "gui/layouthuts/layoutwarehouseoptions.xml"));
+        super(module, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutwarehouseoptions.xml"));
         registerButton(RESOURCE_ADD, this::transferItems);
         registerButton(SORT_WAREHOUSE_BUTTON, this::sortWarehouse);
     }

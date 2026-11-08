@@ -9,7 +9,7 @@ import com.minecolonies.api.util.Log;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.neoforged.fml.loading.FMLEnvironment;
+import com.ldtteam.shim.fml.loading.FMLEnvironment;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalTime;

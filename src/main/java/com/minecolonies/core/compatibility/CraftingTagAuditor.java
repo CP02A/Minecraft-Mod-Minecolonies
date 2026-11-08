@@ -24,7 +24,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.food.FoodProperties;
@@ -246,7 +246,7 @@ public class CraftingTagAuditor
         final Registry<Biome> biomes = server.registryAccess().registry(Registries.BIOME).orElse(null);
         if (biomes == null) { return; }
 
-        for (final ResourceLocation id : biomes.keySet().stream().sorted().toList())
+        for (final Identifier id : biomes.keySet().stream().sorted().toList())
         {
             writer.write(id.toString());
             writer.write(',');

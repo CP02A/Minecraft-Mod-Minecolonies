@@ -4,7 +4,7 @@ import com.minecolonies.api.crafting.ZeroWasteRecipe;
 import com.minecolonies.api.crafting.CompostRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.ldtteam.shim.neoforge.registries.DeferredHolder;
 
 /**
  * Holds ref to the mod recipe serializers and recipe types.

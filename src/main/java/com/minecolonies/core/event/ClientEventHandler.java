@@ -43,27 +43,27 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.HitResult;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-import net.neoforged.neoforge.client.event.CustomizeGuiOverlayEvent;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.client.event.sound.PlaySoundEvent;
-import net.neoforged.neoforge.common.util.Lazy;
-import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.api.distmarker.OnlyIn;
+import com.ldtteam.shim.bus.api.EventPriority;
+import com.ldtteam.shim.bus.api.SubscribeEvent;
+import com.ldtteam.shim.fml.ModList;
+import com.ldtteam.shim.neoforge.client.event.ClientPlayerNetworkEvent;
+import com.ldtteam.shim.neoforge.client.event.CustomizeGuiOverlayEvent;
+import com.ldtteam.shim.neoforge.client.event.RenderLevelStageEvent;
+import com.ldtteam.shim.neoforge.client.event.sound.PlaySoundEvent;
+import com.ldtteam.shim.neoforge.common.util.Lazy;
+import com.ldtteam.shim.neoforge.event.entity.player.ItemTooltipEvent;
+import com.ldtteam.shim.neoforge.event.entity.player.PlayerInteractEvent;
+import com.ldtteam.shim.neoforge.event.tick.LevelTickEvent;
+import com.ldtteam.shim.neoforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -119,7 +119,7 @@ public class ClientEventHandler
             return;
         }
 
-        final ResourceLocation soundLocation = event.getSound().getLocation();
+        final Identifier soundLocation = event.getSound().getLocation();
         if (!MinecoloniesAPIProxy.getInstance().getConfig().getClient().citizenVoices.get()
             && soundLocation.getNamespace().equals(Constants.MOD_ID)
             && soundLocation.getPath().startsWith(CITIZEN_SOUND_EVENT_PREFIX)
@@ -277,7 +277,7 @@ public class ClientEventHandler
             {
                 minimumBuildingLevels.put(craftingBuilding, rec.getMinBuildingLevel());
             }
-            for (final ResourceLocation id : rec.getRequiredResearchIds())
+            for (final Identifier id : rec.getRequiredResearchIds())
             {
                 final Set<IGlobalResearch> researches;
                 if (IMinecoloniesAPI.getInstance().getGlobalResearchTree().hasResearch(id))
@@ -317,7 +317,7 @@ public class ClientEventHandler
             final Integer minimumLevel = crafterBuildingCombination.getValue();
             if (minimumLevel > 0)
             {
-                final ResourceLocation schematicName = crafterBuildingCombination.getKey().getRegistryName();
+                final Identifier schematicName = crafterBuildingCombination.getKey().getRegistryName();
                 // the above is not guaranteed to match (and indeed doesn't for a few buildings), but
                 // does match for all currently interesting crafters, at least.  there doesn't otherwise
                 // appear to be an easy way to get the schematic name from a BuildingEntry ... or
@@ -395,7 +395,7 @@ public class ClientEventHandler
         {
             return;
         }
-        final ResourceLocation effectId = colony.getResearchManager().getResearchEffectIdFrom(block);
+        final Identifier effectId = colony.getResearchManager().getResearchEffectIdFrom(block);
         if (colony.getResearchManager().getResearchEffects().getEffectStrength(effectId) > 0)
         {
             return;

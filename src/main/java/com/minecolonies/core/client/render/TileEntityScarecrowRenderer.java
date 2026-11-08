@@ -20,14 +20,14 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -81,8 +81,8 @@ public class TileEntityScarecrowRenderer implements BlockEntityRenderer<Abstract
     public static final Material       SCARECROW_B;
     static
     {
-        SCARECROW_A = new Material(InventoryMenu.BLOCK_ATLAS, new ResourceLocation(Constants.MOD_ID, "block/blockscarecrowpumpkin"));
-        SCARECROW_B = new Material(InventoryMenu.BLOCK_ATLAS, new ResourceLocation(Constants.MOD_ID, "block/blockscarecrownormal"));
+        SCARECROW_A = new Material(InventoryMenu.BLOCK_ATLAS, new Identifier(Constants.MOD_ID, "block/blockscarecrowpumpkin"));
+        SCARECROW_B = new Material(InventoryMenu.BLOCK_ATLAS, new Identifier(Constants.MOD_ID, "block/blockscarecrownormal"));
     }
     /**
      * The public constructor for the renderer.

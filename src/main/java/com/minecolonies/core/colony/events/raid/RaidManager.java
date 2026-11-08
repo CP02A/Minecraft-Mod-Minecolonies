@@ -43,7 +43,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.util.Mth;
@@ -1220,14 +1220,14 @@ public class RaidManager implements IRaiderManager
         /**
          * Id of the raid type
          */
-        public final ResourceLocation raidType;
+        public final Identifier raidType;
 
         /**
          * Position of the raid spawn
          */
         public final BlockPos spawnpos;
 
-        public RaidSpawnInfo(final ResourceLocation raidType, final BlockPos spawnpos)
+        public RaidSpawnInfo(final Identifier raidType, final BlockPos spawnpos)
         {
             this.raidType = raidType;
             this.spawnpos = spawnpos;
@@ -1245,7 +1245,7 @@ public class RaidManager implements IRaiderManager
 
         public static RaidSpawnInfo fromNBT(final CompoundTag tag)
         {
-            return new RaidSpawnInfo(ResourceLocation.parse(tag.getString(TAG_RAIDTYPE)), new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z")));
+            return new RaidSpawnInfo(Identifier.parse(tag.getString(TAG_RAIDTYPE)), new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z")));
         }
 
         public String toString()

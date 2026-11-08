@@ -12,7 +12,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.NotNull;
@@ -80,7 +80,7 @@ public class PlaceBlockObjectiveTemplate extends DialogueObjectiveTemplateTempla
         JsonObject details = jsonObject.getAsJsonObject(DETAILS_KEY);
         final int target = details.get(TARGET_KEY).getAsInt();
         final int quantity = details.get(QUANTITY_KEY).getAsInt();
-        final Block block = BuiltInRegistries.BLOCK.get(ResourceLocation.parse(details.get(BLOCK_KEY).getAsString()));
+        final Block block = BuiltInRegistries.BLOCK.get(Identifier.parse(details.get(BLOCK_KEY).getAsString()));
         final int nextObj = details.has(NEXT_OBJ_KEY) ? details.get(NEXT_OBJ_KEY).getAsInt() : -1;
 
         return new PlaceBlockObjectiveTemplate(target, quantity, block, nextObj, parseRewards(jsonObject));

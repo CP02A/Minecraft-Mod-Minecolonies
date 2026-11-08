@@ -15,9 +15,9 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.registries.RegisterEvent;
+import com.ldtteam.shim.bus.api.SubscribeEvent;
+import com.ldtteam.shim.fml.common.EventBusSubscriber;
+import com.ldtteam.shim.neoforge.registries.RegisterEvent;
 
 import java.util.List;
 

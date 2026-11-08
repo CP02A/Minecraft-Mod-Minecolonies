@@ -4,7 +4,7 @@ import com.minecolonies.api.blocks.decorative.AbstractColonyFlagBanner;
 import com.minecolonies.api.util.constant.Constants;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
@@ -106,8 +106,8 @@ public class BlockColonyFlagBanner extends AbstractColonyFlagBanner<BlockColonyF
     }
 
     @Override
-    public ResourceLocation getRegistryName()
+    public Identifier getRegistryName()
     {
-        return new ResourceLocation(Constants.MOD_ID, REGISTRY_NAME);
+        return new Identifier(Constants.MOD_ID, REGISTRY_NAME);
     }
 }

@@ -2,8 +2,8 @@ package com.minecolonies.api.configuration;
 
 import com.ldtteam.common.config.AbstractConfiguration;
 import com.minecolonies.api.util.constant.Constants;
-import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
-import net.neoforged.neoforge.common.ModConfigSpec.Builder;
+import com.ldtteam.shim.neoforge.common.ModConfigSpec.BooleanValue;
+import com.ldtteam.shim.neoforge.common.ModConfigSpec.Builder;
 
 public class CommonConfiguration extends AbstractConfiguration
 {

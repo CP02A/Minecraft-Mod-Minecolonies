@@ -8,7 +8,7 @@ import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.OptionalPredicate;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -43,7 +43,7 @@ public class GenericRecipe implements IGenericRecipe
     /** Generic recipe builder */
     public static class Builder
     {
-        @Nullable private ResourceLocation id;
+        @Nullable private Identifier id;
         private List<ItemStack> mainOutputs = List.of();
         private List<ItemStack> additionalOutputs = List.of();
         private List<List<ItemStack>> inputs = List.of();
@@ -81,7 +81,7 @@ public class GenericRecipe implements IGenericRecipe
          * @param id the recipe id.
          * @return this
          */
-        public Builder withRecipeId(@Nullable final ResourceLocation id)
+        public Builder withRecipeId(@Nullable final Identifier id)
         {
             this.id = id == null || id.getPath().isEmpty() ? null : id;
             return this;
@@ -372,7 +372,7 @@ public class GenericRecipe implements IGenericRecipe
         return storage == null ? null : builder(storage).build();
     }
 
-    @Nullable private final ResourceLocation id;
+    @Nullable private final Identifier id;
     private final List<ItemStack> mainOutputs;
     private final List<ItemStack> additionalOutputs;
     private final List<List<ItemStack>> inputs;
@@ -389,7 +389,7 @@ public class GenericRecipe implements IGenericRecipe
 
     @Override
     @Nullable
-    public ResourceLocation getRecipeId()
+    public Identifier getRecipeId()
     {
         return this.id;
     }

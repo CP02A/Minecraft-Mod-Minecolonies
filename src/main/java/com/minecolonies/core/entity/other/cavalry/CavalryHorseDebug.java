@@ -3,12 +3,12 @@ package com.minecolonies.core.entity.other.cavalry;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.constant.Constants;
 
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
+import com.ldtteam.shim.bus.api.SubscribeEvent;
+import com.ldtteam.shim.fml.common.EventBusSubscriber;
 
-import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import com.ldtteam.shim.neoforge.event.entity.EntityLeaveLevelEvent;
+import com.ldtteam.shim.neoforge.event.entity.living.LivingDeathEvent;
+import com.ldtteam.shim.neoforge.event.entity.living.LivingIncomingDamageEvent;
 
 @EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class CavalryHorseDebug

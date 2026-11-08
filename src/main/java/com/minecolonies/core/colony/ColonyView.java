@@ -53,7 +53,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
@@ -63,10 +63,10 @@ import net.minecraft.world.level.block.entity.BannerPatternLayers;
 import net.minecraft.world.level.block.entity.BannerPatterns;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.api.distmarker.OnlyIn;
+import com.ldtteam.shim.neoforge.event.tick.LevelTickEvent;
+import com.ldtteam.shim.neoforge.event.tick.ServerTickEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -664,7 +664,7 @@ public final class ColonyView implements IColonyView
 
         //  General Attributes
         name = buf.readUtf(32767);
-        dimensionId = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(buf.readUtf(32767)));
+        dimensionId = ResourceKey.create(Registries.DIMENSION, Identifier.parse(buf.readUtf(32767)));
         center = buf.readBlockPos();
         //  Citizenry
         citizenCount = buf.readInt();
@@ -684,7 +684,7 @@ public final class ColonyView implements IColonyView
         final int blockListSize = buf.readInt();
         for (int i = 0; i < blockListSize; i++)
         {
-            freeBlocks.add(BuiltInRegistries.BLOCK.get(ResourceLocation.parse((buf.readUtf(32767)))));
+            freeBlocks.add(BuiltInRegistries.BLOCK.get(Identifier.parse((buf.readUtf(32767)))));
         }
 
         final int posListSize = buf.readInt();

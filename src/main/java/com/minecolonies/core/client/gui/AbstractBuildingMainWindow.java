@@ -12,7 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 
 import static com.minecolonies.api.util.constant.TranslationConstants.*;
@@ -41,7 +41,7 @@ public abstract class AbstractBuildingMainWindow<B extends IBuildingView> extend
      * @param buildingView Class extending {@link AbstractBuildingView}.
      * @param resource     window resource location.
      */
-    public AbstractBuildingMainWindow(final B buildingView, final ResourceLocation resource)
+    public AbstractBuildingMainWindow(final B buildingView, final Identifier resource)
     {
         super(buildingView, resource);
 

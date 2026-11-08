@@ -30,7 +30,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -227,21 +227,21 @@ public class ScanCommand extends AbstractCommand
                     }
                     if (isHut)
                     {
-                        jigsawBlockEntity.setPool(ResourceKey.create(Registries.TEMPLATE_POOL, new ResourceLocation("minecolonies", "" + piecesName+ "/roads")));
-                        jigsawBlockEntity.setName(new ResourceLocation("minecolonies", "building_entrance"));
-                        jigsawBlockEntity.setTarget(new ResourceLocation("minecolonies", "building_entrance"));
+                        jigsawBlockEntity.setPool(ResourceKey.create(Registries.TEMPLATE_POOL, new Identifier("minecolonies", "" + piecesName+ "/roads")));
+                        jigsawBlockEntity.setName(new Identifier("minecolonies", "building_entrance"));
+                        jigsawBlockEntity.setTarget(new Identifier("minecolonies", "building_entrance"));
                     }
                     else if (jigsawBlockEntity.getPool().location().getPath().contains("building"))
                     {
-                        jigsawBlockEntity.setPool(ResourceKey.create(Registries.TEMPLATE_POOL, new ResourceLocation("minecolonies", "" + piecesName+ "/buildings")));
-                        jigsawBlockEntity.setName(new ResourceLocation("minecolonies", "building_entrance"));
-                        jigsawBlockEntity.setTarget(new ResourceLocation("minecolonies", "building_entrance"));
+                        jigsawBlockEntity.setPool(ResourceKey.create(Registries.TEMPLATE_POOL, new Identifier("minecolonies", "" + piecesName+ "/buildings")));
+                        jigsawBlockEntity.setName(new Identifier("minecolonies", "building_entrance"));
+                        jigsawBlockEntity.setTarget(new Identifier("minecolonies", "building_entrance"));
                     }
                     else
                     {
-                        jigsawBlockEntity.setPool(ResourceKey.create(Registries.TEMPLATE_POOL, new ResourceLocation("minecolonies", "" + piecesName+ "/roads")));
-                        jigsawBlockEntity.setName(new ResourceLocation("minecolonies", "street"));
-                        jigsawBlockEntity.setTarget(new ResourceLocation("minecolonies", "street"));
+                        jigsawBlockEntity.setPool(ResourceKey.create(Registries.TEMPLATE_POOL, new Identifier("minecolonies", "" + piecesName+ "/roads")));
+                        jigsawBlockEntity.setName(new Identifier("minecolonies", "street"));
+                        jigsawBlockEntity.setTarget(new Identifier("minecolonies", "street"));
                     }
                 }
                 jigsawBlockEntity.setChanged();
@@ -255,7 +255,7 @@ public class ScanCommand extends AbstractCommand
         StructureTemplate structuretemplate;
         try
         {
-            final ResourceLocation location = new ResourceLocation(Constants.MOD_ID, fileName.replace(".blueprint", "").replace(" ", "").toLowerCase(Locale.US));
+            final Identifier location = new Identifier(Constants.MOD_ID, fileName.replace(".blueprint", "").replace(" ", "").toLowerCase(Locale.US));
             structuretemplate = structuretemplatemanager.getOrCreate(location);
             structuretemplate.fillFromWorld(world, newZero, new BlockPos(box.getXSpan(), box.getYSpan() - yDif, box.getZSpan()), false, Blocks.STRUCTURE_VOID);
             new SaveStructureNBTMessage(structuretemplate.save(new CompoundTag()), fileName.replace(".blueprint", ".nbt").toLowerCase(Locale.US)).sendToPlayer((ServerPlayer) player);

@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.model.HorseModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.animal.horse.Horse;
 
 import javax.annotation.Nonnull;
@@ -50,7 +50,7 @@ public class CavalryOverlayLayer extends RenderLayer<Horse, HorseModel<Horse>>
 
         int segments = net.minecraft.util.Mth.clamp((int) Math.floor(readiness * 5f + 0.0001f), 0, 5);
 
-        ResourceLocation OVERLAY_TEX = new ResourceLocation(
+        Identifier OVERLAY_TEX = new Identifier(
             Constants.MOD_ID,
             "textures/entity/horse/cavalry_overlay_layer" + segments + ".png"
         );

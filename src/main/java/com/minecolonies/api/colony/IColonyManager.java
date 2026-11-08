@@ -18,9 +18,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import com.ldtteam.shim.neoforge.client.event.ClientTickEvent;
+import com.ldtteam.shim.neoforge.event.tick.LevelTickEvent;
+import com.ldtteam.shim.neoforge.event.tick.ServerTickEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -268,7 +268,7 @@ public interface IColonyManager
     /**
      * On server tick, tick every Colony. NOTE: Review this for performance.
      *
-     * @param event {@link net.neoforged.neoforge.event.tick.ServerTickEvent}
+     * @param event {@link com.ldtteam.shim.neoforge.event.tick.ServerTickEvent}
      */
     void onServerTick(@NotNull ServerTickEvent.Pre event);
 
@@ -289,7 +289,7 @@ public interface IColonyManager
     /**
      * On Client tick, clears views when player left.
      *
-     * @param event {@link net.neoforged.neoforge.client.event.ClientTickEvent}.
+     * @param event {@link com.ldtteam.shim.neoforge.client.event.ClientTickEvent}.
      */
     void onClientTick(@NotNull ClientTickEvent.Pre event);
 

@@ -10,7 +10,7 @@ import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.colony.buildings.modules.AnimalHerdingModule;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -115,7 +115,7 @@ public final class RecipeAnalyzer
         {
             if (entityType.getCategory() != MobCategory.CREATURE) { continue; }
 
-            final ResourceLocation id = EntityType.getKey(entityType);
+            final Identifier id = EntityType.getKey(entityType);
 
             try
             {

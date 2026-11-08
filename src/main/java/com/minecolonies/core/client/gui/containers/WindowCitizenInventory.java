@@ -10,7 +10,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -29,7 +29,7 @@ public class WindowCitizenInventory extends AbstractContainerScreen<ContainerCit
     /**
      * Texture res loc.
      */
-    private static final ResourceLocation TEXT = new ResourceLocation(Constants.MOD_ID, "textures/gui/citizen_container.png");
+    private static final Identifier TEXT = new Identifier(Constants.MOD_ID, "textures/gui/citizen_container.png");
 
     /**
      * Offset inside the texture to use.

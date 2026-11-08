@@ -7,12 +7,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.level.ChunkEvent;
+import com.ldtteam.shim.bus.api.EventPriority;
+import com.ldtteam.shim.bus.api.SubscribeEvent;
+import com.ldtteam.shim.neoforge.client.event.ClientPlayerNetworkEvent;
+import com.ldtteam.shim.neoforge.client.event.ClientTickEvent;
+import com.ldtteam.shim.neoforge.common.NeoForge;
+import com.ldtteam.shim.neoforge.event.level.ChunkEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;

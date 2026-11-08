@@ -6,7 +6,7 @@ import com.minecolonies.api.util.Log;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -33,10 +33,10 @@ public class ItemNbtListener extends SimpleJsonResourceReloadListener
     }
 
     @Override
-    protected void apply(final Map<ResourceLocation, JsonElement> jsonElementMap, final @NotNull ResourceManager resourceManager, final @NotNull ProfilerFiller profiler)
+    protected void apply(final Map<Identifier, JsonElement> jsonElementMap, final @NotNull ResourceManager resourceManager, final @NotNull ProfilerFiller profiler)
     {
         ItemStackUtils.CHECKED_NBT_KEYS.clear();
-        for (final Map.Entry<ResourceLocation, JsonElement> entry : jsonElementMap.entrySet())
+        for (final Map.Entry<Identifier, JsonElement> entry : jsonElementMap.entrySet())
         {
             tryParse(this.getRegistryLookup(), entry);
         }
@@ -47,21 +47,21 @@ public class ItemNbtListener extends SimpleJsonResourceReloadListener
      *
      * @param entry
      */
-    private void tryParse(@NotNull final HolderLookup.Provider provider, final Map.Entry<ResourceLocation, JsonElement> entry)
+    private void tryParse(@NotNull final HolderLookup.Provider provider, final Map.Entry<Identifier, JsonElement> entry)
     {
         for (final JsonElement element : entry.getValue().getAsJsonArray())
         {
             try
             {
                 final JsonObject jsonObj = element.getAsJsonObject();
-                final ResourceLocation itemLoc = ResourceLocation.parse(jsonObj.get("item").getAsString());
+                final Identifier itemLoc = Identifier.parse(jsonObj.get("item").getAsString());
                 if (jsonObj.has("checkednbtkeys"))
                 {
                     final HashSet<DataComponentType<?>> set = new HashSet<>();
                     final JsonArray jsonArray = jsonObj.getAsJsonArray("checkednbtkeys");
                     for (final JsonElement subElement : jsonArray)
                     {
-                        set.add(BuiltInRegistries.DATA_COMPONENT_TYPE.get(ResourceLocation.parse(subElement.getAsString())));
+                        set.add(BuiltInRegistries.DATA_COMPONENT_TYPE.get(Identifier.parse(subElement.getAsString())));
                     }
 
                     ItemStackUtils.CHECKED_NBT_KEYS.put(BuiltInRegistries.ITEM.get(itemLoc), set);

@@ -19,7 +19,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -37,9 +37,9 @@ import static com.minecolonies.api.util.constant.translation.BaseGameTranslation
  */
 public class WindowCrafting extends AbstractContainerScreen<ContainerCrafting>
 {
-    private static final ResourceLocation CRAFTING_TABLE_GUI_TEXTURES = new ResourceLocation(MOD_ID, "textures/gui/crafting2x2.png");
+    private static final Identifier CRAFTING_TABLE_GUI_TEXTURES = new Identifier(MOD_ID, "textures/gui/crafting2x2.png");
 
-    private static final ResourceLocation CRAFTING_TABLE_GUI_TEXTURES3X3 = new ResourceLocation(MOD_ID, "textures/gui/crafting3x3.png");
+    private static final Identifier CRAFTING_TABLE_GUI_TEXTURES3X3 = new Identifier(MOD_ID, "textures/gui/crafting3x3.png");
 
     /**
      * X offset of the button.
@@ -255,7 +255,7 @@ public class WindowCrafting extends AbstractContainerScreen<ContainerCrafting>
     @Override
     protected void renderBg(@NotNull final GuiGraphics stack, final float partialTicks, final int mouseX, final int mouseY)
     {
-        final ResourceLocation texture;
+        final Identifier texture;
         if (completeCrafting)
         {
             texture = CRAFTING_TABLE_GUI_TEXTURES3X3;

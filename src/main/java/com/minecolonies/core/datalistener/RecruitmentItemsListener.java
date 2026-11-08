@@ -8,7 +8,7 @@ import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.MathUtils;
 import com.minecolonies.api.util.constant.ColonyConstants;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.GsonHelper;
@@ -107,7 +107,7 @@ public class RecruitmentItemsListener extends SimpleJsonResourceReloadListener
 
     @Override
     protected void apply(
-        final @NotNull Map<ResourceLocation, JsonElement> jsonElementMap,
+        final @NotNull Map<Identifier, JsonElement> jsonElementMap,
         final @NotNull ResourceManager resourceManager,
         final @NotNull ProfilerFiller profiler)
     {
@@ -119,7 +119,7 @@ public class RecruitmentItemsListener extends SimpleJsonResourceReloadListener
             return;
         }
 
-        for (final Map.Entry<ResourceLocation, JsonElement> entry : jsonElementMap.entrySet())
+        for (final Map.Entry<Identifier, JsonElement> entry : jsonElementMap.entrySet())
         {
             if (!entry.getValue().isJsonObject())
             {
@@ -127,7 +127,7 @@ public class RecruitmentItemsListener extends SimpleJsonResourceReloadListener
             }
 
             final JsonObject object = entry.getValue().getAsJsonObject();
-            final Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(GsonHelper.getAsString(object, KEY_ITEM)));
+            final Item item = BuiltInRegistries.ITEM.get(Identifier.parse(GsonHelper.getAsString(object, KEY_ITEM)));
             final int rarity = GsonHelper.getAsInt(object, KEY_RARITY);
 
             if (item == Items.AIR)

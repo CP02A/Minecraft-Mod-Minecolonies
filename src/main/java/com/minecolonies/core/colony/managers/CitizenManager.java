@@ -38,7 +38,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -603,7 +603,7 @@ public class CitizenManager implements ICitizenManager
                 final ICitizenData newCitizen = createAndRegisterCivilianData();
                 if (firstCitizen)
                 {
-                    colony.getQuestManager().injectAvailableQuest(new QuestInstance(new ResourceLocation(MOD_ID, "tutorial/welcome"), colony, List.of(new CitizenTriggerReturnData(newCitizen))));
+                    colony.getQuestManager().injectAvailableQuest(new QuestInstance(new Identifier(MOD_ID, "tutorial/welcome"), colony, List.of(new CitizenTriggerReturnData(newCitizen))));
                 }
 
                 // For first citizen, give a random chance of male or female.

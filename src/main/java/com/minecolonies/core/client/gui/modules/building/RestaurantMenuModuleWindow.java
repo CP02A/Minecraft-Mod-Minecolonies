@@ -24,14 +24,14 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.Tags;
+import com.ldtteam.shim.neoforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -106,7 +106,7 @@ public class RestaurantMenuModuleWindow extends AbstractModuleWindow<RestaurantM
      */
     public RestaurantMenuModuleWindow(final RestaurantMenuModuleView moduleView)
     {
-        super(moduleView, new ResourceLocation(Constants.MOD_ID, "gui/layouthuts/layoutfoodstock.xml"));
+        super(moduleView, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutfoodstock.xml"));
 
         menuList = this.window.findPaneOfTypeByID("resourcesstock", ScrollingList.class);
 

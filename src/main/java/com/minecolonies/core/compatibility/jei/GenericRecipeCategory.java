@@ -31,7 +31,7 @@ import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Animal;
@@ -40,8 +40,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -102,7 +102,7 @@ public class GenericRecipeCategory extends JobBasedRecipeCategory<IGenericRecipe
     @NotNull
     private static RecipeType<IGenericRecipe> createRecipeType(@NotNull final IJob<?> job)
     {
-        final ResourceLocation uid = job.getJobRegistryEntry().getKey();
+        final Identifier uid = job.getJobRegistryEntry().getKey();
         return RecipeType.create(uid.getNamespace(), uid.getPath(), IGenericRecipe.class);
     }
 
@@ -132,7 +132,7 @@ public class GenericRecipeCategory extends JobBasedRecipeCategory<IGenericRecipe
                                  @NotNull final IGenericRecipe recipe,
                                  @NotNull final IFocusGroup focuses)
     {
-        final ResourceLocation id = recipe.getRecipeId();
+        final Identifier id = recipe.getRecipeId();
 
         addToolSlot(builder, recipe.getRequiredTool(), WIDTH - 18, CITIZEN_Y - 20, true);
 
@@ -202,7 +202,7 @@ public class GenericRecipeCategory extends JobBasedRecipeCategory<IGenericRecipe
     {
         assert recipe.getLootTable() != null;
         final List<LootTableAnalyzer.LootDrop> drops = getLootDrops(recipe.getLootTable());
-        final ResourceLocation id = recipe.getRecipeId();
+        final Identifier id = recipe.getRecipeId();
 
         addToolSlot(builder, recipe.getRequiredTool(), WIDTH - 18, CITIZEN_Y - 20, true);
 

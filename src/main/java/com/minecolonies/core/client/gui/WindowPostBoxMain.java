@@ -22,7 +22,7 @@ import com.minecolonies.core.network.messages.server.colony.building.postbox.Pos
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
@@ -100,7 +100,7 @@ public class WindowPostBoxMain extends AbstractWindowSkeleton
      */
     public WindowPostBoxMain(final PostBox.View postBoxView)
     {
-        super(new ResourceLocation(Constants.MOD_ID, "gui/windowpostboxrequest.xml"));
+        super(new Identifier(Constants.MOD_ID, "gui/windowpostboxrequest.xml"));
         this.postBoxView = postBoxView;
         this.requestTreeWindowModule = registerLayoutModule(PostBoxRequestTreeWindowModule::new, postBoxView, 261, 44);
         registerPostboxTabs(this, postBoxView);
@@ -214,7 +214,7 @@ public class WindowPostBoxMain extends AbstractWindowSkeleton
 
         tabsWindowModule.renderTabButton(nextTabIndex++,
             TabsWindowModule.TabImageSide.LEFT,
-            new ResourceLocation(Constants.MOD_ID, "textures/gui/modules/main.png"),
+            new Identifier(Constants.MOD_ID, "textures/gui/modules/main.png"),
             Component.translatable(LABEL_MAIN_TAB_NAME),
             button -> buildingView.getWindow().open());
 

@@ -23,7 +23,7 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -178,9 +178,9 @@ public class RecipeStorageFactory implements IRecipeStorageFactory
         final int gridSize = nbt.getInt(TAG_GRID);
         final IToken<?> token = StandardFactoryController.getInstance().deserializeTag(provider, nbt.getCompound(TAG_TOKEN));
 
-        final ResourceLocation source = nbt.contains(SOURCE_TAG) ? ResourceLocation.parse(nbt.getString(SOURCE_TAG)) : null;
+        final Identifier source = nbt.contains(SOURCE_TAG) ? Identifier.parse(nbt.getString(SOURCE_TAG)) : null;
 
-        final ResourceLocation type = nbt.contains(TYPE_TAG) ? ResourceLocation.parse(nbt.getString(TYPE_TAG).toLowerCase()): ModRecipeTypes.CLASSIC_ID;
+        final Identifier type = nbt.contains(TYPE_TAG) ? Identifier.parse(nbt.getString(TYPE_TAG).toLowerCase()): ModRecipeTypes.CLASSIC_ID;
 
         final ListTag altOutputTagList = nbt.getList(ALTOUTPUT_TAG, Tag.TAG_COMPOUND);
 
@@ -200,7 +200,7 @@ public class RecipeStorageFactory implements IRecipeStorageFactory
             secOutputs.add(ItemStack.parseOptional(provider, secOutputTag));
         }
 
-        final ResourceKey<LootTable> lootTable = nbt.contains(LOOT_TAG) ? ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.parse(nbt.getString(LOOT_TAG))) : null;
+        final ResourceKey<LootTable> lootTable = nbt.contains(LOOT_TAG) ? ResourceKey.create(Registries.LOOT_TABLE, Identifier.parse(nbt.getString(LOOT_TAG))) : null;
         final EquipmentTypeEntry requiredTool = ModEquipmentTypes.getRegistry().get(EquipmentTypeEntry.parseResourceLocation(nbt.getString(TOOL_TAG)));
 
         return RecipeStorage.builder()
@@ -272,7 +272,7 @@ public class RecipeStorageFactory implements IRecipeStorageFactory
         final ItemStack primaryOutput = Utils.deserializeCodecMess(buffer);
         final Block intermediate = buffer.readBoolean() ? Block.stateById(buffer.readVarInt()).getBlock() : Blocks.AIR;
         final int gridSize = buffer.readVarInt();
-        final ResourceLocation type = buffer.readResourceLocation();
+        final Identifier type = buffer.readResourceLocation();
 
         final List<ItemStack> altOutputs = new ArrayList<>();
         final int altOutputSize = buffer.readVarInt();
@@ -288,7 +288,7 @@ public class RecipeStorageFactory implements IRecipeStorageFactory
             secOutputs.add(Utils.deserializeCodecMess(buffer));
         }
 
-        final ResourceLocation resLoc = EquipmentTypeEntry.parseResourceLocation(buffer.readResourceLocation());
+        final Identifier resLoc = EquipmentTypeEntry.parseResourceLocation(buffer.readResourceLocation());
         final EquipmentTypeEntry requiredTool = ModEquipmentTypes.getRegistry().get(resLoc);
 
         ResourceKey<LootTable> lootTable = null;
@@ -297,7 +297,7 @@ public class RecipeStorageFactory implements IRecipeStorageFactory
             lootTable = buffer.readResourceKey(Registries.LOOT_TABLE);
         }
 
-        ResourceLocation source = null;
+        Identifier source = null;
         if(buffer.readBoolean())
         {
             source = buffer.readResourceLocation();

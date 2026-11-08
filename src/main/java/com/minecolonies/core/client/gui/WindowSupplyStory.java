@@ -14,7 +14,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
@@ -51,7 +51,7 @@ public class WindowSupplyStory extends AbstractWindowSkeleton
 
     public WindowSupplyStory(final BlockPos pos, final String type, final ItemStack stack, final InteractionHand hand)
     {
-        super(new ResourceLocation(Constants.MOD_ID, "gui/windowsupplystory.xml"));
+        super(new Identifier(Constants.MOD_ID, "gui/windowsupplystory.xml"));
         mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.BOOK_PAGE_TURN, 1.0F));
         if (pos == null)
         {

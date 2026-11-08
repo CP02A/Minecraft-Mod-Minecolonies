@@ -8,7 +8,7 @@ import com.minecolonies.apiimp.CommonMinecoloniesAPIImpl;
 import com.minecolonies.core.quests.objectives.*;
 import com.minecolonies.core.quests.rewards.*;
 import com.minecolonies.core.quests.triggers.*;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.ldtteam.shim.neoforge.registries.DeferredRegister;
 
 import static com.minecolonies.api.quests.registries.QuestRegistries.*;
 

@@ -20,7 +20,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.*;
@@ -71,7 +71,7 @@ public class WindowSchematicAnalyzer extends AbstractWindowSkeleton
 
     public WindowSchematicAnalyzer()
     {
-        super(new ResourceLocation(Constants.MOD_ID, "gui/analyzer/windowanalyze.xml"));
+        super(new Identifier(Constants.MOD_ID, "gui/analyzer/windowanalyze.xml"));
         registerButton(BUTTON_CANCEL, b -> close());
         registerButton(BUTTON_SELECT_SCHEMATIC,
             b -> new WindowExtendedBuildTool(BlockPos.containing(Minecraft.getInstance().player.position().add(Minecraft.getInstance().player.getLookAngle().multiply(10, 10, 10))),

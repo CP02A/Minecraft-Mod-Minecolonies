@@ -6,7 +6,7 @@ import com.minecolonies.core.network.messages.client.VanillaParticleMessage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ParticleUtils;
 import net.minecraft.util.RandomSource;
@@ -33,9 +33,9 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.common.CommonHooks;
-import net.neoforged.neoforge.common.FarmlandWaterManager;
-import net.neoforged.neoforge.common.SpecialPlantable;
+import com.ldtteam.shim.neoforge.common.CommonHooks;
+import com.ldtteam.shim.neoforge.common.FarmlandWaterManager;
+import com.ldtteam.shim.neoforge.common.SpecialPlantable;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -52,7 +52,7 @@ public class MinecoloniesFarmland extends AbstractBlockMinecolonies<Minecolonies
     public static final    IntegerProperty MOISTURE     = BlockStateProperties.MOISTURE;
     protected final VoxelShape shape;
 
-    private final ResourceLocation    blockId;
+    private final Identifier    blockId;
 
     /**
      * If should behave waterlogged.
@@ -63,7 +63,7 @@ public class MinecoloniesFarmland extends AbstractBlockMinecolonies<Minecolonies
     {
         super(BlockBehaviour.Properties.of().mapColor(MapColor.DIRT).randomTicks().strength(0.6F).sound(SoundType.GRAVEL).isViewBlocking((s,g,p) -> true).isSuffocating((s,g,p) -> true));
         this.registerDefaultState(this.stateDefinition.any().setValue(MOISTURE, 0));
-        this.blockId = new ResourceLocation(Constants.MOD_ID, blockName);
+        this.blockId = new Identifier(Constants.MOD_ID, blockName);
         this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, Boolean.valueOf(waterLogged)));
 
         this.shape = Block.box(0.0, 0.0, 0.0, 16.0, height, 16.0);
@@ -222,7 +222,7 @@ public class MinecoloniesFarmland extends AbstractBlockMinecolonies<Minecolonies
     }
 
     @Override
-    public ResourceLocation getRegistryName()
+    public Identifier getRegistryName()
     {
         return blockId;
     }

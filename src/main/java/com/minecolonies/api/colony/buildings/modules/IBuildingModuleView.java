@@ -8,9 +8,9 @@ import com.minecolonies.api.util.constant.Constants;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraft.resources.Identifier;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.api.distmarker.OnlyIn;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -61,9 +61,9 @@ public interface IBuildingModuleView
      * Get the resource location of the icon for the module view.
      * @return the resource location.
      */
-    default ResourceLocation getIconResourceLocation()
+    default Identifier getIconResourceLocation()
     {
-        return new ResourceLocation(Constants.MOD_ID, "textures/gui/modules/" + getIcon() + ".png");
+        return new Identifier(Constants.MOD_ID, "textures/gui/modules/" + getIcon() + ".png");
     }
     
     /**

@@ -12,7 +12,7 @@ import com.minecolonies.api.util.constant.SerializationIdentifierConstants;
 import com.minecolonies.api.util.constant.TypeConstants;
 import com.minecolonies.core.colony.requestsystem.resolvers.PublicWorkerCraftingRequestResolver;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.NotNull;
@@ -68,7 +68,7 @@ public class PublicWorkerCraftingRequestResolverFactory implements IRequestResol
     {
         final IToken<?> token = controller.deserializeTag(provider, nbt.getCompound(NBT_TOKEN));
         final ILocation location = controller.deserializeTag(provider, nbt.getCompound(NBT_LOCATION));
-        final JobEntry entry = IJobRegistry.getInstance().get(ResourceLocation.parse(nbt.getString(NBT_JOB)));
+        final JobEntry entry = IJobRegistry.getInstance().get(Identifier.parse(nbt.getString(NBT_JOB)));
 
         return new PublicWorkerCraftingRequestResolver(location, token, entry);
     }

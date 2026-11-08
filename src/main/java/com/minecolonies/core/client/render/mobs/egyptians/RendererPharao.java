@@ -4,7 +4,7 @@ import com.minecolonies.api.entity.mobs.AbstractEntityMinecoloniesMonster;
 import com.minecolonies.core.client.model.raiders.ModelPharaoh;
 import com.minecolonies.core.event.ClientRegistryHandler;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Renderer used for the pharao.
@@ -14,7 +14,7 @@ public class RendererPharao extends AbstractRendererEgyptian<AbstractEntityMinec
     /**
      * Texture of the entity.
      */
-    private static final ResourceLocation TEXTURE = new ResourceLocation("minecolonies", "textures/entity/raiders/pharao.png");
+    private static final Identifier TEXTURE = new Identifier("minecolonies", "textures/entity/raiders/pharao.png");
 
     /**
      * Constructor method for renderer
@@ -27,7 +27,7 @@ public class RendererPharao extends AbstractRendererEgyptian<AbstractEntityMinec
     }
 
     @Override
-    public ResourceLocation getTextureLocation(final AbstractEntityMinecoloniesMonster entity)
+    public Identifier getTextureLocation(final AbstractEntityMinecoloniesMonster entity)
     {
         return TEXTURE;
     }

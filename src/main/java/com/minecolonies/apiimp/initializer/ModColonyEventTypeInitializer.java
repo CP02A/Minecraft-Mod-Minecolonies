@@ -11,7 +11,7 @@ import com.minecolonies.core.colony.events.raid.norsemenevent.NorsemenShipRaidEv
 import com.minecolonies.core.colony.events.raid.pirateEvent.DrownedPirateRaidEvent;
 import com.minecolonies.core.colony.events.raid.pirateEvent.PirateGroundRaidEvent;
 import com.minecolonies.core.colony.events.raid.pirateEvent.PirateRaidEvent;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.ldtteam.shim.neoforge.registries.DeferredRegister;
 
 /**
  * Initializer for colony event types, register new event types here.

@@ -2,7 +2,7 @@ package com.minecolonies.core.debug;
 
 import com.minecolonies.core.entity.pathfinding.PathfindingUtils;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.fml.loading.FMLEnvironment;
+import com.ldtteam.shim.fml.loading.FMLEnvironment;
 
 import java.util.HashSet;
 import java.util.Set;

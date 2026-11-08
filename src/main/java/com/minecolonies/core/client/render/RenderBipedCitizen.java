@@ -17,7 +17,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityAttachment;
 import net.minecraft.world.phys.Vec3;
@@ -137,7 +137,7 @@ public class RenderBipedCitizen extends MobRenderer<AbstractEntityCitizen, Citiz
 
     @NotNull
     @Override
-    public ResourceLocation getTextureLocation(final AbstractEntityCitizen entity)
+    public Identifier getTextureLocation(final AbstractEntityCitizen entity)
     {
         if (entity.getCitizenDataView() != null && entity.getCitizenDataView().getCustomTexture() != null)
         {

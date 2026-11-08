@@ -1,7 +1,7 @@
 package com.minecolonies.api.client.render.modeltype;
 
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * A class that implements the ISimpleModelType interface. Used to store references to female and male models for citizens.
@@ -16,7 +16,7 @@ public class SimpleModelType implements ISimpleModelType
     /**
      * String describing the citizen. Used by the renderer. Starts with a capital, and does not contain spaces or other special characters.
      */
-    private final ResourceLocation name;
+    private final Identifier name;
 
     /**
      * Amount of different textures available for the renderer.
@@ -34,7 +34,7 @@ public class SimpleModelType implements ISimpleModelType
     private final CitizenModel<AbstractEntityCitizen> femaleModel;
 
     public SimpleModelType(
-      final ResourceLocation name,
+      final Identifier name,
       final int numTextures,
       final CitizenModel<AbstractEntityCitizen> maleModel,
       final CitizenModel<AbstractEntityCitizen> femaleModel)
@@ -46,7 +46,7 @@ public class SimpleModelType implements ISimpleModelType
     }
 
     @Override
-    public ResourceLocation getName()
+    public Identifier getName()
     {
         return this.name;
     }

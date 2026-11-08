@@ -13,10 +13,10 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import com.ldtteam.shim.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -76,7 +76,7 @@ public class ColonyViewBuildingExtensionsUpdateMessage extends AbstractClientPla
     {
         super(buf, type);
         colonyId = buf.readInt();
-        dimension = ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(buf.readUtf(32767)));
+        dimension = ResourceKey.create(Registries.DIMENSION, Identifier.parse(buf.readUtf(32767)));
         extensions = new HashMap<>();
         final int extensionCount = buf.readInt();
         for (int i = 0; i < extensionCount; i++)

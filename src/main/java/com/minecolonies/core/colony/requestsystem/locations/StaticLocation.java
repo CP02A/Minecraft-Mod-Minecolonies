@@ -10,7 +10,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
@@ -172,7 +172,7 @@ public class StaticLocation implements ILocation
         {
             final BlockPos pos = BlockPos.of(nbt.getLong(NBT_POS));
             final String dim = nbt.getString(NBT_DIM);
-            return new StaticLocation(pos, ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(dim)));
+            return new StaticLocation(pos, ResourceKey.create(Registries.DIMENSION, Identifier.parse(dim)));
         }
 
         @NotNull
@@ -186,7 +186,7 @@ public class StaticLocation implements ILocation
 
             if (!(context[0] instanceof ResourceKey))
             {
-                throw new IllegalArgumentException("Unsupported context - First context object is not a ResourceLocation. Provide an ResourceLocation as Dimension.");
+                throw new IllegalArgumentException("Unsupported context - First context object is not a Identifier. Provide an Identifier as Dimension.");
             }
 
             return new StaticLocation(blockPos, (ResourceKey<Level>) context[0]);
@@ -245,7 +245,7 @@ public class StaticLocation implements ILocation
     public static StaticLocation deserialize(RegistryFriendlyByteBuf buffer)
     {
         final BlockPos pos = buffer.readBlockPos();
-        final ResourceLocation dimension = ResourceLocation.parse(buffer.readUtf(32767));
+        final Identifier dimension = Identifier.parse(buffer.readUtf(32767));
 
         return new StaticLocation(pos, ResourceKey.create(Registries.DIMENSION, dimension));
     }

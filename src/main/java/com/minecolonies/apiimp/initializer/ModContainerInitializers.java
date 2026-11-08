@@ -6,12 +6,12 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.gui.containers.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.inventory.MenuType;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.ldtteam.shim.bus.api.SubscribeEvent;
+import com.ldtteam.shim.fml.common.EventBusSubscriber;
+import com.ldtteam.shim.fml.common.Mod;
+import com.ldtteam.shim.neoforge.client.event.RegisterMenuScreensEvent;
+import com.ldtteam.shim.neoforge.common.extensions.IMenuTypeExtension;
+import com.ldtteam.shim.neoforge.registries.DeferredRegister;
 
 @EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class ModContainerInitializers

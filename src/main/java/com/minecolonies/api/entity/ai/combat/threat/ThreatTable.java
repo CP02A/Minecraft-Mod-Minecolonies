@@ -1,7 +1,7 @@
 package com.minecolonies.api.entity.ai.combat.threat;
 
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.neoforge.common.util.FakePlayer;
+import com.ldtteam.shim.neoforge.common.util.FakePlayer;
 
 import java.util.ArrayList;
 import java.util.List;

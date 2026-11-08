@@ -4,10 +4,10 @@ import com.minecolonies.api.crafting.CountedIngredient;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.recipes.FoodIngredient;
 import com.minecolonies.core.recipes.PlantIngredient;
-import net.neoforged.neoforge.common.crafting.IngredientType;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import com.ldtteam.shim.neoforge.common.crafting.IngredientType;
+import com.ldtteam.shim.neoforge.registries.DeferredHolder;
+import com.ldtteam.shim.neoforge.registries.DeferredRegister;
+import com.ldtteam.shim.neoforge.registries.NeoForgeRegistries;
 
 public class ModIngredientTypeInitializer
 {

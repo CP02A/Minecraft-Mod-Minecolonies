@@ -63,22 +63,22 @@ import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.event.EventHooks;
-import net.neoforged.neoforge.event.LootTableLoadEvent;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
-import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
-import net.neoforged.neoforge.event.entity.living.LivingConversionEvent;
-import net.neoforged.neoforge.event.entity.living.MobDespawnEvent;
-import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.level.BlockEvent;
-import net.neoforged.neoforge.event.level.ChunkEvent;
-import net.neoforged.neoforge.event.level.LevelEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import com.ldtteam.shim.bus.api.SubscribeEvent;
+import com.ldtteam.shim.neoforge.event.EventHooks;
+import com.ldtteam.shim.neoforge.event.LootTableLoadEvent;
+import com.ldtteam.shim.neoforge.event.RegisterCommandsEvent;
+import com.ldtteam.shim.neoforge.event.entity.EntityJoinLevelEvent;
+import com.ldtteam.shim.neoforge.event.entity.EntityTravelToDimensionEvent;
+import com.ldtteam.shim.neoforge.event.entity.living.LivingConversionEvent;
+import com.ldtteam.shim.neoforge.event.entity.living.MobDespawnEvent;
+import com.ldtteam.shim.neoforge.event.entity.living.MobSpawnEvent;
+import com.ldtteam.shim.neoforge.event.entity.player.PlayerEvent;
+import com.ldtteam.shim.neoforge.event.entity.player.PlayerInteractEvent;
+import com.ldtteam.shim.neoforge.event.level.BlockEvent;
+import com.ldtteam.shim.neoforge.event.level.ChunkEvent;
+import com.ldtteam.shim.neoforge.event.level.LevelEvent;
+import com.ldtteam.shim.neoforge.event.tick.PlayerTickEvent;
+import com.ldtteam.shim.neoforge.event.tick.ServerTickEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
@@ -91,8 +91,8 @@ import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_COLONY_ID;
 import static com.minecolonies.api.util.constant.NbtTagConstants.TAG_EVENT_ID;
 import static com.minecolonies.api.util.constant.TranslationConstants.*;
 import static com.minecolonies.api.util.constant.translation.BaseGameTranslationConstants.BASE_BED_OCCUPIED;
-import static net.neoforged.bus.api.EventPriority.HIGHEST;
-import static net.neoforged.bus.api.EventPriority.LOWEST;
+import static com.ldtteam.shim.bus.api.EventPriority.HIGHEST;
+import static com.ldtteam.shim.bus.api.EventPriority.LOWEST;
 
 /**
  * Handles all forge events.
@@ -642,7 +642,7 @@ public class EventHandler
     /**
      * Gets called when world loads. Calls {@link ColonyManager#onWorldLoad(Level)})}
      *
-     * @param event {@link net.neoforged.neoforge.event.level.LevelEvent.Load}
+     * @param event {@link com.ldtteam.shim.neoforge.event.level.LevelEvent.Load}
      */
     @SubscribeEvent(priority = HIGHEST)
     public static void onWorldLoad(@NotNull final LevelEvent.Load event)
@@ -673,7 +673,7 @@ public class EventHandler
     /**
      * Gets called when world unloads. Calls {@link ColonyManager#onWorldLoad(Level)}
      *
-     * @param event {@link net.neoforged.neoforge.event.level.LevelEvent.Unload}
+     * @param event {@link com.ldtteam.shim.neoforge.event.level.LevelEvent.Unload}
      */
     @SubscribeEvent
     public static void onWorldUnload(@NotNull final LevelEvent.Unload event)

@@ -4,7 +4,7 @@ import com.minecolonies.api.entity.mobs.AbstractEntityMinecoloniesMonster;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -15,10 +15,10 @@ public class RendererDrownedArcherPirate extends AbstractRendererDrownedPirate<A
     /**
      * Texture of the entity.
      */
-    private static final ResourceLocation TEXTURE1 = new ResourceLocation("minecolonies", "textures/entity/raiders/drowned_pirate5.png");
-    private static final ResourceLocation TEXTURE2 = new ResourceLocation("minecolonies", "textures/entity/raiders/drowned_pirate6.png");
-    private static final ResourceLocation TEXTURE3 = new ResourceLocation("minecolonies", "textures/entity/raiders/drowned_pirate7.png");
-    private static final ResourceLocation TEXTURE4 = new ResourceLocation("minecolonies", "textures/entity/raiders/drowned_pirate8.png");
+    private static final Identifier TEXTURE1 = new Identifier("minecolonies", "textures/entity/raiders/drowned_pirate5.png");
+    private static final Identifier TEXTURE2 = new Identifier("minecolonies", "textures/entity/raiders/drowned_pirate6.png");
+    private static final Identifier TEXTURE3 = new Identifier("minecolonies", "textures/entity/raiders/drowned_pirate7.png");
+    private static final Identifier TEXTURE4 = new Identifier("minecolonies", "textures/entity/raiders/drowned_pirate8.png");
 
     /**
      * Constructor method for renderer
@@ -32,7 +32,7 @@ public class RendererDrownedArcherPirate extends AbstractRendererDrownedPirate<A
 
     @NotNull
     @Override
-    public ResourceLocation getTextureLocation(final AbstractEntityMinecoloniesMonster entity)
+    public Identifier getTextureLocation(final AbstractEntityMinecoloniesMonster entity)
     {
         switch (entity.getTextureId())
         {

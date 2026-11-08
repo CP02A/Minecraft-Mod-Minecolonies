@@ -1,0 +1,409 @@
+package com.ldtteam.domumornamentum.jei;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.ldtteam.domumornamentum.IDomumOrnamentumApi;
+import com.ldtteam.domumornamentum.block.IMateriallyTexturedBlock;
+import com.ldtteam.domumornamentum.block.IMateriallyTexturedBlockComponent;
+import com.ldtteam.domumornamentum.block.IMateriallyTexturedBlockManager;
+import com.ldtteam.domumornamentum.block.ModBlocks;
+import com.ldtteam.domumornamentum.item.interfaces.IDoItem;
+import com.ldtteam.domumornamentum.recipe.ModRecipeTypes;
+import com.ldtteam.domumornamentum.recipe.architectscutter.ArchitectsCutterRecipe;
+import com.ldtteam.domumornamentum.recipe.architectscutter.ArchitectsCutterRecipeInput;
+import com.ldtteam.domumornamentum.util.Constants;
+import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
+import mezz.jei.api.gui.builder.ITooltipBuilder;
+import mezz.jei.api.gui.drawable.IDrawable;
+import mezz.jei.api.gui.ingredient.IRecipeSlotView;
+import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.helpers.IGuiHelper;
+import mezz.jei.api.ingredients.IIngredientRenderer;
+import mezz.jei.api.recipe.IFocusGroup;
+import mezz.jei.api.recipe.RecipeIngredientRole;
+import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.api.recipe.types.IRecipeType;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.block.Block;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
+
+import java.util.*;
+import java.util.stream.StreamSupport;
+
+import static com.ldtteam.domumornamentum.util.Constants.MOD_ID;
+import static com.ldtteam.domumornamentum.util.GuiConstants.CUTTER_BG_W;
+import static com.ldtteam.domumornamentum.util.GuiConstants.CUTTER_INPUT_SPACING;
+import static com.ldtteam.domumornamentum.util.GuiConstants.CUTTER_INPUT_X;
+import static com.ldtteam.domumornamentum.util.GuiConstants.CUTTER_INPUT_Y;
+import static com.ldtteam.domumornamentum.util.GuiConstants.CUTTER_OUTPUT_X;
+import static com.ldtteam.domumornamentum.util.GuiConstants.CUTTER_OUTPUT_Y;
+import static com.ldtteam.domumornamentum.util.GuiConstants.CUTTER_RECIPE_H;
+import static com.ldtteam.domumornamentum.util.GuiConstants.CUTTER_RECIPE_SPACING;
+import static com.ldtteam.domumornamentum.util.GuiConstants.CUTTER_RECIPE_U_NORMAL;
+import static com.ldtteam.domumornamentum.util.GuiConstants.CUTTER_RECIPE_V;
+import static com.ldtteam.domumornamentum.util.GuiConstants.CUTTER_RECIPE_W;
+import static com.ldtteam.domumornamentum.util.GuiConstants.CUTTER_RECIPE_X;
+import static com.ldtteam.domumornamentum.util.GuiConstants.CUTTER_RECIPE_Y;
+import static com.ldtteam.domumornamentum.util.GuiConstants.CUTTER_SLIDER_H;
+import static com.ldtteam.domumornamentum.util.GuiConstants.CUTTER_SLIDER_U_DISABLED;
+import static com.ldtteam.domumornamentum.util.GuiConstants.CUTTER_SLIDER_V;
+import static com.ldtteam.domumornamentum.util.GuiConstants.CUTTER_SLIDER_W;
+import static com.ldtteam.domumornamentum.util.GuiConstants.CUTTER_SLIDER_X;
+import static com.ldtteam.domumornamentum.util.GuiConstants.CUTTER_SLOT_H;
+import static com.ldtteam.domumornamentum.util.GuiConstants.CUTTER_SLOT_U;
+import static com.ldtteam.domumornamentum.util.GuiConstants.CUTTER_SLOT_V;
+import static com.ldtteam.domumornamentum.util.GuiConstants.CUTTER_SLOT_W;
+
+public class ArchitectsCutterCategory implements IRecipeCategory<RecipeHolder<ArchitectsCutterRecipe>>
+{
+    public static final IRecipeType<RecipeHolder<ArchitectsCutterRecipe>> TYPE = IRecipeType.create(ModRecipeTypes.ARCHITECTS_CUTTER.get());
+
+    /**
+     * Horizontal offset between the real cutter display and the JEI display, since we only show a portion.
+     */
+    private static final int JEI_OFFSET_X = 55;
+    /**
+     * Vertical offset between the real cutter display and the JEI display, since we only show a portion.
+     */
+    private static final int JEI_OFFSET_Y = 14;
+    /**
+     * Height of the JEI recipe display.
+     */
+    private static final int JEI_HEIGHT = 110;
+    /**
+     * Width of the JEI recipe display.
+     */
+    private static final int JEI_WIDTH = CUTTER_BG_W - JEI_OFFSET_X - 9;
+
+    private final JEIPlugin plugin;
+    private final IDrawable background;
+    private final IDrawable thumb;
+    private final IDrawable slot;
+    private final IDrawable button;
+    private final IDrawable icon;
+    private final LoadingCache<ArchitectsCutterRecipe, DisplayData> cachedDisplayData;
+
+    public ArchitectsCutterCategory(@NotNull final IGuiHelper guiHelper, @NotNull final JEIPlugin plugin)
+    {
+        this.plugin = plugin;
+        final Identifier texture = Constants.resLocDO("textures/gui/container/architectscutter2.png");
+        this.background = guiHelper.createDrawable(texture, JEI_OFFSET_X, JEI_OFFSET_Y, CUTTER_BG_W - JEI_OFFSET_X - 9, JEI_HEIGHT);
+        this.thumb = guiHelper.createDrawable(texture, CUTTER_SLIDER_U_DISABLED, CUTTER_SLIDER_V, CUTTER_SLIDER_W, CUTTER_SLIDER_H);
+        this.slot = guiHelper.createDrawable(texture, CUTTER_SLOT_U, CUTTER_SLOT_V, CUTTER_SLOT_W, CUTTER_SLOT_H);
+        this.button = guiHelper.createDrawable(texture, CUTTER_RECIPE_U_NORMAL, CUTTER_RECIPE_V, CUTTER_RECIPE_W, CUTTER_RECIPE_H);
+        this.icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(IDomumOrnamentumApi.getInstance().getBlocks().getArchitectsCutter()));
+        this.cachedDisplayData = CacheBuilder.newBuilder()
+                .maximumSize(25)
+                .build(new CacheLoader<>()
+                {
+                    @NotNull
+                    @Override
+                    public DisplayData load(@NotNull final ArchitectsCutterRecipe key)
+                    {
+                        return new DisplayData(key);
+                    }
+                });
+    }
+
+    @NotNull
+    @Override
+    public IRecipeType<RecipeHolder<ArchitectsCutterRecipe>> getRecipeType()
+    {
+        return TYPE;
+    }
+
+    @NotNull
+    @Override
+    public Component getTitle()
+    {
+        return Component.translatable(MOD_ID + ".architectscutter");
+    }
+
+    @NotNull
+    @Override
+    public IDrawable getIcon()
+    {
+        return this.icon;
+    }
+
+    @Override
+    public int getWidth()
+    {
+        return JEI_WIDTH;
+    }
+
+    @Override
+    public int getHeight()
+    {
+        return JEI_HEIGHT;
+    }
+
+    @Override
+    public void setRecipe(@NotNull final IRecipeLayoutBuilder builder,
+                          @NotNull final RecipeHolder<ArchitectsCutterRecipe> holder,
+                          @NotNull final IFocusGroup focuses)
+    {
+        final ArchitectsCutterRecipe recipe = holder.value();
+        final Block generatedBlock = recipe.getBlock();
+
+        if (!(generatedBlock instanceof final IMateriallyTexturedBlock materiallyTexturedBlock))
+            return;
+
+        final Collection<IMateriallyTexturedBlockComponent> components = materiallyTexturedBlock.getComponents();
+        final List<List<ItemStack>> inputs = components.stream()
+                .map(component -> {
+                    final List<ItemStack> candidateStacks = new ArrayList<>(
+                        StreamSupport.stream(BuiltInRegistries.BLOCK.getTagOrEmpty(component.getValidSkins()).spliterator(), false)
+                            .map(Holder::value)
+                            .map(ItemStack::new)
+                            .toList());
+                    Collections.shuffle(candidateStacks);
+                    return candidateStacks;
+                })
+                .toList();
+
+        final List<ItemStack> defaultInputs = components.stream()
+                .map(component -> new ItemStack(component.getDefault()))
+                .toList();
+
+        final DisplayData displayData = cachedDisplayData.getUnchecked(recipe);
+        final Container container = displayData.getIngredientContainer();
+
+        for (int i = 0; i < defaultInputs.size(); ++i)
+        {
+            container.setItem(i, defaultInputs.get(i));
+        }
+
+        final ItemStack output = recipe.assemble(new ArchitectsCutterRecipeInput(container));
+        displayData.setOutput(output.isEmpty() ? new ItemStack(generatedBlock) : output);
+
+        builder.addSlot(RecipeIngredientRole.OUTPUT, CUTTER_OUTPUT_X - JEI_OFFSET_X, CUTTER_OUTPUT_Y - JEI_OFFSET_Y)
+                .setCustomRenderer(VanillaTypes.ITEM_STACK, new OutputRenderer(plugin, displayData))
+                .add(output);
+
+        for (int slot = 0; slot < IMateriallyTexturedBlockManager.getInstance().getMaxTexturableComponentCount(); ++slot)
+        {
+            final int x = CUTTER_INPUT_X - JEI_OFFSET_X;
+            final int y = CUTTER_INPUT_Y - JEI_OFFSET_Y + (slot * CUTTER_INPUT_SPACING);
+            builder.addSlot(RecipeIngredientRole.INPUT, x, y)
+                    .setBackground(this.slot, -1, -1)
+                    .addItemStacks(slot < inputs.size() ? inputs.get(slot) : Collections.emptyList());
+        }
+    }
+
+    @Override
+    public void getTooltip(@NotNull final ITooltipBuilder tooltip,
+                           @NotNull final RecipeHolder<ArchitectsCutterRecipe> holder,
+                           @NotNull final IRecipeSlotsView recipeSlotsView,
+                           final double mouseX, final double mouseY)
+    {
+        final ArchitectsCutterRecipe recipe = holder.value();
+
+        final Rect2i groupButton = new Rect2i(CUTTER_RECIPE_X - JEI_OFFSET_X, CUTTER_RECIPE_Y + 1 - JEI_OFFSET_Y, this.button.getWidth(), this.button.getHeight());
+        if (groupButton.contains((int) mouseX, (int) mouseY))
+        {
+            final DisplayData displayData = cachedDisplayData.getUnchecked(recipe);
+            tooltip.add(Component.translatable("cuttergroup." +
+                    displayData.getGroupId().getNamespace() + "." + displayData.getGroupId().getPath()));
+        }
+
+        final Rect2i recipeButton = new Rect2i(CUTTER_RECIPE_X - JEI_OFFSET_X, CUTTER_RECIPE_Y + 1 - JEI_OFFSET_Y + CUTTER_RECIPE_SPACING, this.button.getWidth(), this.button.getHeight());
+        if (recipeButton.contains((int) mouseX, (int) mouseY))
+        {
+            final DisplayData displayData = cachedDisplayData.getUnchecked(recipe);
+            tooltip.add(displayData.getOutput().getHoverName());
+        }
+    }
+
+    @Override
+    public void draw(@NotNull final RecipeHolder<ArchitectsCutterRecipe> holder,
+                     @NotNull final IRecipeSlotsView recipeSlotsView,
+                     @NotNull final GuiGraphicsExtractor guiGraphics,
+                     final double mouseX, final double mouseY)
+    {
+        final ArchitectsCutterRecipe recipe = holder.value();
+        final DisplayData displayData = cachedDisplayData.getUnchecked(recipe);
+        displayData.reassembleIfNeeded(recipeSlotsView.getSlotViews(RecipeIngredientRole.INPUT));
+
+        this.background.draw(guiGraphics);
+        this.thumb.draw(guiGraphics, CUTTER_SLIDER_X - JEI_OFFSET_X, CUTTER_RECIPE_Y + 1 - JEI_OFFSET_Y);
+        this.thumb.draw(guiGraphics, CUTTER_SLIDER_X - JEI_OFFSET_X, CUTTER_RECIPE_Y + 1 + CUTTER_RECIPE_SPACING - JEI_OFFSET_Y);
+
+        drawButton(guiGraphics, CUTTER_RECIPE_X - JEI_OFFSET_X, CUTTER_RECIPE_Y + 1 - JEI_OFFSET_Y, displayData.getGroup());
+        drawButton(guiGraphics, CUTTER_RECIPE_X - JEI_OFFSET_X, CUTTER_RECIPE_Y + 1 - JEI_OFFSET_Y + CUTTER_RECIPE_SPACING, displayData.getOutput());
+    }
+
+    private void drawButton(@NotNull final GuiGraphicsExtractor guiGraphics, final int x, final int y, @NotNull final ItemStack item)
+    {
+        this.button.draw(guiGraphics, x, y);
+        final ItemStack buttonStack = item.copy();
+        buttonStack.setCount(1);
+        this.plugin.getIngredientManager().getIngredientRenderer(VanillaTypes.ITEM_STACK)
+                .render(guiGraphics, buttonStack, x, y + 1);
+    }
+
+    private static class OutputRenderer implements IIngredientRenderer<ItemStack>
+    {
+        private final JEIPlugin plugin;
+        private final DisplayData displayData;
+
+        private IIngredientRenderer<ItemStack> renderer;
+
+        public OutputRenderer(@NotNull final JEIPlugin plugin,
+                              @NotNull final DisplayData displayData)
+        {
+            this.plugin = plugin;
+            this.displayData = displayData;
+        }
+
+        private IIngredientRenderer<ItemStack> getRenderer()
+        {
+            if (renderer == null)
+            {
+                renderer = plugin.getIngredientManager().getIngredientRenderer(VanillaTypes.ITEM_STACK);
+            }
+            return renderer;
+        }
+
+        @Override
+        public void render(@NotNull final GuiGraphicsExtractor guiGraphics,
+                           @NotNull final ItemStack ingredient)
+        {
+            getRenderer().render(guiGraphics, displayData.getOutput());
+        }
+
+        @NotNull
+        @Override
+        public List<Component> getTooltip(@NotNull final ItemStack ingredient,
+                                          @NotNull final TooltipFlag tooltipFlag)
+        {
+            return getRenderer().getTooltip(displayData.getOutput(), tooltipFlag);
+        }
+
+        @Override
+        public void getTooltip(final @NonNull ITooltipBuilder tooltip, final @NonNull ItemStack ingredient, final @NonNull TooltipFlag tooltipFlag)
+        {
+            getRenderer().getTooltip(tooltip, displayData.getOutput(), tooltipFlag);
+        }
+
+        @NotNull
+        @Override
+        public Font getFontRenderer(@NotNull final Minecraft minecraft,
+                                    @NotNull final ItemStack ingredient)
+        {
+            return getRenderer().getFontRenderer(minecraft, displayData.getOutput());
+        }
+
+        @Override
+        public int getWidth()
+        {
+            return 16;
+        }
+
+        @Override
+        public int getHeight()
+        {
+            return 16;
+        }
+    }
+
+    private static class DisplayData
+    {
+        private final ArchitectsCutterRecipe recipe;
+
+        private Identifier groupId = Identifier.withDefaultNamespace("");
+        private ItemStack  group   = ItemStack.EMPTY;
+        private ItemStack output = ItemStack.EMPTY;
+
+        private final Container ingredientContainer =
+                new SimpleContainer(IMateriallyTexturedBlockManager.getInstance().getMaxTexturableComponentCount());
+
+        public DisplayData(@NotNull final ArchitectsCutterRecipe recipe)
+        {
+            this.recipe = recipe;
+        }
+
+        @NotNull
+        public Container getIngredientContainer()
+        {
+            return this.ingredientContainer;
+        }
+
+        @NotNull
+        public Identifier getGroupId()
+        {
+            return this.groupId;
+        }
+
+        @NotNull
+        public ItemStack getGroup()
+        {
+            return this.group;
+        }
+
+        @NotNull
+        public ItemStack getOutput()
+        {
+            return this.output;
+        }
+
+        public void setOutput(@NotNull final ItemStack output)
+        {
+            if (output.getItem() instanceof IDoItem doItem)
+            {
+                this.groupId = doItem.getGroup();
+                this.group = ModBlocks.getInstance().getOrComputeItemGroups()
+                        .getOrDefault(this.groupId, Collections.singletonList(ItemStack.EMPTY))
+                        .get(0);
+            }
+            else
+            {
+                this.groupId = Identifier.withDefaultNamespace("");
+                this.group = ItemStack.EMPTY;
+            }
+
+            this.output = output;
+        }
+
+        public void reassembleIfNeeded(@NotNull final List<IRecipeSlotView> slotViews)
+        {
+            boolean same = true;
+
+            for (int i = 0; i < slotViews.size(); ++i)
+            {
+                final Optional<ItemStack> currentItem = slotViews.get(i).getDisplayedItemStack();
+
+                if (currentItem.isPresent())
+                {
+                    if (!ItemStack.isSameItemSameComponents(currentItem.get(), this.ingredientContainer.getItem(i)))
+                    {
+                        same = false;
+                        this.ingredientContainer.setItem(i, currentItem.get());
+                    }
+                }
+            }
+
+            if (!same)
+            {
+                this.output = recipe.assemble(new ArchitectsCutterRecipeInput(this.ingredientContainer));
+            }
+        }
+    }
+}

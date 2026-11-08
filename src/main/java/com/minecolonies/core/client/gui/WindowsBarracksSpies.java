@@ -9,11 +9,11 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.network.messages.server.colony.HireSpiesMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Items;
 import net.minecraft.core.BlockPos;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import com.ldtteam.shim.neoforge.items.IItemHandler;
+import com.ldtteam.shim.neoforge.items.wrapper.InvWrapper;
 
 import static com.minecolonies.api.util.constant.TranslationConstants.DESCRIPTION_BARRACKS_HIRE_SPIES;
 
@@ -56,7 +56,7 @@ public class WindowsBarracksSpies extends BOWindow implements ButtonHandler
 
     public WindowsBarracksSpies(final IBuildingView buildingView, final BlockPos buildingPos)
     {
-        super(new ResourceLocation(Constants.MOD_ID, "gui/windowbarracksspies.xml"));
+        super(new Identifier(Constants.MOD_ID, "gui/windowbarracksspies.xml"));
         this.buildingView = buildingView;
 
         findPaneOfTypeByID(SPIES_BUTTON_ICON, ItemIcon.class).setItem(Items.GOLD_INGOT.getDefaultInstance());

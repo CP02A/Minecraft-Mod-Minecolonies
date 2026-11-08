@@ -2,7 +2,7 @@ package com.minecolonies.api.tileentities;
 
 import com.minecolonies.core.tileentities.*;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.ldtteam.shim.neoforge.registries.DeferredHolder;
 
 public class MinecoloniesTileEntities
 {

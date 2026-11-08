@@ -35,9 +35,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
+import com.ldtteam.shim.api.distmarker.Dist;
+import com.ldtteam.shim.api.distmarker.OnlyIn;
+import com.ldtteam.shim.neoforge.entity.IEntityWithComplexSpawn;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -254,8 +254,8 @@ public class NewBobberEntity extends Projectile implements IEntityWithComplexSpa
     {
         ItemStack mainHandItem = citizen.getMainHandItem();
         ItemStack offHandItem = citizen.getOffhandItem();
-        boolean flag = mainHandItem.canPerformAction(net.neoforged.neoforge.common.ItemAbilities.FISHING_ROD_CAST);
-        boolean flag1 = offHandItem.canPerformAction(net.neoforged.neoforge.common.ItemAbilities.FISHING_ROD_CAST);
+        boolean flag = mainHandItem.canPerformAction(com.ldtteam.shim.neoforge.common.ItemAbilities.FISHING_ROD_CAST);
+        boolean flag1 = offHandItem.canPerformAction(com.ldtteam.shim.neoforge.common.ItemAbilities.FISHING_ROD_CAST);
         if (!citizen.isRemoved() && citizen.isAlive() && (flag || flag1) && !(this.distanceToSqr(citizen) > 1024.0))
         {
             return false;
@@ -270,7 +270,7 @@ public class NewBobberEntity extends Projectile implements IEntityWithComplexSpa
     private void checkCollision()
     {
         HitResult hitresult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
-        if (hitresult.getType() == HitResult.Type.MISS || !net.neoforged.neoforge.event.EventHooks.onProjectileImpact(this, hitresult)) this.onHit(hitresult);
+        if (hitresult.getType() == HitResult.Type.MISS || !com.ldtteam.shim.neoforge.event.EventHooks.onProjectileImpact(this, hitresult)) this.onHit(hitresult);
     }
 
     @Override

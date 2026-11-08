@@ -8,7 +8,7 @@ import com.minecolonies.core.colony.buildings.modules.WarehouseRequestQueueModul
 import com.minecolonies.core.colony.buildings.modules.WorkerBuildingModule;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import com.minecolonies.api.client.render.modeltype.ModModelTypes;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.buildings.workerbuildings.IWareHouse;
@@ -103,7 +103,7 @@ public class JobDeliveryman extends AbstractJob<EntityAIWorkDeliveryman, JobDeli
 
     @NotNull
     @Override
-    public ResourceLocation getModel()
+    public Identifier getModel()
     {
         return ModModelTypes.COURIER_ID;
     }

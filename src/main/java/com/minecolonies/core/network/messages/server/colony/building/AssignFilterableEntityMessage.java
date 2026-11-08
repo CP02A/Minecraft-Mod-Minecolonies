@@ -8,9 +8,9 @@ import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import com.minecolonies.core.colony.buildings.modules.EntityListModule;
 import com.minecolonies.core.network.messages.server.AbstractBuildingServerMessage;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import com.ldtteam.shim.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -28,7 +28,7 @@ public class AssignFilterableEntityMessage extends AbstractBuildingServerMessage
     /**
      * The entity in question.
      */
-    private final ResourceLocation entity;
+    private final Identifier entity;
 
     /**
      * The id of the module.
@@ -43,7 +43,7 @@ public class AssignFilterableEntityMessage extends AbstractBuildingServerMessage
      * @param entity     the entity to assign
      * @param building the building we're executing on.
      */
-    public AssignFilterableEntityMessage(final IBuildingView building, final int id, final ResourceLocation entity, final boolean assign)
+    public AssignFilterableEntityMessage(final IBuildingView building, final int id, final Identifier entity, final boolean assign)
     {
         super(TYPE, building);
         this.assign = assign;

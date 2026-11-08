@@ -6,11 +6,11 @@ import com.minecolonies.api.entity.ModEntities;
 import com.minecolonies.api.items.ModItems;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.items.*;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ArmorItem;
@@ -18,11 +18,11 @@ import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.common.DeferredSpawnEggItem;
-import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.RegisterEvent;
+import com.ldtteam.shim.bus.api.SubscribeEvent;
+import com.ldtteam.shim.fml.common.EventBusSubscriber;
+import com.ldtteam.shim.neoforge.common.DeferredSpawnEggItem;
+import com.ldtteam.shim.neoforge.registries.DeferredRegister;
+import com.ldtteam.shim.neoforge.registries.RegisterEvent;
 
 import java.util.EnumMap;
 import java.util.List;
@@ -102,19 +102,19 @@ public final class ModItemsInitializer
         ModItems.adventureToken = new ItemAdventureToken(new Item.Properties());
 
         ModItems.scrollColonyTP = new ItemScrollColonyTP(new Item.Properties().stacksTo(16));
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "scroll_tp"), ModItems.scrollColonyTP);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "scroll_tp"), ModItems.scrollColonyTP);
 
         ModItems.scrollColonyAreaTP = new ItemScrollColonyAreaTP(new Item.Properties().stacksTo(16));
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "scroll_area_tp"), ModItems.scrollColonyAreaTP);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "scroll_area_tp"), ModItems.scrollColonyAreaTP);
 
         ModItems.scrollBuff = new ItemScrollBuff(new Item.Properties().stacksTo(16));
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "scroll_buff"), ModItems.scrollBuff);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "scroll_buff"), ModItems.scrollBuff);
 
         ModItems.scrollGuardHelp = new ItemScrollGuardHelp(new Item.Properties().stacksTo(16));
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "scroll_guard_help"), ModItems.scrollGuardHelp);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "scroll_guard_help"), ModItems.scrollGuardHelp);
 
         ModItems.scrollHighLight = new ItemScrollHighlight(new Item.Properties().stacksTo(16));
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "scroll_highlight"), ModItems.scrollHighLight);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "scroll_highlight"), ModItems.scrollHighLight);
 
         ModItems.santaHat = new ItemSantaHead("santa_hat", SANTA_HAT, ArmorItem.Type.HELMET, new Item.Properties());
         ModItems.irongate = new ItemGate(IRON_GATE, ModBlocks.blockIronGate, new Item.Properties());
@@ -251,220 +251,220 @@ public final class ModItemsInitializer
         ModItems.large_water_bottle = new ItemLargeBottle((new Item.Properties().craftRemainder(ModItems.large_empty_bottle)));
         ModItems.large_soy_milk_bottle = new ItemLargeBottle((new Item.Properties().craftRemainder(ModItems.large_empty_bottle)));
 
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "supplychestdeployer"), ModItems.supplyChest);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "scan_analyzer"), ModItems.scanAnalyzer);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "scepterpermission"), ModItems.permTool);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "scepterguard"), ModItems.scepterGuard);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "banner_rally_guards"), ModItems.bannerRallyGuards);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "supplycampdeployer"), ModItems.supplyCamp);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "ancienttome"), ModItems.ancientTome);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "chiefsword"), ModItems.chiefSword);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "clipboard"), ModItems.clipboard);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "compost"), ModItems.compost);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "resourcescroll"), ModItems.resourceScroll);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "iron_scimitar"), ModItems.scimitar);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "scepterlumberjack"), ModItems.scepterLumberjack);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "pharaoscepter"), ModItems.pharaoscepter);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "firearrow"), ModItems.firearrow);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "scepterbeekeeper"), ModItems.scepterBeekeeper);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "mistletoe"), ModItems.mistletoe);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "spear"), ModItems.spear);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "questlog"), ModItems.questLog);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "colonymap"), ModItems.colonyMap);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "assistanthammer_gold"), ModItems.assistantHammer_Gold);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "assistanthammer_iron"), ModItems.assistantHammer_Iron);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "assistanthammer_diamond"), ModItems.assistantHammer_Diamond);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "supplychestdeployer"), ModItems.supplyChest);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "scan_analyzer"), ModItems.scanAnalyzer);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "scepterpermission"), ModItems.permTool);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "scepterguard"), ModItems.scepterGuard);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "banner_rally_guards"), ModItems.bannerRallyGuards);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "supplycampdeployer"), ModItems.supplyCamp);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "ancienttome"), ModItems.ancientTome);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "chiefsword"), ModItems.chiefSword);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "clipboard"), ModItems.clipboard);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "compost"), ModItems.compost);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "resourcescroll"), ModItems.resourceScroll);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "iron_scimitar"), ModItems.scimitar);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "scepterlumberjack"), ModItems.scepterLumberjack);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "pharaoscepter"), ModItems.pharaoscepter);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "firearrow"), ModItems.firearrow);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "scepterbeekeeper"), ModItems.scepterBeekeeper);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "mistletoe"), ModItems.mistletoe);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "spear"), ModItems.spear);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "questlog"), ModItems.questLog);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "colonymap"), ModItems.colonyMap);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "assistanthammer_gold"), ModItems.assistantHammer_Gold);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "assistanthammer_iron"), ModItems.assistantHammer_Iron);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "assistanthammer_diamond"), ModItems.assistantHammer_Diamond);
 
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "bread_dough"), ModItems.breadDough);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "cookie_dough"), ModItems.cookieDough);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "cake_batter"), ModItems.cakeBatter);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "raw_pumpkin_pie"), ModItems.rawPumpkinPie);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "bread_dough"), ModItems.breadDough);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "cookie_dough"), ModItems.cookieDough);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "cake_batter"), ModItems.cakeBatter);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "raw_pumpkin_pie"), ModItems.rawPumpkinPie);
 
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "milky_bread"), ModItems.milkyBread);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "sugary_bread"), ModItems.sugaryBread);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "golden_bread"), ModItems.goldenBread);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "chorus_bread"), ModItems.chorusBread);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "milky_bread"), ModItems.milkyBread);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "sugary_bread"), ModItems.sugaryBread);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "golden_bread"), ModItems.goldenBread);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "chorus_bread"), ModItems.chorusBread);
 
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "adventure_token"), ModItems.adventureToken);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "adventure_token"), ModItems.adventureToken);
 
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "pirate_hat"), ModItems.pirateHelmet_1);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "pirate_top"), ModItems.pirateChest_1);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "pirate_leggins"), ModItems.pirateLegs_1);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "pirate_boots"), ModItems.pirateBoots_1);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "pirate_hat"), ModItems.pirateHelmet_1);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "pirate_top"), ModItems.pirateChest_1);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "pirate_leggins"), ModItems.pirateLegs_1);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "pirate_boots"), ModItems.pirateBoots_1);
 
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "pirate_cap"), ModItems.pirateHelmet_2);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "pirate_chest"), ModItems.pirateChest_2);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "pirate_legs"), ModItems.pirateLegs_2);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "pirate_shoes"), ModItems.pirateBoots_2);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "pirate_cap"), ModItems.pirateHelmet_2);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "pirate_chest"), ModItems.pirateChest_2);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "pirate_legs"), ModItems.pirateLegs_2);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "pirate_shoes"), ModItems.pirateBoots_2);
 
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "plate_armor_helmet"), ModItems.plateArmorHelmet);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "plate_armor_chest"), ModItems.plateArmorChest);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "plate_armor_legs"), ModItems.plateArmorLegs);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "plate_armor_boots"), ModItems.plateArmorBoots);
-
-
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "santa_hat"), ModItems.santaHat);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, IRON_GATE), ModItems.irongate);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, WOODEN_GATE), ModItems.woodgate);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "colony_banner"), ModItems.flagBanner);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "plate_armor_helmet"), ModItems.plateArmorHelmet);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "plate_armor_chest"), ModItems.plateArmorChest);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "plate_armor_legs"), ModItems.plateArmorLegs);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "plate_armor_boots"), ModItems.plateArmorBoots);
 
 
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "sifter_mesh_string"), ModItems.sifterMeshString);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "sifter_mesh_flint"), ModItems.sifterMeshFlint);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "sifter_mesh_iron"), ModItems.sifterMeshIron);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "sifter_mesh_diamond"), ModItems.sifterMeshDiamond);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "santa_hat"), ModItems.santaHat);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, IRON_GATE), ModItems.irongate);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, WOODEN_GATE), ModItems.woodgate);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "colony_banner"), ModItems.flagBanner);
 
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "magicpotion"), ModItems.magicpotion);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "build_goggles"), ModItems.buildGoggles);
 
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "butter"), ModItems.butter);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "cabochis"), ModItems.cabochis);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "cheddar_cheese"), ModItems.cheddar_cheese);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "congee"), ModItems.congee);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "cooked_rice"), ModItems.cooked_rice);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "eggplant_dolma"), ModItems.eggplant_dolma);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "feta_cheese"), ModItems.feta_cheese);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "flatbread"), ModItems.flatbread);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "hand_pie"), ModItems.hand_pie);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "lamb_stew"), ModItems.lamb_stew);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "lembas_scone"), ModItems.lembas_scone);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "manchet_bread"), ModItems.manchet_bread);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "manchet_dough"), ModItems.manchet_dough);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "muffin"), ModItems.muffin);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "muffin_dough"), ModItems.muffin_dough);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "pasta_plain"), ModItems.pasta_plain);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "pasta_tomato"), ModItems.pasta_tomato);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "pepper_hummus"), ModItems.pepper_hummus);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "pita_hummus"), ModItems.pita_hummus);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "pottage"), ModItems.pottage);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "raw_noodle"), ModItems.raw_noodle);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "rice_ball"), ModItems.rice_ball);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "stew_trencher"), ModItems.stew_trencher);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "stuffed_pepper"), ModItems.stuffed_pepper);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "stuffed_pita"), ModItems.stuffed_pita);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "sushi_roll"), ModItems.sushi_roll);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "tofu"), ModItems.tofu);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "sifter_mesh_string"), ModItems.sifterMeshString);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "sifter_mesh_flint"), ModItems.sifterMeshFlint);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "sifter_mesh_iron"), ModItems.sifterMeshIron);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "sifter_mesh_diamond"), ModItems.sifterMeshDiamond);
 
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "cheese_ravioli"), ModItems.cheese_ravioli);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "chicken_broth"), ModItems.chicken_broth);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "corn_chowder"), ModItems.corn_chowder);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "spicy_grilled_chicken"), ModItems.spicy_grilled_chicken);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "kebab"), ModItems.kebab);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "meat_ravioli"), ModItems.meat_ravioli);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "mint_jelly"), ModItems.mint_jelly);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "mint_tea"), ModItems.mint_tea);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "pea_soup"), ModItems.pea_soup);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "polenta"), ModItems.polenta);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "potato_soup"), ModItems.potato_soup);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "squash_soup"), ModItems.squash_soup);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "veggie_ravioli"), ModItems.veggie_ravioli);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "yogurt"), ModItems.yogurt);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "baked_salmon"), ModItems.baked_salmon);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "eggdrop_soup"), ModItems.eggdrop_soup);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "fish_n_chips"), ModItems.fish_n_chips);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "kimchi"), ModItems.kimchi);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "pierogi"), ModItems.pierogi);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "veggie_quiche"), ModItems.veggie_quiche);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "veggie_soup"), ModItems.veggie_soup);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "yogurt_with_berries"), ModItems.yogurt_with_berries);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "borscht"), ModItems.borscht);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "fish_dinner"), ModItems.fish_dinner);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "mutton_dinner"), ModItems.mutton_dinner);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "ramen"), ModItems.ramen);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "fried_rice"), ModItems.fried_rice);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "schnitzel"), ModItems.schnitzel);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "steak_dinner"), ModItems.steak_dinner);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "tacos"), ModItems.tacos);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "cornmeal"), ModItems.cornmeal);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "creamcheese"), ModItems.creamcheese);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "soysauce"), ModItems.soysauce);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "tortillas"), ModItems.tortillas);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "apple_pie"), ModItems.apple_pie);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "cheese_pizza"), ModItems.cheese_pizza);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "mushroom_pizza"), ModItems.mushroom_pizza);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "plain_cheesecake"), ModItems.plain_cheesecake);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "mintchoco_cheesecake"), ModItems.mintchoco_cheesecake);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "spicy_eggplant"), ModItems.spicy_eggplant);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "magicpotion"), ModItems.magicpotion);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "build_goggles"), ModItems.buildGoggles);
 
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "large_empty_bottle"), ModItems.large_empty_bottle);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "large_water_bottle"), ModItems.large_water_bottle);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "large_milk_bottle"), ModItems.large_milk_bottle);
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "large_soy_milk_bottle"), ModItems.large_soy_milk_bottle);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "butter"), ModItems.butter);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "cabochis"), ModItems.cabochis);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "cheddar_cheese"), ModItems.cheddar_cheese);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "congee"), ModItems.congee);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "cooked_rice"), ModItems.cooked_rice);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "eggplant_dolma"), ModItems.eggplant_dolma);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "feta_cheese"), ModItems.feta_cheese);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "flatbread"), ModItems.flatbread);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "hand_pie"), ModItems.hand_pie);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "lamb_stew"), ModItems.lamb_stew);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "lembas_scone"), ModItems.lembas_scone);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "manchet_bread"), ModItems.manchet_bread);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "manchet_dough"), ModItems.manchet_dough);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "muffin"), ModItems.muffin);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "muffin_dough"), ModItems.muffin_dough);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "pasta_plain"), ModItems.pasta_plain);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "pasta_tomato"), ModItems.pasta_tomato);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "pepper_hummus"), ModItems.pepper_hummus);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "pita_hummus"), ModItems.pita_hummus);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "pottage"), ModItems.pottage);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "raw_noodle"), ModItems.raw_noodle);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "rice_ball"), ModItems.rice_ball);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "stew_trencher"), ModItems.stew_trencher);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "stuffed_pepper"), ModItems.stuffed_pepper);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "stuffed_pita"), ModItems.stuffed_pita);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "sushi_roll"), ModItems.sushi_roll);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "tofu"), ModItems.tofu);
 
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "barbarianegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_BARBARIAN,
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "cheese_ravioli"), ModItems.cheese_ravioli);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "chicken_broth"), ModItems.chicken_broth);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "corn_chowder"), ModItems.corn_chowder);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "spicy_grilled_chicken"), ModItems.spicy_grilled_chicken);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "kebab"), ModItems.kebab);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "meat_ravioli"), ModItems.meat_ravioli);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "mint_jelly"), ModItems.mint_jelly);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "mint_tea"), ModItems.mint_tea);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "pea_soup"), ModItems.pea_soup);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "polenta"), ModItems.polenta);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "potato_soup"), ModItems.potato_soup);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "squash_soup"), ModItems.squash_soup);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "veggie_ravioli"), ModItems.veggie_ravioli);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "yogurt"), ModItems.yogurt);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "baked_salmon"), ModItems.baked_salmon);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "eggdrop_soup"), ModItems.eggdrop_soup);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "fish_n_chips"), ModItems.fish_n_chips);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "kimchi"), ModItems.kimchi);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "pierogi"), ModItems.pierogi);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "veggie_quiche"), ModItems.veggie_quiche);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "veggie_soup"), ModItems.veggie_soup);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "yogurt_with_berries"), ModItems.yogurt_with_berries);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "borscht"), ModItems.borscht);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "fish_dinner"), ModItems.fish_dinner);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "mutton_dinner"), ModItems.mutton_dinner);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "ramen"), ModItems.ramen);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "fried_rice"), ModItems.fried_rice);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "schnitzel"), ModItems.schnitzel);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "steak_dinner"), ModItems.steak_dinner);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "tacos"), ModItems.tacos);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "cornmeal"), ModItems.cornmeal);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "creamcheese"), ModItems.creamcheese);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "soysauce"), ModItems.soysauce);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "tortillas"), ModItems.tortillas);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "apple_pie"), ModItems.apple_pie);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "cheese_pizza"), ModItems.cheese_pizza);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "mushroom_pizza"), ModItems.mushroom_pizza);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "plain_cheesecake"), ModItems.plain_cheesecake);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "mintchoco_cheesecake"), ModItems.mintchoco_cheesecake);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "spicy_eggplant"), ModItems.spicy_eggplant);
+
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "large_empty_bottle"), ModItems.large_empty_bottle);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "large_water_bottle"), ModItems.large_water_bottle);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "large_milk_bottle"), ModItems.large_milk_bottle);
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "large_soy_milk_bottle"), ModItems.large_soy_milk_bottle);
+
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "barbarianegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_BARBARIAN,
                 Color.getByName("orange"),
                 Color.getByName("black"),
                 (new Item.Properties())));
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "barbarcheregg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_ARCHERBARBARIAN,
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "barbarcheregg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_ARCHERBARBARIAN,
                 Color.getByName("orange"),
                 Color.getByName("green"),
                 (new Item.Properties())));
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "barbchiefegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_CHIEFBARBARIAN,
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "barbchiefegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_CHIEFBARBARIAN,
                 Color.getByName("orange"),
                 Color.getByName("yellow"),
                 (new Item.Properties())));
 
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "pirateegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_PIRATE,
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "pirateegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_PIRATE,
                 Color.getByName("red"),
                 Color.getByName("white"),
                 (new Item.Properties())));
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "piratearcheregg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_ARCHERPIRATE,
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "piratearcheregg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_ARCHERPIRATE,
                 Color.getByName("red"),
                 Color.getByName("green"),
                 (new Item.Properties())));
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "piratecaptainegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_CHIEFPIRATE,
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "piratecaptainegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_CHIEFPIRATE,
                 Color.getByName("red"),
                 Color.getByName("yellow"),
                 (new Item.Properties())));
 
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "mummyegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_MUMMY,
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "mummyegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_MUMMY,
                 Color.getByName("yellow"),
                 Color.getByName("white"),
                 (new Item.Properties())));
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "mummyarcheregg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_ARCHERMUMMY,
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "mummyarcheregg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_ARCHERMUMMY,
                 Color.getByName("yellow"),
                 Color.getByName("green"),
                 (new Item.Properties())));
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "pharaoegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_PHARAO,
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "pharaoegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_PHARAO,
                 Color.getByName("yellow"),
                 Color.getByName("yellow"),
                 (new Item.Properties())));
 
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "shieldmaidenegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_SHIELDMAIDEN,
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "shieldmaidenegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_SHIELDMAIDEN,
                 Color.getByName("black"),
                 Color.getByName("white"),
                 (new Item.Properties())));
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "norsemenarcheregg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_NORSEMEN_ARCHER,
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "norsemenarcheregg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_NORSEMEN_ARCHER,
                 Color.getByName("black"),
                 Color.getByName("green"),
                 (new Item.Properties())));
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "norsemenchiefegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_NORSEMEN_CHIEF,
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "norsemenchiefegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_NORSEMEN_CHIEF,
                 Color.getByName("black"),
                 Color.getByName("yellow"),
                 (new Item.Properties())));
 
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "amazonegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_AMAZON,
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "amazonegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_AMAZON,
                 Color.getByName("green"),
                 Color.getByName("white"),
                 (new Item.Properties())));
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "amazonspearmanegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_AMAZONSPEARMAN,
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "amazonspearmanegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_AMAZONSPEARMAN,
                 Color.getByName("green"),
                 Color.getByName("green"),
                 new Item.Properties()));
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "amazonchiefegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_AMAZONCHIEF,
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "amazonchiefegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_AMAZONCHIEF,
                 Color.getByName("green"),
                 Color.getByName("yellow"),
                 (new Item.Properties())));
 
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "drownedpirateegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_DROWNED_PIRATE,
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "drownedpirateegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_DROWNED_PIRATE,
                 Color.getByName("blue"),
                 Color.getByName("white"),
                 (new Item.Properties())));
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "drownedpiratearcheregg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_DROWNED_ARCHERPIRATE,
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "drownedpiratearcheregg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_DROWNED_ARCHERPIRATE,
                 Color.getByName("blue"),
                 Color.getByName("green"),
                 new Item.Properties()));
-        Registry.register(registry, new ResourceLocation(Constants.MOD_ID, "drownedpiratecaptainegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_DROWNED_CHIEFPIRATE,
+        Registry.register(registry, new Identifier(Constants.MOD_ID, "drownedpiratecaptainegg"), new DeferredSpawnEggItem(() -> ModEntities.CAMP_DROWNED_CHIEFPIRATE,
                 Color.getByName("blue"),
                 Color.getByName("yellow"),
                 (new Item.Properties())));
@@ -482,7 +482,7 @@ public final class ModItemsInitializer
       SoundEvents.ARMOR_EQUIP_LEATHER,
       () -> Ingredient.EMPTY,
       List.of(
-        new ArmorMaterial.Layer(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID,"santa_hat"), "", true)
+        new ArmorMaterial.Layer(Identifier.fromNamespaceAndPath(Constants.MOD_ID,"santa_hat"), "", true)
       ),
       0,
       0
@@ -500,7 +500,7 @@ public final class ModItemsInitializer
       SoundEvents.ARMOR_EQUIP_IRON,
       () -> Ingredient.of(Items.IRON_INGOT),
       List.of(
-        new ArmorMaterial.Layer(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID,"plate_armor"), "", true)
+        new ArmorMaterial.Layer(Identifier.fromNamespaceAndPath(Constants.MOD_ID,"plate_armor"), "", true)
       ),
       0,
       0
@@ -518,7 +518,7 @@ public final class ModItemsInitializer
       SoundEvents.ARMOR_EQUIP_LEATHER,
       () -> Ingredient.EMPTY,
       List.of(
-        new ArmorMaterial.Layer(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID,"build_goggles"), "", true)
+        new ArmorMaterial.Layer(Identifier.fromNamespaceAndPath(Constants.MOD_ID,"build_goggles"), "", true)
       ),
       0,
       0
@@ -536,7 +536,7 @@ public final class ModItemsInitializer
       SoundEvents.ARMOR_EQUIP_LEATHER,
       () -> Ingredient.of(Items.DIAMOND),
       List.of(
-        new ArmorMaterial.Layer(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID,"pirate"), "", true)
+        new ArmorMaterial.Layer(Identifier.fromNamespaceAndPath(Constants.MOD_ID,"pirate"), "", true)
       ),
       0,
       0
@@ -554,7 +554,7 @@ public final class ModItemsInitializer
       SoundEvents.ARMOR_EQUIP_LEATHER,
       () -> Ingredient.of(Items.DIAMOND),
       List.of(
-        new ArmorMaterial.Layer(ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "pirate2"), "", true)
+        new ArmorMaterial.Layer(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "pirate2"), "", true)
       ),
       2,
       0

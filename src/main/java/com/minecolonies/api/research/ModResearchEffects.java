@@ -2,15 +2,15 @@ package com.minecolonies.api.research;
 
 import com.minecolonies.api.util.constant.Constants;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import net.minecraft.resources.Identifier;
+import com.ldtteam.shim.neoforge.registries.DeferredHolder;
 
 /**
  * Contains a list of research effects by type. Currently only supports absolute modifiers through Global Research Effect.
  */
 public class ModResearchEffects
 {
-    public static final ResourceLocation GLOBAL_EFFECT_ID = new ResourceLocation(Constants.MOD_ID, "global");
+    public static final Identifier GLOBAL_EFFECT_ID = new Identifier(Constants.MOD_ID, "global");
 
     public static DeferredHolder<ResearchEffectEntry, ResearchEffectEntry> globalResearchEffect;
 
@@ -33,7 +33,7 @@ public class ModResearchEffects
         /**
          * The registry name for this entry.
          */
-        private final ResourceLocation registryName;
+        private final Identifier registryName;
 
         /**
          * Function to read this item from NBT.
@@ -47,7 +47,7 @@ public class ModResearchEffects
          * @param readFromNBT  function to read this item from json.
          */
         public ResearchEffectEntry(
-            final ResourceLocation registryName,
+            final Identifier registryName,
             final ReadFromNBTFunction readFromNBT)
         {
             this.registryName = registryName;
@@ -57,7 +57,7 @@ public class ModResearchEffects
         /**
          * Get the registry name for this entry.
          */
-        public ResourceLocation getRegistryName()
+        public Identifier getRegistryName()
         {
             return registryName;
         }

@@ -20,7 +20,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
@@ -108,7 +108,7 @@ public class JourneymapPlugin implements IClientPlugin
             else
             {
                 final String jobId = entity.getEntityData().get(DATA_JOB);
-                final JobEntry jobEntry = jobId.isEmpty() ? null : IJobRegistry.getInstance().get(ResourceLocation.parse(jobId));
+                final JobEntry jobEntry = jobId.isEmpty() ? null : IJobRegistry.getInstance().get(Identifier.parse(jobId));
                 final IJob<?> job = jobEntry == null ? null : jobEntry.produceJob(null);
 
                 if (job instanceof AbstractJobGuard

@@ -47,13 +47,13 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import com.minecolonies.core.entity.other.cavalry.CavalryHorseEntity;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.registries.RegisterEvent;
+import com.ldtteam.shim.bus.api.SubscribeEvent;
+import com.ldtteam.shim.fml.common.EventBusSubscriber;
+import com.ldtteam.shim.neoforge.registries.RegisterEvent;
 import org.jetbrains.annotations.Nullable;
 
 import static com.minecolonies.api.util.constant.CitizenConstants.CITIZEN_HEIGHT;
@@ -366,7 +366,7 @@ public class EntityInitializer
     private static <T extends Entity> EntityType<T> build(Registry<EntityType<?>> registry, final String key, final EntityType.Builder<T> builder)
     {
         EntityType<T> entity = builder.build(Constants.MOD_ID + ":" + key);
-        Registry.register(registry, ResourceLocation.parse(Constants.MOD_ID + ":" + key), entity);
+        Registry.register(registry, Identifier.parse(Constants.MOD_ID + ":" + key), entity);
         return entity;
     }
 

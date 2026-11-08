@@ -7,7 +7,7 @@ import com.minecolonies.core.client.gui.townhall.WindowTownHallColonyReactivate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import com.ldtteam.shim.neoforge.network.handling.IPayloadContext;
 
 /**
  * Message to open the colony founding covenant.

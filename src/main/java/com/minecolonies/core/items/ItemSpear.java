@@ -14,8 +14,8 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TridentItem;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.ItemAbilities;
-import net.neoforged.neoforge.common.ItemAbility;
+import com.ldtteam.shim.neoforge.common.ItemAbilities;
+import com.ldtteam.shim.neoforge.common.ItemAbility;
 import org.jetbrains.annotations.NotNull;
 
 
