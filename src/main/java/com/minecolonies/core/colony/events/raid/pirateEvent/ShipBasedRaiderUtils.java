@@ -90,11 +90,11 @@ public final class ShipBasedRaiderUtils
         world.setBlockAndUpdate(location, Blocks.SPAWNER.defaultBlockState());
         final SpawnerBlockEntity spawner = new SpawnerBlockEntity(location, Blocks.SPAWNER.defaultBlockState());
 
-        spawner.getSpawner().requiredPlayerRange = SPAWNER_DISTANCE;
+        ((com.minecolonies.fabric.mixin.colony.BaseSpawnerAccessor) spawner.getSpawner()).minecolonies$setRequiredPlayerRange(SPAWNER_DISTANCE);
         spawner.getSpawner().setEntityId(mob, world, world.getRandom(), location);
         // Sets nbt for mobs to spawn, assumes colony in same dimension as mob.
-        spawner.getSpawner().nextSpawnData.getEntityToSpawn().putInt(TAG_EVENT_ID, event.getID());
-        spawner.getSpawner().nextSpawnData.getEntityToSpawn().putInt(TAG_COLONY_ID, colonyId);
+        ((com.minecolonies.fabric.mixin.colony.BaseSpawnerAccessor) spawner.getSpawner()).minecolonies$getNextSpawnData().getEntityToSpawn().putInt(TAG_EVENT_ID, event.getID());
+        ((com.minecolonies.fabric.mixin.colony.BaseSpawnerAccessor) spawner.getSpawner()).minecolonies$getNextSpawnData().getEntityToSpawn().putInt(TAG_COLONY_ID, colonyId);
 
         event.addSpawner(location);
         world.setBlockEntity(spawner);
@@ -168,7 +168,7 @@ public final class ShipBasedRaiderUtils
 
         allowedShipMaterials.add(BlockBehaviour.BlockStateBase::liquid);
         allowedShipMaterials.add(state -> state.is(BlockTags.ICE));
-        allowedShipMaterials.add(state -> !state.blocksMotion() && state.getFluidState().is(FluidTags.WATER));
+        allowedShipMaterials.add(state -> !(state.isSolid() && !state.is(net.minecraft.world.level.block.Blocks.COBWEB) && !state.is(net.minecraft.world.level.block.Blocks.BAMBOO_SAPLING)) && state.getFluidState().is(FluidTags.WATER));
 
         if (MineColonies.getConfig().getServer().skyRaiders.get())
         {
@@ -251,7 +251,8 @@ public final class ShipBasedRaiderUtils
                 {
                     for (int i = 1; i <= 5; i++)
                     {
-                        if (world.getBlockState(new BlockPos(from.getX() + (x * xDir), baseY + i, from.getZ() + (z * zDir))).blocksMotion())
+                        final BlockState motionState = world.getBlockState(new BlockPos(from.getX() + (x * xDir), baseY + i, from.getZ() + (z * zDir)));
+                        if (motionState.isSolid() && !motionState.is(Blocks.COBWEB) && !motionState.is(Blocks.BAMBOO_SAPLING))
                         {
                             suitableBlock = false;
                             break;
@@ -330,8 +331,8 @@ public final class ShipBasedRaiderUtils
                   startPos,
                   30,
                   3,
-                  (world, pos) -> (world.getBlockState(pos).isSolid() || world.getBlockState(pos).liquid()) && !world.getBlockState(
-                    pos.above()).blocksMotion() && !world.getBlockState(pos.above(2)).blocksMotion());
+                  (world, pos) -> (world.getBlockState(pos).isSolid() || world.getBlockState(pos).liquid()) && !com.minecolonies.core.colony.BlockCompat.blocksMotion(world.getBlockState(
+                    pos.above())) && !com.minecolonies.core.colony.BlockCompat.blocksMotion(world.getBlockState(pos.above(2))));
             }
             else
             {
@@ -350,7 +351,7 @@ public final class ShipBasedRaiderUtils
         final int sqMaxDist = maxDistance * maxDistance;
         final int sqMinDist = minDistance * minDistance;
 
-        BlockPos tempPos = new BlockPos(startPos);
+        BlockPos tempPos = startPos.immutable();
 
         for (int i = 0; i < accuracy; i++)
         {
@@ -385,7 +386,7 @@ public final class ShipBasedRaiderUtils
             {
                 for (int z = -radius; z <= radius; z++)
                 {
-                    if (!world.getBlockState(spawnPos.offset(x, y, z)).blocksMotion() && !world.getBlockState(spawnPos.offset(x, y + 1, z)).blocksMotion())
+                    if (!com.minecolonies.core.colony.BlockCompat.blocksMotion(world.getBlockState(spawnPos.offset(x, y, z))) && !com.minecolonies.core.colony.BlockCompat.blocksMotion(world.getBlockState(spawnPos.offset(x, y + 1, z))))
                     {
                         return spawnPos.offset(x, y, z);
                     }

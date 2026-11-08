@@ -192,7 +192,7 @@ public final class CraftingUtils
                     stacks = new HashSet<>();
                     try
                     {
-                        EventHooks.onCreativeModeTabBuildContents(tab, tabKeys.get(tab), tab.displayItemsGenerator, displayParams, (stack, vis) -> stacks.add(stack));
+                        EventHooks.onCreativeModeTabBuildContents(tab, tabKeys.get(tab), ((com.minecolonies.fabric.mixin.api.CreativeModeTabAccessor) tab).minecolonies$getDisplayItemsGenerator(), displayParams, (stack, vis) -> stacks.add(stack));
                     }
                     catch (final Throwable ex)
                     {

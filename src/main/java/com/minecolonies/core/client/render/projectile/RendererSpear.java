@@ -3,29 +3,27 @@ package com.minecolonies.core.client.render.projectile;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.model.SpearModel;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.entity.state.ThrownTridentRenderState;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.projectile.ThrownTrident;
-import com.ldtteam.shim.api.distmarker.Dist;
-import com.ldtteam.shim.api.distmarker.OnlyIn;
+import net.minecraft.util.Unit;
+import net.minecraft.world.entity.projectile.arrow.ThrownTrident;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Custom renderer for spears
  */
-@OnlyIn(Dist.CLIENT)
-public class RendererSpear extends EntityRenderer<ThrownTrident>
+public class RendererSpear extends EntityRenderer<ThrownTrident, ThrownTridentRenderState>
 {
-    private final Identifier texture = new Identifier(Constants.MOD_ID, "textures/entity/spear.png");
-    private final SpearModel       model ;
+    private final Identifier texture = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/entity/spear.png");
+    private final SpearModel model;
 
     /**
      * Create a new spear renderer.
@@ -38,22 +36,36 @@ public class RendererSpear extends EntityRenderer<ThrownTrident>
     }
 
     @Override
-    public void render(@NotNull final ThrownTrident entity, final float entityYaw, final float partialTicks, @NotNull final PoseStack stack, @NotNull final MultiBufferSource buffer, final int light)
+    public ThrownTridentRenderState createRenderState()
     {
-        super.render(entity, entityYaw, partialTicks, stack, buffer, light);
-
-        stack.pushPose();
-        stack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F));
-        stack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTicks, entity.xRotO, entity.getXRot()) + 90.0F));
-        VertexConsumer vertexconsumer = ItemRenderer.getFoilBufferDirect(buffer, this.model.renderType(this.getTextureLocation(entity)), false, entity.isFoil());
-        model.renderToBuffer(stack, vertexconsumer, light, OverlayTexture.NO_OVERLAY, -1);
-        stack.popPose();
+        return new ThrownTridentRenderState();
     }
 
-    @NotNull
     @Override
-    public Identifier getTextureLocation(@NotNull final ThrownTrident spearEntity)
+    public void extractRenderState(final ThrownTrident entity, final ThrownTridentRenderState state, final float partialTicks)
     {
-        return texture;
+        super.extractRenderState(entity, state, partialTicks);
+        state.yRot = entity.getYRot(partialTicks);
+        state.xRot = entity.getXRot(partialTicks);
+        state.isFoil = entity.isFoil();
+    }
+
+    @Override
+    public void submit(@NotNull final ThrownTridentRenderState state, @NotNull final PoseStack stack, @NotNull final SubmitNodeCollector submitNodeCollector, @NotNull final CameraRenderState camera)
+    {
+        super.submit(state, stack, submitNodeCollector, camera);
+
+        stack.pushPose();
+        stack.rotate(Axis.YP.rotationDegrees(state.yRot - 90.0F));
+        stack.rotate(Axis.ZP.rotationDegrees(state.xRot + 90.0F));
+        if (state.isFoil)
+        {
+            submitNodeCollector.submitModel(model, Unit.INSTANCE, stack, RenderTypes.entitySolidGlint(texture), state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor);
+        }
+        else
+        {
+            submitNodeCollector.submitModel(model, Unit.INSTANCE, stack, texture, state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor);
+        }
+        stack.popPose();
     }
 }

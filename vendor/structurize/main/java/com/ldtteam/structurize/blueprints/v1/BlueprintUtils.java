@@ -12,7 +12,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import com.ldtteam.shim.neoforge.client.model.data.ModelData;
+import com.ldtteam.shim.neoforge.model.data.ModelData;
+import com.ldtteam.shim.neoforge.model.data.ModelDataHelper;
+import com.ldtteam.structurize.util.ValueIOUtils;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import org.jetbrains.annotations.Nullable;
@@ -51,7 +55,7 @@ public final class BlueprintUtils
                 final BlockEntity be = constructTileEntity(blockInfo, beLevel, blueprint.getRegistryAccess());
                 if (be != null)
                 {
-                    teModelData.put(blockInfo.getPos(), be.getModelData());
+                    teModelData.put(blockInfo.getPos(), ModelDataHelper.getModelData(be));
                     return new BlockEntityInfo(blockInfo.getPos(), be);
                 }
                 else
@@ -86,7 +90,7 @@ public final class BlueprintUtils
     {
         if (info == null || info.getTileEntityData() == null) return null;
 
-        final String entityId = info.getTileEntityData().getString("id");
+        final String entityId = info.getTileEntityData().getStringOr("id", "");
 
         try
         {
@@ -125,20 +129,20 @@ public final class BlueprintUtils
     {
         if (info == null) return null;
 
-        final String entityId = info.getString("id");
+        final String entityId = info.getStringOr("id", "");
 
         try
         {
             final CompoundTag compound = info.copy();
-            compound.putUUID("UUID", UUID.randomUUID());
-            final Optional<EntityType<?>> type = EntityType.by(compound);
+            compound.store("UUID", UUIDUtil.CODEC, UUID.randomUUID());
+            final Optional<EntityType<?>> type = ValueIOUtils.entityType(compound, entityLevel.registryAccess());
             if (type.isPresent())
             {    
-                final Entity entity = type.get().create(entityLevel);
+                final Entity entity = type.get().create(entityLevel, EntitySpawnReason.LOAD);
     
                 if (entity != null)
                 {
-                    entity.load(compound);
+                    ValueIOUtils.loadEntity(entity, compound);
 
                     // prevent ticking rotations
                     entity.setOldPosAndRot();

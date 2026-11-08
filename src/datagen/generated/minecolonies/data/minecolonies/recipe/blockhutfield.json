@@ -3,19 +3,11 @@
   "category": "misc",
   "key": {
     "H": [
-      {
-        "item": "minecraft:hay_block"
-      },
-      {
-        "item": "minecraft:pumpkin"
-      }
+      "minecraft:hay_block",
+      "minecraft:pumpkin"
     ],
-    "L": {
-      "item": "minecraft:leather"
-    },
-    "S": {
-      "item": "minecraft:stick"
-    }
+    "L": "minecraft:leather",
+    "S": "minecraft:stick"
   },
   "pattern": [
     " H ",
@@ -23,7 +15,6 @@
     " S "
   ],
   "result": {
-    "count": 1,
     "id": "minecolonies:blockhutfield"
   }
 }

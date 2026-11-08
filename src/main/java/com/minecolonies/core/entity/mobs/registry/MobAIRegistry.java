@@ -102,7 +102,7 @@ public class MobAIRegistry implements IMobAIRegistry
         {
             if (task.entityPredicate.test(mob))
             {
-                mob.goalSelector.addGoal(task.priority, task.aiTaskProducer.apply(mob));
+                mob.getGoalSelector().addGoal(task.priority, task.aiTaskProducer.apply(mob));
             }
         }
 
@@ -110,7 +110,7 @@ public class MobAIRegistry implements IMobAIRegistry
         {
             if (task.entityPredicate.test(mob))
             {
-                mob.goalSelector.addGoal(task.priority, task.aiTaskProducer.apply(mob));
+                mob.getGoalSelector().addGoal(task.priority, task.aiTaskProducer.apply(mob));
             }
         }
     }

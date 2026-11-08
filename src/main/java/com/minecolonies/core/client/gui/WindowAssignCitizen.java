@@ -75,7 +75,7 @@ public class WindowAssignCitizen extends AbstractWindowSkeleton implements Butto
      */
     public WindowAssignCitizen(final IColonyView c, final LivingBuildingView building)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/windowassigncitizen.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowassigncitizen.xml"));
         this.colony = c;
         this.building = building;
         unassignedCitizenList = findPaneOfTypeByID(UNASSIGNED_CITIZEN_LIST, ScrollingList.class);

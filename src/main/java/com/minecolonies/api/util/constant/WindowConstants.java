@@ -1042,15 +1042,15 @@ public final class WindowConstants
      * Crafting switch-output button.
      */
     public static final WidgetSprites CRAFTING_SWITCH = new WidgetSprites(
-        new Identifier(MOD_ID, "craftingswitch"),
-        new Identifier(MOD_ID, "craftingswitch_hover"));
+        Identifier.fromNamespaceAndPath(MOD_ID, "craftingswitch"),
+        Identifier.fromNamespaceAndPath(MOD_ID, "craftingswitch_hover"));
 
     /**
      * Crafting request-list button.
      */
     public static final WidgetSprites CRAFTING_LIST = new WidgetSprites(
-        new Identifier(MOD_ID, "craftinglist"),
-        new Identifier(MOD_ID, "craftinglist_hover"));
+        Identifier.fromNamespaceAndPath(MOD_ID, "craftinglist"),
+        Identifier.fromNamespaceAndPath(MOD_ID, "craftinglist_hover"));
 
     /**
      * Switch button size.

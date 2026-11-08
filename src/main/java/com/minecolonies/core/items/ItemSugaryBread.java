@@ -30,7 +30,7 @@ public class ItemSugaryBread extends ItemFood
     private static FoodProperties sweetBread = (new FoodProperties.Builder())
                                         .nutrition(6)
                                         .saturationModifier(0.7F)
-                                        .effect(() -> new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 600), 1.0F)
+                                        .effect(() -> new MobEffectInstance(MobEffects.SPEED, 600), 1.0F)
                                         .build(); 
 
     /**
@@ -49,7 +49,7 @@ public class ItemSugaryBread extends ItemFood
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level worldIn, LivingEntity entityLiving) {
 
-        if (!worldIn.isClientSide)
+        if (!worldIn.isClientSide())
         {
             entityLiving.removeEffect(MobEffects.POISON);
         }
@@ -59,12 +59,12 @@ public class ItemSugaryBread extends ItemFood
     
     @Override
     public void appendHoverText(
-    @NotNull final ItemStack stack, @Nullable final TooltipContext ctx, @NotNull final List<Component> tooltip, @NotNull final TooltipFlag flagIn)
+    @NotNull final ItemStack stack, @Nullable final TooltipContext ctx, final net.minecraft.world.item.component.TooltipDisplay tooltipDisplay, @NotNull final java.util.function.Consumer<Component> tooltip, @NotNull final TooltipFlag flagIn)
     {
         final MutableComponent guiHint = Component.translatableEscape(TranslationConstants.COM_MINECOLONIES_COREMOD_SUGARY_BREAD_TOOLTIP_GUI);
         guiHint.setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY));
-        tooltip.add(guiHint);
+        tooltip.accept(guiHint);
 
-        super.appendHoverText(stack, ctx, tooltip, flagIn);
+        super.appendHoverText(stack, ctx, tooltipDisplay, tooltip, flagIn);
     }
 }

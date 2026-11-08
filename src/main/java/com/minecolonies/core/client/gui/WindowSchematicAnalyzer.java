@@ -71,13 +71,13 @@ public class WindowSchematicAnalyzer extends AbstractWindowSkeleton
 
     public WindowSchematicAnalyzer()
     {
-        super(new Identifier(Constants.MOD_ID, "gui/analyzer/windowanalyze.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/analyzer/windowanalyze.xml"));
         registerButton(BUTTON_CANCEL, b -> close());
         registerButton(BUTTON_SELECT_SCHEMATIC,
             b -> new WindowExtendedBuildTool(BlockPos.containing(Minecraft.getInstance().player.position().add(Minecraft.getInstance().player.getLookAngle().multiply(10, 10, 10))),
                 1,
                 (window, blueprint) -> {
-                    Minecraft.getInstance().setScreen(this.getScreen());
+                    Minecraft.getInstance().gui.setScreen(this.getScreen());
                     final SchemAnalyzerUtil.SchematicAnalyzationResult result = analyzationResults.computeIfAbsent(blueprint, bl -> SchemAnalyzerUtil.analyzeSchematic(bl, mc.level.registryAccess()));
                     sortAnalyzationResults();
                     switchSelectionTo(getBoxForSide(b), result);

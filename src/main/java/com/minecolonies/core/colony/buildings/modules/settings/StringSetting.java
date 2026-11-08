@@ -93,7 +93,7 @@ public class StringSetting implements IStringSetting<String>
     @Override
     public Identifier getLayoutItem()
     {
-        return new Identifier("minecolonies", "gui/layouthuts/layoutstringsetting.xml");
+        return Identifier.fromNamespaceAndPath("minecolonies", "gui/layouthuts/layoutstringsetting.xml");
     }
 
     @OnlyIn(Dist.CLIENT)

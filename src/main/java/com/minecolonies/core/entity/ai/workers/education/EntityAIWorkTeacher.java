@@ -47,7 +47,7 @@ public class EntityAIWorkTeacher extends AbstractEntityAIInteract<JobTeacher, Bu
      * Teaching icon
      */
     private final static VisibleCitizenStatus TEACHING_ICON =
-      new VisibleCitizenStatus(new Identifier(Constants.MOD_ID, "textures/icons/work/teacher_student.png"), "com.minecolonies.gui.visiblestatus.teacher_student");
+      new VisibleCitizenStatus(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/work/teacher_student.png"), "com.minecolonies.gui.visiblestatus.teacher_student");
 
     /**
      * The next pupil to teach.

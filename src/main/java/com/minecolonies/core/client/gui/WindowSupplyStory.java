@@ -51,7 +51,7 @@ public class WindowSupplyStory extends AbstractWindowSkeleton
 
     public WindowSupplyStory(final BlockPos pos, final String type, final ItemStack stack, final InteractionHand hand)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/windowsupplystory.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowsupplystory.xml"));
         mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.BOOK_PAGE_TURN, 1.0F));
         if (pos == null)
         {
@@ -75,7 +75,7 @@ public class WindowSupplyStory extends AbstractWindowSkeleton
         if (currentComponent.instantPlacement()) // if free dungeon loot nbt tag on item.
         {
             final Random random = new Random(currentComponent.randomKey());
-            final List<Holder.Reference<Biome>> biomes = mc.level.registryAccess().registryOrThrow(Registries.BIOME).holders().toList();
+            final List<Holder.Reference<Biome>> biomes = mc.level.registryAccess().lookupOrThrow(Registries.BIOME).listElements().toList();
             final Holder<Biome> biome = biomes.get(random.nextInt(biomes.size()));
             if (stack.getItem() == ModItems.supplyCamp)
             {

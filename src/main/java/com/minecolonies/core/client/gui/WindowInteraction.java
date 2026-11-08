@@ -56,7 +56,7 @@ public class WindowInteraction extends AbstractWindowSkeleton
      */
     public WindowInteraction(final ICitizenDataView citizen)
     {
-        super(new MainWindowCitizen(citizen), new Identifier(Constants.MOD_ID, "gui/citizen/windowinteraction.xml"));
+        super(new MainWindowCitizen(citizen), Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/citizen/windowinteraction.xml"));
         this.citizen = citizen;
         this.interactions = new ArrayList<>(citizen.getOrderedInteractions());
         registerButton(BUTTON_CANCEL, this::cancelClicked);
@@ -112,7 +112,7 @@ public class WindowInteraction extends AbstractWindowSkeleton
         for (final Component component : handler.getPossibleResponses())
         {
             final ButtonImage button = new ButtonImage();
-            button.setImage(new Identifier(Constants.MOD_ID, MEDIUM_SIZED_BUTTON_RES));
+            button.setImage(Identifier.fromNamespaceAndPath(Constants.MOD_ID, MEDIUM_SIZED_BUTTON_RES));
 
             final int textLen = mc.font.width(component.getString());
             int buttonHeight = BUTTON_HEIGHT;

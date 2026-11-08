@@ -25,13 +25,17 @@ import java.util.List;
 
 import static com.minecolonies.api.util.constant.TranslationConstants.FOOD_QUALITY_TOOLTIP;
 import static com.minecolonies.api.util.constant.WindowConstants.*;
-import static org.jline.utils.AttributedStyle.WHITE;
 
 /**
  * BOWindow for all the filterable lists.
  */
 public class FoodItemListModuleWindow extends ItemListModuleWindow
 {
+    /**
+     * Text colour formerly taken from org.jline AttributedStyle.WHITE (value 7), kept for identical rendering.
+     */
+    private static final int WHITE = 7;
+
     /**
      * @param building   the building it belongs to.
      * @param res   the building res id.
@@ -42,7 +46,7 @@ public class FoodItemListModuleWindow extends ItemListModuleWindow
       final IBuildingView building,
       final IItemListModuleView moduleView)
     {
-        super(moduleView, new Identifier(Constants.MOD_ID, "gui/foodlist.xml"));
+        super(moduleView, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/foodlist.xml"));
         groupedItemList.removeIf(c -> c.getItemStack().is(ModTags.excludedFood) || !FoodUtils.canEatLevel(c.getItemStack(), building.getBuildingLevel() - 1));
     }
 
@@ -52,8 +56,8 @@ public class FoodItemListModuleWindow extends ItemListModuleWindow
         displayedList.sort((o1, o2) -> {
             int score = buildingView.getModuleViewMatching(ItemListModuleView.class, view -> view.getId().equals(id)).isAllowedItem(o1) ? 500 : -500;
             int score2 = buildingView.getModuleViewMatching(ItemListModuleView.class, view -> view.getId().equals(id)).isAllowedItem(o2) ? 500 : -500;
-            score += o1.getItem() instanceof IMinecoloniesFoodItem foodItem ? foodItem.getTier()* -100 : -o1.getItemStack().getFoodProperties(null).nutrition();
-            score2 += o2.getItem() instanceof IMinecoloniesFoodItem foodItem2 ? foodItem2.getTier()* -100 : -o2.getItemStack().getFoodProperties(null).nutrition();
+            score += o1.getItem() instanceof IMinecoloniesFoodItem foodItem ? foodItem.getTier()* -100 : -o1.getItemStack().get(net.minecraft.core.component.DataComponents.FOOD).nutrition();
+            score2 += o2.getItem() instanceof IMinecoloniesFoodItem foodItem2 ? foodItem2.getTier()* -100 : -o2.getItemStack().get(net.minecraft.core.component.DataComponents.FOOD).nutrition();
             return score - score2;
         });
     }

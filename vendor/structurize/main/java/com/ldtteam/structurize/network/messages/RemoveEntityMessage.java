@@ -43,7 +43,7 @@ public class RemoveEntityMessage extends AbstractServerPlayMessage
         super(buf, type);
         this.from = buf.readBlockPos();
         this.to = buf.readBlockPos();
-        this.entityName = buf.readResourceLocation();
+        this.entityName = buf.readIdentifier();
     }
 
     /**
@@ -66,7 +66,7 @@ public class RemoveEntityMessage extends AbstractServerPlayMessage
     {
         buf.writeBlockPos(from);
         buf.writeBlockPos(to);
-        buf.writeResourceLocation(entityName);
+        buf.writeIdentifier(entityName);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class RemoveEntityMessage extends AbstractServerPlayMessage
             return;
         }
 
-        final EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(entityName);
+        final EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.getValue(entityName);
         if (type != null)
         {
             Manager.addToQueue(new RemoveEntityOperation(player, from, to, type));

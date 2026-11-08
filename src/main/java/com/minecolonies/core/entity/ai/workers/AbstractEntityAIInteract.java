@@ -226,7 +226,10 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob<?, J>, B ex
 
         if (tool != ItemStack.EMPTY && damageTool)
         {
-            tool.getItem().inventoryTick(tool, world, worker, worker.getCitizenInventoryHandler().findFirstSlotInInventoryWith(tool.getItem()), true);
+            if (world instanceof net.minecraft.server.level.ServerLevel serverLevel)
+            {
+                tool.getItem().inventoryTick(tool, serverLevel, worker, net.minecraft.world.entity.EquipmentSlot.MAINHAND);
+            }
         }
         worker.getCitizenExperienceHandler().addExperience(XP_PER_BLOCK);
         this.incrementActionsDone();
@@ -369,7 +372,8 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob<?, J>, B ex
         items = world.getEntitiesOfClass(ItemEntity.class, boundingBox)
                   .stream()
                   .filter(item -> item != null && item.isAlive() &&
-                                    (!item.getPersistentData().contains("PreventRemoteMovement") || !item.getPersistentData().getBoolean("PreventRemoteMovement")) &&
+                                    // FABRIC-PORT TODO: NeoForge "PreventRemoteMovement" persistent-data flag is not available on Fabric
+                                    
                                     isItemWorthPickingUp(item.getItem()))
                   .map(BlockPosUtil::fromEntity)
                   .collect(Collectors.toList());

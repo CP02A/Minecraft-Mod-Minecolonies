@@ -1,5 +1,6 @@
 package com.minecolonies.core.network.messages.server.colony;
 
+import com.ldtteam.shim.neoforge.common.extensions.IMenuTypeExtension;
 import com.ldtteam.common.network.PlayMessageType;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyView;
@@ -143,7 +144,7 @@ public class OpenInventoryMessage extends AbstractColonyServerMessage implements
                 citizen.getInventoryCitizen().setCustomName(name);
             }
 
-            player.openMenu(citizen, packetBuffer -> packetBuffer.writeVarInt(citizen.getCitizenColonyHandler().getColonyId()).writeVarInt(citizen.getCivilianID()));
+            IMenuTypeExtension.openMenu(player, citizen, packetBuffer -> packetBuffer.writeVarInt(citizen.getCitizenColonyHandler().getColonyId()).writeVarInt(citizen.getCivilianID()));
         }
     }
 
@@ -158,7 +159,7 @@ public class OpenInventoryMessage extends AbstractColonyServerMessage implements
 
         if(tileEntity instanceof TileEntityRack || tileEntity instanceof TileEntityGrave)
         {
-            player.openMenu((MenuProvider) tileEntity, packetBuffer -> packetBuffer.writeVarInt(colony.getID()).writeBlockPos(tileEntity.getBlockPos()));
+            IMenuTypeExtension.openMenu(player, (MenuProvider) tileEntity, packetBuffer -> packetBuffer.writeVarInt(colony.getID()).writeBlockPos(tileEntity.getBlockPos()));
         }
     }
 

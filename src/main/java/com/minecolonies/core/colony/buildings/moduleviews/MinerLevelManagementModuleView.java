@@ -11,7 +11,7 @@ import com.minecolonies.core.colony.workorders.view.WorkOrderMinerView;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Tuple;
+import com.minecolonies.api.util.Tuple;
 import com.ldtteam.shim.api.distmarker.Dist;
 import com.ldtteam.shim.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
@@ -73,7 +73,7 @@ public class MinerLevelManagementModuleView extends AbstractBuildingModuleView
     @Override
     public Identifier getIconResourceLocation()
     {
-        return new Identifier(Constants.MOD_ID, "textures/gui/modules/info.png");
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/modules/info.png");
     }
 
     @Override

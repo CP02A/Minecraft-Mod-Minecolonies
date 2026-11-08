@@ -23,7 +23,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Tuple;
+import com.minecolonies.api.util.Tuple;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
@@ -63,7 +63,7 @@ public class BuildingSmeltery extends AbstractBuilding
     /**
      * Key for min remainder at warehouse.
      */
-    public static final ISettingKey<IntSetting> MIN = new SettingKey<>(IntSetting.class, new Identifier(com.minecolonies.api.util.constant.Constants.MOD_ID, "warehousemin"));
+    public static final ISettingKey<IntSetting> MIN = new SettingKey<>(IntSetting.class, Identifier.fromNamespaceAndPath(com.minecolonies.api.util.constant.Constants.MOD_ID, "warehousemin"));
 
     /**
      * Instantiates a new smeltery building.
@@ -76,7 +76,7 @@ public class BuildingSmeltery extends AbstractBuilding
         super(c, l);
         keepX.put(IColonyManager.getInstance().getCompatibilityManager()::isOre, new Tuple<>(Integer.MAX_VALUE, true));
         keepX.put(stack -> !ItemStackUtils.isEmpty(stack)
-                             && (stack.getItem() instanceof SwordItem || stack.getItem() instanceof DiggerItem || stack.getItem() instanceof ArmorItem)
+                             && (com.minecolonies.core.colony.ItemCompat.isSword(stack) || com.minecolonies.core.colony.ItemCompat.isDigger(stack) || com.minecolonies.core.colony.ItemCompat.isArmor(stack))
           , new Tuple<>(STUFF_TO_KEEP, true));
     }
 
@@ -254,7 +254,7 @@ public class BuildingSmeltery extends AbstractBuilding
             if (item instanceof BlockItem)
             {
                 Block itemBlock = Block.byItem(item);
-                return itemBlock.getLootTable();
+                return itemBlock.getLootTable().orElse(null);
             }
             return null;
         }

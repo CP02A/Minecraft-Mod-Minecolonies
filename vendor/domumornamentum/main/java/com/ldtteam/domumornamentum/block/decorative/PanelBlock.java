@@ -47,7 +47,6 @@ import static net.minecraft.world.level.block.Blocks.OAK_PLANKS;
 
 public class PanelBlock extends AbstractPanelBlockTrapdoor<PanelBlock> implements IMateriallyTexturedBlock, ICachedItemGroupBlock, EntityBlock
 {
-    public static final MapCodec<PanelBlock> CODEC = simpleCodec(PanelBlock::new);
     public static final EnumProperty<TrapdoorType>              TYPE       = EnumProperty.create(Constants.TYPE_BLOCK_PROPERTY, TrapdoorType.class);
     public static final List<IMateriallyTexturedBlockComponent> COMPONENTS = ImmutableList.<IMateriallyTexturedBlockComponent>builder()
                                                                                .add(new SimpleRetexturableComponent(Identifier.withDefaultNamespace("block/oak_planks"), ModTags.TRAPDOORS_MATERIALS, OAK_PLANKS))
@@ -64,12 +63,6 @@ public class PanelBlock extends AbstractPanelBlockTrapdoor<PanelBlock> implement
     {
         super(props);
         this.registerDefaultState(this.defaultBlockState().setValue(TYPE, TrapdoorType.FULL));
-    }
-
-    @Override
-    protected @NonNull MapCodec<PanelBlock> codec()
-    {
-        return CODEC;
     }
 
     @Override
@@ -203,9 +196,9 @@ public class PanelBlock extends AbstractPanelBlockTrapdoor<PanelBlock> implement
         }
     }
 
-    @Override
+    // FABRIC-PORT: NeoForge IBlockExtension overload, applied via domumornamentum.fabric.mixin
     public float getExplosionResistance(@NonNull BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos, @NonNull Explosion explosion) {
-        return getDOExplosionResistance(super::getExplosionResistance, state, level, pos, explosion);
+        return getDOExplosionResistance((s, l, p, e) -> super.getExplosionResistance(), state, level, pos, explosion);
     }
 
     @Override
@@ -213,9 +206,9 @@ public class PanelBlock extends AbstractPanelBlockTrapdoor<PanelBlock> implement
         return getDODestroyProgress(super::getDestroyProgress, state, player, level, pos);
     }
 
-    @Override
+    // FABRIC-PORT TODO: NeoForge positional getSoundType overload, not called on Fabric (vanilla sound type is used)
     public @NonNull SoundType getSoundType(@NonNull BlockState state, @NonNull LevelReader level, @NonNull BlockPos pos, @Nullable Entity entity) {
-        return getDOSoundType(super::getSoundType, state, level, pos, entity);
+        return getDOSoundType((s, l, p, e) -> super.getSoundType(s), state, level, pos, entity);
     }
 
     @Override

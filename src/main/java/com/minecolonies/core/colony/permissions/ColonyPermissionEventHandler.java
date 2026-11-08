@@ -31,7 +31,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.horse.Llama;
+import net.minecraft.world.entity.animal.equine.Llama;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
@@ -289,7 +289,7 @@ public class ColonyPermissionEventHandler
         }
         else
         {
-            checkEventCancellation(Action.BREAK_BLOCKS, event.getPlayer(), event.getPlayer().getCommandSenderWorld(), event, event.getPos());
+            checkEventCancellation(Action.BREAK_BLOCKS, event.getPlayer(), event.getPlayer().level(), event, event.getPos());
         }
     }
 
@@ -309,12 +309,12 @@ public class ColonyPermissionEventHandler
         final Level eventWorld = event.getLevel();
         final Predicate<BlockPos> getBlocksInColony = pos -> colony.isCoordInColony(eventWorld, pos);
         Predicate<Entity> getEntitiesInColony = entity -> (!(entity instanceof Enemy) || (entity instanceof Llama))
-                                                            && colony.isCoordInColony(entity.getCommandSenderWorld(), entity.blockPosition());
+                                                            && colony.isCoordInColony(entity.level(), entity.blockPosition());
         switch(MineColonies.getConfig().getServer().turnOffExplosionsInColonies.get())
         {
             case DAMAGE_NOTHING:
                 // if any entity is in colony -> remove from list
-                getEntitiesInColony = entity -> colony.isCoordInColony(entity.getCommandSenderWorld(), entity.blockPosition());
+                getEntitiesInColony = entity -> colony.isCoordInColony(entity.level(), entity.blockPosition());
                 // intentional fall-through to next case.
             case DAMAGE_PLAYERS:
                 // if non-mob or llama entity is in colony -> remove from list
@@ -395,12 +395,12 @@ public class ColonyPermissionEventHandler
                 }
 
                 final BlockEntity blockEntity = event.getLevel().getBlockEntity(event.getPos());
-                boolean isContainer = event.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, event.getPos(), state, blockEntity, null) != null;
+                boolean isContainer = Capabilities.ItemHandler.BLOCK.getCapability(event.getLevel(), event.getPos(), state, blockEntity, null) != null;
                 if (!isContainer)
                 {
                     for (Direction direction : Direction.values())
                     {
-                        if (event.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, event.getPos(), state, blockEntity, direction) != null)
+                        if (Capabilities.ItemHandler.BLOCK.getCapability(event.getLevel(), event.getPos(), state, blockEntity, direction) != null)
                         {
                             isContainer = true;
                             break;
@@ -421,7 +421,7 @@ public class ColonyPermissionEventHandler
                 }
 
                 final ItemStack stack = event.getItemStack();
-                if (ItemStackUtils.isEmpty(stack) || stack.getFoodProperties(event.getEntity()) != null)
+                if (ItemStackUtils.isEmpty(stack) || stack.get(net.minecraft.core.component.DataComponents.FOOD) != null)
                 {
                     return;
                 }
@@ -487,7 +487,7 @@ public class ColonyPermissionEventHandler
             return;
         }
 
-        if (event.getEntity().getType().is(ModTags.freeToInteractWith))
+        if (event.getEntity().getType().builtInRegistryHolder().is(ModTags.freeToInteractWith))
         {
             return;
         }
@@ -534,10 +534,10 @@ public class ColonyPermissionEventHandler
             positionToCheck = player.blockPosition();
         }
         if (MineColonies.getConfig().getServer().enableColonyProtection.get()
-              && colony.isCoordInColony(player.getCommandSenderWorld(), positionToCheck)
+              && colony.isCoordInColony(player.level(), positionToCheck)
               && !colony.getPermissions().hasPermission(player, action))
         {
-            if (MineColonies.getConfig().getServer().pvp_mode.get() && !world.isClientSide && colony.isValidAttackingPlayer(playerIn))
+            if (MineColonies.getConfig().getServer().pvp_mode.get() && !world.isClientSide() && colony.isValidAttackingPlayer(playerIn))
             {
                 return false;
             }
@@ -565,7 +565,7 @@ public class ColonyPermissionEventHandler
             return;
         }
 
-        if (event.getEntity().getType().is(ModTags.freeToInteractWith))
+        if (event.getEntity().getType().builtInRegistryHolder().is(ModTags.freeToInteractWith))
         {
             return;
         }
@@ -583,7 +583,7 @@ public class ColonyPermissionEventHandler
     @SubscribeEvent
     public void on(final ItemTossEvent event)
     {
-        if (checkEventCancellation(Action.TOSS_ITEM, event.getPlayer(), event.getPlayer().getCommandSenderWorld(), event, event.getPlayer().blockPosition()))
+        if (checkEventCancellation(Action.TOSS_ITEM, event.getPlayer(), event.getPlayer().level(), event, event.getPlayer().blockPosition()))
         {
             event.getPlayer().getInventory().add(event.getEntity().getItem());
         }
@@ -601,7 +601,7 @@ public class ColonyPermissionEventHandler
     {
         if (event.getPlayer().equals(event.getItemEntity().getOwner())) return;   // always allowed to pick up your own thrown items
 
-        checkEventCancellation(Action.PICKUP_ITEM, event.getPlayer(), event.getPlayer().getCommandSenderWorld(), event, event.getPlayer().blockPosition(), ev -> ((ItemEntityPickupEvent.Pre) ev).setCanPickup(TriState.FALSE));
+        checkEventCancellation(Action.PICKUP_ITEM, event.getPlayer(), event.getPlayer().level(), event, event.getPlayer().blockPosition(), ev -> ((ItemEntityPickupEvent.Pre) ev).setCanPickup(TriState.FALSE));
     }
 
     /**
@@ -619,7 +619,7 @@ public class ColonyPermissionEventHandler
             @Nullable BlockPos targetBlockPos = BlockPos.containing(event.getEventPosition());
             if (event.getContext().sourceEntity() instanceof  Player)
             {
-                checkEventCancellation(Action.FILL_BUCKET, (Player) event.getContext().sourceEntity(), event.getContext().sourceEntity().getCommandSenderWorld(), event, targetBlockPos);
+                checkEventCancellation(Action.FILL_BUCKET, (Player) event.getContext().sourceEntity(), event.getContext().sourceEntity().level(), event, targetBlockPos);
             }
         }
     }
@@ -634,7 +634,7 @@ public class ColonyPermissionEventHandler
     @SubscribeEvent
     public void on(final ArrowLooseEvent event)
     {
-        checkEventCancellation(Action.SHOOT_ARROW, event.getEntity(), event.getEntity().getCommandSenderWorld(), event, event.getEntity().blockPosition());
+        checkEventCancellation(Action.SHOOT_ARROW, event.getEntity(), event.getEntity().level(), event, event.getEntity().blockPosition());
     }
 
     /**
@@ -673,10 +673,10 @@ public class ColonyPermissionEventHandler
             return;
         }
 
-        @NotNull final Player player = EntityUtils.getPlayerOfFakePlayer(event.getEntity(), event.getEntity().getCommandSenderWorld());
+        @NotNull final Player player = EntityUtils.getPlayerOfFakePlayer(event.getEntity(), event.getEntity().level());
 
         if (MineColonies.getConfig().getServer().enableColonyProtection.get()
-              && colony.isCoordInColony(player.getCommandSenderWorld(), player.blockPosition()))
+              && colony.isCoordInColony(player.level(), player.blockPosition()))
         {
             final Permissions perms = colony.getPermissions();
             if (event.getTarget() instanceof EntityCitizen)

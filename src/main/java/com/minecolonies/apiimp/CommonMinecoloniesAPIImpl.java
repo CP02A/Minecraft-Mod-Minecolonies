@@ -53,6 +53,12 @@ import org.jetbrains.annotations.NotNull;
 
 public class CommonMinecoloniesAPIImpl implements IMinecoloniesAPI
 {
+    static
+    {
+        // FABRIC-PORT: the API impl is constructed during mod initialization, so the colony chunk ticket type is registered here.
+        com.minecolonies.api.util.constant.ColonyConstants.registerTicketType();
+    }
+
     public static final ResourceKey<Registry<BuildingEntry>>          BUILDINGS           = key("buildings");
     public static final ResourceKey<Registry<BuildingExtensionEntry>> BUILDING_EXTENSIONS = key("building_extensions");
     public static final ResourceKey<Registry<JobEntry>>               JOBS                = key("jobs");
@@ -235,7 +241,7 @@ public class CommonMinecoloniesAPIImpl implements IMinecoloniesAPI
         colonyEventRegistry = event.create(syncedRegistry(COLONY_EVENT_TYPES));
         colonyEventDescriptionRegistry = event.create(syncedRegistry(COLONY_EVENT_DESC_TYPES));
         craftingTypeRegistry = event.create(syncedRegistry(CRAFTING_TYPES));
-        recipeTypeEntryRegistry = event.create(syncedRegistry(RECIPE_TYPE_ENTRIES, new Identifier(Constants.MOD_ID, "classic")));
+        recipeTypeEntryRegistry = event.create(syncedRegistry(RECIPE_TYPE_ENTRIES, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "classic")));
         researchRequirementRegistry = event.create(syncedRegistry(RESEARCH_REQUIREMENT_TYPES));
         researchEffectRegistry = event.create(syncedRegistry(RESEARCH_EFFECT_TYPES));
         questObjectiveRegistry = event.create(syncedRegistry(QUEST_OBJECTIVES));
@@ -249,13 +255,13 @@ public class CommonMinecoloniesAPIImpl implements IMinecoloniesAPI
 
     private static <T> ResourceKey<Registry<T>> key(final String registryName)
     {
-        return ResourceKey.createRegistryKey(new Identifier(Constants.MOD_ID, registryName));
+        return ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(Constants.MOD_ID, registryName));
     }
 
 
     private static <T> RegistryBuilder<T> syncedRegistry(final ResourceKey<Registry<T>> registryKey)
     {
-        return syncedRegistry(registryKey, new Identifier(Constants.MOD_ID, "null"));
+        return syncedRegistry(registryKey, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "null"));
     }
 
     private static <T> RegistryBuilder<T> syncedRegistry(final ResourceKey<Registry<T>> registryKey, final Identifier defaultKey)

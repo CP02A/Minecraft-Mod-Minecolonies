@@ -2,17 +2,17 @@
   "credit": "Made with Blockbench",
   "ambientocclusion": false,
   "textures": {
-    "0": "block/stripped_spruce_log",
-    "1": "block/light_gray_concrete_powder",
-    "2": "block/gravel",
-    "3": "block/oak_log",
-    "4": "block/oak_log_top",
-    "5": "block/dirt",
-    "6": "block/sand",
-    "7": "block/clay",
-    "8": "block/gray_concrete_powder",
-    "9": "block/andesite",
-    "particle": "block/oak_log"
+    "0": "minecraft:block/stripped_spruce_log",
+    "1": "minecraft:block/light_gray_concrete_powder",
+    "2": "minecraft:block/gravel",
+    "3": "minecraft:block/oak_log",
+    "4": "minecraft:block/oak_log_top",
+    "5": "minecraft:block/dirt",
+    "6": "minecraft:block/sand",
+    "7": "minecraft:block/clay",
+    "8": "minecraft:block/gray_concrete_powder",
+    "9": "minecraft:block/andesite",
+    "particle": "minecraft:block/oak_log"
   },
   "elements": [
     {

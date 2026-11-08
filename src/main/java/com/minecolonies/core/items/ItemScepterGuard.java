@@ -40,7 +40,7 @@ public class ItemScepterGuard extends AbstractItemMinecolonies implements IScept
     public InteractionResult useOn(final UseOnContext ctx)
     {
         // if server world, do nothing
-        if (ctx.getLevel().isClientSide)
+        if (ctx.getLevel().isClientSide())
         {
             return InteractionResult.FAIL;
         }

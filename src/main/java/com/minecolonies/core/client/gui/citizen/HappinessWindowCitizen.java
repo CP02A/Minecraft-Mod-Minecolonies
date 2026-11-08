@@ -16,7 +16,7 @@ public class HappinessWindowCitizen extends AbstractWindowCitizen
      */
     public HappinessWindowCitizen(final ICitizenDataView citizen)
     {
-        super(citizen, new Identifier(Constants.MOD_ID, "gui/citizen/happiness.xml"));
+        super(citizen, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/citizen/happiness.xml"));
     }
 
     /**

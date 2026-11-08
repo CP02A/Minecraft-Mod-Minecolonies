@@ -13,7 +13,7 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.RegistryCodecs;
+import net.minecraft.core.registries.codec.RegistryCodecs;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -25,7 +25,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.Tuple;
+import com.minecolonies.api.util.Tuple;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.Potion;
@@ -33,7 +33,6 @@ import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.storage.loot.LootTable;
-import com.ldtteam.shim.neoforge.common.extensions.IHolderExtension;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -67,7 +66,7 @@ public final class LootTableAnalyzer
     {
         try
         {
-            return toDrops(provider, provider.holderOrThrow(lootTableId));
+            return toDrops(provider, provider.getOrThrow(lootTableId));
         }
         catch (final IllegalStateException ex)
         {
@@ -92,7 +91,7 @@ public final class LootTableAnalyzer
         }
         catch (final JsonParseException ex)
         {
-            Log.getLogger().error(String.format("Failed to parse loot table from %s", lootTable.getKey()), ex);
+            Log.getLogger().error(String.format("Failed to parse loot table from %s", lootTable.unwrapKey().orElse(null)), ex);
             return Collections.emptyList();
         }
     }
@@ -162,7 +161,7 @@ public final class LootTableAnalyzer
         switch (type)
         {
             case "minecraft:item" -> {
-                final Item item = BuiltInRegistries.ITEM.get(Identifier.parse(GsonHelper.getAsString(entryJson, "name")));
+                final Item item = BuiltInRegistries.ITEM.getValue(Identifier.parse(GsonHelper.getAsString(entryJson, "name")));
                 final float quality = GsonHelper.getAsFloat(entryJson, "quality", 0);
                 float modifier = 1.0F;
                 final JsonArray conditions = GsonHelper.getAsJsonArray(entryJson, "conditions", new JsonArray());
@@ -289,7 +288,7 @@ public final class LootTableAnalyzer
         final AdventureData component = AdventureData.readFromItemStack(token);
         if (component != null)
         {
-            return toDrops(provider, component.entityType().getDefaultLootTable());
+            return component.entityType().getDefaultLootTable().map(key -> toDrops(provider, key)).orElse(Collections.emptyList());
         }
         return Collections.emptyList();
     }
@@ -352,7 +351,7 @@ public final class LootTableAnalyzer
 
                     case "minecraft:set_potion":        // SetPotionFunction
                         final String id = GsonHelper.getAsString(function, "id");
-                        final Holder<Potion> potion = BuiltInRegistries.POTION.getHolder(Identifier.tryParse(id)).orElse(null);
+                        final Holder<Potion> potion = BuiltInRegistries.POTION.get(Identifier.tryParse(id)).orElse(null);
                         if (potion != null)
                         {
                             stack.update(DataComponents.POTION_CONTENTS, PotionContents.EMPTY, potion, PotionContents::withPotion);
@@ -366,11 +365,11 @@ public final class LootTableAnalyzer
 
                     case "minecraft:enchant_with_levels":   // EnchantWithLevelsFunction
                         final int levels = processNumber(function.get("levels"), 1);
-                        final MapCodec<Optional<HolderSet<Enchantment>>> optionsCodec = RegistryCodecs.homogeneousList(Registries.ENCHANTMENT).optionalFieldOf("options");
+                        final MapCodec<Optional<HolderSet<Enchantment>>> optionsCodec = RegistryCodecs.holderSet(Registries.ENCHANTMENT).optionalFieldOf("options");
                         final RegistryOps<JsonElement> ops = provider.createSerializationContext(JsonOps.INSTANCE);
                         final Optional<HolderSet<Enchantment>> options = optionsCodec.decode(ops, ops.getMap(function).getOrThrow()).getOrThrow();
                         final Stream<Holder<Enchantment>> enchantments = options.map(HolderSet::stream)
-                                .orElseGet(() -> provider.lookupOrThrow(Registries.ENCHANTMENT).listElements().map(IHolderExtension::getDelegate));
+                                .orElseGet(() -> provider.lookupOrThrow(Registries.ENCHANTMENT).listElements().map(h -> (Holder<Enchantment>) h));
                         stack = EnchantmentHelper.enchantItem(RandomSource.create(), stack, levels, enchantments);
                         break;
 

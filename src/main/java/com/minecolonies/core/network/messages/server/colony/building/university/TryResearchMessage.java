@@ -54,8 +54,8 @@ public class TryResearchMessage extends AbstractBuildingServerMessage<BuildingUn
     protected TryResearchMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
-        researchId = buf.readResourceLocation();
-        branch = buf.readResourceLocation();
+        researchId = buf.readIdentifier();
+        branch = buf.readIdentifier();
         reset = buf.readBoolean();
     }
 
@@ -63,8 +63,8 @@ public class TryResearchMessage extends AbstractBuildingServerMessage<BuildingUn
     protected void toBytes(@NotNull final RegistryFriendlyByteBuf buf)
     {
         super.toBytes(buf);
-        buf.writeResourceLocation(researchId);
-        buf.writeResourceLocation(branch);
+        buf.writeIdentifier(researchId);
+        buf.writeIdentifier(branch);
         buf.writeBoolean(reset);
     }
 

@@ -1,7 +1,7 @@
 {
   "textures": {
-    "tape": "block/white_wool",
-    "particle": "block/oak_planks"
+    "tape": "minecraft:block/white_wool",
+    "particle": "minecraft:block/oak_planks"
   },
   "elements": [
     {

@@ -1,5 +1,6 @@
 package com.minecolonies.core.client.gui.modules.building;
 
+import net.minecraft.client.Minecraft;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
 import com.ldtteam.blockui.controls.Button;
@@ -53,7 +54,7 @@ public class WindowSelectRequest extends AbstractModuleWindow<CraftingModuleView
      */
     public WindowSelectRequest(final CraftingModuleView moduleView, final Predicate<IRequest<?>> predicate, final Consumer<@Nullable IRequest<?>> reopenWithRequest)
     {
-        super(moduleView, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutselectrequest.xml"));
+        super(moduleView, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutselectrequest.xml"));
         this.predicate = predicate;
         this.reopenWithRequest = reopenWithRequest;
 
@@ -67,7 +68,7 @@ public class WindowSelectRequest extends AbstractModuleWindow<CraftingModuleView
     {
         super.onUpdate();
 
-        if (!Screen.hasShiftDown())
+        if (!Minecraft.getInstance().hasShiftDown())
         {
             lifeCount++;
         }

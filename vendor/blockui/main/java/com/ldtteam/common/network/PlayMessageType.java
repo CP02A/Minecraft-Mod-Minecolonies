@@ -202,18 +202,18 @@ public record PlayMessageType<T extends AbstractUnsidedPlayMessage>(Type<T> id,
 
     /**
      * Call this in following code:
-     * 
+     *
      * <pre>
      * public static void onNetworkRegistry(final RegisterPayloadHandlerEvent event)
      * {
      *     final String modVersion = ModList.get().getModContainerById(Constants.MOD_ID).get().getModInfo().getVersion().toString();
      *     final PayloadRegistrar registry = event.registrar(Constants.MOD_ID).versioned(modVersion);
-     * 
+     *
      *     // MyMessage extends one of AbstractPlayMessage, AbstractClientPlayMessage, AbstractServerPlayMessage
      *     MyMessage.TYPE.register(registry);
      * }
      * </pre>
-     * 
+     *
      * @param registry event network registry
      */
     public void register(final PayloadRegistrar registry)

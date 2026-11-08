@@ -211,7 +211,7 @@ public enum RotationMirror
         {
             blockState = FacingFixer.fixMirroredFacing(blockState.mirror(mirror), blockState);
         }
-        return blockState.rotate(level, pos, rotation);
+        return blockState.rotate(rotation);
     }
 
     /**

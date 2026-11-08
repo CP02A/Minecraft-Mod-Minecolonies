@@ -20,7 +20,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -181,7 +180,7 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
             {
                 rack.getAllContent().forEach((item, amount) -> {
                     final int hashCode = item.getItemStack().getComponentsPatch().hashCode();
-                    final String key = item.getItemStack().getDescriptionId() + "-" + hashCode;
+                    final String key = item.getItemStack().getItem().getDescriptionId() + "-" + hashCode;
                     if (!resourcesModule.getResources().containsKey(key))
                     {
                         return;
@@ -210,7 +209,7 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
 
         final BlockEntity entity = ctx.getLevel().getBlockEntity(ctx.getClickedPos());
 
-        if (ctx.getLevel().isClientSide)
+        if (ctx.getLevel().isClientSide())
         {
             if (entity instanceof AbstractTileEntityColonyBuilding buildingEntity)
             {
@@ -256,34 +255,34 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
      */
     @Override
     @NotNull
-    public InteractionResultHolder<ItemStack> use(
+    public InteractionResult use(
       final Level worldIn,
       final Player playerIn,
       final InteractionHand hand)
     {
         final ItemStack resourceScroll = playerIn.getItemInHand(hand);
 
-        if (!worldIn.isClientSide)
+        if (!worldIn.isClientSide())
         {
-            return new InteractionResultHolder<>(InteractionResult.SUCCESS, resourceScroll);
+            return InteractionResult.SUCCESS;
         }
 
         openWindow(resourceScroll, playerIn);
 
-        return new InteractionResultHolder<>(InteractionResult.SUCCESS, resourceScroll);
+        return InteractionResult.SUCCESS;
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void appendHoverText(ItemStack stack, @Nullable TooltipContext ctx, List<Component> tooltip, TooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, @Nullable TooltipContext ctx, final net.minecraft.world.item.component.TooltipDisplay tooltipDisplay, java.util.function.Consumer<Component> tooltip, TooltipFlag flagIn)
     {
-        super.appendHoverText(stack, ctx, tooltip, flagIn);
+        super.appendHoverText(stack, ctx, tooltipDisplay, tooltip, flagIn);
 
         final IBuildingView buildingView = BuildingId.readBuildingViewFromItemStack(stack);
         if (buildingView instanceof BuildingBuilder.View builderBuildingView)
         {
             String name = builderBuildingView.getWorkerName();
-            tooltip.add(name != null && !name.trim().isEmpty()
+            tooltip.accept(name != null && !name.trim().isEmpty()
                           ? Component.literal(ChatFormatting.DARK_PURPLE + name)
                           : Component.translatableEscape(COM_MINECOLONIES_SCROLL_BUILDING_NO_WORKER));
         }

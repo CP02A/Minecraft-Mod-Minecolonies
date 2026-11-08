@@ -17,7 +17,7 @@ public class BuildingBuiltEvent extends AbstractBuildingEvent
     /**
      * This events id, registry entries use res locations as ids.
      */
-    public static final Identifier BUILDING_BUILT_EVENT_ID = new Identifier(Constants.MOD_ID, "building_built");
+    public static final Identifier BUILDING_BUILT_EVENT_ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "building_built");
 
     /**
      * Creates a new building built event.

@@ -4,44 +4,42 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
 
-public class MutableChunkPos extends ChunkPos
+/**
+ * Mutable chunk position, usable as lookup key in maps keyed by {@link ChunkPos} (same hashCode, equals accepts ChunkPos).
+ * FABRIC-PORT: ChunkPos is a final record in 26.x, so this no longer extends it.
+ */
+public class MutableChunkPos
 {
     private int mutableX;
     private int mutableZ;
 
     public MutableChunkPos(final int x, int z)
     {
-        super(x, z);
         this.mutableX = x;
         this.mutableZ = z;
     }
 
     public MutableChunkPos(final BlockPos pos)
     {
-        super(pos);
         this.mutableX = pos.getX() >> 4;
         this.mutableZ = pos.getZ() >> 4;
     }
 
     public MutableChunkPos(final long longIn)
     {
-        super(longIn);
-        this.mutableX = (int) longIn;
-        this.mutableZ = (int) (longIn >> 32);
+        this.mutableX = ChunkPos.getX(longIn);
+        this.mutableZ = ChunkPos.getZ(longIn);
     }
 
-    @Override
     public long toLong()
     {
-        return asLong(this.mutableX, this.mutableZ);
+        return ChunkPos.pack(this.mutableX, this.mutableZ);
     }
 
     @Override
     public int hashCode()
     {
-        final int i = 1664525 * this.mutableX + 1013904223;
-        final int j = 1664525 * (this.mutableZ ^ -559038737) + 1013904223;
-        return i ^ j;
+        return ChunkPos.hash(this.mutableX, this.mutableZ);
     }
 
     @Override
@@ -57,7 +55,7 @@ public class MutableChunkPos extends ChunkPos
         }
         else if (obj instanceof ChunkPos cp)
         {
-            return this.mutableX == cp.x && this.mutableZ == cp.z;
+            return this.mutableX == cp.x() && this.mutableZ == cp.z();
         }
         else
         {
@@ -65,48 +63,40 @@ public class MutableChunkPos extends ChunkPos
         }
     }
 
-    @Override
     public int getMinBlockX() {
        return SectionPos.sectionToBlockCoord(this.mutableX);
     }
 
-    @Override
     public int getMinBlockZ()
     {
         return SectionPos.sectionToBlockCoord(this.mutableZ);
     }
 
-    @Override
     public int getBlockX(final int offset)
     {
         return SectionPos.sectionToBlockCoord(this.mutableX, offset);
     }
 
-    @Override
     public int getBlockZ(final int offset)
     {
         return SectionPos.sectionToBlockCoord(this.mutableZ, offset);
     }
 
-    @Override
     public int getRegionX()
     {
         return this.mutableX >> 5;
     }
 
-    @Override
     public int getRegionZ()
     {
         return this.mutableZ >> 5;
     }
 
-    @Override
     public int getRegionLocalX()
     {
         return this.mutableX & 31;
     }
 
-    @Override
     public int getRegionLocalZ()
     {
         return this.mutableZ & 31;
@@ -118,10 +108,9 @@ public class MutableChunkPos extends ChunkPos
         return "[" + this.mutableX + ", " + this.mutableZ + "]";
     }
 
-    @Override
     public int getChessboardDistance(final ChunkPos chunkPosIn)
     {
-        return Math.max(Math.abs(this.mutableX - chunkPosIn.x), Math.abs(this.mutableZ - chunkPosIn.z));
+        return Math.max(Math.abs(this.mutableX - chunkPosIn.x()), Math.abs(this.mutableZ - chunkPosIn.z()));
     }
 
     public int getChessboardDistance(final MutableChunkPos chunkPosIn)
@@ -151,8 +140,8 @@ public class MutableChunkPos extends ChunkPos
 
     public void from(final ChunkPos chunkPos)
     {
-        this.mutableX = chunkPos.x;
-        this.mutableZ = chunkPos.z;
+        this.mutableX = chunkPos.x();
+        this.mutableZ = chunkPos.z();
     }
 
     public ChunkPos toImmutable()

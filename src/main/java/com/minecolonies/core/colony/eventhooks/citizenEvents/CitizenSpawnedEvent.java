@@ -17,7 +17,7 @@ public class CitizenSpawnedEvent extends AbstractCitizenEvent
     /**
      * This events id, registry entries use res locations as ids.
      */
-    public static final Identifier CITIZEN_SPAWNED_EVENT_ID = new Identifier(Constants.MOD_ID, "citizen_spawn");
+    public static final Identifier CITIZEN_SPAWNED_EVENT_ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "citizen_spawn");
 
     /**
      * Creates a new citizen spawned event.

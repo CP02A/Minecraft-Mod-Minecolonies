@@ -2,7 +2,7 @@
   "multipart": [
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/wall/wall_post_spec"
       },
       "when": {
@@ -11,7 +11,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/wall/wall_side_tall_spec"
       },
       "when": {
@@ -20,7 +20,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/wall/wall_side_spec"
       },
       "when": {
@@ -29,7 +29,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/wall/wall_side_tall_spec",
         "y": 90
       },
@@ -39,7 +39,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/wall/wall_side_spec",
         "y": 90
       },
@@ -49,7 +49,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/wall/wall_side_tall_spec",
         "y": 180
       },
@@ -59,7 +59,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/wall/wall_side_spec",
         "y": 180
       },
@@ -69,7 +69,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/wall/wall_side_tall_spec",
         "y": 270
       },
@@ -79,7 +79,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/wall/wall_side_spec",
         "y": 270
       },

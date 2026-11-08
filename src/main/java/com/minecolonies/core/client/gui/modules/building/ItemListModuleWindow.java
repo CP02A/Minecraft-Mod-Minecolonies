@@ -20,13 +20,17 @@ import java.util.Locale;
 import java.util.function.Predicate;
 
 import static com.minecolonies.api.util.constant.WindowConstants.*;
-import static org.jline.utils.AttributedStyle.WHITE;
 
 /**
  * BOWindow for all the filterable lists.
  */
 public class ItemListModuleWindow extends AbstractModuleWindow<IItemListModuleView>
 {
+    /**
+     * Text colour formerly taken from org.jline AttributedStyle.WHITE (value 7), kept for identical rendering.
+     */
+    private static final int WHITE = 7;
+
     /**
      * Resource scrolling list.
      */
@@ -138,7 +142,7 @@ public class ItemListModuleWindow extends AbstractModuleWindow<IItemListModuleVi
     private void updateResources()
     {
         final Predicate<ItemStack> filterPredicate = stack -> filter.isEmpty()
-                                                                || stack.getDescriptionId().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
+                                                                || stack.getItem().getDescriptionId().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
                                                                 || stack.getHoverName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US));
         currentDisplayedList.clear();
         for (final ItemStorage storage : groupedItemList)

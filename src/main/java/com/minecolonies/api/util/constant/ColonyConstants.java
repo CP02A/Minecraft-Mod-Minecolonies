@@ -32,7 +32,19 @@ public final class ColonyConstants
     /**
      * Specific ticket type for minecolonies tickets.
      */
-    public static final TicketType<ChunkPos> KEEP_LOADED_TYPE = TicketType.create(TICKET_ID, Comparator.comparingLong(ChunkPos::toLong));
+    // FABRIC-PORT: 26.x ticket types are flag based records (no comparator) registered in BuiltInRegistries.TICKET_TYPE (see registerTicketType).
+    public static final TicketType KEEP_LOADED_TYPE = new TicketType(TicketType.NO_TIMEOUT, TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION);
+
+    /**
+     * Registers {@link #KEEP_LOADED_TYPE} in the vanilla ticket type registry. Must be called during mod initialization (before registries freeze).
+     */
+    public static void registerTicketType()
+    {
+        if (net.minecraft.core.registries.BuiltInRegistries.TICKET_TYPE.getKey(KEEP_LOADED_TYPE) == null)
+        {
+            net.minecraft.core.Registry.register(net.minecraft.core.registries.BuiltInRegistries.TICKET_TYPE, net.minecraft.resources.Identifier.parse(TICKET_ID), KEEP_LOADED_TYPE);
+        }
+    }
 
     //  Settings
     /**

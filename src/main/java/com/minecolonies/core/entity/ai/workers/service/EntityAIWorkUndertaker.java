@@ -213,7 +213,7 @@ public class EntityAIWorkUndertaker extends AbstractEntityAIInteract<JobUndertak
 
             if (effortCounter < EFFORT_EMPTY_GRAVE)
             {
-                worker.swing(InteractionHand.MAIN_HAND);
+                worker.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
                 effortCounter += getPrimarySkillLevel();
                 return getState();
             }
@@ -341,7 +341,7 @@ public class EntityAIWorkUndertaker extends AbstractEntityAIInteract<JobUndertak
             if (effortCounter < EFFORT_RESURRECT)
             {
                 worker.getLookControl().setLookAt(gravePos.getX(), gravePos.getY(), gravePos.getZ(), FACING_DELTA_YAW, worker.getMaxHeadXRot());
-                worker.swing(InteractionHand.MAIN_HAND);
+                worker.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
                 new VanillaParticleMessage(gravePos.getX() + 0.5f, gravePos.getY() + 0.05f, gravePos.getZ() + 0.5f, ParticleTypes.ENCHANT).sendToTrackingEntity(worker);
                 effortCounter += getSecondarySkillLevel();
                 return getState();

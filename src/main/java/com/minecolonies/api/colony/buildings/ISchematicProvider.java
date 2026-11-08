@@ -4,7 +4,7 @@ import com.ldtteam.structurize.api.RotationMirror;
 import com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataProviderBE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Tuple;
+import com.minecolonies.api.util.Tuple;
 import com.ldtteam.shim.neoforge.common.util.INBTSerializable;
 import java.util.Set;
 

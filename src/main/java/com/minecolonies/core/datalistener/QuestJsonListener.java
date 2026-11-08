@@ -20,21 +20,21 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import com.minecolonies.core.datalistener.util.RegistryAwareJsonReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Function;
 
-import static com.minecolonies.core.generation.DataGeneratorConstants.COLONY_QUESTS_DIR;
+
 import static com.minecolonies.core.quests.QuestParsingConstants.*;
 import static com.minecolonies.core.quests.QuestParsingConstants.BRACE_CLOSE;
 
 /**
  * Loader for Json based quest data.
  */
-public class QuestJsonListener extends SimpleJsonResourceReloadListener
+public class QuestJsonListener extends RegistryAwareJsonReloadListener
 {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
@@ -48,7 +48,7 @@ public class QuestJsonListener extends SimpleJsonResourceReloadListener
      */
     public QuestJsonListener()
     {
-        super(GSON, COLONY_QUESTS_DIR);
+        super("colony/quests");
     }
 
     /**
@@ -61,7 +61,7 @@ public class QuestJsonListener extends SimpleJsonResourceReloadListener
         byteBuf.writeInt(globalJsonElementMap.size());
         for (final Map.Entry<Identifier, JsonElement> entry : globalJsonElementMap.entrySet())
         {
-            byteBuf.writeResourceLocation(entry.getKey());
+            byteBuf.writeIdentifier(entry.getKey());
             byteBuf.writeByteArray(entry.getValue().toString().getBytes());
         }
         new GlobalQuestSyncMessage(byteBuf).sendToPlayer(player);
@@ -77,7 +77,7 @@ public class QuestJsonListener extends SimpleJsonResourceReloadListener
         final int size = byteBuf.readInt();
         for (int i = 0; i < size; i++)
         {
-            globalJsonElementMap.put(byteBuf.readResourceLocation(), GSON.fromJson(new String(byteBuf.readByteArray()), JsonObject.class));
+            globalJsonElementMap.put(byteBuf.readIdentifier(), GSON.fromJson(new String(byteBuf.readByteArray()), JsonObject.class));
         }
         apply(byteBuf.registryAccess(), globalJsonElementMap);
     }
@@ -131,7 +131,7 @@ public class QuestJsonListener extends SimpleJsonResourceReloadListener
 
             try
             {
-                questTriggers.add(IMinecoloniesAPI.getInstance().getQuestTriggerRegistry().get(Identifier.parse(type)).produce(triggerObj));
+                questTriggers.add(IMinecoloniesAPI.getInstance().getQuestTriggerRegistry().getValue(Identifier.parse(type)).produce(triggerObj));
             }
             catch (final Exception ex)
             {
@@ -146,7 +146,7 @@ public class QuestJsonListener extends SimpleJsonResourceReloadListener
             final String type = objectiveObj.get(TYPE).getAsString();
             try
             {
-                questObjectives.add(IMinecoloniesAPI.getInstance().getQuestObjectiveRegistry().get(Identifier.parse(type)).produce(provider, objectiveObj));
+                questObjectives.add(IMinecoloniesAPI.getInstance().getQuestObjectiveRegistry().getValue(Identifier.parse(type)).produce(provider, objectiveObj));
             }
             catch (final Exception ex)
             {
@@ -189,7 +189,7 @@ public class QuestJsonListener extends SimpleJsonResourceReloadListener
             final String type = objectiveObj.get(TYPE).getAsString();
             try
             {
-                questRewards.add(IMinecoloniesAPI.getInstance().getQuestRewardRegistry().get(Identifier.parse(type)).produce(provider, objectiveObj));
+                questRewards.add(IMinecoloniesAPI.getInstance().getQuestRewardRegistry().getValue(Identifier.parse(type)).produce(provider, objectiveObj));
             }
             catch (final Exception ex)
             {

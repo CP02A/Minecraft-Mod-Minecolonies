@@ -158,9 +158,9 @@ public class VisitorCitizen extends AbstractEntityCitizen
     }
 
     @Override
-    public boolean hurt(@NotNull final DamageSource damageSource, final float damage)
+    public boolean hurtServer(final net.minecraft.server.level.ServerLevel level, final DamageSource damageSource, final float damage)
     {
-        if (!(damageSource.getEntity() instanceof EntityCitizen) && super.hurt(damageSource, damage))
+        if (!(damageSource.getEntity() instanceof EntityCitizen) && super.hurtServer(level, damageSource, damage))
         {
             if (damageSource.getEntity() instanceof LivingEntity && damage > 1.01f)
             {
@@ -425,7 +425,7 @@ public class VisitorCitizen extends AbstractEntityCitizen
             return result;
         }
 
-        if (CompatibilityUtils.getWorldFromCitizen(this).isClientSide)
+        if (CompatibilityUtils.getWorldFromCitizen(this).isClientSide())
         {
             if (player.isShiftKeyDown())
             {
@@ -457,7 +457,7 @@ public class VisitorCitizen extends AbstractEntityCitizen
         {
             if (!level().isClientSide())
             {
-                playSound(SoundEvents.GENERIC_EAT, 1.5f, (float) SoundUtils.getRandomPitch(getRandom()));
+                playSound(SoundEvents.GENERIC_EAT.value(), 1.5f, (float) SoundUtils.getRandomPitch(getRandom()));
                 new ItemParticleEffectMessage(usedStack.copy(), getX(), getY(), getZ(), getXRot(), getYRot(), getEyeHeight()).sendToTrackingEntity(this);
                 ItemStackUtils.consumeFood(usedStack, this, player);
                 MessageUtils.forCitizen(this, MESSAGE_INTERACTION_VISITOR_FOOD).sendTo(player);
@@ -509,7 +509,7 @@ public class VisitorCitizen extends AbstractEntityCitizen
             markDirty(0);
         }
 
-        if (CompatibilityUtils.getWorldFromCitizen(this).isClientSide)
+        if (CompatibilityUtils.getWorldFromCitizen(this).isClientSide())
         {
             citizenColonyHandler.updateColonyClient();
             if (citizenColonyHandler.getColonyId() != 0 && citizenId != 0 && getOffsetTicks() % TICKS_20 == 0)
@@ -533,31 +533,41 @@ public class VisitorCitizen extends AbstractEntityCitizen
     }
 
     @Override
-    public void addAdditionalSaveData(final CompoundTag compound)
+    public void addAdditionalSaveData(final net.minecraft.world.level.storage.ValueOutput valueOutput)
     {
-        super.addAdditionalSaveData(compound);
+        super.addAdditionalSaveData(valueOutput);
+        final CompoundTag compound = new CompoundTag();
+        addAdditionalSaveDataTag(compound);
+        com.minecolonies.core.entity.NbtValueIO.write(valueOutput, compound);
+    }
+
+    private void addAdditionalSaveDataTag(final CompoundTag compound)
+    {
+
 
         compound.putInt(TAG_COLONY_ID, citizenColonyHandler.getColonyId());
         if (citizenData != null)
         {
             compound.putInt(TAG_CITIZEN, citizenData.getId());
         }
-    }
+        }
 
     @Override
-    public void readAdditionalSaveData(final CompoundTag compound)
+    public void readAdditionalSaveData(final net.minecraft.world.level.storage.ValueInput valueInput)
     {
-        super.readAdditionalSaveData(compound);
+        super.readAdditionalSaveData(valueInput);
+        final CompoundTag compound = com.minecolonies.core.entity.NbtValueIO.read(valueInput);
+
 
         if (compound.contains(TAG_COLONY_ID))
         {
-            citizenColonyHandler.setColonyId(compound.getInt(TAG_COLONY_ID));
+            citizenColonyHandler.setColonyId(compound.getIntOr(TAG_COLONY_ID, 0));
             if (compound.contains(TAG_CITIZEN))
             {
-                citizenId = compound.getInt(TAG_CITIZEN);
+                citizenId = compound.getIntOr(TAG_CITIZEN, 0);
             }
         }
-    }
+        }
 
     @Override
     public void die(DamageSource cause)

@@ -10,6 +10,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.phys.Vec3;
 import com.ldtteam.shim.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
@@ -80,7 +81,7 @@ public class LocalizedParticleEffectMessage extends AbstractClientPlayMessage
         {
             final Vec3 randomPos = new Vec3((RAND.nextDouble() - 0.5D) * 0.1D, RAND.nextDouble() * 0.1D + 0.1D, 0.0D);
             final Vec3 randomOffset = new Vec3((RAND.nextDouble() - 0.5D) * 0.1D, RAND.nextDouble() - 0.5D * 0.1D, (RAND.nextDouble() - 0.5D) * 0.1D);
-            player.level().addParticle(new ItemParticleOption(ParticleTypes.ITEM, stack),
+            player.level().addParticle(new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromNonEmptyStack(stack)),
               posX + randomOffset.x,
               posY + randomOffset.y,
               posZ + randomOffset.z,

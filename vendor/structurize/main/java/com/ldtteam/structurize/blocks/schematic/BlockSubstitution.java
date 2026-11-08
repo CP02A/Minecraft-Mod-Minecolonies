@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.blocks.schematic;
 
+import net.minecraft.world.entity.LivingEntity;
 import com.ldtteam.structurize.items.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
@@ -28,15 +29,20 @@ public class BlockSubstitution extends Block implements LiquidBlockContainer
     /**
      * Constructor for the Substitution block. sets the creative tab, as well as the resistance and the hardness.
      */
-    public BlockSubstitution()
+    public BlockSubstitution(final Properties properties)
     {
-        super(defaultSubstitutionProperties()
+        super(defaultSubstitutionProperties(properties)
                 .forceSolidOff());  // don't kill farmland and path blocks underneath
     }
 
     public static Properties defaultSubstitutionProperties()
     {
-        return Properties.of()
+        return defaultSubstitutionProperties(Properties.of());
+    }
+
+    public static Properties defaultSubstitutionProperties(final Properties properties)
+    {
+        return properties
             .mapColor(MapColor.WOOD)
             .sound(SoundType.WOOD)
             .instabreak() // must be before explosionResistance
@@ -72,7 +78,7 @@ public class BlockSubstitution extends Block implements LiquidBlockContainer
     }
 
     @Override
-    public boolean canPlaceLiquid(@Nullable Player player, BlockGetter level, BlockPos pos, BlockState state, Fluid fluid)
+    public boolean canPlaceLiquid(@Nullable LivingEntity player, BlockGetter level, BlockPos pos, BlockState state, Fluid fluid)
     {
         // Don't allow water to flow inside despite being non-solid
         return false;

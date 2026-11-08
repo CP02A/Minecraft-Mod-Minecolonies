@@ -25,7 +25,7 @@ public class PirateRaidEvent extends AbstractShipRaidEvent
     /**
      * This raids event id, registry entries use res locations as ids.
      */
-    public static final Identifier PIRATE_RAID_EVENT_TYPE_ID = new Identifier(Constants.MOD_ID, "pirate_raid");
+    public static final Identifier PIRATE_RAID_EVENT_TYPE_ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "pirate_raid");
 
     /**
      * Ship description

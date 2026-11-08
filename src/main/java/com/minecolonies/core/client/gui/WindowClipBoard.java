@@ -49,7 +49,7 @@ public class WindowClipBoard extends AbstractWindowSkeleton
      */
     public WindowClipBoard(final IColonyView colony, boolean showImportant)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/windowclipboard.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowclipboard.xml"));
         this.showImportant = showImportant;
         this.requestTreeWindowModule = registerLayoutModule(ClipboardRequestTreeWindowModule::new, new ClipboardRequestTreeWindowModule.Options(colony, () -> this.showImportant), 16, 44);
 

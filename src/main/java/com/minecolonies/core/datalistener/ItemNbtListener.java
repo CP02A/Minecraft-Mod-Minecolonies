@@ -8,7 +8,7 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import com.minecolonies.core.datalistener.util.RegistryAwareJsonReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,7 +17,7 @@ import java.util.*;
 /**
  * Loads and listens to get custom nbt matching rules.
  */
-public class ItemNbtListener extends SimpleJsonResourceReloadListener
+public class ItemNbtListener extends RegistryAwareJsonReloadListener
 {
     /**
      * Gson instance
@@ -29,7 +29,7 @@ public class ItemNbtListener extends SimpleJsonResourceReloadListener
      */
     public ItemNbtListener()
     {
-        super(GSON, "compatibility");
+        super("compatibility");
     }
 
     @Override
@@ -61,14 +61,14 @@ public class ItemNbtListener extends SimpleJsonResourceReloadListener
                     final JsonArray jsonArray = jsonObj.getAsJsonArray("checkednbtkeys");
                     for (final JsonElement subElement : jsonArray)
                     {
-                        set.add(BuiltInRegistries.DATA_COMPONENT_TYPE.get(Identifier.parse(subElement.getAsString())));
+                        set.add(BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(Identifier.parse(subElement.getAsString())));
                     }
 
-                    ItemStackUtils.CHECKED_NBT_KEYS.put(BuiltInRegistries.ITEM.get(itemLoc), set);
+                    ItemStackUtils.CHECKED_NBT_KEYS.put(BuiltInRegistries.ITEM.getValue(itemLoc), set);
                 }
                 else
                 {
-                    ItemStackUtils.CHECKED_NBT_KEYS.put(BuiltInRegistries.ITEM.get(itemLoc), new HashSet<>());
+                    ItemStackUtils.CHECKED_NBT_KEYS.put(BuiltInRegistries.ITEM.getValue(itemLoc), new HashSet<>());
                 }
             }
             catch (Exception e)

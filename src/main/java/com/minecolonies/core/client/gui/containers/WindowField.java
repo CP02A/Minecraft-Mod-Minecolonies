@@ -101,7 +101,7 @@ public class WindowField extends AbstractWindowSkeleton
      */
     public WindowField(@NotNull TileEntityScarecrow tileEntityScarecrow)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/windowfield.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowfield.xml"));
         this.tileEntityScarecrow = tileEntityScarecrow;
 
         registerButton(SELECT_SEED_BUTTON_ID, this::selectSeed);
@@ -111,11 +111,11 @@ public class WindowField extends AbstractWindowSkeleton
         }
 
         final Holder<Biome> biomeHolder = Minecraft.getInstance().level.getBiome(tileEntityScarecrow.getBlockPos());
-        final Identifier biomeID = biomeHolder.unwrapKey().get().location();
+        final Identifier biomeID = biomeHolder.unwrapKey().get().identifier();
         final String biomeLangKey = "biome." + biomeID.getNamespace() + "." + biomeID.getPath();
         this.findPaneOfTypeByID("biome", Text.class)
             .setText(Component.translatable("com.minecolonies.core.biome")
-                .append(I18n.exists(biomeLangKey) ? Component.translatable(biomeLangKey) : Component.literal(biomeID.getPath())));
+                .append(net.minecraft.locale.Language.getInstance().has(biomeLangKey) ? Component.translatable(biomeLangKey) : Component.literal(biomeID.getPath())));
 
         MutableComponent biomecategory = Component.literal("");
         for (final TagKey<Biome> preferredBiome : cropBiomeTags)

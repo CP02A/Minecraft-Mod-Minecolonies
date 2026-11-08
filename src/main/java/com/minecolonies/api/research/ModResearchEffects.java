@@ -10,7 +10,7 @@ import com.ldtteam.shim.neoforge.registries.DeferredHolder;
  */
 public class ModResearchEffects
 {
-    public static final Identifier GLOBAL_EFFECT_ID = new Identifier(Constants.MOD_ID, "global");
+    public static final Identifier GLOBAL_EFFECT_ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "global");
 
     public static DeferredHolder<ResearchEffectEntry, ResearchEffectEntry> globalResearchEffect;
 

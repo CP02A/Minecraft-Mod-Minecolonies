@@ -65,7 +65,7 @@ public class ItemStorageFactory implements IItemStorageFactory
     public CompoundTag serialize(@NotNull final HolderLookup.Provider provider, @NotNull final IFactoryController controller, @NotNull final ItemStorage storage)
     {
         final CompoundTag compound = new CompoundTag();
-        compound.put(TAG_STACK, storage.getItemStack().saveOptional(provider));
+        compound.put(TAG_STACK, com.minecolonies.core.colony.NbtCompat.saveOptional(storage.getItemStack(), provider));
         compound.putInt(TAG_SIZE, storage.getAmount());
         compound.putBoolean(TAG_SHOULDIGNOREDAMAGE, storage.ignoreDamageValue());
         compound.putBoolean(TAG_SHOULDIGNORENBT , storage.ignoreNBT());
@@ -76,11 +76,11 @@ public class ItemStorageFactory implements IItemStorageFactory
     @Override
     public ItemStorage deserialize(@NotNull final HolderLookup.Provider provider, @NotNull final IFactoryController controller, @NotNull final CompoundTag nbt)
     {
-        final ItemStack stack = ItemStack.parseOptional(provider, nbt.getCompound(TAG_STACK));
+        final ItemStack stack = com.minecolonies.core.colony.NbtCompat.parseOptional(provider, nbt.getCompoundOrEmpty(TAG_STACK));
         stack.setCount(1);  // fix old data
-        final int size = nbt.getInt(TAG_SIZE);
-        final boolean ignoreNBT = nbt.getBoolean(TAG_SHOULDIGNORENBT);
-        final boolean ignoreDamage = nbt.getBoolean(TAG_SHOULDIGNOREDAMAGE);
+        final int size = nbt.getIntOr(TAG_SIZE, 0);
+        final boolean ignoreNBT = nbt.getBooleanOr(TAG_SHOULDIGNORENBT, false);
+        final boolean ignoreDamage = nbt.getBooleanOr(TAG_SHOULDIGNOREDAMAGE, false);
         return this.getNewInstance(stack, size, ignoreDamage, ignoreNBT);
     }
 

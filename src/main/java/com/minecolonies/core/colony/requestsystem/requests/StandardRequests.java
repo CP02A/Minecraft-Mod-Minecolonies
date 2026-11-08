@@ -314,7 +314,7 @@ public final class StandardRequests
         @Override
         public Identifier getDisplayIcon()
         {
-            return new Identifier("minecolonies", "textures/gui/citizen/delivery.png");
+            return Identifier.fromNamespaceAndPath("minecolonies", "textures/gui/citizen/delivery.png");
         }
     }
 
@@ -358,7 +358,7 @@ public final class StandardRequests
         public Identifier getDisplayIcon()
         {
             // This can be just the delivery icon. For the user, it's no big deal.
-            return new Identifier("minecolonies", "textures/gui/citizen/delivery.png");
+            return Identifier.fromNamespaceAndPath("minecolonies", "textures/gui/citizen/delivery.png");
         }
 
         @Override
@@ -768,7 +768,7 @@ public final class StandardRequests
                                                           .getCompatibilityManager()
                                                           .getListOfAllItems()
                                                           .stream()
-                                                          .filter(FurnaceBlockEntity::isFuel)
+                                                          .filter(s -> s.has(net.minecraft.core.component.DataComponents.COOKING_FUEL))
                                                           .collect(Collectors.toList()));
             }
 

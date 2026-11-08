@@ -50,12 +50,12 @@ public class ItemScrollColonyAreaTP extends AbstractItemScroll
     @Override
     protected ItemStack onItemUseSuccess(final ItemStack itemStack, final Level world, final ServerPlayer player)
     {
-        if (world.random.nextInt(10) == 0)
+        if (world.getRandom().nextInt(10) == 0)
         {
             // Fail chance
-            player.displayClientMessage(Component.translatableEscape(
-              "minecolonies.scroll.failed" + (world.random.nextInt(FAIL_RESPONSES_TOTAL) + 1)).setStyle(Style.EMPTY.withColor(
-              ChatFormatting.GOLD)), true);
+            player.sendOverlayMessage(Component.translatableEscape(
+              "minecolonies.scroll.failed" + (world.getRandom().nextInt(FAIL_RESPONSES_TOTAL) + 1)).setStyle(Style.EMPTY.withColor(
+              ChatFormatting.GOLD)));
 
             itemStack.shrink(1);
             if (!ItemStackUtils.isEmpty(itemStack))
@@ -103,7 +103,7 @@ public class ItemScrollColonyAreaTP extends AbstractItemScroll
     @Override
     public void onUseTick(Level worldIn, LivingEntity entity, ItemStack stack, int count)
     {
-        if (!worldIn.isClientSide && worldIn.getGameTime() % 5 == 0 && entity instanceof Player)
+        if (!worldIn.isClientSide() && worldIn.getGameTime() % 5 == 0 && entity instanceof Player)
         {
             final ServerPlayer sPlayer = (ServerPlayer) entity;
             for (final Entity player : getAffectedPlayers(sPlayer))
@@ -124,11 +124,11 @@ public class ItemScrollColonyAreaTP extends AbstractItemScroll
     }
 
     @Override
-    public void appendHoverText(@NotNull final ItemStack stack, @Nullable final TooltipContext ctx, @NotNull final List<Component> tooltip, @NotNull final TooltipFlag flagIn)
+    public void appendHoverText(@NotNull final ItemStack stack, @Nullable final TooltipContext ctx, final net.minecraft.world.item.component.TooltipDisplay tooltipDisplay, @NotNull final java.util.function.Consumer<Component> tooltip, @NotNull final TooltipFlag flagIn)
     {
         final MutableComponent guiHint = Component.translatableEscape(TOOL_COLONY_TELEPORT_AREA_SCROLL_DESCRIPTION);
         guiHint.setStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GREEN));
-        tooltip.add(guiHint);
+        tooltip.accept(guiHint);
 
         MutableComponent colonyDesc = Component.translatable(TOOL_COLONY_TELEPORT_SCROLL_NO_COLONY);
 
@@ -140,6 +140,6 @@ public class ItemScrollColonyAreaTP extends AbstractItemScroll
 
         final MutableComponent guiHint2 = Component.translatableEscape(TOOL_COLONY_TELEPORT_SCROLL_COLONY_NAME, colonyDesc);
         guiHint2.setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD));
-        tooltip.add(guiHint2);
+        tooltip.accept(guiHint2);
     }
 }

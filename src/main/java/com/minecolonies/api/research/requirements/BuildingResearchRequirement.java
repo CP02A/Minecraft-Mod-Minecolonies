@@ -66,8 +66,8 @@ public class BuildingResearchRequirement implements IResearchRequirement
      */
     public BuildingResearchRequirement(final CompoundTag nbt)
     {
-        building = parseFallbackBuildingKey(nbt.getString(TAG_BUILDING_NAME));
-        buildingLevel = nbt.getInt(TAG_BUILDING_LVL);
+        building = parseFallbackBuildingKey(nbt.getStringOr(TAG_BUILDING_NAME, ""));
+        buildingLevel = nbt.getIntOr(TAG_BUILDING_LVL, 0);
         singleBuilding = nbt.getString(TAG_REQ_TYPE).equals(BUILDING_SINGLE_RESEARCH_REQ_ID.toString());
     }
 
@@ -82,7 +82,7 @@ public class BuildingResearchRequirement implements IResearchRequirement
     public static Identifier parseFallbackBuildingKey(final String key)
     {
         final Identifier buildingResourceLocation = Identifier.tryParse(key);
-        return Objects.requireNonNullElseGet(buildingResourceLocation, () -> new Identifier(Constants.MOD_ID, key));
+        return Objects.requireNonNullElseGet(buildingResourceLocation, () -> Identifier.fromNamespaceAndPath(Constants.MOD_ID, key));
     }
 
     /**
@@ -123,7 +123,7 @@ public class BuildingResearchRequirement implements IResearchRequirement
     @Override
     public MutableComponent getDesc()
     {
-        final BuildingEntry buildingEntry = IBuildingRegistry.getInstance().get(building);
+        final BuildingEntry buildingEntry = IBuildingRegistry.getInstance().getValue(building);
         final MutableComponent buildingName = buildingEntry != null ? Component.translatable(buildingEntry.getTranslationKey()) : Component.empty();
 
         if (singleBuilding)

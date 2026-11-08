@@ -70,7 +70,6 @@ import static net.minecraft.core.Direction.WEST;
  */
 public class ShingleSlabBlock extends AbstractBlockDirectional<ShingleSlabBlock> implements SimpleWaterloggedBlock, IMateriallyTexturedBlock, ICachedItemGroupBlock, EntityBlock
 {
-    public static final MapCodec<ShingleSlabBlock> CODEC = simpleCodec(ShingleSlabBlock::new);
     public static final List<IMateriallyTexturedBlockComponent> COMPONENTS = ImmutableList.<IMateriallyTexturedBlockComponent>builder()
                                                                                .add(new SimpleRetexturableComponent(Identifier.withDefaultNamespace("block/oak_planks"), ModTags.SHINGLES_ROOF, Blocks.OAK_PLANKS))
                                                                                .add(new SimpleRetexturableComponent(Identifier.withDefaultNamespace("block/dark_oak_planks"), ModTags.SHINGLES_SUPPORT, Blocks.DARK_OAK_PLANKS))
@@ -113,12 +112,6 @@ public class ShingleSlabBlock extends AbstractBlockDirectional<ShingleSlabBlock>
     {
         super(props);
         registerDefaultState(defaultBlockState().setValue(WATERLOGGED, false));
-    }
-
-    @Override
-    protected @NonNull MapCodec<ShingleSlabBlock> codec()
-    {
-        return CODEC;
     }
 
     // Deprecated here just means that you should not use this method when referencing a block, and instead it's blockstate <- Forge's Discord
@@ -332,9 +325,9 @@ public class ShingleSlabBlock extends AbstractBlockDirectional<ShingleSlabBlock>
         new ArchitectsCutterRecipeBuilder(this, RecipeCategory.BUILDING_BLOCKS).count(COMPONENTS.size() * 2).save(recipeOutput);
     }
 
-    @Override
+    // FABRIC-PORT: NeoForge IBlockExtension overload, applied via domumornamentum.fabric.mixin
     public float getExplosionResistance(@NonNull BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos, @NonNull Explosion explosion) {
-        return getDOExplosionResistance(super::getExplosionResistance, state, level, pos, explosion);
+        return getDOExplosionResistance((s, l, p, e) -> super.getExplosionResistance(), state, level, pos, explosion);
     }
 
     @Override
@@ -342,9 +335,9 @@ public class ShingleSlabBlock extends AbstractBlockDirectional<ShingleSlabBlock>
         return getDODestroyProgress(super::getDestroyProgress, state, player, level, pos);
     }
 
-    @Override
+    // FABRIC-PORT TODO: NeoForge positional getSoundType overload, not called on Fabric (vanilla sound type is used)
     public @NonNull SoundType getSoundType(@NonNull BlockState state, @NonNull LevelReader level, @NonNull BlockPos pos, @org.jetbrains.annotations.Nullable Entity entity) {
-        return getDOSoundType(super::getSoundType, state, level, pos, entity);
+        return getDOSoundType((s, l, p, e) -> super.getSoundType(s), state, level, pos, entity);
     }
 
     @Override

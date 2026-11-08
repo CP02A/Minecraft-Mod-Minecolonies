@@ -42,10 +42,8 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.entity.BannerPatternLayers;
@@ -70,7 +68,7 @@ public class MeleeCombatAI extends AttackMoveAI<EntityCitizen>
      * Combat icon
      */
     private final static VisibleCitizenStatus KNIGHT_COMBAT =
-      new VisibleCitizenStatus(new Identifier(Constants.MOD_ID, "textures/icons/work/knight_combat.png"), "com.minecolonies.gui.visiblestatus.knight_combat");
+      new VisibleCitizenStatus(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/work/knight_combat.png"), "com.minecolonies.gui.visiblestatus.knight_combat");
 
     /**
      * Knockback chance
@@ -197,7 +195,7 @@ public class MeleeCombatAI extends AttackMoveAI<EntityCitizen>
             moveInAttackPosition(target);
         }
 
-        user.swing(InteractionHand.MAIN_HAND);
+        user.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
         user.playSound(SoundEvents.PLAYER_ATTACK_SWEEP, (float) BASIC_VOLUME, (float) SoundUtils.getRandomPitch(user.getRandom()));
 
         final double damageToBeDealt = getAttackDamage();
@@ -221,12 +219,12 @@ public class MeleeCombatAI extends AttackMoveAI<EntityCitizen>
         if (isHuscarl())
         {
             double share = (50 + user.getCitizenData().getCitizenSkillHandler().getLevel(Skill.Adaptability) / 2.0) / 100.0;
-            target.hurt(target.level().damageSources().source(DamageSourceKeys.PIERCE, user), (float) damageToBeDealt * (float) share);
-            target.hurt(source, (float) damageToBeDealt * (float) (1.0 - share));
+            target.hurtOrSimulate(target.level().damageSources().source(DamageSourceKeys.PIERCE, user), (float) damageToBeDealt * (float) share);
+            target.hurtOrSimulate(source, (float) damageToBeDealt * (float) (1.0 - share));
         }
         else
         {
-            target.hurt(source, (float) damageToBeDealt);
+            target.hurtOrSimulate(source, (float) damageToBeDealt);
         }
 
         target.setLastHurtByMob(user);
@@ -275,7 +273,7 @@ public class MeleeCombatAI extends AttackMoveAI<EntityCitizen>
                       2F,
                       Mth.sin(livingentity.getYRot() * ((float) Math.PI)),
                       (-Mth.cos(livingentity.getYRot() * ((float) Math.PI))));
-                    livingentity.hurt(source, (float) (damageToBeDealt / entities.size()));
+                    livingentity.hurtOrSimulate(source, (float) (damageToBeDealt / entities.size()));
                 }
             }
 
@@ -320,7 +318,7 @@ public class MeleeCombatAI extends AttackMoveAI<EntityCitizen>
 
         if (ItemStackUtils.doesItemServeAsWeapon(heldItem))
         {
-            if (heldItem.getItem() instanceof SwordItem)
+            if (heldItem.is(net.minecraft.tags.ItemTags.SWORDS))
             {
                 addDmg += user.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
             }
@@ -328,9 +326,9 @@ public class MeleeCombatAI extends AttackMoveAI<EntityCitizen>
             {
                 addDmg += ((ItemSpear) heldItem.getItem()).getDamage() + BASE_PHYSICAL_DAMAGE;
             }
-            else if (heldItem.getItem() instanceof AxeItem)
+            else if (heldItem.is(net.minecraft.tags.ItemTags.AXES))
             {
-                addDmg += heldItem.getItem().getDamage(heldItem) + BASE_PHYSICAL_DAMAGE;
+                addDmg += heldItem.getDamageValue() + BASE_PHYSICAL_DAMAGE;
             }
             else
             {

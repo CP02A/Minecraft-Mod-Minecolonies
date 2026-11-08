@@ -74,7 +74,7 @@ public class VisitorManager implements IVisitorManager
     {
         if (visitor.getCivilianID() == 0 || visitorMap.get(visitor.getCivilianID()) == null)
         {
-            if (!visitor.isAddedToLevel())
+            if (!com.minecolonies.core.colony.EntityCompat.isAddedToLevel(visitor))
             {
                 Log.getLogger().warn("Discarding entity not added to world, should be only called after:", new Exception());
             }
@@ -86,7 +86,7 @@ public class VisitorManager implements IVisitorManager
 
         if (data == null || !visitor.getUUID().equals(data.getUUID()))
         {
-            if (!visitor.isAddedToLevel())
+            if (!com.minecolonies.core.colony.EntityCompat.isAddedToLevel(visitor))
             {
                 Log.getLogger().warn("Discarding entity not added to world, should be only called after:", new Exception());
             }
@@ -116,7 +116,7 @@ public class VisitorManager implements IVisitorManager
             return;
         }
 
-        if (!visitor.isAddedToLevel())
+        if (!com.minecolonies.core.colony.EntityCompat.isAddedToLevel(visitor))
         {
             Log.getLogger().warn("Discarding entity not added to world, should be only called after:", new Exception());
         }
@@ -138,15 +138,15 @@ public class VisitorManager implements IVisitorManager
     {
         if (compound.contains(TAG_VISIT_MANAGER))
         {
-            final CompoundTag visitorManagerNBT = compound.getCompound(TAG_VISIT_MANAGER);
-            final ListTag citizenList = visitorManagerNBT.getList(TAG_VISITORS, Tag.TAG_COMPOUND);
+            final CompoundTag visitorManagerNBT = compound.getCompoundOrEmpty(TAG_VISIT_MANAGER);
+            final ListTag citizenList = visitorManagerNBT.getListOrEmpty(TAG_VISITORS);
             for (final Tag citizen : citizenList)
             {
                 final IVisitorData data = VisitorData.loadVisitorFromNBT(colony, (CompoundTag) citizen, provider);
                 visitorMap.put(data.getId(), data);
             }
 
-            nextVisitorID = visitorManagerNBT.getInt(TAG_NEXTID);
+            nextVisitorID = visitorManagerNBT.getIntOr(TAG_NEXTID, 0);
         }
         markDirty();
     }
@@ -254,7 +254,7 @@ public class VisitorManager implements IVisitorManager
                 BlockPos calculatedSpawn = EntityUtils.getSpawnPoint(world, spawnLocation);
                 if (calculatedSpawn != null)
                 {
-                    VisitorCitizen citizenEntity = (VisitorCitizen) ModEntities.VISITOR.create(colony.getWorld());
+                    VisitorCitizen citizenEntity = (VisitorCitizen) ModEntities.VISITOR.create(colony.getWorld(), net.minecraft.world.entity.EntitySpawnReason.EVENT);
 
                     if (citizenEntity == null)
                     {
@@ -267,7 +267,7 @@ public class VisitorManager implements IVisitorManager
 
                     citizenEntity.setCitizenId(data.getId());
                     citizenEntity.getCitizenColonyHandler().setColonyId(colony.getID());
-                    if (citizenEntity.isAddedToLevel())
+                    if (com.minecolonies.core.colony.EntityCompat.isAddedToLevel(citizenEntity))
                     {
                         citizenEntity.getCitizenColonyHandler().registerWithColony(data.getColony().getID(), data.getId());
                     }

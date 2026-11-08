@@ -2,11 +2,11 @@
   "credit": "Created by: OddRobbia02 with Blockbench",
   "ambientocclusion": false,
   "textures": {
-    "0": "block/iron_block",
-    "1": "block/spruce_planks",
-    "2": "block/stone_bricks",
-    "3": "block/chiseled_stone_bricks",
-    "particle": "block/spruce_planks"
+    "0": "minecraft:block/iron_block",
+    "1": "minecraft:block/spruce_planks",
+    "2": "minecraft:block/stone_bricks",
+    "3": "minecraft:block/chiseled_stone_bricks",
+    "particle": "minecraft:block/spruce_planks"
   },
   "elements": [
     {

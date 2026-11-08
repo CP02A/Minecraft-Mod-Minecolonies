@@ -104,14 +104,14 @@ public class WorkerBuildingModuleView extends AbstractBuildingModuleView impleme
         this.secondary = Skill.values()[buf.readInt()];
         if (buf.readBoolean())
         {
-            this.researchRequirement = buf.readResourceLocation();
+            this.researchRequirement = buf.readIdentifier();
         }
     }
 
     @Override
     public Identifier getIconResourceLocation()
     {
-        return new Identifier(Constants.MOD_ID, "textures/gui/modules/custom.png");
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/modules/custom.png");
     }
 
     @Override

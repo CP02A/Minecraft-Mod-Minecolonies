@@ -192,10 +192,10 @@ public final class BlockPosUtil
     @NotNull
     public static BlockPos read(@NotNull final CompoundTag compound, final String name)
     {
-        final CompoundTag coordsCompound = compound.getCompound(name);
-        final int x = coordsCompound.getInt("x");
-        final int y = coordsCompound.getInt("y");
-        final int z = coordsCompound.getInt("z");
+        final CompoundTag coordsCompound = compound.getCompoundOrEmpty(name);
+        final int x = coordsCompound.getIntOr("x", 0);
+        final int y = coordsCompound.getIntOr("y", 0);
+        final int z = coordsCompound.getIntOr("z", 0);
         return new BlockPos(x, y, z);
     }
 
@@ -255,7 +255,7 @@ public final class BlockPosUtil
     public static List<BlockPos> readPosListFromNBT(final CompoundTag compoundNBT, final String tagname)
     {
         final List<BlockPos> result = new ArrayList<>();
-        ListTag listNBT = compoundNBT.getList(tagname, Tag.TAG_COMPOUND);
+        ListTag listNBT = compoundNBT.getListOrEmpty(tagname);
         for (int i = 0; i < listNBT.size(); i++)
         {
             result.add(readFromListNBT(listNBT, i));
@@ -274,10 +274,10 @@ public final class BlockPosUtil
     @NotNull
     public static BlockPos readFromListNBT(@NotNull final ListTag tagList, final int index)
     {
-        final CompoundTag coordsCompound = tagList.getCompound(index);
-        final int x = coordsCompound.getInt("x");
-        final int y = coordsCompound.getInt("y");
-        final int z = coordsCompound.getInt("z");
+        final CompoundTag coordsCompound = tagList.getCompoundOrEmpty(index);
+        final int x = coordsCompound.getIntOr("x", 0);
+        final int y = coordsCompound.getIntOr("y", 0);
+        final int z = coordsCompound.getIntOr("z", 0);
         return new BlockPos(x, y, z);
     }
 
@@ -374,9 +374,9 @@ public final class BlockPosUtil
     public static double getValidHeight(@NotNull final Vec3 position, @NotNull final Level world)
     {
         double returnHeight = position.y;
-        if (position.y < world.getMinBuildHeight())
+        if (position.y < world.getMinY())
         {
-            returnHeight = world.getMinBuildHeight();
+            returnHeight = world.getMinY();
         }
 
         while (returnHeight >= 1 && world.isEmptyBlock(new BlockPos(Mth.floor(position.x),

@@ -49,7 +49,7 @@ public class VanillaParticleMessage extends AbstractClientPlayMessage
         x = byteBuf.readDouble();
         y = byteBuf.readDouble();
         z = byteBuf.readDouble();
-        this.type = (SimpleParticleType) BuiltInRegistries.PARTICLE_TYPE.get(byteBuf.readResourceLocation());
+        this.type = (SimpleParticleType) BuiltInRegistries.PARTICLE_TYPE.getValue(byteBuf.readIdentifier());
     }
 
     @Override
@@ -58,7 +58,7 @@ public class VanillaParticleMessage extends AbstractClientPlayMessage
         byteBuf.writeDouble(x);
         byteBuf.writeDouble(y);
         byteBuf.writeDouble(z);
-        byteBuf.writeResourceLocation(BuiltInRegistries.PARTICLE_TYPE.getKey(this.type));
+        byteBuf.writeIdentifier(BuiltInRegistries.PARTICLE_TYPE.getKey(this.type));
     }
 
     @Override

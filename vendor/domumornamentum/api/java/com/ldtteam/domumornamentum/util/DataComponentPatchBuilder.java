@@ -2,18 +2,25 @@ package com.ldtteam.domumornamentum.util;
 
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
-import java.util.Optional;
+
+import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 /**
- * Extended builder with update support
+ * Extended builder with update support.
+ *
+ * <p>Fabric: vanilla's {@link DataComponentPatch.Builder} cannot be subclassed (private constructor, NeoForge widened
+ * it), so this wraps a vanilla builder and tracks the values set through it.
  */
-public class DataComponentPatchBuilder extends DataComponentPatch.Builder
+public class DataComponentPatchBuilder
 {
+    private final DataComponentPatch.Builder delegate = DataComponentPatch.builder();
+    private final Map<DataComponentType<?>, Object> values = new IdentityHashMap<>();
+
     public DataComponentPatchBuilder()
     {
-        super();
     }
 
     public <T> T getOrDefault(final Supplier<DataComponentType<T>> type, final T defaultValue)
@@ -24,7 +31,8 @@ public class DataComponentPatchBuilder extends DataComponentPatch.Builder
     @SuppressWarnings("unchecked")
     public <T> T getOrDefault(final DataComponentType<T> type, final T defaultValue)
     {
-        return ((Optional<T>) map.getOrDefault(type, Optional.empty())).orElse(defaultValue);
+        final Object value = values.get(type);
+        return value == null ? defaultValue : (T) value;
     }
 
     public <T> DataComponentPatchBuilder update(final Supplier<DataComponentType<T>> type, final T defaultValue, final UnaryOperator<T> updater)
@@ -40,7 +48,25 @@ public class DataComponentPatchBuilder extends DataComponentPatch.Builder
 
     public <T> DataComponentPatchBuilder set(final Supplier<DataComponentType<T>> type, final T value)
     {
-        set(type.get(), value);
+        return set(type.get(), value);
+    }
+
+    public <T> DataComponentPatchBuilder set(final DataComponentType<T> type, final T value)
+    {
+        values.put(type, value);
+        delegate.set(type, value);
         return this;
+    }
+
+    public <T> DataComponentPatchBuilder remove(final DataComponentType<T> type)
+    {
+        values.remove(type);
+        delegate.remove(type);
+        return this;
+    }
+
+    public DataComponentPatch build()
+    {
+        return delegate.build();
     }
 }

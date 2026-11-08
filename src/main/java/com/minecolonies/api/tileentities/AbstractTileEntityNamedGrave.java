@@ -12,7 +12,8 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.core.Direction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class AbstractTileEntityNamedGrave extends BlockEntity
     /**
      * The position it faces.
      */
-    public static final DirectionProperty FACING       = HorizontalDirectionalBlock.FACING;
+    public static final EnumProperty<Direction> FACING       = HorizontalDirectionalBlock.FACING;
 
     /**
      * The text displayed on the name plate
@@ -57,10 +58,10 @@ public class AbstractTileEntityNamedGrave extends BlockEntity
         textLines.clear();
         if (compound.contains(TAG_CONTENT))
         {
-            final ListTag lines = compound.getList(TAG_CONTENT, TAG_STRING);
+            final ListTag lines = compound.getListOrEmpty(TAG_CONTENT);
             for (int i = 0; i < lines.size(); i++)
             {
-                final String line = lines.getString(i);
+                final String line = lines.getStringOr(i, "");
                 textLines.add(line);
             }
         }

@@ -4,14 +4,11 @@ import com.ldtteam.structurize.util.WorldRenderMacros;
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.core.client.render.TileEntityColonySignRenderer;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import com.ldtteam.shim.neoforge.client.event.RenderLevelStageEvent.Stage;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4fStack;
 
 /**
  * Main class for handling world rendering.
@@ -24,6 +21,8 @@ public class WorldEventContext extends WorldRenderMacros
     private WorldEventContext()
     {
         // singleton
+        // FABRIC-PORT: Structurize drives registered contexts from the Fabric level render event (all stages each frame).
+        WorldRenderMacros.register(this);
     }
 
     @Nullable
@@ -71,10 +70,10 @@ public class WorldEventContext extends WorldRenderMacros
 
     public void renderLineBoxWithShadow(final BlockPos pos, final int argbColor, final float lineWidth)
     {
-        final int red = FastColor.ARGB32.red(argbColor);
-        final int green = FastColor.ARGB32.green(argbColor);
-        final int blue = FastColor.ARGB32.blue(argbColor);
-        final int alpha = FastColor.ARGB32.alpha(argbColor);
+        final int red = ARGB.red(argbColor);
+        final int green = ARGB.green(argbColor);
+        final int blue = ARGB.blue(argbColor);
+        final int alpha = ARGB.alpha(argbColor);
 
         renderLineBox(LINES_WITH_WIDTH_DEPTH_INVERT, pos, pos, red / 2, green / 2, blue / 2, alpha / 2, lineWidth);
         renderLineBox(LINES_WITH_WIDTH, pos, pos, red, green, blue, alpha, lineWidth);
@@ -82,10 +81,10 @@ public class WorldEventContext extends WorldRenderMacros
 
     public void renderLineAABBWithShadow(final AABB aabb, final int argbColor, final float lineWidth)
     {
-        final int red = FastColor.ARGB32.red(argbColor);
-        final int green = FastColor.ARGB32.green(argbColor);
-        final int blue = FastColor.ARGB32.blue(argbColor);
-        final int alpha = FastColor.ARGB32.alpha(argbColor);
+        final int red = ARGB.red(argbColor);
+        final int green = ARGB.green(argbColor);
+        final int blue = ARGB.blue(argbColor);
+        final int alpha = ARGB.alpha(argbColor);
 
         renderLineAABB(LINES_WITH_WIDTH_DEPTH_INVERT, aabb, red / 2, green / 2, blue / 2, alpha / 2, lineWidth);
         renderLineAABB(LINES_WITH_WIDTH, aabb, red, green, blue, alpha, lineWidth);

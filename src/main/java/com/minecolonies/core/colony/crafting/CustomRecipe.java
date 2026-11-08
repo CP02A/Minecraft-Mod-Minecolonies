@@ -297,7 +297,7 @@ public class CustomRecipe
         if (recipeJson.has(RECIPE_TOOL_PROP))
         {
             String resLoc = recipeJson.get(RECIPE_TOOL_PROP).getAsString();
-            recipe.requiredTool = ModEquipmentTypes.getRegistry().get(EquipmentTypeEntry.parseResourceLocation(resLoc));
+            recipe.requiredTool = ModEquipmentTypes.getRegistry().getValue(EquipmentTypeEntry.parseResourceLocation(resLoc));
         }
 
         if (recipeJson.has(RECIPE_SECONDARY_PROP))
@@ -336,7 +336,7 @@ public class CustomRecipe
         }
         if (recipeJson.has(RECIPE_INTERMEDIATE_PROP))
         {
-            recipe.intermediate = BuiltInRegistries.BLOCK.get(Identifier.parse(recipeJson.get(RECIPE_INTERMEDIATE_PROP).getAsString()));
+            recipe.intermediate = BuiltInRegistries.BLOCK.getValue(Identifier.parse(recipeJson.get(RECIPE_INTERMEDIATE_PROP).getAsString()));
         }
         else
         {
@@ -416,12 +416,12 @@ public class CustomRecipe
 
         final boolean logStatus = IMinecoloniesAPI.getInstance().getConfig().getServer().auditCraftingTags.get();
 
-        for (final Holder<Item> item : BuiltInRegistries.ITEM.getTagOrEmpty(ItemTags.create(tagId)))
+        for (final Holder<Item> item : BuiltInRegistries.ITEM.getTagOrEmpty(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, tagId)))
         {
-            final Identifier itemId = item.unwrapKey().orElseThrow().location();
+            final Identifier itemId = item.unwrapKey().orElseThrow().identifier();
             if (!filter.test(itemId)) { continue; }
 
-            final Identifier recipeId = new Identifier(baseId.getNamespace(), baseId.getPath() + '/' + itemId.getNamespace() + '/' + itemId.getPath());
+            final Identifier recipeId = Identifier.fromNamespaceAndPath(baseId.getNamespace(), baseId.getPath() + '/' + itemId.getNamespace() + '/' + itemId.getPath());
             final JsonObject recipeJson = populateTemplate(baseId, baseRecipeJson, itemId, logStatus);
             if (recipeJson != null)
             {
@@ -879,15 +879,15 @@ public class CustomRecipe
     public void serialize(@NotNull final RegistryFriendlyByteBuf packetBuffer)
     {
         packetBuffer.writeUtf(getCrafter());
-        packetBuffer.writeResourceLocation(getRecipeStorage().getRecipeSource());
+        packetBuffer.writeIdentifier(getRecipeStorage().getRecipeSource());
         serializeIds(packetBuffer, getRequiredResearchIds());
         serializeIds(packetBuffer, getExcludedResearchIds());
         packetBuffer.writeBoolean(getLootTable() != null);
         if(getLootTable() != null)
         {
-            packetBuffer.writeResourceLocation(getLootTable().location());
+            packetBuffer.writeIdentifier(getLootTable().identifier());
         }
-        packetBuffer.writeResourceLocation(getRequiredTool().getRegistryName());
+        packetBuffer.writeIdentifier(getRequiredTool().getRegistryName());
         packetBuffer.writeVarInt(getMinBuildingLevel());
         packetBuffer.writeVarInt(getMaxBuildingLevel());
         packetBuffer.writeBoolean(getMustExist());
@@ -908,7 +908,7 @@ public class CustomRecipe
         {
             Utils.serializeCodecMess(packetBuffer, alts);
         }
-        packetBuffer.writeResourceLocation(BuiltInRegistries.BLOCK.getKey(getIntermediate()));
+        packetBuffer.writeIdentifier(BuiltInRegistries.BLOCK.getKey(getIntermediate()));
     }
 
     /**
@@ -919,19 +919,19 @@ public class CustomRecipe
     public static CustomRecipe deserialize(@NotNull final RegistryFriendlyByteBuf buffer)
     {
         final String crafter = buffer.readUtf();
-        final Identifier recipeId = buffer.readResourceLocation();
+        final Identifier recipeId = buffer.readIdentifier();
         final Set<Identifier> researchReq = deserializeIds(buffer);
         final Set<Identifier> researchExclude = deserializeIds(buffer);
         final ResourceKey<LootTable> lootTable;
         if(buffer.readBoolean())
         {
-            lootTable = ResourceKey.create(Registries.LOOT_TABLE, buffer.readResourceLocation());
+            lootTable = ResourceKey.create(Registries.LOOT_TABLE, buffer.readIdentifier());
         }
         else
         {
             lootTable = null;
         }
-        final EquipmentTypeEntry requiredTool = ModEquipmentTypes.getRegistry().get(buffer.readResourceLocation());
+        final EquipmentTypeEntry requiredTool = ModEquipmentTypes.getRegistry().getValue(buffer.readIdentifier());
         final int minBldgLevel = buffer.readVarInt();
         final int maxBldgLevel = buffer.readVarInt();
         final boolean mustExist = buffer.readBoolean();
@@ -953,7 +953,7 @@ public class CustomRecipe
             altOutputs.add(Utils.deserializeCodecMess(buffer));
         }
 
-        final Block intermediate = BuiltInRegistries.BLOCK.get(buffer.readResourceLocation());
+        final Block intermediate = BuiltInRegistries.BLOCK.getValue(buffer.readIdentifier());
 
         return new CustomRecipe(crafter, minBldgLevel, maxBldgLevel, mustExist, showTooltip, recipeId,
                 researchReq, researchExclude, lootTable, requiredTool,
@@ -970,7 +970,7 @@ public class CustomRecipe
         buffer.writeVarInt(ids.size());
         for (final Identifier id : ids)
         {
-            buffer.writeResourceLocation(id);
+            buffer.writeIdentifier(id);
         }
     }
 
@@ -986,7 +986,7 @@ public class CustomRecipe
         final int size = buffer.readVarInt();
         for (int i = 0; i < size; ++i)
         {
-            ids.add(buffer.readResourceLocation());
+            ids.add(buffer.readIdentifier());
         }
 
         return Set.copyOf(ids);

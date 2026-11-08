@@ -2,7 +2,6 @@ package com.minecolonies.core.compatibility.jei;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.ldtteam.blockui.UiRenderMacros;
 import com.minecolonies.api.colony.buildings.modules.ICraftingBuildingModule;
 import com.minecolonies.api.colony.buildings.registry.BuildingEntry;
 import com.minecolonies.api.colony.jobs.IJob;
@@ -14,7 +13,6 @@ import com.minecolonies.core.colony.buildings.modules.AnimalHerdingModule;
 import com.minecolonies.core.colony.crafting.CustomRecipeManager;
 import com.minecolonies.core.colony.crafting.LootTableAnalyzer;
 import com.minecolonies.core.colony.crafting.RecipeAnalyzer;
-import com.mojang.blaze3d.platform.Lighting;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
@@ -26,7 +24,7 @@ import mezz.jei.api.helpers.IModIdHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -275,7 +273,7 @@ public class GenericRecipeCategory extends JobBasedRecipeCategory<IGenericRecipe
     @Override
     public void draw(@NotNull final IGenericRecipe recipe,
                      @NotNull final IRecipeSlotsView recipeSlotsView,
-                     @NotNull final GuiGraphics stack,
+                     @NotNull final GuiGraphicsExtractor stack,
                      final double mouseX, final double mouseY)
     {
         super.draw(recipe, recipeSlotsView, stack, mouseX, mouseY);
@@ -296,7 +294,7 @@ public class GenericRecipeCategory extends JobBasedRecipeCategory<IGenericRecipe
         {
             try
             {
-                final Entity entity = entityCache.get(entityType, () -> entityType.create(Minecraft.getInstance().level));
+                final Entity entity = entityCache.get(entityType, () -> entityType.create(Minecraft.getInstance().level, net.minecraft.world.entity.EntitySpawnReason.LOAD));
 
                 final float scale = ANIMAL_H / 2.4f;
                 final int animal_cx = ANIMAL_X + (ANIMAL_W / 2);
@@ -306,9 +304,7 @@ public class GenericRecipeCategory extends JobBasedRecipeCategory<IGenericRecipe
                 final float yaw = animalTimer.getValue();
                 final float headYaw = (float) Math.atan((animal_cx - mouseX) / 40.0F) * 40.0F + yaw;
                 final float pitch = (float) Math.atan((animal_cy - offsetY - mouseY) / 40.0F) * 20.0F;
-                Lighting.setupForFlatItems();
-                UiRenderMacros.drawEntity(stack.pose(), animal_cx, animal_by - offsetY, scale, headYaw, yaw, pitch, entity);
-                Lighting.setupFor3DItems();
+                RenderHelper.drawEntity(stack, animal_cx, animal_by - offsetY, scale, headYaw, yaw, pitch, entity);
             }
             catch (final Throwable e)
             {

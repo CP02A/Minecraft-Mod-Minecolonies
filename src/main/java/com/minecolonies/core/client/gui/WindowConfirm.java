@@ -20,7 +20,7 @@ public class WindowConfirm extends AbstractWindowSkeleton
      */
     public WindowConfirm(final AbstractWindowSkeleton parent, final Runnable action, final String title, final String warning)
     {
-        super(parent, new Identifier(Constants.MOD_ID, "gui/windowconfirm.xml"));
+        super(parent, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowconfirm.xml"));
         registerButton(BUTTON_CONFIRM, this::close);
         registerButton(BUTTON_CANCEL, action);
         findPaneOfTypeByID(TITLE_LABEL, Text.class).setText(Component.translatable(title));

@@ -27,7 +27,7 @@ public class WindowColonyPrestigeRanking extends AbstractWindowSkeleton
      */
     public WindowColonyPrestigeRanking(final boolean atTownHall, final ITownHallView building)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/map/windowcolonyprestigeranking.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/map/windowcolonyprestigeranking.xml"));
 
         if (atTownHall)
         {

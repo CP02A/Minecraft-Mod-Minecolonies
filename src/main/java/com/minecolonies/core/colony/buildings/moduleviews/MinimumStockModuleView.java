@@ -72,7 +72,7 @@ public class MinimumStockModuleView extends AbstractBuildingModuleView implement
     @Override
     public Identifier getIconResourceLocation()
     {
-        return new Identifier(Constants.MOD_ID, "textures/gui/modules/stock.png");
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/modules/stock.png");
     }
 
     @Override

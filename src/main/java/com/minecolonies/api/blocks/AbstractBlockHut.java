@@ -124,7 +124,7 @@ public abstract class AbstractBlockHut<B extends AbstractBlockHut<B>> extends Ab
     @Override
     public boolean isVisible(@Nullable final CompoundTag beData)
     {
-        final Map<BlockPos, List<String>> data = readTagPosMapFrom(beData.getCompound(TAG_BLUEPRINTDATA));
+        final Map<BlockPos, List<String>> data = readTagPosMapFrom(beData.getCompoundOrEmpty(TAG_BLUEPRINTDATA));
         return !data.getOrDefault(BlockPos.ZERO, new ArrayList<>()).contains("invisible");
     }
 
@@ -197,7 +197,7 @@ public abstract class AbstractBlockHut<B extends AbstractBlockHut<B>> extends Ab
 
         try
         {
-            return Integer.parseInt(beData.getCompound(TAG_BLUEPRINTDATA).getString(TAG_SCHEMATIC_NAME).replaceAll("[^0-9]", ""));
+            return Integer.parseInt(beData.getCompoundOrEmpty(TAG_BLUEPRINTDATA).getStringOr(TAG_SCHEMATIC_NAME, "").replaceAll("[^0-9]", ""));
         }
         catch (final NumberFormatException exception)
         {
@@ -347,20 +347,20 @@ public abstract class AbstractBlockHut<B extends AbstractBlockHut<B>> extends Ab
         return getBuildingEntry().getRegistryName().getPath();
     }
 
-    @Override
+    /**
+     * FABRIC-PORT: Block#appendHoverText was removed in 26.x; the hut block item (ItemBlockHut) must call this from its Item#appendHoverText.
+     */
     public void appendHoverText(@NotNull final ItemStack stack, @NotNull final Item.TooltipContext context,
-        @NotNull final List<Component> tooltip, @NotNull final TooltipFlag flags)
+        @NotNull final net.minecraft.world.item.component.TooltipDisplay display, @NotNull final java.util.function.Consumer<Component> tooltip, @NotNull final TooltipFlag flags)
     {
-        super.appendHoverText(stack, context, tooltip, flags);
-
-        stack.addToTooltip(ModDataComponents.HUT_COMPONENT, context, tooltip::add, flags);
-        stack.addToTooltip(ModDataComponents.COLONY_ID_COMPONENT, context, tooltip::add, flags);
+        stack.addToTooltip(ModDataComponents.HUT_COMPONENT.get(), context, display, tooltip, flags);
+        stack.addToTooltip(ModDataComponents.COLONY_ID_COMPONENT.get(), context, display, tooltip, flags);
     }
 
     @Override
     public void registerBlockItem(final Registry<Item> registry, final Item.Properties properties)
     {
-        Registry.register(registry, getRegistryName(), new ItemBlockHut(this, properties));
+        Registry.register(registry, getRegistryName(), new ItemBlockHut(this, properties.setId(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ITEM, getRegistryName())).useBlockDescriptionPrefix()));
     }
 
     /**

@@ -84,7 +84,7 @@ public class PermissionsMessage
         {
             data.resetReaderIndex();
             buf.writeInt(colonyID);
-            buf.writeUtf(dimension.location().toString());
+            buf.writeUtf(dimension.identifier().toString());
             int len = data.readableBytes();
             buf.writeVarInt(len);
             buf.writeBytes(data, data.readerIndex(), len);

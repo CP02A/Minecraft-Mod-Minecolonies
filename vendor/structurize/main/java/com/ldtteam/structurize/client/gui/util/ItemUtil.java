@@ -25,7 +25,7 @@ public class ItemUtil
     {
         return ImmutableList.copyOf(StreamSupport.stream(Spliterators.spliteratorUnknownSize(BuiltInRegistries.ITEM.iterator(), Spliterator.ORDERED), false)
             .filter(item -> item instanceof AirItem || item instanceof BlockItem || (item instanceof BucketItem
-                && ((BucketItem) item).content != Fluids.EMPTY))
+                && ((BucketItem) item).getContent() != Fluids.EMPTY))
             .map(ItemStack::new)
             .collect(Collectors.toList()));
     }
@@ -42,17 +42,17 @@ public class ItemUtil
         for (final Item item : BuiltInRegistries.ITEM)
         {
             if (item instanceof AirItem || item instanceof BlockItem || (item instanceof BucketItem
-                && ((BucketItem) item).content != Fluids.EMPTY))
+                && ((BucketItem) item).getContent() != Fluids.EMPTY))
             {
                 items.add(new ItemStorage(new ItemStack(item)));
             }
         }
 
-        for (final ItemStack stack : Minecraft.getInstance().player.getInventory().items)
+        for (final ItemStack stack : Minecraft.getInstance().player.getInventory().getNonEquipmentItems())
         {
             final Item item = stack.getItem();
             if (item instanceof AirItem || item instanceof BlockItem || (item instanceof BucketItem
-                && ((BucketItem) item).content != Fluids.EMPTY))
+                && ((BucketItem) item).getContent() != Fluids.EMPTY))
             {
                 items.add(new ItemStorage(stack.copy()));
             }

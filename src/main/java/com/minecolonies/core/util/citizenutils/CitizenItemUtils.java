@@ -13,6 +13,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
@@ -40,7 +41,7 @@ public class CitizenItemUtils
      */
     public static void tryPickupItemEntity(@NotNull final AbstractEntityCitizen citizen, @NotNull final ItemEntity itemEntity)
     {
-        if (!CompatibilityUtils.getWorldFromCitizen(citizen).isClientSide)
+        if (!CompatibilityUtils.getWorldFromCitizen(citizen).isClientSide())
         {
             if (itemEntity.hasPickUpDelay())
             {
@@ -158,30 +159,30 @@ public class CitizenItemUtils
 
         citizen.getLookControl().setLookAt(blockPos.getX(), blockPos.getY(), blockPos.getZ(), FACING_DELTA_YAW, citizen.getMaxHeadXRot());
 
-        citizen.swing(citizen.getUsedItemHand());
+        citizen.swing(citizen.getUsedItemHand(), SwingAnimation.DEFAULT, false);
 
         final BlockState blockState = CompatibilityUtils.getWorldFromCitizen(citizen).getBlockState(blockPos);
         final Block block = blockState.getBlock();
         if (breakBlock)
         {
-            if (!CompatibilityUtils.getWorldFromCitizen(citizen).isClientSide)
+            if (!CompatibilityUtils.getWorldFromCitizen(citizen).isClientSide())
             {
                 new BlockParticleEffectMessage(blockPos, CompatibilityUtils.getWorldFromCitizen(citizen).getBlockState(blockPos), BlockParticleEffectMessage.BREAK_BLOCK)
                     .sendToTargetPoint((ServerLevel) citizen.level(), null, blockPos.getX(), blockPos.getY(), blockPos.getZ(), BLOCK_BREAK_SOUND_RANGE);
             }
             CompatibilityUtils.getWorldFromCitizen(citizen).playSound(null,
               blockPos,
-              block.getSoundType(blockState, CompatibilityUtils.getWorldFromCitizen(citizen), blockPos, citizen).getBreakSound(),
+              blockState.getSoundType().getBreakSound(),
               SoundSource.BLOCKS,
-              block.getSoundType(blockState, CompatibilityUtils.getWorldFromCitizen(citizen), blockPos, citizen).getVolume(),
-              block.getSoundType(blockState, CompatibilityUtils.getWorldFromCitizen(citizen), blockPos, citizen).getPitch());
+              blockState.getSoundType().getVolume(),
+              blockState.getSoundType().getPitch());
             WorldUtil.removeBlock(CompatibilityUtils.getWorldFromCitizen(citizen), blockPos, false);
 
             damageItemInHand(citizen, citizen.getUsedItemHand(), 1);
         }
         else
         {
-            if (!CompatibilityUtils.getWorldFromCitizen(citizen).isClientSide)
+            if (!CompatibilityUtils.getWorldFromCitizen(citizen).isClientSide())
             {
                 final BlockPos vector = blockPos.subtract(citizen.blockPosition());
                 final Direction facing = BlockPosUtil.directionFromDelta(vector.getX(), vector.getY(), vector.getZ()).getOpposite();
@@ -191,10 +192,10 @@ public class CitizenItemUtils
             }
             CompatibilityUtils.getWorldFromCitizen(citizen).playSound(null,
               blockPos,
-              block.getSoundType(blockState, CompatibilityUtils.getWorldFromCitizen(citizen), blockPos, citizen).getBreakSound(),
+              blockState.getSoundType().getBreakSound(),
               SoundSource.BLOCKS,
-              block.getSoundType(blockState, CompatibilityUtils.getWorldFromCitizen(citizen), blockPos, citizen).getVolume(),
-              block.getSoundType(blockState, CompatibilityUtils.getWorldFromCitizen(citizen), blockPos, citizen).getPitch());
+              blockState.getSoundType().getVolume(),
+              blockState.getSoundType().getPitch());
         }
     }
 
@@ -282,7 +283,7 @@ public class CitizenItemUtils
      */
     public static ItemEntity entityDropItem(@NotNull final AbstractEntityCitizen citizen, @NotNull final ItemStack itemstack)
     {
-        return citizen.spawnAtLocation(itemstack, 0.0F);
+        return citizen.level() instanceof ServerLevel serverLevel ? citizen.spawnAtLocation(serverLevel, itemstack, 0.0F) : null;
     }
 
     /**
@@ -310,7 +311,7 @@ public class CitizenItemUtils
             if (equipmentSlot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR)
             {
                 final ItemStack equipment = citizen.getInventoryCitizen().getArmorInSlot(equipmentSlot);
-                equipment.hurtAndBreak(armorDmg, (ServerLevel) citizen.level(), citizen, (s) -> {
+                equipment.hurtAndBreak(armorDmg, (ServerLevel) citizen.level(), null, (s) -> {
                     citizen.onArmorRemove(equipment, equipmentSlot);
                     citizen.getInventoryCitizen().markDirty();
                 });
@@ -339,7 +340,7 @@ public class CitizenItemUtils
                 tool = citizen.getInventoryCitizen().getHeldItem(equipmentSlot == EquipmentSlot.MAINHAND ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND);
             }
 
-            if (!ItemStackUtils.isEmpty(tool) && tool.isDamaged() && tool.isEnchanted() && EnchantmentHelper.getTagEnchantmentLevel(Utils.getRegistryValue(Enchantments.MENDING, citizen.level()), tool) > 0)
+            if (!ItemStackUtils.isEmpty(tool) && tool.isDamaged() && tool.isEnchanted() && EnchantmentHelper.getItemEnchantmentLevel(Utils.getRegistryValue(Enchantments.MENDING, citizen.level()), tool) > 0)
             {
                 //2 xp to heal 1 dmg
                 final double dmgHealed = Math.min(localXp / 2, tool.getDamageValue());

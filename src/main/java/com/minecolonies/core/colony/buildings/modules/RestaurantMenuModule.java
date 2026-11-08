@@ -233,10 +233,10 @@ public class RestaurantMenuModule extends AbstractBuildingModule implements IPer
     public void deserializeNBT(@NotNull final HolderLookup.Provider provider, final CompoundTag compound)
     {
         menu.clear();
-        final ListTag minimumStockTagList = compound.getList(TAG_MENU, Tag.TAG_COMPOUND);
+        final ListTag minimumStockTagList = compound.getListOrEmpty(TAG_MENU);
         for (int i = 0; i < minimumStockTagList.size(); i++)
         {
-            final ItemStack itemStack = ItemStack.parseOptional(provider, minimumStockTagList.getCompound(i));
+            final ItemStack itemStack = com.minecolonies.core.colony.NbtCompat.parseOptional(provider, minimumStockTagList.getCompoundOrEmpty(i));
             if (FoodUtils.EDIBLE.test(itemStack))
             {
                 menu.add(new ItemStorage(itemStack));
@@ -250,7 +250,7 @@ public class RestaurantMenuModule extends AbstractBuildingModule implements IPer
         @NotNull final ListTag minimumStockTagList = new ListTag();
         for (final ItemStorage menuItem : menu)
         {
-            minimumStockTagList.add(menuItem.getItemStack().saveOptional(provider));
+            minimumStockTagList.add(com.minecolonies.core.colony.NbtCompat.saveOptional(menuItem.getItemStack(), provider));
         }
         compound.put(TAG_MENU, minimumStockTagList);
     }

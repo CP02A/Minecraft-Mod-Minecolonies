@@ -327,7 +327,7 @@ public class CustomRecipeManager
         {
             for (final Block source : crop.getDroppedFrom())
             {
-                lootIds.add(source.getLootTable());
+                source.getLootTable().ifPresent(lootIds::add);
             }
         }
 
@@ -364,7 +364,7 @@ public class CustomRecipeManager
                 .filter(Objects::nonNull)   // just in case
                 .distinct()
                 .collect(Collectors.toConcurrentMap(Function.identity(),
-                        id -> LootTableAnalyzer.toDrops(level.getServer().reloadableRegistries().get(), id))));
+                        id -> LootTableAnalyzer.toDrops(level.getServer().reloadableRegistries().lookup(), id))));
     }
 
     /**
@@ -398,7 +398,7 @@ public class CustomRecipeManager
         recipeMgrFriendlyByteBuf.writeVarInt(lootTables.size());
         for (final Map.Entry<ResourceKey<LootTable>, List<LootTableAnalyzer.LootDrop>> lootEntry : lootTables.entrySet())
         {
-            recipeMgrFriendlyByteBuf.writeResourceLocation(lootEntry.getKey().location());
+            recipeMgrFriendlyByteBuf.writeIdentifier(lootEntry.getKey().identifier());
             recipeMgrFriendlyByteBuf.writeVarInt(lootEntry.getValue().size());
             for (final LootTableAnalyzer.LootDrop drop : lootEntry.getValue())
             {
@@ -425,7 +425,7 @@ public class CustomRecipeManager
 
         for (int lootNum = buff.readVarInt(); lootNum > 0; --lootNum)
         {
-            final ResourceKey<LootTable> id = ResourceKey.create(Registries.LOOT_TABLE, buff.readResourceLocation());
+            final ResourceKey<LootTable> id = ResourceKey.create(Registries.LOOT_TABLE, buff.readIdentifier());
             int count = buff.readVarInt();
             final List<LootTableAnalyzer.LootDrop> drops = new ArrayList<>(count);
             for (; count > 0; --count)

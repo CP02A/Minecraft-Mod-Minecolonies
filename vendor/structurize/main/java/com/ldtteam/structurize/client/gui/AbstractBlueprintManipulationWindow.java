@@ -22,12 +22,13 @@ import com.ldtteam.structurize.storage.SurvivalBlueprintHandlers;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.util.Tuple;
+import com.ldtteam.structurize.api.Tuple;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import com.ldtteam.shim.neoforge.common.ModConfigSpec.ConfigValue;
@@ -133,7 +134,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
         if (RenderingCache.getOrCreateBlueprintPreviewData(bluePrintId).getPos() == null)
         {
             Utils.playErrorSound(Minecraft.getInstance().player);
-            Minecraft.getInstance().player.displayClientMessage(Component.translatable("structurize.gui.missing.pos"), false);
+            Minecraft.getInstance().player.sendSystemMessage(Component.translatable("structurize.gui.missing.pos"));
             cancelClicked();
         }
     }
@@ -159,7 +160,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
                     Utils.playErrorSound(Minecraft.getInstance().player);
                     if (SurvivalBlueprintHandlers.getHandlers().isEmpty())
                     {
-                        Minecraft.getInstance().player.displayClientMessage(Component.translatable("structurize.gui.no.survival.handler"), false);
+                        Minecraft.getInstance().player.sendSystemMessage(Component.translatable("structurize.gui.no.survival.handler"));
                     }
                     return;
                 }
@@ -248,7 +249,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
             {
                 final ButtonImage buttonImage = rowPane.findPaneOfTypeByID("type", ButtonImage.class);
                 buttonImage.setText(categories.get(index).getA());
-                buttonImage.setTextColor(ChatFormatting.BLACK.getColor());
+                buttonImage.setTextColor(net.minecraft.network.chat.TextColor.fromLegacyFormat(ChatFormatting.BLACK).getValue());
                 buttonImage.setHandler(button -> categories.get(index).getB().run());
             }
         });
@@ -266,11 +267,11 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
     }
 
     @Override
-    public boolean onUnhandledKeyTyped(final int ch, final int key)
+    public boolean onUnhandledKeyTyped(final KeyEvent event)
     {
-        if (ch != 0 || getFocus() != null) return super.onUnhandledKeyTyped(ch, key);
+        if (getFocus() != null) return super.onUnhandledKeyTyped(event);
 
-        final InputConstants.Key inputKey = InputConstants.Type.KEYSYM.getOrCreate(key);
+        final InputConstants.Key inputKey = InputConstants.getKey(event);
 
         if (ModKeyMappings.MOVE_FORWARD.get().isActiveAndMatches(inputKey))
         {
@@ -314,7 +315,7 @@ public abstract class AbstractBlueprintManipulationWindow extends AbstractWindow
         }
         else
         {
-            return super.onUnhandledKeyTyped(ch, key);
+            return super.onUnhandledKeyTyped(event);
         }
         return true;
     }

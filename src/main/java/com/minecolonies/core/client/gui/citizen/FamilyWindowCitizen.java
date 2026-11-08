@@ -27,7 +27,7 @@ public class FamilyWindowCitizen extends AbstractWindowCitizen
      */
     public FamilyWindowCitizen(final ICitizenDataView citizen)
     {
-        super(citizen, new Identifier(Constants.MOD_ID, "gui/citizen/family.xml"));
+        super(citizen, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/citizen/family.xml"));
         siblingList = findPaneOfTypeByID("siblings", ScrollingList.class);
         childrenList = findPaneOfTypeByID("children", ScrollingList.class);
     }

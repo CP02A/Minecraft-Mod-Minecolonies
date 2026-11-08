@@ -49,11 +49,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.horse.AbstractHorse;
-import net.minecraft.world.entity.animal.horse.Donkey;
-import net.minecraft.world.entity.animal.horse.Horse;
-import net.minecraft.world.entity.animal.horse.Mule;
-import net.minecraft.world.entity.animal.horse.Variant;
+import net.minecraft.world.entity.animal.equine.AbstractHorse;
+import net.minecraft.world.entity.animal.equine.Donkey;
+import net.minecraft.world.entity.animal.equine.Horse;
+import net.minecraft.world.entity.animal.equine.Mule;
+import net.minecraft.world.entity.animal.equine.Variant;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -234,7 +234,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
         int colonyId = getColonyId();
 
         // if the entity is summoned into the world with an ops command rather than created by the stablemaster, this "autoregisters" the entity as a managed animal to the closest colony.
-        if (colonyId == 0 && !CompatibilityUtils.getWorldFromEntity(this).isClientSide)
+        if (colonyId == 0 && !CompatibilityUtils.getWorldFromEntity(this).isClientSide())
         {
             IColony colony = IColonyManager.getInstance().getClosestColony(level(), this.blockPosition());
 
@@ -252,7 +252,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
             setColonyId(colonyId);
         }
 
-        if (CompatibilityUtils.getWorldFromEntity(this).isClientSide)
+        if (CompatibilityUtils.getWorldFromEntity(this).isClientSide())
         {
             animalColonyHandler.updateColonyClient();
 
@@ -517,7 +517,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
     {
         super.tick();
 
-        if (level().isClientSide) return;
+        if (level().isClientSide()) return;
 
         if (hasReservation())
         {
@@ -664,7 +664,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
      */
     public static CavalryHorseEntity createFromVanilla(IColony colony, Level level, AbstractHorse vanilla)
     {
-        if (level.isClientSide) return null;
+        if (level.isClientSide()) return null;
 
         // If already a CavalryHorseEntity, return it
         if (vanilla instanceof CavalryHorseEntity) return (CavalryHorseEntity) vanilla;
@@ -852,10 +852,10 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
      * @return true if the damage was applied, false otherwise
      */
     @Override
-    public boolean hurt(@Nonnull DamageSource damageSource, float damageAmount)
+    public boolean hurtServer(final net.minecraft.server.level.ServerLevel level, final DamageSource damageSource, final float damageAmount)
     {
        
-        if (level().isClientSide)
+        if (level().isClientSide())
         {
             return true;
         }
@@ -894,7 +894,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
             animalData.markDirty();
         }
         
-        return super.hurt(damageSource, damageAmount);
+        return super.hurtServer(level, damageSource, damageAmount);
     }
 
     /**
@@ -903,16 +903,24 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
      * stableDim: The dimension of the stable block, or null if not set.
      */
     @Override
-    public void addAdditionalSaveData(@Nonnull CompoundTag tag)
+    public void addAdditionalSaveData(final net.minecraft.world.level.storage.ValueOutput valueOutput)
     {
-        super.addAdditionalSaveData(tag);
+        super.addAdditionalSaveData(valueOutput);
+        final CompoundTag tag = new CompoundTag();
+        addAdditionalSaveDataTag(tag);
+        com.minecolonies.core.entity.NbtValueIO.write(valueOutput, tag);
+    }
+
+    private void addAdditionalSaveDataTag(final CompoundTag tag)
+    {
+
 
         tag.putInt(NbtTagConstants.TAG_COLONY_ID, animalColonyHandler.getColonyId());
         if (animalData != null)
         {
             tag.putInt(NbtTagConstants.TAG_MANAGED_ANIMALID, getManagedAnimalId());
         }
-    }
+        }
 
     /**
      * Reads additional data from the given CompoundTag that is specific to this entity type.
@@ -927,18 +935,20 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
      * Other persisted data is managed through the associated IAnimalData.
      */
     @Override
-    public void readAdditionalSaveData(@Nonnull CompoundTag tag)
+    public void readAdditionalSaveData(final net.minecraft.world.level.storage.ValueInput valueInput)
     {
-        super.readAdditionalSaveData(tag);
+        super.readAdditionalSaveData(valueInput);
+        final CompoundTag tag = com.minecolonies.core.entity.NbtValueIO.read(valueInput);
+
 
         if (tag.contains(NbtTagConstants.TAG_COLONY_ID))
         {
-            int colonyId = tag.getInt(NbtTagConstants.TAG_COLONY_ID);
+            int colonyId = tag.getIntOr(NbtTagConstants.TAG_COLONY_ID, 0);
             setColonyId(colonyId);
 
             if (tag.contains(NbtTagConstants.TAG_MANAGED_ANIMALID))
             {
-                setManagedAnimalId(tag.getInt(NbtTagConstants.TAG_MANAGED_ANIMALID));
+                setManagedAnimalId(tag.getIntOr(NbtTagConstants.TAG_MANAGED_ANIMALID, 0));
             }
             else
             {
@@ -950,7 +960,7 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
                 }
             }
         }
-    }
+        }
 
     /**
      * Prepares the horse for combat by reducing its combat cooldown by the specified amount of combat readiness. 

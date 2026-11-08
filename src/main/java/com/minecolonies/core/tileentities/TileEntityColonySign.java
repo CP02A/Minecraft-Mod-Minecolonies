@@ -100,23 +100,26 @@ public class TileEntityColonySign extends BlockEntity implements ITickable
     }
 
     @Override
-    public void loadAdditional(@NotNull final CompoundTag compound, final HolderLookup.Provider provider)
+    public void loadAdditional(final net.minecraft.world.level.storage.ValueInput valueInput)
     {
-        super.loadAdditional(compound, provider);
-        this.colonyId = compound.getInt(TAG_COLONY_ID);
-        this.colonyNameCache = compound.getString(TAG_NAME);
+        super.loadAdditional(valueInput);
+        final CompoundTag compound = com.minecolonies.core.entity.NbtValueIO.read(valueInput);
+        final HolderLookup.Provider provider = valueInput.lookup();
+
+        this.colonyId = compound.getIntOr(TAG_COLONY_ID, 0);
+        this.colonyNameCache = compound.getStringOr(TAG_NAME, "");
         if (compound.contains(TAG_POS))
         {
             this.anchor = BlockPosUtil.read(compound, TAG_POS);
         }
-        this.rotation = compound.getFloat(TAG_ROTATION);
-        this.targetColonyId = compound.getInt(TAG_TARGET_COLONY_ID);
-        this.targetColonyNameCache = compound.getString(TAG_TARGET_COLONY_NAME);
-        this.distance = compound.getInt(TAG_DISTANCE);
-        this.targetColonyDistance = compound.getInt(TAG_TARGET_DISTANCE);
+        this.rotation = compound.getFloatOr(TAG_ROTATION, 0f);
+        this.targetColonyId = compound.getIntOr(TAG_TARGET_COLONY_ID, 0);
+        this.targetColonyNameCache = compound.getStringOr(TAG_TARGET_COLONY_NAME, "");
+        this.distance = compound.getIntOr(TAG_DISTANCE, 0);
+        this.targetColonyDistance = compound.getIntOr(TAG_TARGET_DISTANCE, 0);
         if (compound.contains(TAG_CACHED_ABOVE))
         {
-            this.cachedSignAboveColony = compound.getInt(TAG_CACHED_ABOVE);
+            this.cachedSignAboveColony = compound.getIntOr(TAG_CACHED_ABOVE, 0);
         }
         if (compound.contains(TAG_PREV_POS))
         {
@@ -126,12 +129,21 @@ public class TileEntityColonySign extends BlockEntity implements ITickable
         {
             this.nextPosition = BlockPosUtil.read(compound, TAG_NEXT_POS);
         }
-    }
+        }
 
     @Override
-    public void saveAdditional(@NotNull final CompoundTag compound, final HolderLookup.Provider provider)
+    public void saveAdditional(final net.minecraft.world.level.storage.ValueOutput valueOutput)
     {
-        super.saveAdditional(compound, provider);
+        super.saveAdditional(valueOutput);
+        final CompoundTag compound = new CompoundTag();
+        final HolderLookup.Provider provider = com.minecolonies.core.entity.NbtValueIO.lookup(this);
+        saveAdditionalTag(compound, provider);
+        com.minecolonies.core.entity.NbtValueIO.write(valueOutput, compound);
+    }
+
+    private void saveAdditionalTag(final CompoundTag compound, final HolderLookup.Provider provider)
+    {
+
         compound.putInt(TAG_COLONY_ID, this.colonyId);
         compound.putString(TAG_NAME, this.colonyNameCache);
         if (anchor != null)
@@ -146,7 +158,7 @@ public class TileEntityColonySign extends BlockEntity implements ITickable
         compound.putInt(TAG_CACHED_ABOVE, this.cachedSignAboveColony);
         BlockPosUtil.write(compound, TAG_NEXT_POS, nextPosition);
         BlockPosUtil.write(compound, TAG_PREV_POS, previousPosition);
-    }
+        }
 
     @Nullable
     @Override
@@ -159,15 +171,9 @@ public class TileEntityColonySign extends BlockEntity implements ITickable
     @Override
     public CompoundTag getUpdateTag(final HolderLookup.Provider provider)
     {
-        return this.saveWithId(provider);
+        return this.saveWithoutMetadata(provider);
     }
 
-    @Override
-    public void onDataPacket(final Connection net, final ClientboundBlockEntityDataPacket packet, final HolderLookup.Provider provider)
-    {
-        final CompoundTag compound = packet.getTag();
-        this.loadAdditional(compound, provider);
-    }
 
     /**
      * Update method to be called by Minecraft every tick
@@ -175,7 +181,7 @@ public class TileEntityColonySign extends BlockEntity implements ITickable
     @Override
     public void tick()
     {
-        if (!level.isClientSide && (level.getGameTime() + tickOffset) % TICKS_PER_SECOND * 60 == 0)
+        if (!level.isClientSide() && (level.getGameTime() + tickOffset) % TICKS_PER_SECOND * 60 == 0)
         {
             final BlockEntity blockEntity = level.getBlockEntity(getBlockPos().above());
             if (blockEntity instanceof TileEntityColonySign tileEntityColonySign)

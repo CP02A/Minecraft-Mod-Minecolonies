@@ -39,9 +39,9 @@
   },
   "ambientocclusion": false,
   "textures": {
-    "post": "block/oak_planks",
-    "tape": "block/white_wool",
-    "particle": "block/oak_planks"
+    "post": "minecraft:block/oak_planks",
+    "tape": "minecraft:block/white_wool",
+    "particle": "minecraft:block/oak_planks"
   },
   "elements": [
     {

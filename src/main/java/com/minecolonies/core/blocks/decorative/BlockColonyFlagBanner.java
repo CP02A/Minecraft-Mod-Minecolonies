@@ -108,6 +108,6 @@ public class BlockColonyFlagBanner extends AbstractColonyFlagBanner<BlockColonyF
     @Override
     public Identifier getRegistryName()
     {
-        return new Identifier(Constants.MOD_ID, REGISTRY_NAME);
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, REGISTRY_NAME);
     }
 }

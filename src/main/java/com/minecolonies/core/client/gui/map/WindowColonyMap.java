@@ -35,7 +35,7 @@ import com.minecolonies.core.network.messages.client.colony.ColonyListMessage;
 import com.minecolonies.core.network.messages.server.colony.OpenInventoryMessage;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.PlayerSkin;
+import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -201,7 +201,7 @@ public class WindowColonyMap extends AbstractWindowSkeleton
      */
     public WindowColonyMap(final boolean atTownHall, final ITownHallView building)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/map/windowcolonymap.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/map/windowcolonymap.xml"));
         this.atTownHall = atTownHall;
         this.building = building;
         playerPos = Minecraft.getInstance().player.blockPosition();
@@ -333,14 +333,7 @@ public class WindowColonyMap extends AbstractWindowSkeleton
                     Image playerImage = findPaneOfTypeByID(player.getStringUUID(), Image.class);
                     if (playerImage == null)
                     {
-                        final Identifier resourceLocation = Minecraft.getInstance().getSkinManager().getInsecureSkin(player.getGameProfile()).texture();
-                        if (resourceLocation == null)
-                        {
-                            continue;
-                        }
-
-
-                        OutOfJarResourceLocation.ofMinecraftSkin(Minecraft.getInstance(), player.getGameProfile(), PlayerSkin::texture)
+                        OutOfJarResourceLocation.ofMinecraftSkin(Minecraft.getInstance(), player.getGameProfile(), PlayerSkin::body)
                             .thenAccept(resLoc ->
                             {
                                 if (resLoc != null)
@@ -461,7 +454,7 @@ public class WindowColonyMap extends AbstractWindowSkeleton
     private void addCenterPos()
     {
         final Image citizenImage = new Image();
-        citizenImage.setImage(new Identifier(Constants.MOD_ID, "textures/gui/red_wax_home.png"), false);
+        citizenImage.setImage(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/red_wax_home.png"), false);
         citizenImage.setSize(16, 16);
         putPaneTopLeftCornerAtWorldPos(citizenImage, playerPos);
 
@@ -672,7 +665,7 @@ public class WindowColonyMap extends AbstractWindowSkeleton
                 if (data.isSick())
                 {
                     final Image sickIcon = new Image();
-                    sickIcon.setImage(new Identifier("minecolonies", "textures/icons/small_sick_icon.png"), false);
+                    sickIcon.setImage(Identifier.fromNamespaceAndPath("minecolonies", "textures/icons/small_sick_icon.png"), false);
                     sickIcon.setSize(4, 8);
                     sickIcon.setPosition(3,-3);
                     citizenView.addChild(sickIcon);

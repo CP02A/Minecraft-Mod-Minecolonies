@@ -59,8 +59,8 @@ public class SaveStructureNBTMessage extends AbstractClientPlayMessage
         try (ByteBufInputStream stream = new ByteBufInputStream(buffer))
         {
             final CompoundTag wrapperCompound = NbtIo.readCompressed(stream, NbtAccounter.unlimitedHeap());
-            compoundNBT = wrapperCompound.getCompound(TAG_SCHEMATIC);
-            fileName = wrapperCompound.getString(TAG_MILLIS);
+            compoundNBT = wrapperCompound.getCompoundOrEmpty(TAG_SCHEMATIC);
+            fileName = wrapperCompound.getStringOr(TAG_MILLIS, "");
         }
         catch (final RuntimeException e)
         {
@@ -103,7 +103,7 @@ public class SaveStructureNBTMessage extends AbstractClientPlayMessage
                                                                   .resolve(BLUEPRINT_FOLDER)
                                                                   .resolve(Minecraft.getInstance().getUser().getName().toLowerCase(Locale.US))
                                                                   .resolve(SCANS_FOLDER).resolve(fileName), player.registryAccess()));
-            player.displayClientMessage(Component.translatableEscape("Scan successfully saved as %s", fileName), false);
+            player.sendSystemMessage(Component.translatableEscape("Scan successfully saved as %s", fileName));
         }
     }
 }

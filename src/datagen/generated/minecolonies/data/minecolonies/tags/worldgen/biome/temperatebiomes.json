@@ -1,9 +1,4 @@
 {
-  "remove": [
-    "#c:is_cold",
-    "#c:is_dry",
-    "#c:is_desert"
-  ],
   "values": [
     "#minecraft:has_structure/village_plains",
     "#c:is_plains",

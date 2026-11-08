@@ -147,7 +147,7 @@ public class MinecoloniesAdvancedPathNavigate extends AbstractAdvancedPathNaviga
     {
         super(entity, world);
 
-        entity.moveControl = new MovementHandler(entity);
+        ((com.minecolonies.fabric.mixin.entity.MobAccessor) entity).minecolonies$setMoveControl(new MovementHandler(entity));
         this.nodeEvaluator = new WalkNodeEvaluator();
         this.nodeEvaluator.setCanPassDoors(true);
         getPathingOptions().setEnterDoors(true);
@@ -226,7 +226,7 @@ public class MinecoloniesAdvancedPathNavigate extends AbstractAdvancedPathNaviga
     protected PathResult<PathJobRandomPos> walkToRandomPos(
         final int range,
         final double speedFactor,
-        final net.minecraft.util.Tuple<BlockPos, BlockPos> corners)
+        final com.minecolonies.api.util.Tuple<BlockPos, BlockPos> corners)
     {
         return walkToRandomPos(range, speedFactor, corners, false);
     }
@@ -235,7 +235,7 @@ public class MinecoloniesAdvancedPathNavigate extends AbstractAdvancedPathNaviga
     protected PathResult<PathJobRandomPos> walkToRandomPos(
         final int range,
         final double speedFactor,
-        final net.minecraft.util.Tuple<BlockPos, BlockPos> corners, final boolean preferInside)
+        final com.minecolonies.api.util.Tuple<BlockPos, BlockPos> corners, final boolean preferInside)
     {
         @NotNull final BlockPos start = PathfindingUtils.prepareStart(ourEntity);
 
@@ -320,11 +320,11 @@ public class MinecoloniesAdvancedPathNavigate extends AbstractAdvancedPathNaviga
                     if (ourEntity instanceof AbstractEntityCitizen citizen)
                     {
                         final BlockPos tpPos = citizen.getCitizenData().getHomePosition();
-                        ourEntity.moveTo(tpPos.getX(), tpPos.getY(), tpPos.getZ());
+                        ourEntity.snapTo(tpPos.getX(), tpPos.getY(), tpPos.getZ());
                         return null;
                     }
 
-                    ourEntity.moveTo(dest.getX(), dest.getY(), dest.getZ());
+                    ourEntity.snapTo(dest.getX(), dest.getY(), dest.getZ());
                 }
 
                 pauseTicks = 20 * 300;
@@ -480,7 +480,7 @@ public class MinecoloniesAdvancedPathNavigate extends AbstractAdvancedPathNaviga
                 lastWantedPathIndex = path.getNextNodeIndex();
                 Vec3 vector3d2 = path.getNextEntityPos(mob);
                 tempPos.set(Mth.floor(vector3d2.x), Mth.floor(vector3d2.y), Mth.floor(vector3d2.z));
-                if (wantedPosition.empty() || ChunkPos.asLong(tempPos) == mob.chunkPosition().toLong() || WorldUtil.isEntityBlockLoaded(level, tempPos))
+                if (wantedPosition.empty() || ChunkPos.pack(tempPos) == mob.chunkPosition().pack() || WorldUtil.isEntityBlockLoaded(level, tempPos))
                 {
                     wantedPosition.set(vector3d2.x,
                         getSmartGroundY(this.level, tempPos, vector3d2.y),
@@ -940,10 +940,10 @@ public class MinecoloniesAdvancedPathNavigate extends AbstractAdvancedPathNaviga
             {
                 final BlockState blockstate = level.getBlockState(tempPos);
                 RailShape railshape = blockstate.getBlock() instanceof BaseRailBlock
-                    ? ((BaseRailBlock) blockstate.getBlock()).getRailDirection(blockstate, level, tempPos, null)
+                    ? blockstate.getValue(((BaseRailBlock) blockstate.getBlock()).getShapeProperty())
                     : RailShape.NORTH_SOUTH;
                 double yOffset = 0.0D;
-                if (railshape.isAscending())
+                if (railshape.isSlope())
                 {
                     yOffset = 0.5D;
                 }
@@ -954,7 +954,7 @@ public class MinecoloniesAdvancedPathNavigate extends AbstractAdvancedPathNaviga
                 }
                 else
                 {
-                    MinecoloniesMinecart minecart = ModEntities.MINECART.create(level);
+                    MinecoloniesMinecart minecart = ModEntities.MINECART.create(level, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
                     final double x = pEx.x + 0.5D;
                     final double y = pEx.y + 0.625D + yOffset;
                     final double z = pEx.z + 0.5D;
@@ -967,7 +967,7 @@ public class MinecoloniesAdvancedPathNavigate extends AbstractAdvancedPathNaviga
 
                     level.addFreshEntity(minecart);
                     minecart.setHurtDir(1);
-                    mob.startRiding(minecart, true);
+                    mob.startRiding(minecart, true, true);
                 }
                 spawnedPos = tempPos.immutable();
             }

@@ -58,7 +58,7 @@ public class EnchanterStationModuleWindow extends AbstractModuleWindow<Enchanter
      */
     public EnchanterStationModuleWindow(final EnchanterStationsModuleView moduleView)
     {
-        super(moduleView, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutenchanter.xml"));
+        super(moduleView, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutenchanter.xml"));
         super.registerButton(BUTTON_SWITCH, this::switchClicked);
     }
 

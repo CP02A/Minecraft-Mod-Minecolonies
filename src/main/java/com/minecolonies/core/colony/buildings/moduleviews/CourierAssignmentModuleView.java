@@ -67,7 +67,7 @@ public class CourierAssignmentModuleView extends AbstractBuildingModuleView impl
     @Override
     public Identifier getIconResourceLocation()
     {
-        return new Identifier(Constants.MOD_ID, "textures/gui/modules/entity.png");
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/modules/entity.png");
     }
 
     @Override
@@ -121,7 +121,7 @@ public class CourierAssignmentModuleView extends AbstractBuildingModuleView impl
     @Override
     public BOWindow getWindow()
     {
-        return new SpecialAssignmentModuleWindow(this, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutcourierassignment.xml"));
+        return new SpecialAssignmentModuleWindow(this, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutcourierassignment.xml"));
     }
 
     @Override

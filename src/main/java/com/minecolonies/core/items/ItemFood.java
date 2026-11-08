@@ -43,11 +43,11 @@ public class ItemFood extends Item implements IMinecoloniesFoodItem
     }
 
     @Override
-    public void appendHoverText(@NotNull final ItemStack stack, @Nullable final TooltipContext ctx, @NotNull final List<Component> tooltip, @NotNull final TooltipFlag flagIn)
+    public void appendHoverText(@NotNull final ItemStack stack, @Nullable final TooltipContext ctx, final net.minecraft.world.item.component.TooltipDisplay tooltipDisplay, @NotNull final java.util.function.Consumer<Component> tooltip, @NotNull final TooltipFlag flagIn)
     {
         if (WindowCitizenInventory.activeCitizenInventory == null)
         {
-            tooltip.add(Component.translatable(TranslationConstants.TIER_TOOLTIP + this.tier));
+            tooltip.accept(Component.translatable(TranslationConstants.TIER_TOOLTIP + this.tier));
         }
     }
 

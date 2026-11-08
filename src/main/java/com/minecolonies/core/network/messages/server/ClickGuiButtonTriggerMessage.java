@@ -33,14 +33,14 @@ public class ClickGuiButtonTriggerMessage extends AbstractServerPlayMessage
     @Override
     protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
-        buf.writeResourceLocation(this.resource);
+        buf.writeIdentifier(this.resource);
         buf.writeUtf(this.buttonId);
     }
 
     protected ClickGuiButtonTriggerMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
-        this.resource = buf.readResourceLocation();
+        this.resource = buf.readIdentifier();
         this.buttonId = buf.readUtf();
     }
 

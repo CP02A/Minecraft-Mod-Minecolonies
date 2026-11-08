@@ -17,7 +17,7 @@ public class CavalryCombatAI extends MeleeCombatAI
      * Combat icon
      */
     private final static VisibleCitizenStatus CAVALRY_COMBAT_ICON =
-      new VisibleCitizenStatus(new Identifier(Constants.MOD_ID, "textures/icons/work/cavalry_combat.png"), "com.minecolonies.gui.visiblestatus.cavalry_combat");
+      new VisibleCitizenStatus(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/work/cavalry_combat.png"), "com.minecolonies.gui.visiblestatus.cavalry_combat");
 
 
     public CavalryCombatAI(final EntityCitizen owner, final ITickRateStateMachine<?> stateMachine, final AbstractEntityAIGuard<?, ?> parentAI)

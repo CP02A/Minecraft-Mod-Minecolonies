@@ -61,7 +61,7 @@ public class OpenBuildingUIMessage extends AbstractClientPlayMessage
     {
         buf.writeInt(colonyId);
         buf.writeBlockPos(buildingId);
-        buf.writeUtf(dimension.location().toString());
+        buf.writeUtf(dimension.identifier().toString());
     }
 
     @Override

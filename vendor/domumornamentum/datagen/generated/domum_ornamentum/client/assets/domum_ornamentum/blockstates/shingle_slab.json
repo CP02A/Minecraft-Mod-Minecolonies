@@ -2,7 +2,7 @@
   "multipart": [
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_top_spec"
       },
       "when": {
@@ -12,7 +12,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_one_way_spec"
       },
       "when": {
@@ -22,7 +22,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_two_way_spec"
       },
       "when": {
@@ -32,7 +32,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_three_way_spec"
       },
       "when": {
@@ -42,7 +42,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_four_way_spec"
       },
       "when": {
@@ -52,7 +52,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_curved_spec"
       },
       "when": {
@@ -62,7 +62,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_top_spec",
         "y": 180
       },
@@ -73,7 +73,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_one_way_spec",
         "y": 180
       },
@@ -84,7 +84,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_two_way_spec",
         "y": 180
       },
@@ -95,7 +95,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_three_way_spec",
         "y": 180
       },
@@ -106,7 +106,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_four_way_spec",
         "y": 180
       },
@@ -117,7 +117,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_curved_spec",
         "y": 180
       },
@@ -128,7 +128,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_top_spec",
         "y": 270
       },
@@ -139,7 +139,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_one_way_spec",
         "y": 270
       },
@@ -150,7 +150,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_two_way_spec",
         "y": 270
       },
@@ -161,7 +161,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_three_way_spec",
         "y": 270
       },
@@ -172,7 +172,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_four_way_spec",
         "y": 270
       },
@@ -183,7 +183,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_curved_spec",
         "y": 270
       },
@@ -194,7 +194,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_top_spec",
         "y": 90
       },
@@ -205,7 +205,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_one_way_spec",
         "y": 90
       },
@@ -216,7 +216,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_two_way_spec",
         "y": 90
       },
@@ -227,7 +227,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_three_way_spec",
         "y": 90
       },
@@ -238,7 +238,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_four_way_spec",
         "y": 90
       },
@@ -249,7 +249,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/shingle_slab/shingle_slab_curved_spec",
         "y": 90
       },

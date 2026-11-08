@@ -47,7 +47,7 @@ public class BuildingSifter extends AbstractBuilding
     {
         super(c, l);
 
-        keepX.put(stack -> stack.is(ModTags.meshes), new net.minecraft.util.Tuple<>(4, false));
+        keepX.put(stack -> stack.is(ModTags.meshes), new com.minecolonies.api.util.Tuple<>(4, false));
     }
 
     @NotNull
@@ -110,7 +110,7 @@ public class BuildingSifter extends AbstractBuilding
     {
         super.deserializeNBT(provider, compound);
 
-        this.currentDailyQuantity = compound.getInt(TAG_CURRENT_DAILY);
+        this.currentDailyQuantity = compound.getIntOr(TAG_CURRENT_DAILY, 0);
     }
 
     @Override

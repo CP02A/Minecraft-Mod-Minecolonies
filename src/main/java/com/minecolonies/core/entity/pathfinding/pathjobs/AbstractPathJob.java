@@ -1,5 +1,6 @@
 package com.minecolonies.core.entity.pathfinding.pathjobs;
 
+import com.minecolonies.core.entity.pathfinding.PathfindingUtils;
 import com.ldtteam.domumornamentum.block.decorative.FloatingCarpetBlock;
 import com.ldtteam.domumornamentum.block.decorative.PanelBlock;
 import com.ldtteam.domumornamentum.block.decorative.ShingleBlock;
@@ -190,7 +191,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
 
         this.maxNodes = Math.min(MAX_NODES, range * range);
         nodesToVisit = new PriorityQueue<>(range * 2);
-        this.start = new BlockPos(start);
+        this.start = start.immutable();
 
         cachedBlockLookup = new CachingBlockLookup(start, this.world);
 
@@ -220,7 +221,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
         range = Math.max(10, range);
         this.maxNodes = Math.min(MAX_NODES, range * range);
         nodesToVisit = new PriorityQueue<>(range * 2);
-        this.start = new BlockPos(start);
+        this.start = start.immutable();
 
         world = chunkCache;
         cachedBlockLookup = new CachingBlockLookup(start, this.world);
@@ -269,7 +270,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
         this.maxNodes = Math.min(MAX_NODES, estimate);
 
         nodesToVisit = new PriorityQueue<>(maxNodes / 4);
-        this.start = new BlockPos(start);
+        this.start = start.immutable();
 
         cachedBlockLookup = new CachingBlockLookup(start, this.world);
         actualWorld = world;
@@ -765,7 +766,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
             newY = getGroundHeight(node, nextX, nextY, nextZ);
         }
 
-        if (newY < world.getMinBuildHeight())
+        if (newY < world.getMinY())
         {
             return;
         }
@@ -1395,7 +1396,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
             {
                 return false;
             }
-            if (block.blocksMotion() && !(ShapeUtil.isEmpty(shape) || ShapeUtil.max(shape, Direction.Axis.Y) <= 0.1))
+            if (PathfindingUtils.blocksMotion(block) && !(ShapeUtil.isEmpty(shape) || ShapeUtil.max(shape, Direction.Axis.Y) <= 0.1))
             {
                 if (block.getBlock() instanceof TrapDoorBlock || block.getBlock() instanceof PanelBlock)
                 {
@@ -1454,7 +1455,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
                              || block.getBlock() instanceof BlockDecorationController
                              || block.getBlock() instanceof SignBlock
                              || block.getBlock() instanceof AbstractBannerBlock
-                             || !block.getBlock().properties().hasCollision;
+                             || !((com.minecolonies.fabric.mixin.api.BlockBehaviourAccessor) block.getBlock()).minecolonies$hasCollision();
                 }
             }
             else if (!pathingOptions.canPassDanger() && PathfindingUtils.isDangerous(block))
@@ -1471,7 +1472,8 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
                 if (ShapeUtil.isEmpty(shape) || ShapeUtil.max(shape, Direction.Axis.Y) <= 0.1
                     && !PathfindingUtils.isLiquid((block)) && (block.getBlock() != Blocks.SNOW || block.getValue(SnowLayerBlock.LAYERS) == 1))
                 {
-                    final PathType pathType = block.getBlockPathType(world, tempWorldPos.set(x, y, z), entity);
+                    // NeoForge IBlockStateExtension#getBlockPathType default: lava -> LAVA, burning -> DAMAGE_FIRE (non-negative malus), else null
+                    final PathType pathType = block.getBlock() == Blocks.LAVA ? PathType.LAVA : null;
                     if (pathType == null || pathType.getMalus() < 0)
                     {
                         return true;
@@ -1501,7 +1503,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
         if (ShapeUtil.isEmpty(shape) || ShapeUtil.max(shape, Direction.Axis.Y) <= 0.1)
         {
             return !head
-                     || !(state.getBlock() instanceof WoolCarpetBlock || state.getBlock() instanceof FloatingCarpetBlock || state.getBlock() instanceof WaterlilyBlock)
+                     || !(state.getBlock() instanceof WoolCarpetBlock || state.getBlock() instanceof FloatingCarpetBlock || state.getBlock() instanceof LilyPadBlock)
                      || PathfindingUtils.isLadder(state, pathingOptions);
         }
         return isPassable(state, x, y, z, parent, head);
@@ -1725,7 +1727,7 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
                 }
             }
         }
-        else if (parentBlock instanceof FloatingCarpetBlock || parentBlock instanceof WaterlilyBlock)
+        else if (parentBlock instanceof FloatingCarpetBlock || parentBlock instanceof LilyPadBlock)
         {
             if (dY < 0)
             {

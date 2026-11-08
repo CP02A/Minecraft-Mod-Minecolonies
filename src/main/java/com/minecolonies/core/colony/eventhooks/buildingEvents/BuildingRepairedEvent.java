@@ -17,7 +17,7 @@ public class BuildingRepairedEvent extends AbstractBuildingEvent
     /**
      * This events id, registry entries use res locations as ids.
      */
-    public static final Identifier BUILDING_REPAIRED_EVENT_ID = new Identifier(Constants.MOD_ID, "building_repaired");
+    public static final Identifier BUILDING_REPAIRED_EVENT_ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "building_repaired");
 
     /**
      * Creates a new building repaired event.

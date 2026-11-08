@@ -53,8 +53,8 @@ public final class ModSoundEvents
     {
         final List<Identifier> mainTypes = new ArrayList<>(ModJobs.getJobs());
         mainTypes.remove(ModJobs.placeHolder.getId());
-        mainTypes.add(new Identifier(Constants.MOD_ID, "unemployed"));
-        mainTypes.add(new Identifier(Constants.MOD_ID, "visitor"));
+        mainTypes.add(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "unemployed"));
+        mainTypes.add(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "visitor"));
 
         for (final Identifier job : mainTypes)
         {
@@ -145,6 +145,6 @@ public final class ModSoundEvents
      */
     public static SoundEvent getSoundID(final String soundName)
     {
-        return SoundEvent.createVariableRangeEvent(new Identifier(Constants.MOD_ID, soundName));
+        return SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath(Constants.MOD_ID, soundName));
     }
 }

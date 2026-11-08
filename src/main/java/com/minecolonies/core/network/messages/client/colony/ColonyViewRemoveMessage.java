@@ -33,7 +33,7 @@ public class ColonyViewRemoveMessage extends AbstractClientPlayMessage
     protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
         buf.writeInt(id);
-        buf.writeUtf(dimension.location().toString());
+        buf.writeUtf(dimension.identifier().toString());
     }
 
     protected ColonyViewRemoveMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)

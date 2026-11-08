@@ -27,8 +27,8 @@ public class QuestDeliveryInteraction extends QuestDialogueInteraction
     /**
      * Two icon options.
      */
-    private static final Identifier QUEST_START_ICON = new Identifier(Constants.MOD_ID, "textures/icons/queststart.png");
-    private static final Identifier QUEST_NEXT_TASK_ICON = new Identifier(Constants.MOD_ID, "textures/icons/nexttask.png");
+    private static final Identifier QUEST_START_ICON = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/queststart.png");
+    private static final Identifier QUEST_NEXT_TASK_ICON = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/nexttask.png");
 
     public QuestDeliveryInteraction(final Component inquiry, final IChatPriority priority, final Identifier location, final int index, final ICitizenData citizenData)
     {

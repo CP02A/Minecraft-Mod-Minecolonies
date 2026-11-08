@@ -515,7 +515,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
             return NEEDS_ITEM;
         }
 
-        worker.swing(InteractionHand.MAIN_HAND);
+        worker.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
         worker.queueSound(SoundEvents.BAMBOO_HIT, worker.blockPosition(), 10, 0, 0.5f, 0.1f);
 
         if (result.getBlockResult().getResult() == BlockPlacementResult.Result.BREAK_BLOCK)
@@ -732,7 +732,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJobStructure<?
 
         if (!mineBlock(blockToMine, workFrom))
         {
-            worker.swing(InteractionHand.MAIN_HAND);
+            worker.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
             return getState();
         }
         worker.decreaseSaturationForContinuousAction();

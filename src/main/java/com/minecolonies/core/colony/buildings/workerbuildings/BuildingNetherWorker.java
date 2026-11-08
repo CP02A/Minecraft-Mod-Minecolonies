@@ -19,9 +19,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Tuple;
+import com.minecolonies.api.util.Tuple;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.FlintAndSteelItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -41,7 +40,7 @@ public class BuildingNetherWorker extends AbstractBuilding
      * Settings
      */
     public static final ISettingKey<BoolSetting> CLOSE_PORTAL =
-        new SettingKey<>(BoolSetting.class, new Identifier(com.minecolonies.api.util.constant.Constants.MOD_ID, "closeportal"));
+        new SettingKey<>(BoolSetting.class, Identifier.fromNamespaceAndPath(com.minecolonies.api.util.constant.Constants.MOD_ID, "closeportal"));
 
     /**
      * Constant name for the Netherworker building
@@ -100,17 +99,13 @@ public class BuildingNetherWorker extends AbstractBuilding
         keepX.put(itemStack -> itemStack.getItem() instanceof FlintAndSteelItem, new Tuple<>(1, true));
 
         keepX.put(itemStack -> !ItemStackUtils.isEmpty(itemStack)
-            && itemStack.getItem() instanceof ArmorItem
-            && ((ArmorItem) itemStack.getItem()).getEquipmentSlot() == EquipmentSlot.HEAD, new Tuple<>(1, true));
+            && com.minecolonies.core.colony.ItemCompat.isArmor(itemStack, EquipmentSlot.HEAD), new Tuple<>(1, true));
         keepX.put(itemStack -> !ItemStackUtils.isEmpty(itemStack)
-            && itemStack.getItem() instanceof ArmorItem
-            && ((ArmorItem) itemStack.getItem()).getEquipmentSlot() == EquipmentSlot.CHEST, new Tuple<>(1, true));
+            && com.minecolonies.core.colony.ItemCompat.isArmor(itemStack, EquipmentSlot.CHEST), new Tuple<>(1, true));
         keepX.put(itemStack -> !ItemStackUtils.isEmpty(itemStack)
-            && itemStack.getItem() instanceof ArmorItem
-            && ((ArmorItem) itemStack.getItem()).getEquipmentSlot() == EquipmentSlot.LEGS, new Tuple<>(1, true));
+            && com.minecolonies.core.colony.ItemCompat.isArmor(itemStack, EquipmentSlot.LEGS), new Tuple<>(1, true));
         keepX.put(itemStack -> !ItemStackUtils.isEmpty(itemStack)
-            && itemStack.getItem() instanceof ArmorItem
-            && ((ArmorItem) itemStack.getItem()).getEquipmentSlot() == EquipmentSlot.FEET, new Tuple<>(1, true));
+            && com.minecolonies.core.colony.ItemCompat.isArmor(itemStack, EquipmentSlot.FEET), new Tuple<>(1, true));
     }
 
     @NotNull
@@ -138,7 +133,7 @@ public class BuildingNetherWorker extends AbstractBuilding
     public void onWakeUp()
     {
         super.onWakeUp();
-        snapTime = colony.getWorld().getDayTime();
+        snapTime = colony.getWorld().getOverworldClockTime();
         if (this.currentPeriodDay < getPeriodDays())
         {
             this.currentPeriodDay++;
@@ -156,12 +151,12 @@ public class BuildingNetherWorker extends AbstractBuilding
         super.deserializeNBT(provider, compound);
         if (compound.contains(TAG_CURRENT_TRIPS))
         {
-            this.currentTrips = compound.getInt(TAG_CURRENT_TRIPS);
+            this.currentTrips = compound.getIntOr(TAG_CURRENT_TRIPS, 0);
         }
 
         if (compound.contains(TAG_CURRENT_DAY))
         {
-            this.currentPeriodDay = compound.getInt(TAG_CURRENT_DAY);
+            this.currentPeriodDay = compound.getIntOr(TAG_CURRENT_DAY, 0);
         }
     }
 
@@ -219,9 +214,9 @@ public class BuildingNetherWorker extends AbstractBuilding
     {
         if (snapTime == 0)
         {
-            snapTime = colony.getWorld().getDayTime();
+            snapTime = colony.getWorld().getOverworldClockTime();
         }
-        if (Math.abs(colony.getWorld().getDayTime() - snapTime) >= 24000)
+        if (Math.abs(colony.getWorld().getOverworldClockTime() - snapTime) >= 24000)
         {
             //Make sure we're incrementing if day/night cycle isn't running. 
             this.currentPeriodDay++;

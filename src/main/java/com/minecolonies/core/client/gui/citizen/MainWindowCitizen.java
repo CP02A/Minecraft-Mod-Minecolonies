@@ -34,7 +34,7 @@ public class MainWindowCitizen extends AbstractWindowCitizen
      */
     public MainWindowCitizen(final ICitizenDataView citizen)
     {
-        super(citizen, new Identifier(Constants.MOD_ID, "gui/citizen/main.xml"));
+        super(citizen, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/citizen/main.xml"));
 
         final Image statusIcon = findPaneOfTypeByID(STATUS_ICON, Image.class);
         if (citizen.getVisibleStatus() == null)

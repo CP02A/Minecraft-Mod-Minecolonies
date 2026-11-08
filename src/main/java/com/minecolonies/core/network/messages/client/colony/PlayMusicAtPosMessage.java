@@ -67,9 +67,9 @@ public class PlayMusicAtPosMessage extends AbstractClientPlayMessage
     @Override
     protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
-        buf.writeResourceLocation(BuiltInRegistries.SOUND_EVENT.getKey(this.soundEvent));
+        buf.writeIdentifier(BuiltInRegistries.SOUND_EVENT.getKey(this.soundEvent));
         buf.writeBlockPos(pos);
-        buf.writeUtf(dimensionID.location().toString());
+        buf.writeUtf(dimensionID.identifier().toString());
         buf.writeFloat(volume);
         buf.writeFloat(pitch);
     }
@@ -77,7 +77,7 @@ public class PlayMusicAtPosMessage extends AbstractClientPlayMessage
     protected PlayMusicAtPosMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
-        this.soundEvent = BuiltInRegistries.SOUND_EVENT.get(buf.readResourceLocation());
+        this.soundEvent = BuiltInRegistries.SOUND_EVENT.getValue(buf.readIdentifier());
         this.pos = buf.readBlockPos();
         this.dimensionID = ResourceKey.create(Registries.DIMENSION, Identifier.parse(buf.readUtf(32767)));
         this.volume = buf.readFloat();

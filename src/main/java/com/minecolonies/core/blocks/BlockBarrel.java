@@ -7,7 +7,7 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.tileentities.TileEntityBarrel;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
@@ -30,7 +30,6 @@ import javax.annotation.Nullable;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 
 public class BlockBarrel extends AbstractBlockBarrel<BlockBarrel> implements EntityBlock
 {
@@ -69,7 +68,7 @@ public class BlockBarrel extends AbstractBlockBarrel<BlockBarrel> implements Ent
     @Override
     public Identifier getRegistryName()
     {
-        return new Identifier(Constants.MOD_ID, BLOCK_NAME);
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, BLOCK_NAME);
     }
 
     @Override
@@ -87,7 +86,7 @@ public class BlockBarrel extends AbstractBlockBarrel<BlockBarrel> implements Ent
 
     @NotNull
     @Override
-    public ItemInteractionResult useItemOn(
+    public InteractionResult useItemOn(
       final ItemStack stack,
       final BlockState state,
       final Level worldIn,
@@ -98,13 +97,13 @@ public class BlockBarrel extends AbstractBlockBarrel<BlockBarrel> implements Ent
     {
         final ItemStack itemstack = player.getInventory().getSelected();
         final BlockEntity te = worldIn.getBlockEntity(pos);
-        if (te instanceof TileEntityBarrel && !worldIn.isClientSide)
+        if (te instanceof TileEntityBarrel && !worldIn.isClientSide())
         {
             ((TileEntityBarrel) te).useBarrel(player, itemstack, ray.getDirection());
             ((TileEntityBarrel) te).updateBlock(worldIn);
         }
 
-        return ItemInteractionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @NotNull

@@ -39,7 +39,7 @@ public class EntityAIFloat extends FloatGoal
     @Override
     public void tick()
     {
-        if (!owner.getEyeInFluidType().isAir() && owner.getEyeInFluidType().canSwim(owner))
+        if (owner.isEyeInFluid(net.minecraft.tags.FluidTags.WATER))
         {
             if (owner.level().getBlockState(BlockPos.containing(owner.getEyePosition()).above()).isAir())
             {

@@ -146,7 +146,7 @@ public class WindowCitizenPage extends AbstractWindowTownHall
         if (selectedEntity != null && selectedEntity.getPose() == Pose.SLEEPING)
         {
             final EntityIcon entityIcon = findPaneOfTypeByID(ENTITY_ICON, EntityIcon.class);
-            entityIcon.setEntity(selectedEntity);
+            entityIcon.setEntityState(new EntityIcon.DynamicState<>(selectedEntity, null));
             entityIcon.show();
         }
     }

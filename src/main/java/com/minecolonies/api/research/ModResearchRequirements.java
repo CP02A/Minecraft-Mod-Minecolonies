@@ -12,10 +12,10 @@ import com.ldtteam.shim.neoforge.registries.DeferredHolder;
  */
 public class ModResearchRequirements
 {
-    public static final Identifier BUILDING_RESEARCH_REQ_ID            = new Identifier(Constants.MOD_ID, "building");
-    public static final Identifier BUILDING_ALTERNATES_RESEARCH_REQ_ID = new Identifier(Constants.MOD_ID, "alternate-building");
-    public static final Identifier BUILDING_SINGLE_RESEARCH_REQ_ID     = new Identifier(Constants.MOD_ID, "single-building");
-    public static final Identifier RESEARCH_RESEARCH_REQ_ID            = new Identifier(Constants.MOD_ID, "research");
+    public static final Identifier BUILDING_RESEARCH_REQ_ID            = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "building");
+    public static final Identifier BUILDING_ALTERNATES_RESEARCH_REQ_ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "alternate-building");
+    public static final Identifier BUILDING_SINGLE_RESEARCH_REQ_ID     = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "single-building");
+    public static final Identifier RESEARCH_RESEARCH_REQ_ID            = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "research");
 
     public static DeferredHolder<ResearchRequirementEntry, ResearchRequirementEntry> buildingResearchRequirement;
     public static DeferredHolder<ResearchRequirementEntry, ResearchRequirementEntry> buildingAlternatesResearchRequirement;

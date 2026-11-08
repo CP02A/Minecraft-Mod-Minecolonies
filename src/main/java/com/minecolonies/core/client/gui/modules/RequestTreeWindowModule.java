@@ -179,13 +179,13 @@ public abstract class RequestTreeWindowModule implements IWindowWithLayoutModule
     @NotNull
     public final Identifier getLayout()
     {
-        return new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutrequeststree.xml");
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutrequeststree.xml");
     }
 
     @Override
     public void onUpdate()
     {
-        if (!Screen.hasShiftDown())
+        if (!Minecraft.getInstance().hasShiftDown())
         {
             lifeCount++;
         }

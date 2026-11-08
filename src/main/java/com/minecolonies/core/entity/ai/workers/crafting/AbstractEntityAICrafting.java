@@ -375,7 +375,8 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
         final List<ItemStorage> input = currentRecipeStorage.getCleanedInput();
         for (final ItemStorage inputStorage : input)
         {
-            final ItemStack container = inputStorage.getItemStack().getCraftingRemainingItem();
+            final net.minecraft.world.item.ItemStackTemplate remainder = inputStorage.getItemStack().getItem().getCraftingRemainder();
+            final ItemStack container = remainder == null ? ItemStack.EMPTY : remainder.create();
             boolean isToolOrContainer = true;
             final int remaining;
             if (!currentRecipeStorage.getCraftingToolsAndSecondaryOutputs().isEmpty()
@@ -468,7 +469,8 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
         {
             final Predicate<ItemStack> predicate = stack -> !ItemStackUtils.isEmpty(stack) && new Stack(stack, false).matches(inputStorage.getItemStack());
             final int invCount = InventoryUtils.getItemCountInItemHandler(worker.getInventoryCitizen(), predicate) + getExtendedCount(inputStorage.getItemStack());
-            final ItemStack container = inputStorage.getItemStack().getCraftingRemainingItem();
+            final net.minecraft.world.item.ItemStackTemplate remainder = inputStorage.getItemStack().getItem().getCraftingRemainder();
+            final ItemStack container = remainder == null ? ItemStack.EMPTY : remainder.create();
             final int remaining;
             if (!currentRecipeStorage.getCraftingToolsAndSecondaryOutputs().isEmpty()
                   && ItemStackUtils.compareItemStackListIgnoreStackSize(currentRecipeStorage.getCraftingToolsAndSecondaryOutputs(), inputStorage.getItemStack(), false, true))
@@ -647,7 +649,7 @@ public abstract class AbstractEntityAICrafting<J extends AbstractJobCrafter<?, J
     {
         worker.getLookControl().setLookAt(blockPos.getX(), blockPos.getY(), blockPos.getZ(), FACING_DELTA_YAW, worker.getMaxHeadXRot());
 
-        worker.swing(worker.getUsedItemHand());
+        worker.swing(worker.getUsedItemHand(), net.minecraft.world.item.component.SwingAnimation.DEFAULT);
 
         final BlockState blockState = worker.level().getBlockState(blockPos);
         final BlockPos vector = blockPos.subtract(worker.blockPosition());

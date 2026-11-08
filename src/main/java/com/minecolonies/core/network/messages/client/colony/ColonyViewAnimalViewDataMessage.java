@@ -96,7 +96,7 @@ public class ColonyViewAnimalViewDataMessage extends AbstractClientPlayMessage
     {
         animalBuf.resetReaderIndex();
         buf.writeInt(colonyId);
-        buf.writeUtf(dimension.location().toString());
+        buf.writeUtf(dimension.identifier().toString());
         buf.writeBoolean(refresh);
         buf.writeByteArray(animalBuf.array());
     }

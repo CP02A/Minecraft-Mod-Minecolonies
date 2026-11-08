@@ -52,7 +52,7 @@ public class PlayAudioMessage extends AbstractClientPlayMessage
     public PlayAudioMessage(final SoundEvent event, final SoundSource category)
     {
         super(TYPE);
-        this.soundEvent = event.getLocation();
+        this.soundEvent = event.location();
         this.category = category;
     }
 
@@ -60,14 +60,14 @@ public class PlayAudioMessage extends AbstractClientPlayMessage
     protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
         buf.writeVarInt(category.ordinal());
-        buf.writeResourceLocation(soundEvent);
+        buf.writeIdentifier(soundEvent);
     }
 
     protected PlayAudioMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
         this.category = SoundSource.values()[buf.readVarInt()];
-        this.soundEvent = buf.readResourceLocation();
+        this.soundEvent = buf.readIdentifier();
     }
 
     @OnlyIn(Dist.CLIENT)

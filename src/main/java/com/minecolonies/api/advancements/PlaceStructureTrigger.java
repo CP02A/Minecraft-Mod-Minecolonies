@@ -2,11 +2,11 @@ package com.minecolonies.api.advancements;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.ContextAwarePredicate;
-import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
-import net.minecraft.advancements.critereon.SimpleCriterionTrigger.SimpleInstance;
+import net.minecraft.advancements.triggers.Criterion;
+import net.minecraft.core.Holder;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.advancements.triggers.SimpleCriterionTrigger;
+import net.minecraft.advancements.triggers.SimpleCriterionTrigger.SimpleInstance;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ExtraCodecs;
 
@@ -34,10 +34,10 @@ public class PlaceStructureTrigger extends SimpleCriterionTrigger<PlaceStructure
         return PlaceStructureTriggerInstance.CODEC;
     }
 
-    public static record PlaceStructureTriggerInstance(Optional<ContextAwarePredicate> player, Optional<String> structureName) implements SimpleInstance
+    public static record PlaceStructureTriggerInstance(Optional<Holder<LootItemCondition>> player, Optional<String> structureName) implements SimpleInstance
     {
         public static final Codec<PlaceStructureTriggerInstance> CODEC = RecordCodecBuilder.create(builder -> builder
-            .group(EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(PlaceStructureTriggerInstance::player),
+            .group(LootItemCondition.CODEC.optionalFieldOf("player").forGetter(PlaceStructureTriggerInstance::player),
                 Codec.STRING.optionalFieldOf("hut_name").forGetter(PlaceStructureTriggerInstance::structureName))
             .apply(builder, PlaceStructureTriggerInstance::new));
 

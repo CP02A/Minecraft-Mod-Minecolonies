@@ -3,50 +3,93 @@ package com.minecolonies.core.client.render;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.model.SpearModel;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.geom.EntityModelSet;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.special.NoDataSpecialModelRenderer;
+import net.minecraft.client.renderer.special.SpecialModelRenderer;
+import net.minecraft.client.renderer.special.SpecialModelRenderers;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
-import com.ldtteam.shim.api.distmarker.Dist;
-import com.ldtteam.shim.api.distmarker.OnlyIn;
+import net.minecraft.util.Unit;
+import org.joml.Vector3fc;
 
-@OnlyIn(Dist.CLIENT)
-public class SpearItemTileEntityRenderer extends BlockEntityWithoutLevelRenderer
+import java.util.function.Consumer;
+
+/**
+ * Special item renderer for the spear (was a BlockEntityWithoutLevelRenderer before 26.x).
+ * FABRIC-PORT TODO: now a {@link SpecialModelRenderer}; it has to be referenced from the spear's item model definition
+ * ("type": "minecraft:special", "model": {"type": "minecolonies:spear"}) and {@link #register()} has to be called during client init.
+ */
+public class SpearItemTileEntityRenderer implements NoDataSpecialModelRenderer
 {
-    private static final Identifier TEXTURE = new Identifier(Constants.MOD_ID, "textures/entity/spear.png");
-    private              SpearModel       model;
-    private final        EntityModelSet   set;
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/entity/spear.png");
 
-    public SpearItemTileEntityRenderer()
+    /**
+     * Id of this special renderer type.
+     */
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "spear");
+
+    private final SpearModel model;
+
+    public SpearItemTileEntityRenderer(final SpearModel model)
     {
-        super(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
-        this.set = Minecraft.getInstance().getEntityModels();
-        this.model = new SpearModel(this.set.bakeLayer(ModelLayers.TRIDENT));
+        this.model = model;
+    }
+
+    /**
+     * Register the special renderer type.
+     */
+    public static void register()
+    {
+        SpecialModelRenderers.ID_MAPPER.put(ID, Unbaked.MAP_CODEC);
     }
 
     @Override
-    public void onResourceManagerReload(ResourceManager manager)
+    public void submit(
+      final PoseStack poseStack,
+      final SubmitNodeCollector submitNodeCollector,
+      final int lightCoords,
+      final int overlayCoords,
+      final boolean hasFoil,
+      final int outlineColor)
     {
-        this.model = new SpearModel(this.set.bakeLayer(ModelLayers.TRIDENT));
+        poseStack.pushPose();
+        if (hasFoil)
+        {
+            submitNodeCollector.submitModel(this.model, Unit.INSTANCE, poseStack, RenderTypes.entitySolidGlint(TEXTURE), lightCoords, overlayCoords, outlineColor);
+        }
+        else
+        {
+            submitNodeCollector.submitModel(this.model, Unit.INSTANCE, poseStack, TEXTURE, lightCoords, overlayCoords, outlineColor);
+        }
+        poseStack.popPose();
     }
 
     @Override
-    public void renderByItem(
-      final ItemStack stack,
-      final ItemDisplayContext displayContext,
-      final PoseStack matrixStack,
-      final MultiBufferSource buffer,
-      final int combinedLight,
-      final int combinedOverlay)
+    public void getExtents(final Consumer<Vector3fc> output)
     {
-        matrixStack.pushPose();
-        model.renderToBuffer(matrixStack, ItemRenderer.getFoilBuffer(buffer, model.renderType(TEXTURE), false, stack.hasFoil()), combinedLight, combinedOverlay, -1);
-        matrixStack.popPose();
+        final PoseStack poseStack = new PoseStack();
+        this.model.root().getExtentsForGui(poseStack, output);
+    }
+
+    /**
+     * Unbaked spear renderer.
+     */
+    public record Unbaked() implements NoDataSpecialModelRenderer.Unbaked
+    {
+        public static final MapCodec<Unbaked> MAP_CODEC = MapCodec.unit(new Unbaked());
+
+        @Override
+        public MapCodec<Unbaked> type()
+        {
+            return MAP_CODEC;
+        }
+
+        @Override
+        public SpearItemTileEntityRenderer bake(final SpecialModelRenderer.BakingContext context)
+        {
+            return new SpearItemTileEntityRenderer(new SpearModel(context.entityModelSet().bakeLayer(ModelLayers.TRIDENT)));
+        }
     }
 }

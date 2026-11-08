@@ -4,6 +4,7 @@
 package com.minecolonies.core.client.model;
 
 import com.minecolonies.api.client.render.modeltype.CitizenModel;
+import com.minecolonies.api.client.render.modeltype.CitizenRenderState;
 import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -86,9 +87,9 @@ public class FemaleFloristModel extends CitizenModel<AbstractEntityCitizen>
 	}
 
     @Override
-    public void setupAnim(@NotNull final AbstractEntityCitizen entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch)
+    public void setupAnim(@NotNull final CitizenRenderState entity)
     {
-        super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+        super.setupAnim(entity);
         body.getChild("dress").visible = entity.getPose() != Pose.SLEEPING;
         head.getChild("WoodsmanHat").visible = displayHat(entity);
         head.getChild("WoodsmanHat").getChild("flowers").visible = entity.getRenderMetadata().contains(RENDER_META_FLOWERS);

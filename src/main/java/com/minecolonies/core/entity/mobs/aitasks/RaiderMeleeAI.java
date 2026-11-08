@@ -42,13 +42,13 @@ public class RaiderMeleeAI<T extends AbstractEntityMinecoloniesMonster & IThreat
         double damageToBeDealt = user.getAttribute(MOB_ATTACK_DAMAGE).getValue();
         if (user.getName().getContents() instanceof TranslatableContents translatableContents)
         {
-            target.hurt(target.level().damageSources().source(ResourceKey.create(Registries.DAMAGE_TYPE, new Identifier(Constants.MOD_ID, translatableContents.getKey().replace("entity.minecolonies.", ""))), user), (float) damageToBeDealt);
+            target.hurtOrSimulate(target.level().damageSources().source(ResourceKey.create(Registries.DAMAGE_TYPE, Identifier.fromNamespaceAndPath(Constants.MOD_ID, translatableContents.getKey().replace("entity.minecolonies.", ""))), user), (float) damageToBeDealt);
         }
         else
         {
-            target.hurt(target.level().damageSources().mobAttack(user), (float) damageToBeDealt);
+            target.hurtOrSimulate(target.level().damageSources().mobAttack(user), (float) damageToBeDealt);
         }
-        user.swing(InteractionHand.MAIN_HAND);
+        user.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
         user.playSound(SoundEvents.PLAYER_ATTACK_SWEEP, (float) 1.0D, (float) SoundUtils.getRandomPitch(user.getRandom()));
         target.setLastHurtByMob(user);
     }

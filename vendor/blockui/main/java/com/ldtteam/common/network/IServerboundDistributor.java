@@ -1,7 +1,7 @@
 package com.ldtteam.common.network;
 
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import com.ldtteam.shim.neoforge.network.PacketDistributor;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 /**
  * List of possible network targets when sending from client to server.
@@ -10,6 +10,6 @@ public interface IServerboundDistributor extends CustomPacketPayload
 {
     public default void sendToServer()
     {
-        PacketDistributor.sendToServer(this);
+        ClientPlayNetworking.send(this);
     }
 }

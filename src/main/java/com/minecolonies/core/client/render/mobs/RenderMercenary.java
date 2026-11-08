@@ -3,24 +3,28 @@ package com.minecolonies.core.client.render.mobs;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.model.MercenaryModel;
 import com.minecolonies.core.event.ClientRegistryHandler;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
-import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.PathfinderMob;
+
 
 /**
  * Renderer for EntityMercenary.
  */
-public class RenderMercenary extends MobRenderer<PathfinderMob, MercenaryModel>
+public class RenderMercenary extends MobRenderer<PathfinderMob, HumanoidRenderState, MercenaryModel>
 {
     /**
      * Texture of the entity.
      */
-    private static final Identifier TEXTURE = new Identifier(Constants.MOD_ID, "textures/entity/citizen/default/settlermale1_b.png");
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/entity/citizen/default/settlermale1_b.png");
 
     /**
      * Renders the mercenary mobs, with an held item and armorset.
@@ -31,12 +35,25 @@ public class RenderMercenary extends MobRenderer<PathfinderMob, MercenaryModel>
     {
         super(context, new MercenaryModel(context.bakeLayer(ClientRegistryHandler.MERCENARY)), 0.5f);
 
-        this.addLayer(new ItemInHandLayer<>(this, context.getItemInHandRenderer()));
-        this.addLayer(new HumanoidArmorLayer<>(this, new HumanoidModel<>(context.bakeLayer(ModelLayers.PLAYER_INNER_ARMOR)), new HumanoidModel<>(context.bakeLayer(ModelLayers.PLAYER_OUTER_ARMOR)), context.getModelManager()));
+        this.addLayer(new ItemInHandLayer<>(this));
+        this.addLayer(new HumanoidArmorLayer<>(this, ArmorModelSet.bake(ModelLayers.PLAYER_ARMOR, context.getModelSet(), HumanoidModel::new), context.getEquipmentRenderer()));
     }
 
     @Override
-    public Identifier getTextureLocation(final PathfinderMob entity)
+    public HumanoidRenderState createRenderState()
+    {
+        return new HumanoidRenderState();
+    }
+
+    @Override
+    public void extractRenderState(final PathfinderMob entity, final HumanoidRenderState state, final float partialTicks)
+    {
+        super.extractRenderState(entity, state, partialTicks);
+        HumanoidMobRenderer.extractHumanoidRenderState(entity, state, partialTicks, this.itemModelResolver);
+    }
+
+    @Override
+    public Identifier getTextureLocation(final HumanoidRenderState state)
     {
         return TEXTURE;
     }

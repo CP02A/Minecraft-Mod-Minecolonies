@@ -248,11 +248,11 @@ public class EntityAIWorkEnchanter extends AbstractEntityAICrafting<JobEnchanter
 
             if (worker.getRandom().nextBoolean())
             {
-                worker.swing(InteractionHand.MAIN_HAND);
+                worker.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
             }
             else
             {
-                worker.swing(InteractionHand.OFF_HAND);
+                worker.swing(InteractionHand.OFF_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
             }
             return getState();
         }
@@ -381,11 +381,11 @@ public class EntityAIWorkEnchanter extends AbstractEntityAICrafting<JobEnchanter
 
             if (worker.getRandom().nextBoolean())
             {
-                worker.swing(InteractionHand.MAIN_HAND);
+                worker.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
             }
             else
             {
-                worker.swing(InteractionHand.OFF_HAND);
+                worker.swing(InteractionHand.OFF_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
             }
 
             return getState();

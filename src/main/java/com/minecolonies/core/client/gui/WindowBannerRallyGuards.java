@@ -76,7 +76,7 @@ public class WindowBannerRallyGuards extends AbstractWindowSkeleton
      */
     public WindowBannerRallyGuards(final ItemStack banner)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/windowbannerrallyguards.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowbannerrallyguards.xml"));
         this.banner = banner;
 
         registerButton(BUTTON_REMOVE, this::removeClicked);

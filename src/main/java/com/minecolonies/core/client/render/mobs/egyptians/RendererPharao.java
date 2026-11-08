@@ -14,7 +14,7 @@ public class RendererPharao extends AbstractRendererEgyptian<AbstractEntityMinec
     /**
      * Texture of the entity.
      */
-    private static final Identifier TEXTURE = new Identifier("minecolonies", "textures/entity/raiders/pharao.png");
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath("minecolonies", "textures/entity/raiders/pharao.png");
 
     /**
      * Constructor method for renderer

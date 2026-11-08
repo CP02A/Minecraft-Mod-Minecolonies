@@ -37,6 +37,6 @@ public class BlockWaypoint extends AbstractBlockMinecolonies<BlockWaypoint>
     @Override
     public Identifier getRegistryName()
     {
-        return new Identifier(Constants.MOD_ID, BLOCK_NAME);
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, BLOCK_NAME);
     }
 }

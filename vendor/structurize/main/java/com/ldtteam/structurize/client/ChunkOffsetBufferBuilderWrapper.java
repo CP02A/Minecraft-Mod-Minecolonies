@@ -1,19 +1,18 @@
 package com.ldtteam.structurize.client;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 /**
- * Delegating offseted bufferBuilder, delegated method @Overriden in BufferBuilder class to provide fast delegation
+ * Adds chunk offset to vertex positions (fluid renderer outputs chunk section relative positions).
  */
 public class ChunkOffsetBufferBuilderWrapper implements VertexConsumer
 {
-    private BufferBuilder delegate;
+    private VertexConsumer delegate;
     private int offsetX;
     private int offsetY;
     private int offsetZ;
 
-    public void setOffset(final BufferBuilder delegate, final int offsetX, final int offsetY, final int offsetZ)
+    public void setOffset(final VertexConsumer delegate, final int offsetX, final int offsetY, final int offsetZ)
     {
         this.delegate = delegate;
         this.offsetX = offsetX;
@@ -22,72 +21,65 @@ public class ChunkOffsetBufferBuilderWrapper implements VertexConsumer
     }
 
     @Override
-    public VertexConsumer addVertex(float x, float y, float z)
+    public VertexConsumer addVertex(final float x, final float y, final float z)
     {
-        return delegate.addVertex(offsetX + x, offsetY + y, offsetZ + z);
+        delegate.addVertex(offsetX + x, offsetY + y, offsetZ + z);
+        return this;
     }
 
     @Override
-    public VertexConsumer setColor(int p_350581_, int p_350952_, int p_350275_, int p_350985_)
+    public VertexConsumer setColor(final int r, final int g, final int b, final int a)
     {
-        return delegate.setColor(p_350581_, p_350952_, p_350275_, p_350985_);
+        delegate.setColor(r, g, b, a);
+        return this;
     }
 
     @Override
-    public VertexConsumer setNormal(float p_351000_, float p_350982_, float p_350974_)
+    public VertexConsumer setColor(final int color)
     {
-        return delegate.setNormal(p_351000_, p_350982_, p_350974_);
+        delegate.setColor(color);
+        return this;
     }
 
     @Override
-    public VertexConsumer setUv(float p_350574_, float p_350773_)
+    public VertexConsumer setNormal(final float x, final float y, final float z)
     {
-        return delegate.setUv(p_350574_, p_350773_);
+        delegate.setNormal(x, y, z);
+        return this;
     }
 
     @Override
-    public VertexConsumer setUv1(int p_350396_, int p_350722_)
+    public VertexConsumer setLineWidth(final float width)
     {
-        return delegate.setUv1(p_350396_, p_350722_);
+        delegate.setLineWidth(width);
+        return this;
     }
 
     @Override
-    public VertexConsumer setUv2(int p_351058_, int p_350320_)
+    public VertexConsumer setUv(final float u, final float v)
     {
-        return delegate.setUv2(p_351058_, p_350320_);
+        delegate.setUv(u, v);
+        return this;
     }
 
     @Override
-    public VertexConsumer setColor(int p_350530_)
+    public VertexConsumer setUv1(final int u, final int v)
     {
-        return delegate.setColor(p_350530_);
+        delegate.setUv1(u, v);
+        return this;
     }
 
     @Override
-    public VertexConsumer setOverlay(int p_350297_)
+    public VertexConsumer setUv2(final int u, final int v)
     {
-        return delegate.setOverlay(p_350297_);
+        delegate.setUv2(u, v);
+        return this;
     }
 
     @Override
-    public VertexConsumer setLight(int p_350848_)
+    public VertexConsumer setUv3(final float u, final float v)
     {
-        return delegate.setLight(p_350848_);
-    }
-
-    @Override
-    public void addVertex(float x,
-        float y,
-        float z,
-        int p_350371_,
-        float p_350977_,
-        float p_350674_,
-        int p_350816_,
-        int p_350690_,
-        float p_350640_,
-        float p_350490_,
-        float p_350810_)
-    {
-        delegate.addVertex(offsetX + x, offsetY + y, offsetZ + z, p_350371_, p_350977_, p_350674_, p_350816_, p_350690_, p_350640_, p_350490_, p_350810_);
+        delegate.setUv3(u, v);
+        return this;
     }
 }

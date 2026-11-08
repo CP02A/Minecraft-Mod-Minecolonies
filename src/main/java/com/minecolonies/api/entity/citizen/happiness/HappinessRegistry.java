@@ -73,9 +73,9 @@ public class HappinessRegistry
     public static IHappinessModifier loadFrom(@NotNull final HolderLookup.Provider provider, @NotNull final CompoundTag compound, final boolean persist)
     {
         final Identifier modifierType = compound.contains(NbtTagConstants.TAG_MODIFIER_TYPE)
-                                                ? Identifier.parse(compound.getString(NbtTagConstants.TAG_MODIFIER_TYPE))
-                                                : new Identifier(Constants.MOD_ID, "null");
-        final IHappinessModifier modifier = getHappinessTypeRegistry().get(modifierType).create();
+                                                ? Identifier.parse(compound.getStringOr(NbtTagConstants.TAG_MODIFIER_TYPE, ""))
+                                                : Identifier.fromNamespaceAndPath(Constants.MOD_ID, "null");
+        final IHappinessModifier modifier = getHappinessTypeRegistry().getValue(modifierType).create();
 
         if (modifier != null)
         {
@@ -127,21 +127,21 @@ public class HappinessRegistry
         }
     }
 
-    public static Identifier STATIC_MODIFIER      = new Identifier(Constants.MOD_ID, "static");
-    public static Identifier EXPIRATION_MODIFIER  = new Identifier(Constants.MOD_ID, "expiration");
-    public static Identifier TIME_PERIOD_MODIFIER = new Identifier(Constants.MOD_ID, "time");
+    public static Identifier STATIC_MODIFIER      = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "static");
+    public static Identifier EXPIRATION_MODIFIER  = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "expiration");
+    public static Identifier TIME_PERIOD_MODIFIER = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "time");
 
-    public static Identifier SCHOOL_FUNCTION        = new Identifier(Constants.MOD_ID, "school");
-    public static Identifier SECURITY_FUNCTION      = new Identifier(Constants.MOD_ID, "security");
-    public static Identifier SOCIAL_FUNCTION        = new Identifier(Constants.MOD_ID, "social");
-    public static Identifier MYSTICAL_SITE_FUNCTION = new Identifier(Constants.MOD_ID, "mystical");
+    public static Identifier SCHOOL_FUNCTION        = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "school");
+    public static Identifier SECURITY_FUNCTION      = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "security");
+    public static Identifier SOCIAL_FUNCTION        = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "social");
+    public static Identifier MYSTICAL_SITE_FUNCTION = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "mystical");
 
-    public static Identifier HOUSING_FUNCTION      = new Identifier(Constants.MOD_ID, "housing");
-    public static Identifier UNEMPLOYMENT_FUNCTION = new Identifier(Constants.MOD_ID, "unemployment");
-    public static Identifier HEALTH_FUNCTION       = new Identifier(Constants.MOD_ID, "health");
-    public static Identifier IDLEATJOB_FUNCTION    = new Identifier(Constants.MOD_ID, "idleatjob");
-    public static Identifier SLEPTTONIGHT_FUNCTION = new Identifier(Constants.MOD_ID, "slepttonight");
-    public static Identifier FOOD_FUNCTION         = new Identifier(Constants.MOD_ID, "food");
+    public static Identifier HOUSING_FUNCTION      = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "housing");
+    public static Identifier UNEMPLOYMENT_FUNCTION = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "unemployment");
+    public static Identifier HEALTH_FUNCTION       = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "health");
+    public static Identifier IDLEATJOB_FUNCTION    = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "idleatjob");
+    public static Identifier SLEPTTONIGHT_FUNCTION = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "slepttonight");
+    public static Identifier FOOD_FUNCTION         = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "food");
 
     public static DeferredHolder<HappinessFactorTypeEntry, HappinessFactorTypeEntry> staticHappinessModifier;
     public static DeferredHolder<HappinessFactorTypeEntry, HappinessFactorTypeEntry> expirationBasedHappinessModifier;

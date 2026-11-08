@@ -50,7 +50,7 @@ public class RecruitmentInteraction extends ServerCitizenInteraction
     /**
      * The icon's res location which is displayed for this interaction
      */
-    private static final Identifier icon = new Identifier(Constants.MOD_ID, "textures/icons/recruiticon.png");
+    private static final Identifier icon = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/recruiticon.png");
 
     /**
      * The recruit answer
@@ -168,7 +168,7 @@ public class RecruitmentInteraction extends ServerCitizenInteraction
 
                     final IBuilding tavern = colony.getServerBuildingManager().getFirstBuildingMatching(b -> b.getBuildingType() == ModBuildings.tavern.get());
                     
-                    if (colony.getWorld().random.nextInt(100) <= BAD_VISITOR_CHANCE)
+                    if (colony.getWorld().getRandom().nextInt(100) <= BAD_VISITOR_CHANCE)
                     {
                         StatsUtil.trackStat(tavern, VISITORS_ABSCONDED, 1);
                         colony.getStatisticsManager().increment(VISITORS_ABSCONDED, colony.getDay());

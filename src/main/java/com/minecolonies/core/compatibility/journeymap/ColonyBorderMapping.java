@@ -13,20 +13,21 @@ import it.unimi.dsi.fastutil.ints.AbstractInt2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectRBTreeMap;
 import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
-import journeymap.api.v2.client.display.Context;
+import journeymap.api.v2.common.Context;
 import journeymap.api.v2.client.display.DisplayType;
 import journeymap.api.v2.client.display.PolygonOverlay;
 import journeymap.api.v2.client.model.MapPolygonWithHoles;
 import journeymap.api.v2.client.model.ShapeProperties;
 import journeymap.api.v2.client.model.TextProperties;
 import journeymap.api.v2.client.util.PolygonHelper;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.ArrayListDeque;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -166,7 +167,7 @@ public class ColonyBorderMapping
 
             final IColonyManager colonyManager = MinecoloniesAPIProxy.getInstance().getColonyManager();
             final IColonyView colony = colonyManager.getColonyView(id, dimension);
-            if (colony != null && colony.getTicketedChunks().contains(pos.toLong()))
+            if (colony != null && colony.getTicketedChunks().contains(pos.pack()))
             {
                 overlay.updateLoadedChunks(Collections.singleton(pos), Collections.emptySet());
             }
@@ -272,7 +273,7 @@ public class ColonyBorderMapping
         private JourneymapOptions.BorderStyle loadedStyle = JourneymapOptions.BorderStyle.HIDDEN;
 
         private static final Codec<Set<ChunkPos>> CODEC_SET_CHUNKPOSLONG =
-                Codec.LONG.xmap(ChunkPos::new, ChunkPos::toLong)
+                Codec.LONG.xmap(ChunkPos::unpack, ChunkPos::pack)
                         .listOf().xmap(HashSet::new, ArrayList::new);
         static final Codec<ColonyBorderOverlay> CODEC =
                 RecordCodecBuilder.create(instance -> instance.group(
@@ -307,7 +308,7 @@ public class ColonyBorderMapping
         {
             this.dimension = dimension;
             this.id = id;
-            this.name = String.format("colony_%s_%d", dimension.location(), id);
+            this.name = String.format("colony_%s_%d", dimension.identifier(), id);
             this.chunks = new HashSet<>();
             this.loadedChunks = new HashSet<>();
 
@@ -368,7 +369,7 @@ public class ColonyBorderMapping
                 final boolean permitted = colony.getPermissions().hasPermission(Minecraft.getInstance().player, Action.MAP_BORDER);
 
                 //noinspection ConstantConditions
-                changed |= updateInfo(colony.getName(), colony.getTeamColonyColor().getColor(), permitted, showColonyName, mainBorderIsHidden);
+                changed |= updateInfo(colony.getName(), TextColor.fromLegacyFormat(colony.getTeamColonyColor()).getValue(), permitted, showColonyName, mainBorderIsHidden);
             }
             return changed;
         }
@@ -390,7 +391,7 @@ public class ColonyBorderMapping
             this.loadedStroke.setStrokeColor(loadedColour);
             this.text.setColor(colour);
             //noinspection ConstantConditions
-            this.text.setBackgroundColor(colour == ChatFormatting.BLACK.getColor() ? 0xDDDDDD : 0x000022);
+            this.text.setBackgroundColor(colour == TextColor.fromLegacyFormat(ChatFormatting.BLACK).getValue() ? 0xDDDDDD : 0x000022);
 
             this.colonyName = colonyName;
             this.permitted = permitted;
@@ -406,16 +407,16 @@ public class ColonyBorderMapping
 
         private static int intensify(final int colour)
         {
-            int a = FastColor.ARGB32.alpha(colour);
-            int r = FastColor.ARGB32.red(colour);
-            int g = FastColor.ARGB32.green(colour);
-            int b = FastColor.ARGB32.blue(colour);
+            int a = ARGB.alpha(colour);
+            int r = ARGB.red(colour);
+            int g = ARGB.green(colour);
+            int b = ARGB.blue(colour);
 
             int max = Math.max(r, Math.max(g, b));
 
-            int pure = FastColor.ARGB32.color(a, r == max ? 255 : 0, g == max ? 255 : 0, b == max ? 255 : 0);
+            int pure = ARGB.color(a, r == max ? 255 : 0, g == max ? 255 : 0, b == max ? 255 : 0);
 
-            return FastColor.ARGB32.lerp(0.25f, colour, pure);
+            return ARGB.srgbLerp(0.25f, colour, pure);
         }
 
         /** Update the map overlays if needed */

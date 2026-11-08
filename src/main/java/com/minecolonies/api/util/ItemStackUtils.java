@@ -134,7 +134,7 @@ public final class ItemStackUtils
     public static final Predicate<ItemStack> IS_ANY_FOOD =
             stack ->
             {
-                final FoodProperties foodProperties = stack.getFoodProperties(null);
+                final FoodProperties foodProperties = stack.get(net.minecraft.core.component.DataComponents.FOOD);
                 return ItemStackUtils.isNotEmpty(stack) && foodProperties != null && foodProperties.nutrition() > 0
                         && foodProperties.saturation() > 0;
             };
@@ -196,9 +196,18 @@ public final class ItemStackUtils
             }
             else if (entity instanceof ArmorStand)
             {
-                request.add(new ItemStorage(entity.getPickedResult(new EntityHitResult(placer))));
-                ((ArmorStand) entity).getArmorSlots().forEach(item -> request.add(new ItemStorage(item)));
-                ((ArmorStand) entity).getHandSlots().forEach(item -> request.add(new ItemStorage(item)));
+                final ItemStack picked = entity.getPickResult();
+                if (picked != null)
+                {
+                    request.add(new ItemStorage(picked));
+                }
+                for (final EquipmentSlot slot : EquipmentSlot.values())
+                {
+                    if (slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR || slot.getType() == EquipmentSlot.Type.HAND)
+                    {
+                        request.add(new ItemStorage(((ArmorStand) entity).getItemBySlot(slot)));
+                    }
+                }
             }
 
             /*
@@ -280,7 +289,7 @@ public final class ItemStackUtils
         }
         int maxLevel = 0;
 
-        for (Object2IntMap.Entry<Holder<Enchantment>> entry : itemStack.getTagEnchantments().entrySet())
+        for (Object2IntMap.Entry<Holder<Enchantment>> entry : itemStack.getEnchantments().entrySet())
         {
             final int level = entry.getIntValue();
             maxLevel = Math.max(level, maxLevel);
@@ -304,7 +313,8 @@ public final class ItemStackUtils
             return value;
         }
 
-        final EquipmentSlot targetEquipmentSlot = Optional.ofNullable(Equipable.get(itemStack)).map(Equipable::getEquipmentSlot).orElse(EquipmentSlot.MAINHAND);
+        final EquipmentSlot targetEquipmentSlot = Optional.ofNullable(itemStack.get(net.minecraft.core.component.DataComponents.EQUIPPABLE))
+                                                    .map(net.minecraft.world.item.equipment.Equippable::slot).orElse(EquipmentSlot.MAINHAND);
         final List<Item> armorItems = VANILLA_ARMOR_MAPPING.get(targetEquipmentSlot);
         if (armorItems == null)
         {
@@ -315,13 +325,10 @@ public final class ItemStackUtils
 
         for (final Item item : armorItems)
         {
-            if (item instanceof ArmorItem armorItem)
+            final double armorValue = getArmorValue(item.getDefaultInstance(), targetEquipmentSlot);
+            if (targetArmorLevel <= armorValue)
             {
-                final double armorValue = getArmorValue(armorItem.getDefaultInstance(), armorItem.getEquipmentSlot());
-                if (targetArmorLevel <= armorValue)
-                {
-                    return VANILLA_ARMOR_DISTRIBUTION.get(armorItem);
-                }
+                return VANILLA_ARMOR_DISTRIBUTION.get(item);
             }
         }
 
@@ -379,9 +386,81 @@ public final class ItemStackUtils
         int fortune = 0;
         if (tool.isEnchanted())
         {
-            return tool.getTagEnchantments().getLevel(Utils.getRegistryValue(Enchantments.FORTUNE, level));
+            return tool.getEnchantments().getLevel(Utils.getRegistryValue(Enchantments.FORTUNE, level));
         }
         return fortune;
+    }
+
+    /**
+     * FABRIC-PORT: replacement for the NeoForge {@code ItemStack#getCraftingRemainingItem()} extension.
+     *
+     * @param stack the stack.
+     * @return a new remainder stack (EMPTY if none).
+     */
+    @NotNull
+    public static ItemStack getCraftingRemainingItem(@NotNull final ItemStack stack)
+    {
+        if (stack.isEmpty())
+        {
+            return ItemStack.EMPTY;
+        }
+        final ItemStackTemplate remainder = stack.getItem().getCraftingRemainder();
+        return remainder == null ? ItemStack.EMPTY : remainder.create();
+    }
+
+    /**
+     * FABRIC-PORT: replacement for the 1.21.1 {@code instanceof ArmorItem} checks (ArmorItem was removed in 26.x).
+     * An item counts as armor if it is equippable into an armor slot and either provides armor or is tagged as armor.
+     *
+     * @param stack the stack to check.
+     * @return the armor slot, or null if the stack is not armor.
+     */
+    @Nullable
+    public static EquipmentSlot getArmorSlot(@Nullable final ItemStack stack)
+    {
+        if (stack == null || stack.isEmpty())
+        {
+            return null;
+        }
+        final net.minecraft.world.item.equipment.Equippable equippable = stack.get(net.minecraft.core.component.DataComponents.EQUIPPABLE);
+        if (equippable == null || !equippable.slot().isArmor())
+        {
+            return null;
+        }
+        if (stack.is(ItemTags.HEAD_ARMOR) || stack.is(ItemTags.CHEST_ARMOR) || stack.is(ItemTags.LEG_ARMOR) || stack.is(ItemTags.FOOT_ARMOR))
+        {
+            return equippable.slot();
+        }
+        final boolean[] hasArmor = {false};
+        stack.forEachModifier(equippable.slot(), (attr, modifier) -> {
+            if (attr.is(Attributes.ARMOR) || attr.is(Attributes.ARMOR_TOUGHNESS))
+            {
+                hasArmor[0] = true;
+            }
+        });
+        return hasArmor[0] ? equippable.slot() : null;
+    }
+
+    /**
+     * FABRIC-PORT: replacement for the 1.21.1 {@code instanceof ArmorItem} checks.
+     *
+     * @param stack the stack to check.
+     * @return true if the stack is armor.
+     */
+    public static boolean isArmor(@Nullable final ItemStack stack)
+    {
+        return getArmorSlot(stack) != null;
+    }
+
+    /**
+     * FABRIC-PORT: replacement for the 1.21.1 {@code instanceof SwordItem} checks (SwordItem was removed in 26.x).
+     *
+     * @param stack the stack to check.
+     * @return true if the stack is a sword.
+     */
+    public static boolean isSword(@Nullable final ItemStack stack)
+    {
+        return stack != null && stack.is(ItemTags.SWORDS);
     }
 
     /**
@@ -392,7 +471,8 @@ public final class ItemStackUtils
      */
     public static boolean doesItemServeAsWeapon(@NotNull final ItemStack stack)
     {
-        return stack.getItem() instanceof SwordItem || stack.getItem() instanceof DiggerItem || Compatibility.isTinkersWeapon(stack) || stack.getItem() instanceof ItemSpear;
+        return stack.is(ItemTags.SWORDS) || stack.is(ItemTags.AXES) || stack.is(ItemTags.PICKAXES) || stack.is(ItemTags.SHOVELS) || stack.is(ItemTags.HOES)
+                 || Compatibility.isTinkersWeapon(stack) || stack.getItem() instanceof ItemSpear;
     }
 
     /**
@@ -664,7 +744,56 @@ public final class ItemStackUtils
     @NotNull
     public static ItemStack deserializeFromNBT(@NotNull final CompoundTag compound, @NotNull final HolderLookup.Provider provider)
     {
-        return ItemStack.parseOptional(provider, compound);
+        return parseOptional(provider, compound);
+    }
+
+    /**
+     * Replacement for the removed 1.21.1 {@code ItemStack#parseOptional}: reads an item stack from NBT, returning EMPTY on failure.
+     *
+     * @param provider the registry provider.
+     * @param tag      the tag to read from.
+     * @return the stack or EMPTY.
+     */
+    @NotNull
+    public static ItemStack parseOptional(@NotNull final HolderLookup.Provider provider, @Nullable final net.minecraft.nbt.Tag tag)
+    {
+        if (tag == null || (tag instanceof CompoundTag compoundTag && compoundTag.isEmpty()))
+        {
+            return ItemStack.EMPTY;
+        }
+        return ItemStack.OPTIONAL_CODEC.parse(provider.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), tag)
+                 .resultOrPartial(e -> Log.getLogger().error("Tried to load invalid item: '{}'", e))
+                 .orElse(ItemStack.EMPTY);
+    }
+
+    /**
+     * Replacement for the removed 1.21.1 {@code ItemStack#saveOptional}: writes an item stack to NBT (empty compound for EMPTY).
+     *
+     * @param stack    the stack to save.
+     * @param provider the registry provider.
+     * @return the tag.
+     */
+    @NotNull
+    public static net.minecraft.nbt.Tag saveOptional(@NotNull final ItemStack stack, @NotNull final HolderLookup.Provider provider)
+    {
+        if (stack.isEmpty())
+        {
+            return new CompoundTag();
+        }
+        return ItemStack.CODEC.encodeStart(provider.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), stack).getOrThrow();
+    }
+
+    /**
+     * Replacement for the removed 1.21.1 {@code ItemStack#save(Provider)}.
+     *
+     * @param stack    the non-empty stack to save.
+     * @param provider the registry provider.
+     * @return the tag.
+     */
+    @NotNull
+    public static net.minecraft.nbt.Tag save(@NotNull final ItemStack stack, @NotNull final HolderLookup.Provider provider)
+    {
+        return saveOptional(stack, provider);
     }
 
     /**
@@ -770,7 +899,7 @@ public final class ItemStackUtils
         final Item item;
         try
         {
-            item = BuiltInRegistries.ITEM.get(Identifier.parse(itemId));
+            item = BuiltInRegistries.ITEM.getValue(Identifier.parse(itemId));
         }
         catch (Throwable t)
         {
@@ -854,7 +983,7 @@ public final class ItemStackUtils
         final Set<ItemStorage> allItems = new HashSet<>(IColonyManager.getInstance().getCompatibilityManager().getSetOfAllItems());
 
         // plus all items from the player's inventory not already listed (adds items with extra NBT)
-        for (final ItemStack stack : player.getInventory().items)
+        for (final ItemStack stack : player.getInventory().getNonEquipmentItems())
         {
             if (stack.isEmpty())
             {
@@ -956,7 +1085,7 @@ public final class ItemStackUtils
         {
             final String standardKey = Tags.getTagTranslationKey(t);
             final String localKey = "com.minecolonies.coremod.research.tags." + t.location();
-            return I18n.exists(localKey) && !I18n.exists(standardKey)
+            return net.minecraft.locale.Language.getInstance().has(localKey) && !net.minecraft.locale.Language.getInstance().has(standardKey)
                     ? (Component) Component.translatable(localKey)
                     : Component.translatable("com.minecolonies.coremod.research.tags.other",
                             Component.translatableWithFallback(Tags.getTagTranslationKey(t), t.location().toString()));
@@ -964,10 +1093,10 @@ public final class ItemStackUtils
         {
             if (items.length == 1)
             {
-                return items[0].getItem().getDescription();
+                return items[0].getItem().getName(items[0]);
             }
             return Component.translatable(String.join("/", Collections.nCopies(items.length, "%s")),
-                    Arrays.stream(items).map(ItemStack::getItem).map(Item::getDescription).toArray());
+                    Arrays.stream(items).map(ItemStack::getItemName).toArray());
         }));
     }
 
@@ -988,12 +1117,8 @@ public final class ItemStackUtils
         }
 
         return BuiltInRegistries.ITEM.getTags()
-                .filter(e ->
-                {
-                    HolderSet.Named<Item> tag = e.getSecond();
-                    return areEquivalent(tag, values);
-                })
-                .map(Pair::getFirst)
+                .filter(tag -> areEquivalent(tag, values))
+                .map(HolderSet.Named::key)
                 .findFirst();
     }
 
@@ -1029,7 +1154,7 @@ public final class ItemStackUtils
         try
         {
             final AttributeInstance instance = new AttributeInstance(attribute, (f) -> {});
-            itemStack.getAttributeModifiers().forEach(equipmentSlot, (attr, modifier) -> {
+            itemStack.forEachModifier(equipmentSlot, (attr, modifier) -> {
                 if (attr.equals(attribute))
                 {
                     instance.addTransientModifier(modifier);
@@ -1039,7 +1164,7 @@ public final class ItemStackUtils
         }
         catch (final Exception e)
         {
-            Log.getLogger().warn("Could not get attribute value for '{}' on item '{}'", attribute.value().getDescriptionId(), itemStack.getDescriptionId(), e);
+            Log.getLogger().warn("Could not get attribute value for '{}' on item '{}'", attribute.value().getDescriptionId(), itemStack.getItem().getDescriptionId(), e);
             return 0;
         }
     }

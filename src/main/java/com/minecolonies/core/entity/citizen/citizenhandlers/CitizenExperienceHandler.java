@@ -12,7 +12,7 @@ import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ExperienceOrb;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -129,7 +129,7 @@ public class CitizenExperienceHandler implements ICitizenExperienceHandler
     {
         int experience;
 
-        if (!CompatibilityUtils.getWorldFromCitizen(citizen).isClientSide && citizen.getRecentlyHit() > 0 && citizen.checkCanDropLoot() && CompatibilityUtils.getWorldFromCitizen(
+        if (!CompatibilityUtils.getWorldFromCitizen(citizen).isClientSide() && citizen.getRecentlyHit() > 0 && citizen.checkCanDropLoot() && CompatibilityUtils.getWorldFromCitizen(
           citizen).getGameRules().getBoolean(
           GameRules.RULE_DOMOBLOOT))
         {
@@ -163,7 +163,7 @@ public class CitizenExperienceHandler implements ICitizenExperienceHandler
     @Override
     public void gatherXp()
     {
-        if (citizen.level().isClientSide)
+        if (citizen.level().isClientSide())
         {
             return;
         }

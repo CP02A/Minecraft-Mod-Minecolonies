@@ -14,7 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Tuple;
+import com.minecolonies.api.util.Tuple;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -249,9 +249,21 @@ public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack im
     }
 
     @Override
-    public Tuple<BlockPos, BlockPos> getSchematicCorners()
+    public com.ldtteam.structurize.api.Tuple<BlockPos, BlockPos> getSchematicCorners()
     {
-        return new Tuple<>(corner1, corner2);
+        return new com.ldtteam.structurize.api.Tuple<>(corner1, corner2);
+    }
+
+    /**
+     * FABRIC-PORT: replaces AbstractColonyBlock#onRemove (removed in 26.x): drop the building inventory when the block is removed.
+     */
+    @Override
+    public void preRemoveSideEffects(final BlockPos pos, final BlockState state)
+    {
+        if (this.level != null)
+        {
+            com.minecolonies.api.util.InventoryUtils.dropItemHandler(getInventory(), this.level, pos.getX(), pos.getY(), pos.getZ());
+        }
     }
 
     @Override
@@ -267,7 +279,7 @@ public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack im
     {
         super.loadAdditional(compound, provider);
         readSchematicDataFromNBT(compound);
-        this.version = compound.getInt(TAG_VERSION);
+        this.version = compound.getIntOr(TAG_VERSION, 0);
     }
 
     @Override
@@ -276,7 +288,7 @@ public abstract class AbstractTileEntityColonyBuilding extends TileEntityRack im
         final String old = getSchematicName();
         IBlueprintDataProviderBE.super.readSchematicDataFromNBT(originalCompound);
 
-        if (level == null || level.isClientSide || getColony() == null || getColony().getServerBuildingManager() == null)
+        if (level == null || level.isClientSide() || getColony() == null || getColony().getServerBuildingManager() == null)
         {
             return;
         }

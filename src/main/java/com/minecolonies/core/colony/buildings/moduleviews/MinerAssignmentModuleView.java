@@ -67,7 +67,7 @@ public class MinerAssignmentModuleView extends AbstractBuildingModuleView implem
     @Override
     public Identifier getIconResourceLocation()
     {
-        return new Identifier(Constants.MOD_ID, "textures/gui/modules/entity.png");
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/modules/entity.png");
     }
 
     @Override
@@ -120,7 +120,7 @@ public class MinerAssignmentModuleView extends AbstractBuildingModuleView implem
     @Override
     public BOWindow getWindow()
     {
-        return new SpecialAssignmentModuleWindow(this, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutminerassignment.xml"));
+        return new SpecialAssignmentModuleWindow(this, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutminerassignment.xml"));
     }
 
     @Override

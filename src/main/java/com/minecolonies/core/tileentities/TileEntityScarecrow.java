@@ -74,21 +74,33 @@ public class TileEntityScarecrow extends AbstractTileEntityScarecrow
     }
 
     @Override
-    public void saveAdditional(final CompoundTag compoundTag, final HolderLookup.Provider provider)
+    public void saveAdditional(final net.minecraft.world.level.storage.ValueOutput valueOutput)
     {
-        super.saveAdditional(compoundTag, provider);
-        compoundTag.putIntArray(TAG_RADIUS, fieldSize);
+        super.saveAdditional(valueOutput);
+        final CompoundTag compoundTag = new CompoundTag();
+        final HolderLookup.Provider provider = com.minecolonies.core.entity.NbtValueIO.lookup(this);
+        saveAdditionalTag(compoundTag, provider);
+        com.minecolonies.core.entity.NbtValueIO.write(valueOutput, compoundTag);
     }
 
-    @Override
-    public void loadAdditional(final CompoundTag compoundTag, final HolderLookup.Provider provider)
+    private void saveAdditionalTag(final CompoundTag compoundTag, final HolderLookup.Provider provider)
     {
-        super.loadAdditional(compoundTag, provider);
+
+        compoundTag.putIntArray(TAG_RADIUS, fieldSize);
+        }
+
+    @Override
+    public void loadAdditional(final net.minecraft.world.level.storage.ValueInput valueInput)
+    {
+        super.loadAdditional(valueInput);
+        final CompoundTag compoundTag = com.minecolonies.core.entity.NbtValueIO.read(valueInput);
+        final HolderLookup.Provider provider = valueInput.lookup();
+
         if (compoundTag.contains(TAG_RADIUS))
         {
-            fieldSize = compoundTag.getIntArray(TAG_RADIUS);
+            fieldSize = compoundTag.getIntArray(TAG_RADIUS).orElse(new int[0]);
         }
-    }
+        }
 
     /**
      * @param direction the direction for the radius
@@ -110,7 +122,7 @@ public class TileEntityScarecrow extends AbstractTileEntityScarecrow
     @Override
     public CompoundTag getUpdateTag(@NotNull final HolderLookup.Provider provider)
     {
-        return saveWithId(provider);
+        return saveWithoutMetadata(provider);
     }
 
     /**

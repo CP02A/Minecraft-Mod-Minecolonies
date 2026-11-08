@@ -1,5 +1,7 @@
 package com.ldtteam.structurize.placement;
 
+import net.minecraft.world.entity.EntitySpawnReason;
+import com.ldtteam.structurize.util.ValueIOUtils;
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.ItemStackUtils;
 import com.ldtteam.structurize.api.Log;
@@ -356,13 +358,13 @@ public class StructurePlacer
                 {
                     final BlockPos pos = this.handler.getCenterPos().subtract(handler.getBluePrint().getPrimaryBlockOffset());
 
-                    final Optional<EntityType<?>> type = EntityType.by(compound);
+                    final Optional<EntityType<?>> type = ValueIOUtils.entityType(compound, world.registryAccess());
                     if (type.isPresent())
                     {
-                        final Entity entity = type.get().create(world);
+                        final Entity entity = type.get().create(world, EntitySpawnReason.LOAD);
                         if (entity != null)
                         {
-                            entity.load(compound);
+                            ValueIOUtils.loadEntity(entity, compound);
 
                             entity.setUUID(UUID.randomUUID());
                             final Vec3 posInWorld = entity.position().add(pos.getX(), pos.getY(), pos.getZ());
@@ -371,7 +373,7 @@ public class StructurePlacer
                             {
                                 moveToPos = posInWorld.subtract(Vec3.atLowerCornerOf(hang.blockPosition().subtract(hang.getPos())));
                             }
-                            entity.moveTo(moveToPos.x, moveToPos.y, moveToPos.z, entity.getYRot(), entity.getXRot());
+                            entity.snapTo(moveToPos.x, moveToPos.y, moveToPos.z, entity.getYRot(), entity.getXRot());
                             final List<? extends Entity> list = world.getEntitiesOfClass(entity.getClass(), new AABB(posInWorld.add(1,1,1), posInWorld.add(-1,-1,-1)));
                             boolean foundEntity = false;
                             for (Entity worldEntity: list)

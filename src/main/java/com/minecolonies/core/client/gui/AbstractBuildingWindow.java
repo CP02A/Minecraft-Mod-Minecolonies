@@ -60,7 +60,7 @@ public abstract class AbstractBuildingWindow<B extends IBuildingView> extends Ab
 
             tabsWindowModule.renderTabButton(nextTabIndex++,
                 TabsWindowModule.TabImageSide.LEFT,
-                new Identifier(Constants.MOD_ID, "textures/gui/modules/main.png"),
+                Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/modules/main.png"),
                 Component.translatable(LABEL_MAIN_TAB_NAME),
                 button -> buildingView.getWindow().open());
 

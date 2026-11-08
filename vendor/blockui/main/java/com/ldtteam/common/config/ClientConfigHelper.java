@@ -9,6 +9,11 @@ import com.ldtteam.shim.neoforge.client.gui.IConfigScreenFactory;
  */
 public class ClientConfigHelper
 {
+    static void scheduleOnClient(final Runnable task)
+    {
+        net.minecraft.client.Minecraft.getInstance().execute(task);
+    }
+
     static void registerClient(final ModContainer modContainer)
     {
         modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);

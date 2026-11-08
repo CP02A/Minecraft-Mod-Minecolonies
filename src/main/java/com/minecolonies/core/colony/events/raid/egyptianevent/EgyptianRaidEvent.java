@@ -32,7 +32,7 @@ public class EgyptianRaidEvent extends HordeRaidEvent
     /**
      * This raids event id, registry entries use res locations as ids.
      */
-    public static final Identifier EGYPTIAN_RAID_EVENT_TYPE_ID = new Identifier(Constants.MOD_ID, "egyptian_raid");
+    public static final Identifier EGYPTIAN_RAID_EVENT_TYPE_ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "egyptian_raid");
 
     /**
      * Cooldown for the music, to not play it too much/not overlap with itself

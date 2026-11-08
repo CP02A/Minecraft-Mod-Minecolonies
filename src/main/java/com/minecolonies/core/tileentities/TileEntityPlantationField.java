@@ -16,7 +16,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.util.Tuple;
+import com.ldtteam.structurize.api.Tuple;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -221,10 +221,10 @@ public class TileEntityPlantationField extends AbstractTileEntityPlantationField
     public void readSchematicDataFromNBT(final CompoundTag compound)
     {
         super.readSchematicDataFromNBT(compound);
-        final CompoundTag blueprintDataProvider = compound.getCompound(TAG_BLUEPRINTDATA);
+        final CompoundTag blueprintDataProvider = compound.getCompoundOrEmpty(TAG_BLUEPRINTDATA);
 
-        this.packName = blueprintDataProvider.getString(TAG_PACK);
-        this.schematicPath = blueprintDataProvider.getString(TAG_PATH);
+        this.packName = blueprintDataProvider.getStringOr(TAG_PACK, "");
+        this.schematicPath = blueprintDataProvider.getStringOr(TAG_PATH, "");
     }
 
     @Override
@@ -239,35 +239,32 @@ public class TileEntityPlantationField extends AbstractTileEntityPlantationField
         this.rotationMirror = rotMir;
     }
 
-    @Override
-    public void onDataPacket(final Connection net, final ClientboundBlockEntityDataPacket packet, @NotNull final HolderLookup.Provider provider)
-    {
-        final CompoundTag compound = packet.getTag();
-        this.loadAdditional(compound, provider);
-    }
 
     @Override
-    public void loadAdditional(final CompoundTag compound, @NotNull final HolderLookup.Provider provider)
+    public void loadAdditional(final net.minecraft.world.level.storage.ValueInput valueInput)
     {
-        super.loadAdditional(compound, provider);
+        super.loadAdditional(valueInput);
+        final CompoundTag compound = com.minecolonies.core.entity.NbtValueIO.read(valueInput);
+        final HolderLookup.Provider provider = valueInput.lookup();
+
         super.readSchematicDataFromNBT(compound);
-        if (compound.contains(TAG_ROTATION_MIRROR, Tag.TAG_BYTE))
+        if (compound.contains(TAG_ROTATION_MIRROR))
         {
-            this.rotationMirror = RotationMirror.values()[compound.getByte(TAG_ROTATION_MIRROR)];
+            this.rotationMirror = RotationMirror.values()[compound.getByteOr(TAG_ROTATION_MIRROR, (byte) 0)];
         }
         else
         {
             // TODO: remove this later (data break introduced in 1.20.4) because of blueprint data
-            this.rotationMirror = RotationMirror.of(Rotation.values()[compound.getInt(TAG_ROTATION)], compound.getBoolean(TAG_MIRROR) ? Mirror.FRONT_BACK : Mirror.NONE);
+            this.rotationMirror = RotationMirror.of(Rotation.values()[compound.getIntOr(TAG_ROTATION, 0)], compound.getBooleanOr(TAG_MIRROR, false) ? Mirror.FRONT_BACK : Mirror.NONE);
         }
         if (compound.contains(TAG_PATH))
         {
-            this.schematicPath = compound.getString(TAG_PATH);
+            this.schematicPath = compound.getStringOr(TAG_PATH, "");
         }
 
         if (compound.contains(TAG_NAME))
         {
-            this.schematicName = compound.getString(TAG_NAME);
+            this.schematicName = compound.getStringOr(TAG_NAME, "");
             if (this.schematicPath == null || this.schematicPath.isEmpty())
             {
                 //Setup for recovery
@@ -275,24 +272,33 @@ public class TileEntityPlantationField extends AbstractTileEntityPlantationField
                 this.schematicName = "";
             }
         }
-        this.packName = compound.getString(TAG_PACK);
+        this.packName = compound.getStringOr(TAG_PACK, "");
 
         if (!this.schematicPath.endsWith(".blueprint"))
         {
             this.schematicPath = this.schematicPath + ".blueprint";
         }
-    }
+        }
 
     @Override
-    public void saveAdditional(final CompoundTag compound, @NotNull final HolderLookup.Provider provider)
+    public void saveAdditional(final net.minecraft.world.level.storage.ValueOutput valueOutput)
     {
-        super.saveAdditional(compound, provider);
+        super.saveAdditional(valueOutput);
+        final CompoundTag compound = new CompoundTag();
+        final HolderLookup.Provider provider = com.minecolonies.core.entity.NbtValueIO.lookup(this);
+        saveAdditionalTag(compound, provider);
+        com.minecolonies.core.entity.NbtValueIO.write(valueOutput, compound);
+    }
+
+    private void saveAdditionalTag(final CompoundTag compound, final HolderLookup.Provider provider)
+    {
+
         writeSchematicDataToNBT(compound);
         compound.putByte(TAG_ROTATION_MIRROR, (byte) this.rotationMirror.ordinal());
         compound.putString(TAG_NAME, schematicName == null ? "" : schematicName);
         compound.putString(TAG_PATH, schematicPath == null ? "" : schematicPath);
         compound.putString(TAG_PACK, (packName == null || packName.isEmpty()) ? "" : packName);
-    }
+        }
 
     @Override
     public void setChanged()
@@ -307,7 +313,7 @@ public class TileEntityPlantationField extends AbstractTileEntityPlantationField
     @Override
     public CompoundTag getUpdateTag(@NotNull final HolderLookup.Provider provider)
     {
-        return this.saveWithId(provider);
+        return this.saveWithoutMetadata(provider);
     }
 
     @Override

@@ -69,7 +69,7 @@ public class CommandDeleteColony implements IMCColonyOfficerCommand
      */
     private ClickEvent createClickEvent(final CommandContext<CommandSourceStack> context, final boolean confirm)
     {
-        return new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/" + context.getInput() + " " + confirm);
+        return new ClickEvent.RunCommand("/" + context.getInput() + " " + confirm);
     }
 
     /**
@@ -147,7 +147,7 @@ public class CommandDeleteColony implements IMCColonyOfficerCommand
     @Override
     public boolean checkPreCondition(final CommandContext<CommandSourceStack> context)
     {
-        if (!context.getSource().hasPermission(OP_PERM_LEVEL) && !MineColonies.getConfig().getServer().canPlayerUseDeleteColonyCommand.get())
+        if (!IMCCommand.hasOpPermission(context.getSource()) && !MineColonies.getConfig().getServer().canPlayerUseDeleteColonyCommand.get())
         {
             context.getSource().sendSuccess(() -> Component.translatableEscape(CommandTranslationConstants.COMMAND_DISABLED_IN_CONFIG), true);
             return false;
@@ -186,11 +186,7 @@ public class CommandDeleteColony implements IMCColonyOfficerCommand
 
     public static class DeleteBuildingsArgumentType implements ArgumentType<Boolean>
     {
-        static
-        {
-            ArgumentTypeInfos.registerByClass(CommandDeleteColony.DeleteBuildingsArgumentType.class,
-              SingletonArgumentInfo.contextFree(CommandDeleteColony.DeleteBuildingsArgumentType::argument));
-        }
+        // FABRIC-PORT: the argument type info is registered in ModArgumentTypes#register.
         public static DeleteBuildingsArgumentType argument()
         {
             return new DeleteBuildingsArgumentType();

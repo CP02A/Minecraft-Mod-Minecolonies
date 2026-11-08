@@ -30,9 +30,13 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.GlazedTerracottaBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
+import net.minecraft.world.level.block.entity.SignTextSlot;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.level.block.state.BlockState;
@@ -43,6 +47,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 import static com.minecolonies.api.util.constant.CitizenConstants.MOVE_MINIMAL;
 import static com.minecolonies.api.util.constant.CitizenConstants.ROTATION_MOVEMENT;
@@ -70,9 +75,51 @@ public final class WorkerUtil
      */
     public static List<Tuple<EquipmentTypeEntry, ItemStack>> tools;
 
+    /**
+     * The "incorrect for tier" tags in the order of the old vanilla Tiers enum (WOOD, STONE, IRON, DIAMOND, GOLD, NETHERITE).
+     */
+    private static final List<TagKey<Block>> TIER_INCORRECT_TAGS = List.of(
+      BlockTags.INCORRECT_FOR_WOODEN_TOOL,
+      BlockTags.INCORRECT_FOR_STONE_TOOL,
+      BlockTags.INCORRECT_FOR_IRON_TOOL,
+      BlockTags.INCORRECT_FOR_DIAMOND_TOOL,
+      BlockTags.INCORRECT_FOR_GOLD_TOOL,
+      BlockTags.INCORRECT_FOR_NETHERITE_TOOL);
+
     private WorkerUtil()
     {
         //Hide default constructor.
+    }
+
+    /**
+     * Check if the block is shearable. FABRIC-PORT: NeoForge patched IShearable onto these vanilla blocks, on Fabric they are checked explicitly.
+     *
+     * @param state the block state.
+     * @return true if so.
+     */
+    private static boolean isShearable(final BlockState state)
+    {
+        final Block block = state.getBlock();
+        return block instanceof IShearable
+                 || block instanceof LeavesBlock
+                 || block instanceof WebBlock
+                 || block instanceof TallGrassBlock
+                 || block instanceof DryVegetationBlock
+                 || block instanceof VineBlock
+                 || block instanceof SeagrassBlock
+                 || block instanceof TallSeagrassBlock
+                 || block instanceof NetherSproutsBlock;
+    }
+
+    /**
+     * Check if the given stack is a digging tool (pickaxe, axe, shovel, hoe), replaces the old DiggerItem check.
+     *
+     * @param stack the stack.
+     * @return true if so.
+     */
+    private static boolean isDiggerTool(final ItemStack stack)
+    {
+        return stack.is(ItemTags.PICKAXES) || stack.is(ItemTags.AXES) || stack.is(ItemTags.SHOVELS) || stack.is(ItemTags.HOES);
     }
 
     /**
@@ -118,7 +165,7 @@ public final class WorkerUtil
             return false;
         }
 
-        citizen.moveTo(
+        citizen.snapTo(
           spawnPoint.getX() + MIDDLE_BLOCK_OFFSET,
           spawnPoint.getY(),
           spawnPoint.getZ() + MIDDLE_BLOCK_OFFSET,
@@ -137,7 +184,7 @@ public final class WorkerUtil
      */
     public static EquipmentTypeEntry getBestToolForBlock(final BlockState state, float blockHardness, final AbstractBuilding building, final BlockGetter level, final BlockPos pos)
     {
-        if (state.getBlock() instanceof IShearable && building.hasModule(SettingsModule.class) && building.getFirstModuleOccurance(SettingsModule.class).getSettingValueOrDefault(USE_SHEARS, true))
+        if (isShearable(state) && building.hasModule(SettingsModule.class) && building.getFirstModuleOccurance(SettingsModule.class).getSettingValueOrDefault(USE_SHEARS, true))
         {
             return ModEquipmentTypes.shears.get();
         }
@@ -146,7 +193,8 @@ public final class WorkerUtil
         {
             for (final Tuple<EquipmentTypeEntry, ItemStack> tool : getOrInitTestTools())
             {
-                if (tool.getB() != null && tool.getB().getItem() instanceof DiggerItem)
+                // FABRIC-PORT: DiggerItem was removed in 26.x, tools are identified by their item tags instead.
+                if (tool.getB() != null && isDiggerTool(tool.getB()))
                 {
                     if (state.getBlock() instanceof IMateriallyTexturedBlock materiallyTexturedBlock)
                     {
@@ -175,12 +223,12 @@ public final class WorkerUtil
     public static int getCorrectHarvestLevelForBlock(final BlockState target)
     {
         int required = 0;
-        for (final Tiers tier : Tiers.values())
+        for (int i = 0; i < TIER_INCORRECT_TAGS.size(); i++)
         {
-            TagKey<Block> tag = tier.getTag();
+            TagKey<Block> tag = TIER_INCORRECT_TAGS.get(i);
             if (target.is(tag))
             {
-                required = tier.ordinal();
+                required = i;
                 break;
             }
         }
@@ -243,13 +291,13 @@ public final class WorkerUtil
                     if (te != null)
                     {
                         final CompoundTag teData = te.getTileEntityData();
-                        final Identifier teId = teData == null ? null : Identifier.tryParse(teData.getString("id"));
-                        final BlockEntityType<?> teType = teId == null ? null : BuiltInRegistries.BLOCK_ENTITY_TYPE.get(teId);
-                        if (teType == BlockEntityType.SIGN || teType == BlockEntityType.HANGING_SIGN)
+                        final Identifier teId = teData == null ? null : Identifier.tryParse(teData.getStringOr("id", ""));
+                        final BlockEntityType<?> teType = teId == null ? null : BuiltInRegistries.BLOCK_ENTITY_TYPE.getValue(teId);
+                        if (teType == BlockEntityTypes.SIGN || teType == BlockEntityTypes.HANGING_SIGN)
                         {
                             if (BlockEntity.loadStatic(te.getPos(), te.getState(), te.getTileEntityData(), level.registryAccess()) instanceof SignBlockEntity sign)
                             {
-                                if (sign.getFrontText().getMessage(0, false).getString().equals(LEVEL_SIGN_TEXT))
+                                if (sign.getText(SignTextSlot.FRONT).getMessages(false).get(0).getString().equals(LEVEL_SIGN_TEXT))
                                 {
                                     // try to make an anchor in 0,0,0 instead of the middle of the structure
                                     return pos.subtract(structure.getPrimaryBlockOffset()).offset(localPos);
@@ -281,14 +329,15 @@ public final class WorkerUtil
             {
                 final BlockState blockState = world.getBlockState(levelSignPos);
 
-                final SignText text = new SignText()
-                    .setMessage(0, Component.translatableEscape(MINER_MINE_NODE).append(": " + levelId))
-                    .setMessage(1, Component.literal("Y: " + (level.getDepth() + 1)))
-                    .setMessage(2, Component.translatableEscape(MINER_NODES).append(": " + level.getNumberOfBuiltNodes()))
-                    .setMessage(3, Component.literal(""));
+                final SignText text = SignText.EMPTY.asMutable()
+                    .setLine(0, Component.translatableEscape(MINER_MINE_NODE).append(": " + levelId))
+                    .setLine(1, Component.literal("Y: " + (level.getDepth() + 1)))
+                    .setLine(2, Component.translatableEscape(MINER_NODES).append(": " + level.getNumberOfBuiltNodes()))
+                    .setLine(3, Component.literal(""))
+                    .asImmutable();
 
-                teLevelSign.setText(text, true);
-                teLevelSign.setText(text, false);
+                teLevelSign.setText(text, SignTextSlot.FRONT);
+                teLevelSign.setText(text, SignTextSlot.BACK);
 
                 teLevelSign.setChanged();
                 world.sendBlockUpdated(levelSignPos, blockState, blockState, 3);
@@ -335,7 +384,7 @@ public final class WorkerUtil
      */
     public static int getLastLadder(@NotNull final BlockPos pos, final Level world)
     {
-        if (world.getBlockState(pos).getBlock().isLadder(world.getBlockState(pos), world, pos, null))
+        if (world.getBlockState(pos).is(BlockTags.CLIMBABLE))
         {
             return getLastLadder(pos.below(), world);
         }

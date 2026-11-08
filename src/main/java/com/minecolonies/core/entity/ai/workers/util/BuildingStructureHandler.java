@@ -178,7 +178,7 @@ public class BuildingStructureHandler<J extends AbstractJobStructure<?, J>, B ex
             EntityNavigationUtils.walkAwayFrom(structureAI.getWorker(), worldPos, 1, 1.0);
         }
 
-        structureAI.getWorker().swing(InteractionHand.MAIN_HAND);
+        structureAI.getWorker().swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
     }
 
     @Nullable

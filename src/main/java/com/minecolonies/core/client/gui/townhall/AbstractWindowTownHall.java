@@ -31,7 +31,7 @@ public abstract class AbstractWindowTownHall extends AbstractBuildingMainWindow<
      */
     public AbstractWindowTownHall(final BuildingTownHall.View townHall, final String page)
     {
-        super(townHall, new Identifier(Constants.MOD_ID, "gui/townhall/").withSuffix(page));
+        super(townHall, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/townhall/").withSuffix(page));
 
         registerButton(BUTTON_ACTIONS, () -> new WindowMainPage(townHall).open());
         registerButton(BUTTON_INFOPAGE, () -> new WindowInfoPage(townHall).open());

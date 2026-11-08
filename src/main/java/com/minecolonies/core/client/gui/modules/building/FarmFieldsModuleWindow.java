@@ -98,7 +98,7 @@ public class FarmFieldsModuleWindow extends AbstractModuleWindow<FieldsModuleVie
      */
     public FarmFieldsModuleWindow(final FieldsModuleView moduleView)
     {
-        super(moduleView, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutfarmfields.xml"));
+        super(moduleView, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutfarmfields.xml"));
 
         registerButton(TAG_BUTTON_ASSIGNMENT_MODE, this::assignmentModeClicked);
         registerButton(TAG_BUTTON_ASSIGN, this::assignClicked);

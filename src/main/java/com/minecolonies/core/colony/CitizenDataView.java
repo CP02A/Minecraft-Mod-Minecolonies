@@ -59,12 +59,12 @@ public class CitizenDataView implements ICitizenDataView
     /**
      * The resource location for the blocking overlay.
      */
-    private static final Identifier BLOCKING_RESOURCE = new Identifier(Constants.MOD_ID, "textures/icons/blocking.png");
+    private static final Identifier BLOCKING_RESOURCE = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/blocking.png");
 
     /**
      * The resource location for the pending overlay.
      */
-    private static final Identifier PENDING_RESOURCE = new Identifier(Constants.MOD_ID, "textures/icons/warning.png");
+    private static final Identifier PENDING_RESOURCE = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/warning.png");
 
     /**
      * Attributes.
@@ -360,8 +360,8 @@ public class CitizenDataView implements ICitizenDataView
         final CompoundTag compound = buf.readNbt();
         inventory = new InventoryCitizen(this.name, true);
         this.inventory.read(buf.registryAccess(), compound);
-        this.inventory.setHeldItem(InteractionHand.MAIN_HAND, compound.getInt(TAG_HELD_ITEM_SLOT));
-        this.inventory.setHeldItem(InteractionHand.OFF_HAND, compound.getInt(TAG_OFFHAND_HELD_ITEM_SLOT));
+        this.inventory.setHeldItem(InteractionHand.MAIN_HAND, compound.getIntOr(TAG_HELD_ITEM_SLOT, 0));
+        this.inventory.setHeldItem(InteractionHand.OFF_HAND, compound.getIntOr(TAG_OFFHAND_HELD_ITEM_SLOT, 0));
 
         position = buf.readBlockPos();
 
@@ -420,13 +420,13 @@ public class CitizenDataView implements ICitizenDataView
         final int avSize = buf.readInt();
         for (int i = 0; i < avSize; i++)
         {
-            availableQuests.add(buf.readResourceLocation());
+            availableQuests.add(buf.readIdentifier());
         }
 
         final int partSize = buf.readInt();
         for (int i = 0; i < partSize; i++)
         {
-            participatingQuests.add(buf.readResourceLocation());
+            participatingQuests.add(buf.readIdentifier());
         }
 
         if (buf.readBoolean())

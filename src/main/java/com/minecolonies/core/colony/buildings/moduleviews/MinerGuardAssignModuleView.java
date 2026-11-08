@@ -32,7 +32,7 @@ public class MinerGuardAssignModuleView extends AbstractBuildingModuleView
     @Override
     public Identifier getIconResourceLocation()
     {
-        return new Identifier(Constants.MOD_ID, "textures/gui/modules/sword.png");
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/modules/sword.png");
     }
     
     @Override

@@ -70,7 +70,7 @@ public class IntSetting implements ISetting<Integer>
     @Override
     public Identifier getLayoutItem()
     {
-        return new Identifier("minecolonies", "gui/layouthuts/layoutintsetting.xml");
+        return Identifier.fromNamespaceAndPath("minecolonies", "gui/layouthuts/layoutintsetting.xml");
     }
 
     @OnlyIn(Dist.CLIENT)

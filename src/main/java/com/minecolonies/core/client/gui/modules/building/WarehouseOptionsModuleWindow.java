@@ -56,7 +56,7 @@ public class WarehouseOptionsModuleWindow extends AbstractModuleWindow<Warehouse
      */
     public WarehouseOptionsModuleWindow(final WarehouseOptionsModuleView module)
     {
-        super(module, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutwarehouseoptions.xml"));
+        super(module, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutwarehouseoptions.xml"));
         registerButton(RESOURCE_ADD, this::transferItems);
         registerButton(SORT_WAREHOUSE_BUTTON, this::sortWarehouse);
     }

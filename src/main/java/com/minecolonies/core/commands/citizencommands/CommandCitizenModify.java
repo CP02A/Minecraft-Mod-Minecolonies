@@ -100,13 +100,13 @@ public class CommandCitizenModify implements IMCColonyOfficerCommand
                 return 0;
             }
 
-            if (!context.getSource().hasPermission(OP_PERM_LEVEL) && !MineColonies.getConfig().getServer().canPlayerUseModifyCitizensCommand.get())
+            if (!IMCCommand.hasOpPermission(context.getSource()) && !MineColonies.getConfig().getServer().canPlayerUseModifyCitizensCommand.get())
             {
                 context.getSource().sendSuccess(() -> Component.translatable(CommandTranslationConstants.COMMAND_DISABLED_IN_CONFIG), true);
                 return 0;
             }
 
-            if (context.getSource().source instanceof MinecraftServer)
+            if (((com.minecolonies.fabric.mixin.misc.CommandSourceStackAccessor) context.getSource()).minecolonies$getSource() instanceof MinecraftServer)
             {
                 // server console allowed
             }

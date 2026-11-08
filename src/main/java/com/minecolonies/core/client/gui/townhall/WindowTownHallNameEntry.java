@@ -29,7 +29,7 @@ public class WindowTownHallNameEntry extends BOWindow implements ButtonHandler
      */
     public WindowTownHallNameEntry(final IColonyView c)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/townhall/windowtownhallnameentry.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/townhall/windowtownhallnameentry.xml"));
         this.colony = c;
     }
 

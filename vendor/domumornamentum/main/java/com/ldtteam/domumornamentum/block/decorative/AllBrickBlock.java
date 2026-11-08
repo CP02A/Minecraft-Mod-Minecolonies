@@ -86,9 +86,9 @@ public class AllBrickBlock extends AbstractBlock<AllBrickBlock> implements IMate
 		new ArchitectsCutterRecipeBuilder(this, RecipeCategory.BUILDING_BLOCKS).count(COMPONENTS.size()).save(recipeOutput);
 	}
 
-	@Override
+	// FABRIC-PORT: NeoForge IBlockExtension overload, applied via domumornamentum.fabric.mixin
 	public float getExplosionResistance(@NonNull BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos, @NonNull Explosion explosion) {
-		return getDOExplosionResistance(super::getExplosionResistance, state, level, pos, explosion);
+		return getDOExplosionResistance((s, l, p, e) -> super.getExplosionResistance(), state, level, pos, explosion);
 	}
 
 	@Override
@@ -96,9 +96,9 @@ public class AllBrickBlock extends AbstractBlock<AllBrickBlock> implements IMate
 		return getDODestroyProgress(super::getDestroyProgress, state, player, level, pos);
 	}
 
-	@Override
+	// FABRIC-PORT TODO: NeoForge positional getSoundType overload, not called on Fabric (vanilla sound type is used)
 	public @NonNull SoundType getSoundType(@NonNull BlockState state, @NonNull LevelReader level, @NonNull BlockPos pos, @Nullable Entity entity) {
-		return getDOSoundType(super::getSoundType, state, level, pos, entity);
+		return getDOSoundType((s, l, p, e) -> super.getSoundType(s), state, level, pos, entity);
 	}
 
 	@Override

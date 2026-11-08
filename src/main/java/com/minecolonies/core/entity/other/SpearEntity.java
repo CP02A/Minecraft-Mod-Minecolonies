@@ -11,8 +11,8 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.ThrownTrident;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.ThrownTrident;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
@@ -109,7 +109,7 @@ public class SpearEntity extends ThrownTrident implements ICustomAttackSound
         }
 
         this.dealtDamage = true;
-        if (targetEntity.hurt(damageSource, damageAmount))
+        if (targetEntity.hurtOrSimulate(damageSource, damageAmount))
         {
             if (targetEntity.getType() == EntityType.ENDERMAN)
             {
@@ -140,18 +140,28 @@ public class SpearEntity extends ThrownTrident implements ICustomAttackSound
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag nbt)
+    public void readAdditionalSaveData(final net.minecraft.world.level.storage.ValueInput valueInput)
     {
-        super.readAdditionalSaveData(nbt);
+        super.readAdditionalSaveData(valueInput);
+        final CompoundTag nbt = com.minecolonies.core.entity.NbtValueIO.read(valueInput);
+
         this.dealtDamage = nbt.getBoolean(NBT_DEALT_DAMAGE);
-    }
+        }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag nbt)
+    public void addAdditionalSaveData(final net.minecraft.world.level.storage.ValueOutput valueOutput)
     {
-        super.addAdditionalSaveData(nbt);
-        nbt.putBoolean(NBT_DEALT_DAMAGE, this.dealtDamage);
+        super.addAdditionalSaveData(valueOutput);
+        final CompoundTag nbt = new CompoundTag();
+        addAdditionalSaveDataTag(nbt);
+        com.minecolonies.core.entity.NbtValueIO.write(valueOutput, nbt);
     }
+
+    private void addAdditionalSaveDataTag(final CompoundTag nbt)
+    {
+
+        nbt.putBoolean(NBT_DEALT_DAMAGE, this.dealtDamage);
+        }
 
     /**
      * Remove spear after certain time alive.

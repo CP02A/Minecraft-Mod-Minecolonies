@@ -38,7 +38,7 @@ public class WindowQuestLog extends AbstractWindowSkeleton
      */
     public WindowQuestLog(final @NotNull IColonyView colonyView)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/windowquestlog.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowquestlog.xml"));
         registerButton(BUTTON_QUEST_LOCATOR, this::locateCitizenClickedInternal);
 
         this.moduleMap.put("pageInProgress", new QuestModuleContainer<>(new WindowQuestLogInProgressQuestQuestModule(), colonyView, switchView, "pageInProgress"));

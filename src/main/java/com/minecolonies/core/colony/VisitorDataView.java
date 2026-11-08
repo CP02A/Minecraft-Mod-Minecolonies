@@ -4,7 +4,7 @@ import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.colony.IVisitorViewData;
 import com.minecolonies.api.util.Utils;
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.yggdrasil.ProfileResult;
+import com.mojang.authlib.services.ProfileResult;
 import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.DefaultPlayerSkin;
@@ -72,7 +72,7 @@ public class VisitorDataView extends CitizenDataView implements IVisitorViewData
             {
                 if (cachedProfile == null)
                 {
-                    final ProfileResult profile = Minecraft.getInstance().getMinecraftSessionService().fetchProfile(textureUUID, true);
+                    final ProfileResult profile = Minecraft.getInstance().services().sessionService().fetchProfile(textureUUID, true);
                     if (profile != null)
                     {
                         cachedProfile = profile.profile();
@@ -83,13 +83,13 @@ public class VisitorDataView extends CitizenDataView implements IVisitorViewData
 
         if (cachedProfile != null && cachedTexture == null)
         {
-            final Identifier texture = Minecraft.getInstance().getSkinManager().getInsecureSkin(cachedProfile).texture();
-            if (texture != DefaultPlayerSkin.get(textureUUID).texture())
+            final Identifier texture = Minecraft.getInstance().getSkinManager().createLookup(cachedProfile, false).get().body().texturePath();
+            if (texture != DefaultPlayerSkin.get(textureUUID).body().texturePath())
             {
                 cachedTexture = texture;
             }
         }
 
-        return cachedTexture == null ? DefaultPlayerSkin.get(textureUUID).texture() : cachedTexture;
+        return cachedTexture == null ? DefaultPlayerSkin.get(textureUUID).body().texturePath() : cachedTexture;
     }
 }

@@ -26,7 +26,7 @@ public class WindowInfo extends AbstractWindowSkeleton
      */
     public WindowInfo(final IBuildingView building)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/windowinfo.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowinfo.xml"));
 
         registerButton(BUTTON_EXIT, () -> building.openGui(false));
 
@@ -41,7 +41,7 @@ public class WindowInfo extends AbstractWindowSkeleton
 
         for (int i = 0;; i++)
         {
-            if (!I18n.exists(translationPrefix + i))
+            if (!net.minecraft.locale.Language.getInstance().has(translationPrefix + i))
             {
                 break;
             }

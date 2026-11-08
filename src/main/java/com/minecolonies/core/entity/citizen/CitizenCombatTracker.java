@@ -20,7 +20,7 @@ public class CitizenCombatTracker extends CombatTracker
 {
     private static final Style         INTENTIONAL_GAME_DESIGN_STYLE =
       Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://bugs.mojang.com/browse/MCPE-28723"))
-        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("MCPE-28723")));
+        .withHoverEvent(new HoverEvent.ShowText( Component.literal("MCPE-28723")));
     private final        EntityCitizen citizen;
 
     public CitizenCombatTracker(EntityCitizen citizen)
@@ -49,13 +49,13 @@ public class CitizenCombatTracker extends CombatTracker
               citizen.getCitizenData().getName());
         }
         //CombatTracker#getDeathMessage
-        if (entries.isEmpty())
+        if (((com.minecolonies.fabric.mixin.entity.CombatTrackerAccessor) this).minecolonies$getEntries().isEmpty())
         {
             return Component.translatableEscape("death.attack.generic", nameComponent);
         }
         else
         {
-            DamageSource lastSource = entries.get(entries.size() - 1).source();
+            DamageSource lastSource = ((com.minecolonies.fabric.mixin.entity.CombatTrackerAccessor) this).minecolonies$getEntries().get(((com.minecolonies.fabric.mixin.entity.CombatTrackerAccessor) this).minecolonies$getEntries().size() - 1).source();
             DeathMessageType messageType = lastSource.type().deathMessageType();
             CombatEntry fallEntry = getMostSignificantFall();
             if (messageType == DeathMessageType.FALL_VARIANTS && fallEntry != null)

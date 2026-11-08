@@ -15,8 +15,8 @@ public class RendererArcherNorsemen extends AbstractRendererNorsemen<AbstractEnt
     /**
      * Texture of the entity.
      */
-    private static final Identifier TEXTURE1 = new Identifier("minecolonies", "textures/entity/raiders/norsemen_archer1.png");
-    private static final Identifier TEXTURE2 = new Identifier("minecolonies", "textures/entity/raiders/norsemen_archer2.png");
+    private static final Identifier TEXTURE1 = Identifier.fromNamespaceAndPath("minecolonies", "textures/entity/raiders/norsemen_archer1.png");
+    private static final Identifier TEXTURE2 = Identifier.fromNamespaceAndPath("minecolonies", "textures/entity/raiders/norsemen_archer2.png");
 
     /**
      * Constructor method for renderer

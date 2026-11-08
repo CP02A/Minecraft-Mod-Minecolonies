@@ -1,6 +1,5 @@
 {
   "parent": "block/block",
-  "render_type": "cutout_mipped",
   "textures": {
     "particle": "structurize:block/blocktagsubstitution",
     "bottom": "structurize:block/blocktagsubstitution",

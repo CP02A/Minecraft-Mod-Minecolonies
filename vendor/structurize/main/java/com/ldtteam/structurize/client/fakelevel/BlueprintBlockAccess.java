@@ -9,6 +9,10 @@ import com.ldtteam.structurize.blocks.ModBlocks;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.util.BlockUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.world.level.CardinalLighting;
+import net.minecraft.world.level.ColorResolver;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -18,7 +22,7 @@ import net.minecraft.world.scores.Scoreboard;
 /**
  * Exists to separate blueprint specific rendering from FakeLevel.
  */
-public class BlueprintBlockAccess extends FakeLevel<Blueprint>
+public class BlueprintBlockAccess extends FakeLevel<Blueprint> implements BlockAndTintGetter
 {
     public static final IFakeLevelLightProvider LIGHT_PROVIDER = new ConfigBasedLightProvider(Structurize.getConfig().getClient().rendererLightLevel);
     private static final Scoreboard SCOREBOARD = new Scoreboard();
@@ -97,5 +101,22 @@ public class BlueprintBlockAccess extends FakeLevel<Blueprint>
     public void setRenderBlocksNiceOverride(final boolean renderNice)
     {
         this.renderNice = renderNice;
+    }
+
+    @Override
+    public CardinalLighting cardinalLighting()
+    {
+        return realLevel() instanceof final ClientLevel clientLevel ? clientLevel.cardinalLighting() : dimensionType().cardinalLightType().get();
+    }
+
+    @Override
+    public int getBlockTint(final BlockPos pos, final ColorResolver color)
+    {
+        if (realLevel() instanceof final ClientLevel clientLevel)
+        {
+            return clientLevel.getBlockTint(worldPos.offset(pos), color);
+        }
+        final BlockPos worldPosition = worldPos.offset(pos);
+        return color.getColor(getBiome(pos).value(), worldPosition.getX(), worldPosition.getZ());
     }
 }

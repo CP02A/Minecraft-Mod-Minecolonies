@@ -231,7 +231,7 @@ public final class Utils
 
     public static <T extends Object> Holder<T> getRegistryValue(final ResourceKey<T> resourceKey, final Level level)
     {
-        return level.holderOrThrow(resourceKey);
+        return level.registryAccess().getOrThrow(resourceKey);
     }
 
     public static <T extends Object> Tag serializeCodecMess(final Codec<T> codec, HolderLookup.Provider provider, final T obj)

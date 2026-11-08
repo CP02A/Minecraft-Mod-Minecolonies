@@ -59,7 +59,7 @@ public record CapturedBlock(BlockState blockState, Optional<CompoundTag> seriali
         final HolderLookup.Provider provider,
         final ItemStack itemStack)
     {
-        this(blockState, blockEntity == null ? Optional.empty() : Optional.of(blockEntity.saveWithId(provider)), itemStack);
+        this(blockState, blockEntity == null ? Optional.empty() : Optional.of(saveWithId(blockEntity, provider)), itemStack);
     }
 
     /**
@@ -115,7 +115,7 @@ public record CapturedBlock(BlockState blockState, Optional<CompoundTag> seriali
      */
     public void writeToItemStack(final ItemStack itemStack)
     {
-        itemStack.set(ModDataComponents.CAPTURED_BLOCK, this);
+        itemStack.set(ModDataComponents.CAPTURED_BLOCK.get(), this);
     }
 
     /**
@@ -123,7 +123,7 @@ public record CapturedBlock(BlockState blockState, Optional<CompoundTag> seriali
      */
     public static CapturedBlock readFromItemStack(final ItemStack itemStack)
     {
-        return itemStack.getOrDefault(ModDataComponents.CAPTURED_BLOCK, CapturedBlock.EMPTY);
+        return itemStack.getOrDefault(ModDataComponents.CAPTURED_BLOCK.get(), CapturedBlock.EMPTY);
     }
 
     /**
@@ -132,5 +132,12 @@ public record CapturedBlock(BlockState blockState, Optional<CompoundTag> seriali
     public static void updateItemStack(final ItemStack itemStack, final UnaryOperator<CapturedBlock> updater)
     {
         updater.apply(readFromItemStack(itemStack)).writeToItemStack(itemStack);
+    }
+
+    private static CompoundTag saveWithId(final BlockEntity blockEntity, final HolderLookup.Provider provider)
+    {
+        final net.minecraft.world.level.storage.TagValueOutput output = com.ldtteam.structurize.util.ValueIOUtils.output(provider);
+        blockEntity.saveWithId(output);
+        return output.buildResult();
     }
 }

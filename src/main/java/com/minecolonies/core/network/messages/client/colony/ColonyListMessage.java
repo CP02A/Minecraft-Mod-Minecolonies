@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import com.ldtteam.shim.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -48,28 +49,33 @@ public class ColonyListMessage extends AbstractPlayMessage
     {
         super(buf, type);
         colonies = null;
-        colonyInfo = buf.readList(b -> {
-            final ColonyInfo info = new ColonyInfo(b.readInt());
-            info.center = b.readBlockPos();
-            info.name = b.readUtf(32767);
-            info.citizencount = b.readInt();
-            info.owner = b.readUtf(32767);
-            info.prestige = b.readInt();
-            return info;
-        });
+        final int size = buf.readVarInt();
+        colonyInfo = new ArrayList<>(size);
+        for (int i = 0; i < size; i++)
+        {
+            final ColonyInfo info = new ColonyInfo(buf.readInt());
+            info.center = buf.readBlockPos();
+            info.name = buf.readUtf(32767);
+            info.citizencount = buf.readInt();
+            info.owner = buf.readUtf(32767);
+            info.prestige = buf.readInt();
+            colonyInfo.add(info);
+        }
     }
 
     @Override
     protected void toBytes(@NotNull final RegistryFriendlyByteBuf buf)
     {
-        buf.writeCollection(colonies, (b, colony) ->{
-            b.writeInt(colony.getID());
-            b.writeBlockPos(colony.getCenter());
-            b.writeUtf(colony.getName());
-            b.writeInt(colony.getCitizenManager().getCurrentCitizenCount());
-            b.writeUtf(colony.getPermissions().getOwnerName());
-            b.writeInt(colony.getServerBuildingManager().getColonyPrestige());
-        });
+        buf.writeVarInt(colonies.size());
+        for (final IColony colony : colonies)
+        {
+            buf.writeInt(colony.getID());
+            buf.writeBlockPos(colony.getCenter());
+            buf.writeUtf(colony.getName());
+            buf.writeInt(colony.getCitizenManager().getCurrentCitizenCount());
+            buf.writeUtf(colony.getPermissions().getOwnerName());
+            buf.writeInt(colony.getServerBuildingManager().getColonyPrestige());
+        }
     }
 
     @Override

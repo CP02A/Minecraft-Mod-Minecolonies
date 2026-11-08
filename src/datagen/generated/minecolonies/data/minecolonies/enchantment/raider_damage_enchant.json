@@ -15,11 +15,11 @@
           }
         },
         "requirements": {
-          "condition": "minecraft:entity_properties",
-          "entity": "this",
+          "type": "minecraft:entity_properties",
           "predicate": {
-            "type": "#minecolonies:raiders"
-          }
+            "minecraft:entity_type": "#minecolonies:raiders"
+          },
+          "entity": "this"
         }
       }
     ]

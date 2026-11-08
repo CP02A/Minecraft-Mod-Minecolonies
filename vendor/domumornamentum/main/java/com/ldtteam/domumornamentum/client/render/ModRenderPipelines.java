@@ -8,11 +8,12 @@ import static net.minecraft.client.renderer.RenderPipelines.BLOCK_SNIPPET;
 import java.util.function.Supplier;
 
 import com.google.common.base.Suppliers;
-import com.mojang.blaze3d.pipeline.BlendFunction;
-import com.mojang.blaze3d.pipeline.ColorTargetState;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.pipeline.BlendFunction;
+import com.mojang.renderpearl.api.pipeline.ColorTargetState;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.renderer.BindGroupLayouts;
 
 import com.ldtteam.domumornamentum.util.Constants;
 
@@ -43,13 +44,13 @@ public enum ModRenderPipelines
 	WIREFRAME_LINES(() -> RenderPipeline.builder(
 						LINES_SNIPPET,
 						ModRenderPipelineSnippets.LESS_OR_EQUAL_DEPTH_TEST.snippet()
-				).withVertexFormat(DefaultVertexFormat.POSITION_COLOR_LINE_WIDTH, VertexFormat.Mode.LINES)
+				).withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH).withPrimitiveTopology(PrimitiveTopology.LINES)
 				.withLocation(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "pipeline/wireframe_lines")).build()),
 
 	WIREFRAME_LINES_ALWAYS(() -> RenderPipeline.builder(
 						LINES_SNIPPET,
 						ModRenderPipelineSnippets.NO_DEPTH_TEST.snippet()
-				).withVertexFormat(DefaultVertexFormat.POSITION_COLOR_LINE_WIDTH, VertexFormat.Mode.LINES)
+				).withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR_NORMAL_LINE_WIDTH).withPrimitiveTopology(PrimitiveTopology.LINES)
 				.withLocation(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "pipeline/wireframe_lines_always")).build()),
 
 	// Wireframe body: opaque solid block render for wireframe overlay
@@ -64,7 +65,7 @@ public enum ModRenderPipelines
 			RenderPipeline.builder(ENTITY_SNIPPET)
 			.withShaderDefine("ALPHA_CUTOUT", 0.1F)
 			.withShaderDefine("PER_FACE_LIGHTING")
-			.withSampler("Sampler1")
+			.withBindGroupLayout(BindGroupLayouts.SAMPLER1)
 			.withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
 			.withCull(false)
 			.withLocation(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "pipeline/ghost_block")).build()),
@@ -73,7 +74,7 @@ public enum ModRenderPipelines
 			RenderPipeline.builder(ENTITY_SNIPPET, ModRenderPipelineSnippets.GREATER_DEPTH_TEST.snippet())
 			.withShaderDefine("ALPHA_CUTOUT", 0.1F)
 			.withShaderDefine("PER_FACE_LIGHTING")
-			.withSampler("Sampler1")
+			.withBindGroupLayout(BindGroupLayouts.SAMPLER1)
 			.withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
 			.withCull(false)
 			.withLocation(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "pipeline/ghost_block_greater")).build()),
@@ -82,13 +83,13 @@ public enum ModRenderPipelines
 	GHOST_BLOCK_COLORED(() -> RenderPipeline.builder(
 						DEBUG_FILLED_SNIPPET,
 						ModRenderPipelineSnippets.LESS_OR_EQUAL_DEPTH_TEST.snippet()
-				).withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL, VertexFormat.Mode.QUADS)
+				).withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR_NORMAL).withPrimitiveTopology(PrimitiveTopology.QUADS)
 				.withLocation(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "pipeline/ghost_block_colored")).build()),
 
 	GHOST_BLOCK_COLORED_ALWAYS(() -> RenderPipeline.builder(
 						DEBUG_FILLED_SNIPPET,
 						ModRenderPipelineSnippets.NO_DEPTH_TEST.snippet()
-				).withVertexFormat(DefaultVertexFormat.POSITION_COLOR_NORMAL, VertexFormat.Mode.QUADS)
+				).withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR_NORMAL).withPrimitiveTopology(PrimitiveTopology.QUADS)
 				.withLocation(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "pipeline/ghost_block_colored_always")).build());
 
 	private final Supplier<RenderPipeline> getter;

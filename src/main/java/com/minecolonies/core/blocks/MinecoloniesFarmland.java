@@ -63,7 +63,7 @@ public class MinecoloniesFarmland extends AbstractBlockMinecolonies<Minecolonies
     {
         super(BlockBehaviour.Properties.of().mapColor(MapColor.DIRT).randomTicks().strength(0.6F).sound(SoundType.GRAVEL).isViewBlocking((s,g,p) -> true).isSuffocating((s,g,p) -> true));
         this.registerDefaultState(this.stateDefinition.any().setValue(MOISTURE, 0));
-        this.blockId = new Identifier(Constants.MOD_ID, blockName);
+        this.blockId = Identifier.fromNamespaceAndPath(Constants.MOD_ID, blockName);
         this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, Boolean.valueOf(waterLogged)));
 
         this.shape = Block.box(0.0, 0.0, 0.0, 16.0, height, 16.0);
@@ -171,7 +171,7 @@ public class MinecoloniesFarmland extends AbstractBlockMinecolonies<Minecolonies
     @Override
     public void fallOn(Level level, @NotNull BlockState state, @NotNull BlockPos pos, @NotNull Entity entity, float light)
     {
-        if (!level.isClientSide && CommonHooks.onFarmlandTrample(level, pos, Blocks.DIRT.defaultBlockState(), light, entity))
+        if (!level.isClientSide() && CommonHooks.onFarmlandTrample(level, pos, Blocks.DIRT.defaultBlockState(), light, entity))
         {
             turnToDirt(entity, state, level, pos);
         }

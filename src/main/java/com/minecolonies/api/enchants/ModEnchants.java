@@ -11,7 +11,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
  */
 public class ModEnchants
 {
-    public static final ResourceKey<Enchantment> raiderDamage = ResourceKey.create(Registries.ENCHANTMENT, new Identifier(Constants.MOD_ID, "raider_damage_enchant"));
+    public static final ResourceKey<Enchantment> raiderDamage = ResourceKey.create(Registries.ENCHANTMENT, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "raider_damage_enchant"));
 
     private ModEnchants()
     {

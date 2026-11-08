@@ -135,7 +135,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
      * Searching icon
      */
     private final static VisibleCitizenStatus SEARCH =
-      new VisibleCitizenStatus(new Identifier(Constants.MOD_ID, "textures/icons/work/lumberjack_search.png"), "com.minecolonies.gui.visiblestatus.lumberjack_search");
+      new VisibleCitizenStatus(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/work/lumberjack_search.png"), "com.minecolonies.gui.visiblestatus.lumberjack_search");
 
     /**
      * Xp bonus per finished tree
@@ -833,7 +833,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
             {
                 Compatibility.plantDynamicSapling(world, location, stack);
                 getInventory().extractItem(saplingSlot, 1, false);
-                worker.swing(worker.getUsedItemHand());
+                worker.swing(worker.getUsedItemHand(), net.minecraft.world.item.component.SwingAnimation.DEFAULT);
                 timeWaited = 0;
                 incrementActionsDoneAndDecSaturation();
                 setDelay(TIMEOUT_DELAY);
@@ -844,7 +844,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
                 final Block block = ((BlockItem) stack.getItem()).getBlock();
                 placeSaplings(saplingSlot, stack, block);
 
-                final SoundType soundType = block.getSoundType(world.getBlockState(location), world, location, worker);
+                final SoundType soundType = world.getBlockState(location).getSoundType();
                 world.playSound(null,
                   this.worker.blockPosition(),
                   soundType.getPlaceSound(),
@@ -853,7 +853,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAICrafting<JobLumberja
                   soundType.getPitch());
             }
 
-            worker.swing(worker.getUsedItemHand());
+            worker.swing(worker.getUsedItemHand(), net.minecraft.world.item.component.SwingAnimation.DEFAULT);
         }
 
         if (timeWaited >= MAX_WAITING_TIME / 2 && !checkedInHut && walkToBuilding())

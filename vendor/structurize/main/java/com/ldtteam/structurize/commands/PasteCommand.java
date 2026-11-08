@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.commands;
 
+import net.minecraft.server.players.NameAndId;
 import com.ldtteam.structurize.blocks.interfaces.ISpecialCreativeHandlerAnchorBlock;
 import com.ldtteam.structurize.blueprints.v1.Blueprint;
 import com.ldtteam.structurize.management.Manager;
@@ -205,7 +206,7 @@ public class PasteCommand extends AbstractCommand
         final String path  = StringArgumentType.getString(context, FILE_PATH);
         final RotationMirror rotMir = context.getArgument(ROT_MIR, RotationMirror.class);
         final boolean pretty = BoolArgumentType.getBool(context, PRETTY);
-        final GameProfile profile = GameProfileArgument.getGameProfiles(context, PLAYER_NAME).stream().findFirst().orElse(null);
+        final NameAndId profile = GameProfileArgument.getGameProfiles(context, PLAYER_NAME).stream().findFirst().orElse(null);
 
         if (profile == null)
         {
@@ -213,7 +214,7 @@ public class PasteCommand extends AbstractCommand
             return 0;
         }
 
-        return execute(context.getSource(), pos, packName, path, rotMir, pretty, context.getSource().getLevel().getServer().getPlayerList().getPlayer(profile.getId()));
+        return execute(context.getSource(), pos, packName, path, rotMir, pretty, context.getSource().getLevel().getServer().getPlayerList().getPlayer(profile.id()));
     }
 
     protected static LiteralArgumentBuilder<CommandSourceStack> build()

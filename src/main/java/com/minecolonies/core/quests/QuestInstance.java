@@ -4,6 +4,7 @@ import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.quests.*;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
@@ -282,7 +283,7 @@ public class QuestInstance implements IQuestInstance
 
         if (assignedPlayer != null)
         {
-            compoundNBT.putUUID(TAG_PLAYER, assignedPlayer);
+            compoundNBT.store(TAG_PLAYER, UUIDUtil.CODEC, assignedPlayer);
         }
 
         return compoundNBT;
@@ -291,27 +292,27 @@ public class QuestInstance implements IQuestInstance
     @Override
     public void deserializeNBT(@NotNull final HolderLookup.Provider provider, final CompoundTag nbt)
     {
-        questTemplateID = Identifier.parse(nbt.getString(TAG_ID));
-        assignmentStart = nbt.getInt(TAG_ASSIGN_START);
-        objectiveProgress = nbt.getInt(TAG_PROGRESS);
-        questGiver = nbt.getInt(TAG_QUEST_GIVER);
+        questTemplateID = Identifier.parse(nbt.getStringOr(TAG_ID, ""));
+        assignmentStart = nbt.getIntOr(TAG_ASSIGN_START, 0);
+        objectiveProgress = nbt.getIntOr(TAG_PROGRESS, 0);
+        questGiver = nbt.getIntOr(TAG_QUEST_GIVER, 0);
 
-        final ListTag participantList = nbt.getList(TAG_PARTICIPANTS, Tag.TAG_INT);
+        final ListTag participantList = nbt.getListOrEmpty(TAG_PARTICIPANTS);
         for (final Tag tag : participantList)
         {
-            questParticipants.add(((IntTag) tag).getAsInt());
+            questParticipants.add(((IntTag) tag).value());
         }
 
         if (nbt.contains(TAG_OBJECTIVE))
         {
             final IObjectiveInstance data = IQuestManager.GLOBAL_SERVER_QUESTS.get(questTemplateID).getObjective(objectiveProgress).createObjectiveInstance();
-            data.deserializeNBT(provider, nbt.getCompound(TAG_OBJECTIVE));
+            data.deserializeNBT(provider, nbt.getCompoundOrEmpty(TAG_OBJECTIVE));
             this.currentObjectiveInstance = data;
         }
 
         if (nbt.contains(TAG_PLAYER))
         {
-            assignedPlayer = nbt.getUUID(TAG_PLAYER);
+            assignedPlayer = nbt.read(TAG_PLAYER, UUIDUtil.CODEC).orElse(null);
         }
     }
 

@@ -128,7 +128,7 @@ public class MovementHandler extends MoveControl
                   || (!ShapeUtil.isEmpty(voxelshape) && this.mob.getY() < ShapeUtil.max(voxelshape, Direction.Axis.Y) + (double) blockpos.getY() && !blockstate.is(BlockTags.DOORS)
                         && !blockstate.is(
               BlockTags.FENCES) && !blockstate.is(BlockTags.FENCE_GATES))
-                       && !block.isLadder(blockstate, this.mob.level(), blockpos, this.mob))
+                       && !blockstate.is(BlockTags.CLIMBABLE))
             {
                 jumpingticks = 0;
                 this.mob.getJumpControl().jump();

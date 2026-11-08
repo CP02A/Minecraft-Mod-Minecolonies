@@ -2,12 +2,12 @@
   "credit": "Made with Blockbench",
   "ambientocclusion": false,
   "textures": {
-    "0": "block/podzol_top",
-    "2": "block/hay_block_side",
-    "3": "block/hay_block_top",
-    "4": "block/oak_planks",
-    "5": "block/iron_block",
-    "particle": "block/hay_block_side"
+    "0": "minecraft:block/podzol_top",
+    "2": "minecraft:block/hay_block_side",
+    "3": "minecraft:block/hay_block_top",
+    "4": "minecraft:block/oak_planks",
+    "5": "minecraft:block/iron_block",
+    "particle": "minecraft:block/hay_block_side"
   },
   "elements": [
     {

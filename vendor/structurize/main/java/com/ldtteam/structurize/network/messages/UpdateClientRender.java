@@ -59,6 +59,6 @@ public class UpdateClientRender extends AbstractClientPlayMessage
     @Override
     protected void onExecute(final IPayloadContext context, final Player player)
     {
-        Minecraft.getInstance().levelRenderer.setBlocksDirty(from.getX(), from.getY(), from.getZ(), to.getX(), to.getY(), to.getZ());
+        Minecraft.getInstance().levelExtractor.setBlocksDirty(from.getX(), from.getY(), from.getZ(), to.getX(), to.getY(), to.getZ());
     }
 }

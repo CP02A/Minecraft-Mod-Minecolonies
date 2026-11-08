@@ -8,13 +8,13 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.util.Tuple;
+import com.ldtteam.structurize.api.Tuple;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.core.BlockPos;
@@ -41,7 +41,7 @@ public abstract class AbstractItemWithPosSelector extends Item
      */
     public AbstractItemWithPosSelector(final Properties properties)
     {
-        super(properties.component(ModDataComponents.POS_SELECTION, PosSelection.EMPTY));
+        super(properties.component(ModDataComponents.POS_SELECTION.get(), PosSelection.EMPTY));
     }
 
     /**
@@ -67,7 +67,7 @@ public abstract class AbstractItemWithPosSelector extends Item
      * {@inheritDoc}
      */
     @Override
-    public InteractionResultHolder<ItemStack> use(final Level worldIn, final Player playerIn, final InteractionHand handIn)
+    public InteractionResult use(final Level worldIn, final Player playerIn, final InteractionHand handIn)
     {
         final ItemStack itemstack = playerIn.getItemInHand(handIn);
         final PosSelection compound = PosSelection.readFromItemStack(itemstack);
@@ -76,28 +76,26 @@ public abstract class AbstractItemWithPosSelector extends Item
         {
             if (worldIn.isClientSide())
             {
-                playerIn.displayClientMessage(Component.translatable(MISSING_POS_TKEY + "1"), false);
+                playerIn.sendSystemMessage(Component.translatable(MISSING_POS_TKEY + "1"));
             }
-            return InteractionResultHolder.fail(itemstack);
+            return InteractionResult.FAIL;
         }
 
         if (compound.endPos().isEmpty())
         {
             if (worldIn.isClientSide())
             {
-                playerIn.displayClientMessage(Component.translatable(MISSING_POS_TKEY + "2"), false);
+                playerIn.sendSystemMessage(Component.translatable(MISSING_POS_TKEY + "2"));
             }
-            return InteractionResultHolder.fail(itemstack);
+            return InteractionResult.FAIL;
         }
 
-        return new InteractionResultHolder<>(
-            onAirRightClick(
+        return onAirRightClick(
                 compound.startPos().get(),
                 compound.endPos().get(),
                 worldIn,
                 playerIn,
-                itemstack),
-            itemstack);
+                itemstack);
     }
 
     /**
@@ -110,7 +108,7 @@ public abstract class AbstractItemWithPosSelector extends Item
         final BlockPos pos = context.getClickedPos();
         if (context.getLevel().isClientSide())
         {
-            context.getPlayer().displayClientMessage(Component.translatable(END_POS_TKEY, pos.getX(), pos.getY(), pos.getZ()), false);
+            context.getPlayer().sendSystemMessage(Component.translatable(END_POS_TKEY, pos.getX(), pos.getY(), pos.getZ()));
             Utils.playSuccessSound(context.getPlayer());
         }
         PosSelection.updateItemStack(context.getItemInHand(), data -> data.setEndpos(pos));
@@ -122,18 +120,22 @@ public abstract class AbstractItemWithPosSelector extends Item
      * {@inheritDoc}
      */
     @Override
-    public boolean canAttackBlock(final BlockState state, final Level worldIn, final BlockPos pos, final Player player)
+    public boolean canDestroyBlock(final ItemStack stack, final BlockState state, final Level worldIn, final BlockPos pos, final LivingEntity user)
     {
+        if (!(user instanceof final Player player))
+        {
+            return false;
+        }
         ItemStack itemstack = player.getMainHandItem();
         if (!itemstack.getItem().equals(getRegisteredItemInstance()))
         {
             itemstack = player.getOffhandItem();
         }
         PosSelection.updateItemStack(itemstack, data -> data.setStartPos(pos));
-        if (player.getCommandSenderWorld().isClientSide())
+        if (player.level().isClientSide())
         {
             Utils.playSuccessSound(player);
-            player.displayClientMessage(Component.translatable(START_POS_TKEY, pos.getX(), pos.getY(), pos.getZ()), false);
+            player.sendSystemMessage(Component.translatable(START_POS_TKEY, pos.getX(), pos.getY(), pos.getZ()));
         }
         return false;
     }
@@ -234,7 +236,7 @@ public abstract class AbstractItemWithPosSelector extends Item
          */
         public void writeToItemStack(final ItemStack itemStack)
         {
-            itemStack.set(ModDataComponents.POS_SELECTION, this);
+            itemStack.set(ModDataComponents.POS_SELECTION.get(), this);
         }
     
         /**
@@ -242,7 +244,7 @@ public abstract class AbstractItemWithPosSelector extends Item
          */
         public static PosSelection readFromItemStack(final ItemStack itemStack)
         {
-            return itemStack.getOrDefault(ModDataComponents.POS_SELECTION, PosSelection.EMPTY);
+            return itemStack.getOrDefault(ModDataComponents.POS_SELECTION.get(), PosSelection.EMPTY);
         }
     
         /**

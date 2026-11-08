@@ -1,8 +1,8 @@
 {
   "credit": "Made with Blockbench",
   "textures": {
-    "0": "block/cauldron_side",
-    "particle": "block/cauldron_side"
+    "0": "minecraft:block/cauldron_side",
+    "particle": "minecraft:block/cauldron_side"
   },
   "elements": [
     {

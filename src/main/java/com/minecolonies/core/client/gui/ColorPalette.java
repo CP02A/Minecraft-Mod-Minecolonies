@@ -1,6 +1,7 @@
 package com.minecolonies.core.client.gui;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
@@ -80,7 +81,7 @@ public class ColorPalette
         }
 
         @Override
-        public void renderWidget(final GuiGraphics stack, int mouseX, int mouseY, float partialTicks)
+        protected void extractContents(final GuiGraphicsExtractor stack, int mouseX, int mouseY, float partialTicks)
         {
             this.active = selected != this.color;
             int color = this.color.getTextColor();
@@ -104,7 +105,7 @@ public class ColorPalette
         }
 
         @Override
-        public void onPress ()
+        public void onPress(final InputWithModifiers input)
         {
             selected = this.color;
             onchange.onChange(selected);
@@ -118,7 +119,7 @@ public class ColorPalette
          * @param r the right offset
          * @param color the color to fill with, without alpha
          */
-        private void fillButton(final GuiGraphics stack, int t, int l, int b, int r, int color)
+        private void fillButton(final GuiGraphicsExtractor stack, int t, int l, int b, int r, int color)
         {
             color += 255 << 24;
             stack.fill(

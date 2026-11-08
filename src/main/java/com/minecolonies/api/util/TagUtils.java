@@ -24,7 +24,7 @@ public final class TagUtils
      */
     public static TagKey<Item> getItem(final Identifier resourceLocation)
     {
-        return ItemTags.create(resourceLocation);
+        return TagKey.create(net.minecraft.core.registries.Registries.ITEM, resourceLocation);
     }
 
     /**
@@ -34,6 +34,6 @@ public final class TagUtils
      */
     public static TagKey<Block> getBlock(final Identifier resourceLocation)
     {
-        return BlockTags.create(resourceLocation);
+        return TagKey.create(net.minecraft.core.registries.Registries.BLOCK, resourceLocation);
     }
 }

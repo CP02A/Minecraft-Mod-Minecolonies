@@ -62,7 +62,7 @@ public class ConnectionModuleWindow extends AbstractBuildingWindow<IBuildingView
      */
     public ConnectionModuleWindow(final IBuildingView buildingView, final boolean externalPlayer)
     {
-        super(buildingView, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutcolonyconnection.xml"));
+        super(buildingView, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutcolonyconnection.xml"));
 
         if (externalPlayer)
         {

@@ -13,13 +13,13 @@ public final class ModInteractionResponseHandlers
     /**
      * List of IDs.
      */
-    public static final Identifier STANDARD            = new Identifier(Constants.MOD_ID, "standard");
-    public static final Identifier SIMPLE_NOTIFICATION = new Identifier(Constants.MOD_ID, "simplenotification");
-    public static final Identifier POS                 = new Identifier(Constants.MOD_ID, "pos");
-    public static final Identifier REQUEST             = new Identifier(Constants.MOD_ID, "request");
-    public static final Identifier RECRUITMENT         = new Identifier(Constants.MOD_ID, "recruitment");
-    public static final Identifier QUEST               = new Identifier(Constants.MOD_ID, "quest");
-    public static final Identifier QUEST_ACTION        = new Identifier(Constants.MOD_ID, "questaction");
+    public static final Identifier STANDARD            = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "standard");
+    public static final Identifier SIMPLE_NOTIFICATION = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "simplenotification");
+    public static final Identifier POS                 = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "pos");
+    public static final Identifier REQUEST             = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "request");
+    public static final Identifier RECRUITMENT         = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "recruitment");
+    public static final Identifier QUEST               = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "quest");
+    public static final Identifier QUEST_ACTION        = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "questaction");
 
     /**
      * List of entries.

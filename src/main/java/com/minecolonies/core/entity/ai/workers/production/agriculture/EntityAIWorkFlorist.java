@@ -87,7 +87,7 @@ public class EntityAIWorkFlorist extends AbstractEntityAIInteract<JobFlorist, Bu
      * Gardening icon
      */
     private final static VisibleCitizenStatus GARDENING =
-      new VisibleCitizenStatus(new Identifier(Constants.MOD_ID, "textures/icons/work/florist.png"), "com.minecolonies.gui.visiblestatus.florist");
+      new VisibleCitizenStatus(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/work/florist.png"), "com.minecolonies.gui.visiblestatus.florist");
 
     /**
      * Xp gained on harvest
@@ -138,7 +138,7 @@ public class EntityAIWorkFlorist extends AbstractEntityAIInteract<JobFlorist, Bu
     protected void updateRenderMetaData()
     {
         worker.setRenderMetadata(
-          (InventoryUtils.hasItemInItemHandler(worker.getItemHandlerCitizen(), stack -> stack.is(ItemTags.FLOWERS)) ? RENDER_META_FLOWERS : "")
+          (InventoryUtils.hasItemInItemHandler(worker.getItemHandlerCitizen(), stack -> stack.is(net.minecraft.tags.BlockItemTags.FLOWERS.item())) ? RENDER_META_FLOWERS : "")
             + (getState() == IDLE ? "" : RENDER_META_WORKING));
     }
 
@@ -404,7 +404,7 @@ public class EntityAIWorkFlorist extends AbstractEntityAIInteract<JobFlorist, Bu
         List<ItemStack> drops = Block.getDrops(state, world, pos, null, worker, worker.getMainHandItem());
         for (ItemStack drop : drops) 
         {
-            if (drop.is(ItemTags.FLOWERS)) 
+            if (drop.is(net.minecraft.tags.BlockItemTags.FLOWERS.item())) 
             { 
                 flowerDrops.add(drop.getItem().getDescriptionId());
             }

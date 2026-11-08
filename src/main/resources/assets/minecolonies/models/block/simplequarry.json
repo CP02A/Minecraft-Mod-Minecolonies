@@ -1,7 +1,7 @@
 {
   "parent": "minecolonies:block/digsite",
   "textures": {
-    "0": "item/iron_pickaxe",
-    "4": "block/spruce_planks"
+    "0": "minecolonies:block/item_atlas_alias/minecraft/iron_pickaxe",
+    "4": "minecraft:block/spruce_planks"
   }
 }

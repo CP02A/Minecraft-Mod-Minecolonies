@@ -145,7 +145,7 @@ public class ClientStructurePackLoader
     {
         if (Minecraft.getInstance().level != null && loadingState == ClientLoadingState.FINISHED_LOADING)
         {
-            if (Minecraft.getInstance().isSingleplayer())
+            if ((Minecraft.getInstance().hasSingleplayerServer() && !Minecraft.getInstance().getSingleplayerServer().isPublished()))
             {
                 loadingState = ClientLoadingState.FINISHED_SYNCING;
                 StructurePacks.setFinishedLoading();
@@ -184,7 +184,7 @@ public class ClientStructurePackLoader
             return;
         }
         
-        if (serverStructurePacks.containsKey(Minecraft.getInstance().player.getGameProfile().getName()))
+        if (serverStructurePacks.containsKey(Minecraft.getInstance().player.getGameProfile().name()))
         {
             Minecraft.getInstance().player.sendSystemMessage(Component.translatable("structurize.pack.equaluser.error"));
         }
@@ -363,6 +363,6 @@ public class ClientStructurePackLoader
             .resolve(packName.toLowerCase(Locale.US))
             .resolve(SCANS_FOLDER).resolve(fileName), provider));
         RenderingCache.getOrCreateBlueprintPreviewData("blueprint").setPos(null);
-        Minecraft.getInstance().player.displayClientMessage(Component.translatable("Scan successfully saved as %s", fileName), false);
+        Minecraft.getInstance().player.sendSystemMessage(Component.translatable("Scan successfully saved as %s", fileName));
     }
 }

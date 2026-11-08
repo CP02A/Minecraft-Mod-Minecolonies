@@ -13,7 +13,7 @@ import static com.minecolonies.api.util.constant.WindowConstants.GUIDE_CONFIRM;
  */
 public class WindowHutGuide extends AbstractWindowSkeleton
 {
-    public static final Identifier WINDOW_ID = new Identifier(Constants.MOD_ID, "gui/windowhutguide.xml");
+    public static final Identifier WINDOW_ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowhutguide.xml");
 
     /**
      * Color constants for builder list.

@@ -117,11 +117,11 @@ public class ArchitectsCutterContainer extends AbstractContainerMenu
                   {
                       if (currentVariant == null)
                       {
-                          return MateriallyTexturedBlockManager.getInstance().doesItemStackContainsMaterialForSlot(this.getSlotIndex(), stack);
+                          return MateriallyTexturedBlockManager.getInstance().doesItemStackContainsMaterialForSlot(this.getContainerSlot(), stack);
                       }
                       else
                       {
-                          return MateriallyTexturedBlockManager.getInstance().doesItemStackContainsMaterialForSlot(this.getSlotIndex(), stack, currentVariant);
+                          return MateriallyTexturedBlockManager.getInstance().doesItemStackContainsMaterialForSlot(this.getContainerSlot(), stack, currentVariant);
                       }
                   }
               })

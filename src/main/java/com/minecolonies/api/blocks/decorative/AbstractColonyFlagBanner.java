@@ -42,7 +42,7 @@ public abstract class AbstractColonyFlagBanner<B extends AbstractColonyFlagBanne
     @Override
     public void setPlacedBy(final Level worldIn, final @NotNull BlockPos pos, @NotNull BlockState state, @Nullable LivingEntity placer, @NotNull ItemStack stack)
     {
-        if (worldIn.isClientSide)
+        if (worldIn.isClientSide())
         {
             return;
         }
@@ -68,7 +68,7 @@ public abstract class AbstractColonyFlagBanner<B extends AbstractColonyFlagBanne
     @Override
     public AbstractColonyFlagBanner<B> registerBlock(final Registry<Block> registry)
     {
-        Registry.register(registry, getRegistryName(), this);
+        com.minecolonies.api.blocks.BlockIdHelper.register(registry, getRegistryName(), this);
         return this;
     }
 

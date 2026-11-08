@@ -242,7 +242,7 @@ public class GlobalResearchTree implements IGlobalResearchTree
         // Lastly, we'll send the branch identifiers.
         for(Map.Entry<Identifier, IGlobalResearchBranch> branch : branchDatas.entrySet())
         {
-            buf.writeResourceLocation(branch.getKey());
+            buf.writeIdentifier(branch.getKey());
             buf.writeNbt(branch.getValue().writeToNBT());
         }
     }
@@ -263,7 +263,7 @@ public class GlobalResearchTree implements IGlobalResearchTree
         }
         for (int i = 0; i < researchTree.size(); i++)
         {
-            Identifier branchId = buf.readResourceLocation();
+            Identifier branchId = buf.readIdentifier();
             branchDatas.put(branchId, new GlobalResearchBranch(buf.readNbt()));
         }
     }

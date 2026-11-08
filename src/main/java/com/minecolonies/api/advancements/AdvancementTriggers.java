@@ -1,7 +1,7 @@
 package com.minecolonies.api.advancements;
 
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.advancements.CriterionTrigger;
+import net.minecraft.advancements.triggers.CriterionTrigger;
 import net.minecraft.core.registries.Registries;
 import com.ldtteam.shim.neoforge.registries.DeferredHolder;
 import com.ldtteam.shim.neoforge.registries.DeferredRegister;

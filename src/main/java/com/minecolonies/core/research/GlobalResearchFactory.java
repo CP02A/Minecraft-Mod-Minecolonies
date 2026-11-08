@@ -119,47 +119,47 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
     @Override
     public IGlobalResearch deserialize(final @NotNull HolderLookup.Provider provider, @NotNull final IFactoryController controller, @NotNull final CompoundTag nbt)
     {
-        final Identifier id = Identifier.parse(nbt.getString(TAG_ID));
-        final Identifier parent = nbt.contains(TAG_PARENT) ? Identifier.parse(nbt.getString(TAG_PARENT)) : null;
-        final Identifier branch = Identifier.parse(nbt.getString(TAG_BRANCH));
-        final TranslatableContents name = new TranslatableContents(nbt.getString(TAG_NAME), null, TranslatableContents.NO_ARGS);
-        final TranslatableContents subtitle = new TranslatableContents(nbt.getString(TAG_SUBTITLE_NAME), null, TranslatableContents.NO_ARGS);
-        final int depth = nbt.getInt(TAG_RESEARCH_LVL);
-        final int sortOrder =  nbt.getInt(TAG_RESEARCH_SORT);
-        final boolean onlyChild = nbt.getBoolean(TAG_ONLY_CHILD);
-        final boolean instant = nbt.getBoolean(TAG_INSTANT);
-        final boolean autostart = nbt.getBoolean(TAG_AUTOSTART);
-        final boolean immutable = nbt.getBoolean(TAG_IMMUTABLE);
-        final boolean hidden = nbt.getBoolean(TAG_HIDDEN);
+        final Identifier id = Identifier.parse(nbt.getStringOr(TAG_ID, ""));
+        final Identifier parent = nbt.contains(TAG_PARENT) ? Identifier.parse(nbt.getStringOr(TAG_PARENT, "")) : null;
+        final Identifier branch = Identifier.parse(nbt.getStringOr(TAG_BRANCH, ""));
+        final TranslatableContents name = new TranslatableContents(nbt.getStringOr(TAG_NAME, ""), null, TranslatableContents.NO_ARGS);
+        final TranslatableContents subtitle = new TranslatableContents(nbt.getStringOr(TAG_SUBTITLE_NAME, ""), null, TranslatableContents.NO_ARGS);
+        final int depth = nbt.getIntOr(TAG_RESEARCH_LVL, 0);
+        final int sortOrder =  nbt.getIntOr(TAG_RESEARCH_SORT, 0);
+        final boolean onlyChild = nbt.getBooleanOr(TAG_ONLY_CHILD, false);
+        final boolean instant = nbt.getBooleanOr(TAG_INSTANT, false);
+        final boolean autostart = nbt.getBooleanOr(TAG_AUTOSTART, false);
+        final boolean immutable = nbt.getBooleanOr(TAG_IMMUTABLE, false);
+        final boolean hidden = nbt.getBooleanOr(TAG_HIDDEN, false);
 
         final IGlobalResearch research = getNewInstance(id, parent, branch, name, subtitle, depth, sortOrder, onlyChild, hidden, autostart, instant, immutable);
 
         Utils.deserializeCodecMess(SizedIngredient.FLAT_CODEC.listOf(), provider, nbt.get(TAG_COSTS)).forEach(research::addCost);
 
-        NBTUtils.streamCompound(nbt.getList(TAG_REQS, Tag.TAG_COMPOUND))
+        NBTUtils.streamCompound(nbt.getListOrEmpty(TAG_REQS))
             .forEach(compound -> research.addRequirement(Objects.requireNonNull(IMinecoloniesAPI.getInstance()
                 .getResearchRequirementRegistry()
-                .get(Identifier.tryParse(compound.getString(TAG_REQ_TYPE)))).readFromNBT(compound.getCompound(TAG_REQ_ITEM))));
+                .getValue(Identifier.tryParse(compound.getStringOr(TAG_REQ_TYPE, "")))).readFromNBT(compound.getCompoundOrEmpty(TAG_REQ_ITEM))));
 
-        NBTUtils.streamCompound(nbt.getList(TAG_EFFECTS, Tag.TAG_COMPOUND))
+        NBTUtils.streamCompound(nbt.getListOrEmpty(TAG_EFFECTS))
             .forEach(compound -> research.addEffect(Objects.requireNonNull(IMinecoloniesAPI.getInstance()
                 .getResearchEffectRegistry()
-                .get(Identifier.tryParse(compound.getString(TAG_EFFECT_TYPE)))).readFromNBT(compound.getCompound(TAG_EFFECT_ITEM))));
+                .getValue(Identifier.tryParse(compound.getStringOr(TAG_EFFECT_TYPE, "")))).readFromNBT(compound.getCompoundOrEmpty(TAG_EFFECT_ITEM))));
 
-        NBTUtils.streamCompound(nbt.getList(TAG_CHILDS, Tag.TAG_COMPOUND)).forEach(compound -> research.addChild(Identifier.parse(compound.getString(TAG_RESEARCH_CHILD))));
+        NBTUtils.streamCompound(nbt.getListOrEmpty(TAG_CHILDS)).forEach(compound -> research.addChild(Identifier.parse(compound.getStringOr(TAG_RESEARCH_CHILD, ""))));
         return research;
     }
 
     @Override
     public void serialize(final @NotNull IFactoryController controller, final @NotNull IGlobalResearch input, final RegistryFriendlyByteBuf packetBuffer)
     {
-        packetBuffer.writeResourceLocation(input.getId());
+        packetBuffer.writeIdentifier(input.getId());
         packetBuffer.writeBoolean(input.getParent() != null);
         if (input.getParent() != null)
         {
-            packetBuffer.writeResourceLocation(input.getParent());
+            packetBuffer.writeIdentifier(input.getParent());
         }
-        packetBuffer.writeResourceLocation(input.getBranch());
+        packetBuffer.writeIdentifier(input.getBranch());
         packetBuffer.writeUtf(input.getName().getKey());
         packetBuffer.writeUtf(input.getSubtitle().getKey());
         packetBuffer.writeVarInt(input.getDepth());
@@ -185,7 +185,7 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
         packetBuffer.writeVarInt(input.getChildren().size());
         for (Identifier child : input.getChildren())
         {
-            packetBuffer.writeResourceLocation(child);
+            packetBuffer.writeIdentifier(child);
         }
     }
 
@@ -193,9 +193,9 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
     @Override
     public IGlobalResearch deserialize(final @NotNull IFactoryController controller, final @NotNull RegistryFriendlyByteBuf buffer) throws Throwable
     {
-        final Identifier id = buffer.readResourceLocation();
-        final Identifier parent = buffer.readBoolean() ? buffer.readResourceLocation() : null;
-        final Identifier branch = buffer.readResourceLocation();
+        final Identifier id = buffer.readIdentifier();
+        final Identifier parent = buffer.readBoolean() ? buffer.readIdentifier() : null;
+        final Identifier branch = buffer.readIdentifier();
         final TranslatableContents name = new TranslatableContents(buffer.readUtf(), null, TranslatableContents.NO_ARGS);
         final TranslatableContents subtitle = new TranslatableContents(buffer.readUtf(), null, TranslatableContents.NO_ARGS);
         final int depth = buffer.readVarInt();
@@ -227,7 +227,7 @@ public class GlobalResearchFactory implements IGlobalResearchFactory
         final int childCount = buffer.readVarInt();
         for(int i = 0; i < childCount; i++)
         {
-            research.addChild(buffer.readResourceLocation());
+            research.addChild(buffer.readIdentifier());
         }
         return research;
     }

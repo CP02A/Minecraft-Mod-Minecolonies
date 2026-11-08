@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 import com.ldtteam.shim.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -63,7 +64,12 @@ public class ResourceScrollSaveWarehouseSnapshotMessage extends AbstractServerPl
     {
         super(buf, type);
         builderPos = buf.readBoolean() ? buf.readBlockPos() : null;
-        snapshot = buf.readMap(FriendlyByteBuf::readUtf, FriendlyByteBuf::readInt);
+        final int size = buf.readVarInt();
+        snapshot = new HashMap<>(size);
+        for (int i = 0; i < size; i++)
+        {
+            snapshot.put(buf.readUtf(), buf.readInt());
+        }
         workOrderHash = buf.readUtf(32767);
     }
 
@@ -75,14 +81,19 @@ public class ResourceScrollSaveWarehouseSnapshotMessage extends AbstractServerPl
         {
             buf.writeBlockPos(builderPos);
         }
-        buf.writeMap(snapshot, FriendlyByteBuf::writeUtf, FriendlyByteBuf::writeInt);
+        buf.writeVarInt(snapshot.size());
+        for (final Map.Entry<String, Integer> entry : snapshot.entrySet())
+        {
+            buf.writeUtf(entry.getKey());
+            buf.writeInt(entry.getValue());
+        }
         buf.writeUtf(workOrderHash);
     }
 
     @Override
     protected void onExecute(final IPayloadContext ctxIn, final ServerPlayer player)
     {
-        player.getInventory().items.stream()
+        player.getInventory().getNonEquipmentItems().stream()
           .filter(stack -> stack.getItem() instanceof ItemResourceScroll)
           .filter(stack -> Objects.equals(builderPos, BuildingId.readFromItemStack(stack).id()))
           .forEach(stack -> new WarehouseSnapshot(snapshot, workOrderHash).writeToItemStack(stack));

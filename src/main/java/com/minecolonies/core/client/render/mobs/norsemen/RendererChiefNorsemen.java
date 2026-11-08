@@ -15,7 +15,7 @@ public class RendererChiefNorsemen extends AbstractRendererNorsemen<AbstractEnti
     /**
      * Texture of the entity.
      */
-    private static final Identifier TEXTURE = new Identifier("minecolonies", "textures/entity/raiders/norsemen_chief.png");
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath("minecolonies", "textures/entity/raiders/norsemen_chief.png");
 
     /**
      * Constructor method for renderer

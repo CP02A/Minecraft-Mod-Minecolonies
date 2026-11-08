@@ -2,7 +2,7 @@
   "multipart": [
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/timber_frame/side_framed_spec",
         "x": 90
       },
@@ -12,7 +12,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/timber_frame/side_framed_spec",
         "x": 90,
         "y": 90
@@ -23,7 +23,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/timber_frame/side_framed_spec",
         "x": 90,
         "y": 180
@@ -34,7 +34,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/timber_frame/side_framed_spec",
         "x": 90,
         "y": 270
@@ -45,7 +45,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/timber_frame/side_framed_spec"
       },
       "when": {
@@ -54,7 +54,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/timber_frame/side_framed_spec",
         "x": 180
       },

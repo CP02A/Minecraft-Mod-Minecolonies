@@ -112,8 +112,8 @@ public class EntityAIWorkSmelter extends AbstractEntityAIUsesFurnace<JobSmelter,
         new LocalizedParticleEffectMessage(inputItem, building.getID().below()).sendToTrackingEntity(worker);
 
         worker.setItemInHand(InteractionHand.MAIN_HAND, inputItem);
-        worker.swing(InteractionHand.MAIN_HAND);
-        SoundUtils.playSoundAtCitizen(world, building.getID(), SoundEvents.LEASH_KNOT_BREAK);
+        worker.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
+        SoundUtils.playSoundAtCitizen(world, building.getID(), SoundEvents.LEAD_BREAK);
 
         return getState();
     }

@@ -2,21 +2,14 @@ package com.ldtteam.structurize.event;
 
 import com.ldtteam.common.language.LanguageHandler;
 import com.ldtteam.structurize.api.constants.Constants;
-import com.ldtteam.structurize.datagen.BlockEntityTagProvider;
-import com.ldtteam.structurize.datagen.BlockTagProvider;
-import com.ldtteam.structurize.datagen.EntityTagProvider;
 import com.ldtteam.structurize.network.messages.*;
 import com.ldtteam.structurize.storage.ServerStructurePackLoader;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.data.DataGenerator;
 import com.ldtteam.shim.bus.api.SubscribeEvent;
 import com.ldtteam.shim.fml.ModList;
 import com.ldtteam.shim.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
 import com.ldtteam.shim.fml.event.lifecycle.FMLLoadCompleteEvent;
-import com.ldtteam.shim.neoforge.data.event.GatherDataEvent;
 import com.ldtteam.shim.neoforge.network.event.RegisterPayloadHandlersEvent;
 import com.ldtteam.shim.neoforge.network.registration.PayloadRegistrar;
-import org.jetbrains.annotations.NotNull;
 
 public class LifecycleSubscriber
 {
@@ -68,14 +61,5 @@ public class LifecycleSubscriber
     public static void onDedicatedServerInit(final FMLDedicatedServerSetupEvent event)
     {
         ServerStructurePackLoader.onServerStarting();
-    }
-
-    @SubscribeEvent
-    public static void onDatagen(@NotNull final GatherDataEvent event)
-    {
-        final DataGenerator generator = event.getGenerator();
-        generator.addProvider(event.includeServer(), new BlockEntityTagProvider(event.getGenerator().getPackOutput(), Registries.BLOCK_ENTITY_TYPE, event.getLookupProvider(), event.getExistingFileHelper()));
-        generator.addProvider(event.includeServer(), new BlockTagProvider(event.getGenerator().getPackOutput(), Registries.BLOCK, event.getLookupProvider(), event.getExistingFileHelper()));
-        generator.addProvider(event.includeClient(), new EntityTagProvider(event.getGenerator().getPackOutput(), Registries.ENTITY_TYPE, event.getLookupProvider(), event.getExistingFileHelper()));
     }
 }

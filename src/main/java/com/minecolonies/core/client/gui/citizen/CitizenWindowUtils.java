@@ -38,10 +38,10 @@ import static com.minecolonies.core.entity.citizen.citizenhandlers.CitizenExperi
  */
 public class CitizenWindowUtils
 {
-    public static final Identifier HAPPINESS_ICONS_LOCATION = new Identifier(Constants.MOD_ID, "textures/gui/citizen/icons.png");
-    public static final Identifier SATURATION_ICON_EMPTY = new Identifier(Constants.MOD_ID, "textures/gui/citizen/empty.png");
-    public static final Identifier SATURATION_ICON_FULL  = new Identifier(Constants.MOD_ID, "textures/gui/citizen/full.png");
-    public static final Identifier SATURATION_ICON_HALF  = new Identifier(Constants.MOD_ID, "textures/gui/citizen/half.png");
+    public static final Identifier HAPPINESS_ICONS_LOCATION = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/citizen/icons.png");
+    public static final Identifier SATURATION_ICON_EMPTY = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/citizen/empty.png");
+    public static final Identifier SATURATION_ICON_FULL  = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/citizen/full.png");
+    public static final Identifier SATURATION_ICON_HALF  = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/citizen/half.png");
 
     /**
      * Private con to hide public.
@@ -56,9 +56,9 @@ public class CitizenWindowUtils
      */
     private enum SmileyEnum
     {
-        EMPTY(new Identifier(Constants.MOD_ID, "citizen/smiley/empty"), EMPTY_HEART_VALUE, null, null),
-        HALF_RED(new Identifier(Constants.MOD_ID, "citizen/smiley/half"), RED_HEART_VALUE - 1, null, EMPTY),
-        RED(new Identifier(Constants.MOD_ID, "citizen/smiley/full"), RED_HEART_VALUE, HALF_RED, EMPTY);
+        EMPTY(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "citizen/smiley/empty"), EMPTY_HEART_VALUE, null, null),
+        HALF_RED(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "citizen/smiley/half"), RED_HEART_VALUE - 1, null, EMPTY),
+        RED(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "citizen/smiley/full"), RED_HEART_VALUE, HALF_RED, EMPTY);
 
         public final int happinessValue;
         public final SmileyEnum prevSmiley;
@@ -94,11 +94,11 @@ public class CitizenWindowUtils
         HALF_GOLDEN(Identifier.withDefaultNamespace("hud/heart/absorbing_half"), GOLDEN_HEART_VALUE - 1, null, RED),
         GOLDEN(Identifier.withDefaultNamespace("hud/heart/absorbing_full"), GOLDEN_HEART_VALUE, HALF_GOLDEN, RED),
 
-        HALF_GREEN(new Identifier(Constants.MOD_ID, "citizen/heart/green_half"), GREEN_HEART_VALUE - 1, null, GOLDEN),
-        GREEN(new Identifier(Constants.MOD_ID, "citizen/heart/green"), GREEN_HEART_VALUE, HALF_GREEN, GOLDEN),
+        HALF_GREEN(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "citizen/heart/green_half"), GREEN_HEART_VALUE - 1, null, GOLDEN),
+        GREEN(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "citizen/heart/green"), GREEN_HEART_VALUE, HALF_GREEN, GOLDEN),
 
-        HALF_BLUE(new Identifier(Constants.MOD_ID, "citizen/heart/blue_half"), BLUE_HEART_VALUE - 1, null, GREEN),
-        BLUE(new Identifier(Constants.MOD_ID, "citizen/heart/blue"), BLUE_HEART_VALUE, HALF_BLUE, GREEN);
+        HALF_BLUE(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "citizen/heart/blue_half"), BLUE_HEART_VALUE - 1, null, GREEN),
+        BLUE(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "citizen/heart/blue"), BLUE_HEART_VALUE, HALF_BLUE, GREEN);
 
         public final int              hpValue;
         public final HeartsEnum       prevHeart;

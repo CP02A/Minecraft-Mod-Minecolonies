@@ -17,6 +17,24 @@ It also includes specialized buildings such as the Warehouse, House, Town Hall, 
 #### Website:
 https://www.minecolonies.com/
 
+## Fabric 26.3 port (`fabric` branch)
+
+> **Unofficial and unsupported.** This branch is an automated, AI-generated port of MineColonies to Fabric for Minecraft 26.3. It is not made, endorsed or supported by the MineColonies team (see [AGENTS.md](AGENTS.md)). Please don't report its bugs to the MineColonies issue tracker.
+
+It is based on upstream MineColonies `version/1.21` (NeoForge 1.21.1). Structurize, BlockUI and Domum Ornamentum are bundled into the same jar (their sources are in [`vendor/`](vendor/SOURCES.txt)), and NeoForge APIs are provided by a compatibility layer in `src/fabric/java/com/ldtteam/shim`.
+
+### Build it in one command
+
+```sh
+./gradlew build
+```
+
+(On Windows, `gradlew build` in cmd or PowerShell.) The mod jar ends up in `build/libs/minecolonies-fabric-<version>.jar`. Put it in your `mods` folder with [Fabric Loader](https://fabricmc.net/use/) 0.20.1+ and [Fabric API](https://modrinth.com/mod/fabric-api) for Minecraft 26.3. No other MineColonies library mods are needed.
+
+Requirements: any JDK 17 or newer to start the Gradle wrapper, plus an internet connection on the first run. Minecraft 26.3 needs Java 25, and Gradle downloads a Java 25 JDK automatically if you don't have one. The first build takes several minutes because it downloads and sets up Minecraft.
+
+To test in a development client instead, run `./gradlew runClient`.
+
 ## For Users
 
 You can find all our versions on Curseforge:

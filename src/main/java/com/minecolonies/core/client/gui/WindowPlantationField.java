@@ -72,7 +72,7 @@ public class WindowPlantationField extends AbstractWindowSkeleton
      */
     public WindowPlantationField(final AbstractTileEntityPlantationField tileEntityPlantationField)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/windowplantationfield.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowplantationfield.xml"));
         this.tileEntityPlantationField = tileEntityPlantationField;
         this.plants = tileEntityPlantationField.getPlantationFieldTypes().stream()
                         .flatMap(f -> f.getExtensionModuleProducers().stream().map(m -> m.apply(null)).filter(IPlantationModule.class::isInstance).map(m -> (IPlantationModule) m))

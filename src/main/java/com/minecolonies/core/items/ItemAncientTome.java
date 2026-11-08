@@ -25,10 +25,10 @@ public class ItemAncientTome extends AbstractItemMinecolonies
     }
 
     @Override
-    public void inventoryTick(final ItemStack stack, final Level worldIn, final Entity entityIn, final int itemSlot, final boolean isSelected)
+    public void inventoryTick(final ItemStack stack, final net.minecraft.server.level.ServerLevel worldIn, final Entity entityIn, final @org.jetbrains.annotations.Nullable net.minecraft.world.entity.EquipmentSlot itemSlot)
     {
-        super.inventoryTick(stack, worldIn, entityIn, itemSlot, isSelected);
-        if (!worldIn.isClientSide)
+        super.inventoryTick(stack, worldIn, entityIn, itemSlot);
+        if (!worldIn.isClientSide())
         {
             final IColony colony = IColonyManager.getInstance().getClosestColony(worldIn, entityIn.blockPosition());
             if (colony != null)

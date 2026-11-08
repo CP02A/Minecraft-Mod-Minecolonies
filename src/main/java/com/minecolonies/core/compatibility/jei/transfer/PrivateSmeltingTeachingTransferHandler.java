@@ -7,6 +7,7 @@ import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
@@ -43,7 +44,7 @@ public class PrivateSmeltingTeachingTransferHandler implements IRecipeTransferHa
 
     @NotNull
     @Override
-    public RecipeType<RecipeHolder<SmeltingRecipe>> getRecipeType()
+    public IRecipeType<RecipeHolder<SmeltingRecipe>> getRecipeType()
     {
         return RecipeTypes.SMELTING;
     }

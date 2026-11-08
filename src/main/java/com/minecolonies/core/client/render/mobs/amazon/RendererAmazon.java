@@ -15,7 +15,7 @@ public class RendererAmazon extends AbstractRendererAmazon<AbstractEntityMinecol
     /**
      * Texture of the entity.
      */
-    private static final Identifier TEXTURE = new Identifier("minecolonies", "textures/entity/raiders/amazon.png");
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath("minecolonies", "textures/entity/raiders/amazon.png");
 
     /**
      * Constructor method for renderer

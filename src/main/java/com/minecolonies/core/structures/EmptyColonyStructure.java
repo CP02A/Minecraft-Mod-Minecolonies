@@ -16,6 +16,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.heightproviders.HeightProvider;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
+import net.minecraft.world.level.levelgen.structure.structures.JigsawStructure;
 import net.minecraft.world.level.levelgen.structure.pools.DimensionPadding;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
@@ -116,7 +117,7 @@ public class EmptyColonyStructure extends Structure
                     result,
                     false,
                     this.projectStartToHeightmap,
-                    this.maxDistanceFromCenter,
+                    new JigsawStructure.MaxDistance(this.maxDistanceFromCenter),
                     PoolAliasLookup.create(this.poolAliases, result, context.seed()),
                     DimensionPadding.ZERO,
                     LiquidSettings.IGNORE_WATERLOGGING
@@ -151,7 +152,7 @@ public class EmptyColonyStructure extends Structure
             blockpos,
             false,
             this.projectStartToHeightmap,
-            this.maxDistanceFromCenter,
+            new JigsawStructure.MaxDistance(this.maxDistanceFromCenter),
             PoolAliasLookup.create(this.poolAliases, blockpos, context.seed()),
             DimensionPadding.ZERO,
             LiquidSettings.IGNORE_WATERLOGGING
@@ -167,7 +168,7 @@ public class EmptyColonyStructure extends Structure
     private static BlockPos.MutableBlockPos isFeatureChunkCave(GenerationContext context)
     {
         BlockPos blockPos = context.chunkPos().getWorldPosition();
-        ChunkPos chunkPos = new ChunkPos(blockPos);
+        ChunkPos chunkPos = ChunkPos.containing(blockPos);
 
         int currentY = 0;
         BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
@@ -175,9 +176,9 @@ public class EmptyColonyStructure extends Structure
         for (int i = 0; i < 10; i++)
         {
             currentY += context.random().nextInt(0, 30);
-            for (int curChunkX = chunkPos.x - 1; curChunkX <= chunkPos.x + 1; curChunkX++)
+            for (int curChunkX = chunkPos.x() - 1; curChunkX <= chunkPos.x() + 1; curChunkX++)
             {
-                for (int curChunkZ = chunkPos.z - 1; curChunkZ <= chunkPos.z + 1; curChunkZ++)
+                for (int curChunkZ = chunkPos.z() - 1; curChunkZ <= chunkPos.z() + 1; curChunkZ++)
                 {
                     NoiseColumn blockView = context.chunkGenerator().getBaseColumn(mutable.getX(), mutable.getZ(), context.heightAccessor(), context.randomState());
                     mutable.set(curChunkX << 4, currentY, curChunkZ << 4);

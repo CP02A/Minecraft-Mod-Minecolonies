@@ -86,7 +86,7 @@ public class WindowStatsModule extends AbstractModuleWindow<BuildingStatisticsMo
      */
     public WindowStatsModule(final BuildingStatisticsModuleView moduleView)
     {
-        super(moduleView, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutstatsmodule.xml"));
+        super(moduleView, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutstatsmodule.xml"));
         registerButton(TAG_BUTTON_HIDEZERO, this::hideZeroClicked);
     }
 

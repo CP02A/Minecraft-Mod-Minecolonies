@@ -1,13 +1,14 @@
 {
   "type": "minecolonies:composting",
-  "input": [
-    {
-      "type": "minecolonies:food",
-      "max-saturation": 0.5
-    },
-    {
-      "tag": "minecolonies:compostables_poor"
-    }
-  ],
+  "input": {
+    "fabric:type": "fabric:any",
+    "ingredients": [
+      {
+        "max-saturation": 0.5,
+        "fabric:type": "minecolonies:food"
+      },
+      "#minecolonies:compostables_poor"
+    ]
+  },
   "strength": 2
 }

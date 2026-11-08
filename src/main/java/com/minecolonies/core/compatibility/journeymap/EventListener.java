@@ -3,16 +3,15 @@ package com.minecolonies.core.compatibility.journeymap;
 import com.minecolonies.api.IMinecoloniesAPI;
 import com.minecolonies.api.colony.IColonyView;
 import com.minecolonies.api.eventbus.events.colony.ColonyViewUpdatedModEvent;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
-import com.ldtteam.shim.bus.api.EventPriority;
-import com.ldtteam.shim.bus.api.SubscribeEvent;
-import com.ldtteam.shim.neoforge.client.event.ClientPlayerNetworkEvent;
-import com.ldtteam.shim.neoforge.client.event.ClientTickEvent;
-import com.ldtteam.shim.neoforge.common.NeoForge;
-import com.ldtteam.shim.neoforge.event.level.ChunkEvent;
+import net.minecraft.world.level.chunk.LevelChunk;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
@@ -29,29 +28,25 @@ public class EventListener
     {
         this.jmap = jmap;
 
-        NeoForge.EVENT_BUS.register(this);
+        // Fabric port: NeoForge bus events replaced by the equivalent Fabric API client events.
+        ClientPlayConnectionEvents.DISCONNECT.register((listener, client) -> onPlayerLogout());
+        ClientChunkEvents.CHUNK_LOAD.register(this::onChunkLoaded);
+        ClientTickEvents.START_CLIENT_TICK.register(client -> onClientTick());
         IMinecoloniesAPI.getInstance().getEventBus().subscribe(ColonyViewUpdatedModEvent.class, this::onColonyViewUpdated);
     }
 
-    @SubscribeEvent
-    public void onPlayerLogout(@NotNull final ClientPlayerNetworkEvent.LoggingOut event)
+    public void onPlayerLogout()
     {
         ColonyDeathpoints.clear();
         this.jmap.getApi().removeAll(MOD_ID);
     }
 
-    @SubscribeEvent(priority = EventPriority.LOW)
-    public void onChunkLoaded(@NotNull final ChunkEvent.Load event)
+    public void onChunkLoaded(@NotNull final ClientLevel level, @NotNull final LevelChunk chunk)
     {
-        if (!event.getLevel().isClientSide()) return;
+        final ResourceKey<Level> dimension = level.dimension();
 
-        if (event.getLevel() instanceof final Level level)
-        {
-            final ResourceKey<Level> dimension = level.dimension();
-
-            ColonyBorderMapping.updateChunk(this.jmap, dimension, event.getChunk());
-            ColonyDeathpoints.updateChunk(this.jmap, dimension, event.getChunk());
-        }
+        ColonyBorderMapping.updateChunk(this.jmap, dimension, chunk);
+        ColonyDeathpoints.updateChunk(this.jmap, dimension, chunk);
     }
 
     public void onColonyViewUpdated(@NotNull final ColonyViewUpdatedModEvent event)
@@ -63,8 +58,7 @@ public class EventListener
         ColonyDeathpoints.updateGraves(this.jmap, colony, graves);
     }
 
-    @SubscribeEvent(priority = EventPriority.LOW)
-    public void onClientTick(@NotNull final ClientTickEvent.Pre event)
+    public void onClientTick()
     {
         final Level world = Minecraft.getInstance().level;
         if (world != null)

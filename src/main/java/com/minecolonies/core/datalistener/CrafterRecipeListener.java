@@ -4,7 +4,7 @@ import com.google.gson.*;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.colony.crafting.CustomRecipe;
 import com.minecolonies.core.colony.crafting.CustomRecipeManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import com.minecolonies.core.datalistener.util.RegistryAwareJsonReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
@@ -18,7 +18,7 @@ import static com.minecolonies.core.colony.crafting.CustomRecipe.*;
 /**
  * Loader for Json based crafter specific recipes
  */
-public class CrafterRecipeListener extends SimpleJsonResourceReloadListener
+public class CrafterRecipeListener extends RegistryAwareJsonReloadListener
 {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
@@ -28,7 +28,7 @@ public class CrafterRecipeListener extends SimpleJsonResourceReloadListener
      */
     public CrafterRecipeListener()
     {
-        super(GSON, "crafterrecipes");
+        super("crafterrecipes");
     }
 
     @Override

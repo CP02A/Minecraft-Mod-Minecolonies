@@ -42,7 +42,7 @@ public class SettingsModuleView extends AbstractBuildingModuleView implements IS
         final int size = buf.readInt();
         for (int i = 0; i < size; i++)
         {
-            final Identifier key = buf.readResourceLocation();
+            final Identifier key = buf.readIdentifier();
             final ISetting setting = StandardFactoryController.getInstance().deserialize(buf);
             if (setting != null)
             {
@@ -103,7 +103,7 @@ public class SettingsModuleView extends AbstractBuildingModuleView implements IS
     @Override
     public Identifier getIconResourceLocation()
     {
-        return new Identifier(Constants.MOD_ID, "textures/gui/modules/settings.png");
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/modules/settings.png");
     }
 
     @Override

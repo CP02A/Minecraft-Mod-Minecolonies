@@ -13,7 +13,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
@@ -35,12 +34,12 @@ public class ItemTagTool extends AbstractItemWithPosSelector
     /**
      * Creates default scan tool item.
      */
-    public ItemTagTool()
+    public static Properties defaultProperties(final Properties properties)
     {
-        this(new Properties().durability(0)
-            .setNoRepair()
+        // FABRIC-PORT: setNoRepair() removed in 26.x; durability 0 items are not repairable anyway
+        return properties.durability(0)
             .rarity(Rarity.UNCOMMON)
-            .component(ModDataComponents.TAGS_DATA, TagData.EMPTY));
+            .component(ModDataComponents.TAGS_DATA.get(), TagData.EMPTY);
     }
 
     /**
@@ -62,12 +61,12 @@ public class ItemTagTool extends AbstractItemWithPosSelector
     @Override
     public InteractionResult onAirRightClick(final BlockPos start, final BlockPos end, final Level worldIn, final Player playerIn, final ItemStack itemStack)
     {
-        if (worldIn.isClientSide)
+        if (worldIn.isClientSide())
         {
             final TagData tagData = TagData.readFromItemStack(itemStack);
             if (tagData.anchorPos().isEmpty())
             {
-                playerIn.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.noanchor"), false);
+                playerIn.sendSystemMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.noanchor"));
                 return InteractionResult.FAIL;
             }
 
@@ -78,16 +77,14 @@ public class ItemTagTool extends AbstractItemWithPosSelector
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn)
+    public InteractionResult use(Level worldIn, Player playerIn, InteractionHand handIn)
     {
-        return new InteractionResultHolder<>(
-          onAirRightClick(
+        return onAirRightClick(
             null,
             null,
             worldIn,
             playerIn,
-            playerIn.getItemInHand(handIn)),
-          playerIn.getItemInHand(handIn));
+            playerIn.getItemInHand(handIn));
     }
 
     @Override
@@ -107,7 +104,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
                 TagData.updateItemStack(context.getItemInHand(), tags -> tags.setAnchorPos(context.getClickedPos()));
                 if (context.getLevel().isClientSide())
                 {
-                    context.getPlayer().displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.anchorsaved"), false);
+                    context.getPlayer().sendSystemMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.anchorsaved"));
                 }
                 return InteractionResult.SUCCESS;
             }
@@ -115,7 +112,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             {
                 if (context.getLevel().isClientSide())
                 {
-                    context.getPlayer().displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.anchor.notvalid"), false);
+                    context.getPlayer().sendSystemMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.anchor.notvalid"));
                 }
                 return InteractionResult.FAIL;
             }
@@ -125,8 +122,12 @@ public class ItemTagTool extends AbstractItemWithPosSelector
     }
 
     @Override
-    public boolean canAttackBlock(final BlockState state, final Level worldIn, final BlockPos pos, final Player player)
+    public boolean canDestroyBlock(final ItemStack destroyingStack, final BlockState state, final Level worldIn, final BlockPos pos, final net.minecraft.world.entity.LivingEntity user)
     {
+        if (!(user instanceof final Player player))
+        {
+            return false;
+        }
         final ItemStack stack = player.getMainHandItem();
         if (stack.getItem() != ModItems.tagTool.get())
         {
@@ -137,13 +138,13 @@ public class ItemTagTool extends AbstractItemWithPosSelector
 
         if (tagData.anchorPos().isEmpty())
         {
-            player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.noanchor"), false);
+            player.sendSystemMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.noanchor"));
             return false;
         }
 
         if (tagData.currentTag().isEmpty())
         {
-            player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.notag"), false);
+            player.sendSystemMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.notag"));
             return false;
         }
 
@@ -155,7 +156,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
         final BlockEntity te = worldIn.getBlockEntity(anchorPos);
         if (!(te instanceof final IBlueprintDataProviderBE blueprintBe))
         {
-            player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.anchor.notvalid"), false);
+            player.sendSystemMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.anchor.notvalid"));
             TagData.updateItemStack(stack, tags -> tags.setAnchorPos(null));
             return false;
         }
@@ -168,9 +169,9 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             blueprintBe.addTag(relativePos, currentTag);
             if (worldIn.isClientSide())
             {
-                player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.addtag",
+                player.sendSystemMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.addtag",
                         currentTag,
-                        worldIn.getBlockState(pos).getBlock().getName()), false);
+                        worldIn.getBlockState(pos).getBlock().getName()));
             }
         }
         else
@@ -178,9 +179,9 @@ public class ItemTagTool extends AbstractItemWithPosSelector
             blueprintBe.removeTag(relativePos, currentTag);
             if (worldIn.isClientSide())
             {
-                player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.removed",
+                player.sendSystemMessage(Component.translatable("com.ldtteam.structurize.gui.tagtool.removed",
                         currentTag,
-                        worldIn.getBlockState(pos).getBlock().getName()), false);
+                        worldIn.getBlockState(pos).getBlock().getName()));
             }
         }
 
@@ -230,7 +231,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
          */
         public void writeToItemStack(final ItemStack itemStack)
         {
-            itemStack.set(ModDataComponents.TAGS_DATA, this);
+            itemStack.set(ModDataComponents.TAGS_DATA.get(), this);
         }
     
         /**
@@ -238,7 +239,7 @@ public class ItemTagTool extends AbstractItemWithPosSelector
          */
         public static TagData readFromItemStack(final ItemStack itemStack)
         {
-            return itemStack.getOrDefault(ModDataComponents.TAGS_DATA, TagData.EMPTY);
+            return itemStack.getOrDefault(ModDataComponents.TAGS_DATA.get(), TagData.EMPTY);
         }
     
         /**

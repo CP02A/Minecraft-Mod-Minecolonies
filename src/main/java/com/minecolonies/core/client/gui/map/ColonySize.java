@@ -14,9 +14,9 @@ import net.minecraft.resources.Identifier;
  */
 public enum ColonySize
 {
-    SMALL(new Identifier(Constants.MOD_ID, "gui/map/colonysmall.xml"), 25),
-    MEDIUM(new Identifier(Constants.MOD_ID, "gui/map/colonymedium.xml"), 75),
-    LARGE(new Identifier(Constants.MOD_ID, "gui/map/colonylarge.xml"), 5000);
+    SMALL(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/map/colonysmall.xml"), 25),
+    MEDIUM(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/map/colonymedium.xml"), 75),
+    LARGE(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/map/colonylarge.xml"), 5000);
 
     private final Identifier imagePath;
 

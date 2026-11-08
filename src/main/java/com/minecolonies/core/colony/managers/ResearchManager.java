@@ -133,7 +133,7 @@ public class ResearchManager implements IResearchManager
     @Override
     public Identifier getResearchEffectIdFrom(Block block)
     {
-        return new Identifier(BuiltInRegistries.BLOCK.getKey(block).getNamespace(), "effects/" + BuiltInRegistries.BLOCK.getKey(block).getPath());
+        return Identifier.fromNamespaceAndPath(BuiltInRegistries.BLOCK.getKey(block).getNamespace(), "effects/" + BuiltInRegistries.BLOCK.getKey(block).getPath());
     }
 
     @Override

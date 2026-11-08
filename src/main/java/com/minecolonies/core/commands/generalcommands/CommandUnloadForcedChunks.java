@@ -30,7 +30,7 @@ public class CommandUnloadForcedChunks implements IMCCommand
         if (sender instanceof final Player player && player.level() instanceof final ServerLevel serverLevel)
         {
             final Level world = sender.level();
-            for (long chunk : serverLevel.getChunkSource().chunkMap.visibleChunkMap.keySet())
+            for (long chunk : serverLevel.getForceLoadedChunks().toLongArray())
             {
                 serverLevel.setChunkForced(ChunkPos.getX(chunk), ChunkPos.getZ(chunk), false);
             }

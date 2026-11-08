@@ -25,7 +25,7 @@ public class EntityAIWorkChickenHerder extends AbstractEntityAIHerder<JobChicken
      * Get chicken icon
      */
     private final static VisibleCitizenStatus FIND_CHICKEN =
-      new VisibleCitizenStatus(new Identifier(Constants.MOD_ID, "textures/icons/work/chickenherder.png"), "com.minecolonies.gui.visiblestatus.chickenherder");
+      new VisibleCitizenStatus(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/work/chickenherder.png"), "com.minecolonies.gui.visiblestatus.chickenherder");
 
     /**
      * Creates the abstract part of the AI. Always use this constructor!
@@ -62,11 +62,11 @@ public class EntityAIWorkChickenHerder extends AbstractEntityAIHerder<JobChicken
     {
         if (animal != null && !walkingToAnimal(animal) && !ItemStackUtils.isEmpty(worker.getMainHandItem()))
         {
-            worker.swing(InteractionHand.MAIN_HAND);
+            worker.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
 
             if (worker.getRandom().nextInt(1 + (ONE_HUNDRED_PERCENT - getSecondarySkillLevel()) / 5) <= 1)
             {
-                animal.hurt(world.damageSources().source(DamageSourceKeys.DEFAULT, worker), (float) getButcheringAttackDamage());
+                animal.hurtOrSimulate(world.damageSources().source(DamageSourceKeys.DEFAULT, worker), (float) getButcheringAttackDamage());
                 CitizenItemUtils.damageItemInHand(worker, InteractionHand.MAIN_HAND, 1);
             }
         }

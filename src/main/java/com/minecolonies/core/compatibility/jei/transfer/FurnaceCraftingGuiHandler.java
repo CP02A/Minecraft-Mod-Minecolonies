@@ -54,7 +54,7 @@ public class FurnaceCraftingGuiHandler extends AbstractTeachingGuiHandler<Window
     @Override
     protected boolean isSupportedSlot(@NotNull Slot slot)
     {
-        return slot.getSlotIndex() == 0;
+        return slot.getContainerSlot() == 0;
     }
 
     @Override

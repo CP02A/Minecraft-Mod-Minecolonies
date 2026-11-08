@@ -63,7 +63,7 @@ public interface IBuildingModuleView
      */
     default Identifier getIconResourceLocation()
     {
-        return new Identifier(Constants.MOD_ID, "textures/gui/modules/" + getIcon() + ".png");
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/modules/" + getIcon() + ".png");
     }
     
     /**

@@ -103,7 +103,7 @@ public class FarmField extends AbstractBuildingExtension
     public @NotNull CompoundTag serializeNBT(@NotNull final HolderLookup.Provider provider)
     {
         CompoundTag compound = super.serializeNBT(provider);
-        compound.put(TAG_SEED, seed.saveOptional(provider));
+        compound.put(TAG_SEED, com.minecolonies.core.colony.NbtCompat.saveOptional(seed, provider));
         compound.putIntArray(TAG_RADIUS, radii);
         compound.putString(TAG_STAGE, fieldStage.name());
         return compound;
@@ -113,9 +113,9 @@ public class FarmField extends AbstractBuildingExtension
     public void deserializeNBT(@NotNull final HolderLookup.Provider provider, final @NotNull CompoundTag compound)
     {
         super.deserializeNBT(provider, compound);
-        setSeed(ItemStack.parseOptional(provider, compound.getCompound(TAG_SEED)));
-        radii = compound.getIntArray(TAG_RADIUS);
-        fieldStage = Stage.valueOf(compound.getString(TAG_STAGE));
+        setSeed(com.minecolonies.core.colony.NbtCompat.parseOptional(provider, compound.getCompoundOrEmpty(TAG_SEED)));
+        radii = compound.getIntArray(TAG_RADIUS).orElseGet(() -> new int[0]);
+        fieldStage = Stage.valueOf(compound.getStringOr(TAG_STAGE, ""));
     }
 
     @Override
@@ -238,9 +238,9 @@ public class FarmField extends AbstractBuildingExtension
      */
     public enum Stage
     {
-        EMPTY(new Identifier("minecraft", "textures/item/iron_hoe.png")), 
-        HOED(new Identifier("minecraft", "textures/item/wheat_seeds.png")), 
-        PLANTED(new Identifier(Constants.MOD_ID, "textures/item/crops/durum.png"));
+        EMPTY(Identifier.fromNamespaceAndPath("minecraft", "textures/item/iron_hoe.png")), 
+        HOED(Identifier.fromNamespaceAndPath("minecraft", "textures/item/wheat_seeds.png")), 
+        PLANTED(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/item/crops/durum.png"));
 
         protected final Identifier stageIcon;
 

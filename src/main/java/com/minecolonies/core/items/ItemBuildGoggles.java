@@ -11,7 +11,7 @@ import java.util.List;
 
 import static com.minecolonies.apiimp.initializer.ModItemsInitializer.GOGGLES;
 
-public class ItemBuildGoggles extends ArmorItem
+public class ItemBuildGoggles extends Item
 {
     /**
      * Constructor
@@ -23,23 +23,26 @@ public class ItemBuildGoggles extends ArmorItem
             @NotNull final String name,
             final Item.Properties properties)
     {
-        super(GOGGLES, Type.HELMET, properties.setNoRepair().rarity(Rarity.UNCOMMON));
+        // setNoRepair(): drop the repairable component added by humanoidArmor
+        super(properties.humanoidArmor(GOGGLES, net.minecraft.world.item.equipment.ArmorType.HELMET)
+                .component(net.minecraft.core.component.DataComponents.REPAIRABLE, null)
+                .rarity(Rarity.UNCOMMON));
     }
 
     @Override
     public void appendHoverText(@NotNull final ItemStack stack,
-                                @Nullable final TooltipContext ctx,
-                                @NotNull final List<Component> components,
+                                @Nullable final Item.TooltipContext ctx,
+                                final net.minecraft.world.item.component.TooltipDisplay tooltipDisplay, @NotNull final java.util.function.Consumer<Component> components,
                                 @NotNull final TooltipFlag flags)
     {
-        super.appendHoverText(stack, ctx, components, flags);
+        super.appendHoverText(stack, ctx, tooltipDisplay, components, flags);
 
-        components.add(Component.translatableEscape("\"%s\"",
+        components.accept(Component.translatableEscape("\"%s\"",
                         Component.translatableEscape("item.minecolonies.build_goggles.lore")
                                 .withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.ITALIC))
                 .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
 
-        components.add(Component.translatableEscape(ColonyBlueprintRenderer.willRenderBlueprints()
+        components.accept(Component.translatableEscape(ColonyBlueprintRenderer.willRenderBlueprints()
                 ? "item.minecolonies.build_goggles.enabled" : "item.minecolonies.build_goggles.disabled")
                 .withStyle(ChatFormatting.GRAY));
     }

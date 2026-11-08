@@ -56,12 +56,12 @@ public class EntityAIWorkRabbitHerder extends AbstractEntityAIHerder<JobRabbitHe
     {
         if (animal != null && !walkingToAnimal(animal) && !ItemStackUtils.isEmpty(worker.getMainHandItem()))
         {
-            worker.swing(InteractionHand.MAIN_HAND);
+            worker.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
 
             if (worker.getRandom().nextInt(1 + (ONE_HUNDRED_PERCENT - getPrimarySkillLevel()) / 5) <= 1)
             {
                 final DamageSource ds = animal.level().damageSources().playerAttack(getFakePlayer());
-                animal.hurt(ds, (float) getButcheringAttackDamage());
+                animal.hurtOrSimulate(ds, (float) getButcheringAttackDamage());
                 CitizenItemUtils.damageItemInHand(worker, InteractionHand.MAIN_HAND, 1);
             }
         }

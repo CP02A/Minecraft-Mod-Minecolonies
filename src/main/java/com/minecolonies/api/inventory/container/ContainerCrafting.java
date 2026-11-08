@@ -207,12 +207,12 @@ public class ContainerCrafting extends AbstractContainerMenu
     @Override
     public void slotsChanged(final Container inventoryIn)
     {
-        if (!world.isClientSide)
+        if (!world.isClientSide())
         {
             final ServerPlayer player = (ServerPlayer) inv.player;
-            final List<RecipeHolder<CraftingRecipe>> recipes = player.server.getRecipeManager().getRecipesFor(RecipeType.CRAFTING, craftMatrix.asCraftInput(), world)
+            final List<RecipeHolder<CraftingRecipe>> recipes = player.level().getServer().getRecipeManager().getRecipesFor(RecipeType.CRAFTING, craftMatrix.asCraftInput(), world)
                     .stream().filter(recipe -> recipe.value().isSpecial()
-                            || !world.getGameRules().getBoolean(GameRules.RULE_LIMITED_CRAFTING)
+                            || !world.getGameRules().getBooleanOr(GameRules.RULE_LIMITED_CRAFTING, false)
                             || player.getRecipeBook().contains(recipe)
                             || player.isCreative())
                     .toList();

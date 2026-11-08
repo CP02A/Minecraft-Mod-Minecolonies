@@ -42,7 +42,7 @@ public class UniversityModuleWindow extends AbstractModuleWindow<UniversityResea
      */
     public UniversityModuleWindow(final UniversityResearchModuleView moduleView)
     {
-        super(moduleView, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutuniversity.xml"));
+        super(moduleView, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutuniversity.xml"));
 
         registerButton(UNI_INV_RESEARCH, this::inventoryClicked);
 

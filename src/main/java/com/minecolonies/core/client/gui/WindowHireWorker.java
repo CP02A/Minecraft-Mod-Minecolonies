@@ -88,7 +88,7 @@ public class WindowHireWorker extends AbstractWindowSkeleton
      */
     public WindowHireWorker(final IColonyView c, final BlockPos buildingId)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/windowhireworker.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowhireworker.xml"));
         this.colony = c;
         building = (AbstractBuildingView) colony.getClientBuildingManager().getBuilding(buildingId);
 
@@ -518,7 +518,7 @@ public class WindowHireWorker extends AbstractWindowSkeleton
             final JobEntry entry = hireModule.getJobEntry();
 
             final ButtonImage jobButton = new ButtonImage();
-            jobButton.setImage(new Identifier("minecolonies", "textures/gui/builderhut/builder_button_medium.png"));
+            jobButton.setImage(Identifier.fromNamespaceAndPath("minecolonies", "textures/gui/builderhut/builder_button_medium.png"));
             jobButton.setPosition(xOffset, 30);
             if (!hireModule.getAssignedCitizens().isEmpty())
             {

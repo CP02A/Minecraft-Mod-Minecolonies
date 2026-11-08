@@ -75,7 +75,7 @@ public class GraveyardManagementModuleView extends AbstractBuildingModuleView
     @Override
     public Identifier getIconResourceLocation()
     {
-        return new Identifier(Constants.MOD_ID, "textures/gui/modules/grave.png");
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/modules/grave.png");
     }
 
     @Override

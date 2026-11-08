@@ -119,12 +119,12 @@ public enum SurfaceType
             return SurfaceType.DROPABLE;
         }
 
-        if ((blockState.getBlock().hasCollision && ShapeUtil.max(shape, Direction.Axis.X) - ShapeUtil.min(shape, Direction.Axis.X) >= 0.85
+        if ((((com.minecolonies.fabric.mixin.api.BlockBehaviourAccessor) blockState.getBlock()).minecolonies$hasCollision() && ShapeUtil.max(shape, Direction.Axis.X) - ShapeUtil.min(shape, Direction.Axis.X) >= 0.85
                && (ShapeUtil.max(shape, Direction.Axis.Z) - ShapeUtil.min(shape, Direction.Axis.Z)) >= 0.85)
               || (blockState.getBlock() == Blocks.SNOW && blockState.getValue(SnowLayerBlock.LAYERS) > 1)
               || block instanceof FloatingCarpetBlock
               || block instanceof CarpetBlock
-              || block instanceof WaterlilyBlock)
+              || block instanceof LilyPadBlock)
         {
             return SurfaceType.WALKABLE;
         }

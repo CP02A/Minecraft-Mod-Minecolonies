@@ -16,7 +16,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -112,7 +111,7 @@ public class BlockDecorationController extends AbstractBlockMinecoloniesDirectio
     @Override
     public Identifier getRegistryName()
     {
-        return new Identifier(Constants.MOD_ID, BLOCK_NAME);
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, BLOCK_NAME);
     }
 
     @Override
@@ -166,7 +165,7 @@ public class BlockDecorationController extends AbstractBlockMinecoloniesDirectio
     }
 
     @Override
-    public ItemInteractionResult useItemOn(
+    public InteractionResult useItemOn(
       final ItemStack Stack,
       final BlockState state,
       final Level worldIn,
@@ -175,7 +174,7 @@ public class BlockDecorationController extends AbstractBlockMinecoloniesDirectio
       final InteractionHand hand,
       final BlockHitResult ray)
     {
-        if (worldIn.isClientSide)
+        if (worldIn.isClientSide())
         {
             final BlockEntity tileEntity = worldIn.getBlockEntity(pos);
             if (tileEntity instanceof TileEntityDecorationController)
@@ -183,7 +182,7 @@ public class BlockDecorationController extends AbstractBlockMinecoloniesDirectio
                 new WindowDecorationController(pos).open();
             }
         }
-        return ItemInteractionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override
@@ -200,7 +199,7 @@ public class BlockDecorationController extends AbstractBlockMinecoloniesDirectio
         /*
         Only work on server side
         */
-        if (worldIn.isClientSide)
+        if (worldIn.isClientSide())
         {
             return;
         }
@@ -267,7 +266,7 @@ public class BlockDecorationController extends AbstractBlockMinecoloniesDirectio
 
         try
         {
-            return Integer.parseInt(beData.getCompound(TAG_BLUEPRINTDATA).getString(TAG_SCHEMATIC_NAME).replaceAll("[^0-9]", ""));
+            return Integer.parseInt(beData.getCompoundOrEmpty(TAG_BLUEPRINTDATA).getStringOr(TAG_SCHEMATIC_NAME, "").replaceAll("[^0-9]", ""));
         }
         catch (final NumberFormatException exception)
         {

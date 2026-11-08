@@ -20,6 +20,6 @@ public class WindowHutWorkerModulePlaceholder<B extends IBuildingView> extends A
      */
     public WindowHutWorkerModulePlaceholder(final B building)
     {
-        super(building, new Identifier(Constants.MOD_ID, "gui/windowhutworkerplaceholder.xml"));
+        super(building, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowhutworkerplaceholder.xml"));
     }
 }

@@ -1,21 +1,34 @@
 package com.ldtteam.structurize.util;
 
+import com.ldtteam.structurize.api.constants.Constants;
 import com.ldtteam.structurize.client.BlueprintHandler;
 import com.ldtteam.structurize.storage.rendering.types.BlueprintPreviewData;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.renderpearl.api.pipeline.BlendFunction;
+import com.mojang.renderpearl.api.pipeline.ColorTargetState;
+import com.mojang.renderpearl.api.pipeline.CompareOp;
+import com.mojang.renderpearl.api.pipeline.DepthStencilState;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
+import it.unimi.dsi.fastutil.floats.FloatArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.renderer.oit.OitPipelineSet;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -23,16 +36,25 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import com.ldtteam.shim.neoforge.client.event.RegisterRenderBuffersEvent;
-import com.ldtteam.shim.neoforge.client.event.RenderLevelStageEvent;
-import com.ldtteam.shim.neoforge.client.event.RenderLevelStageEvent.Stage;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fStack;
-import org.lwjgl.opengl.GL30C;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+/**
+ * Helper base class for world (level) rendering.
+ * <p>
+ * FABRIC-PORT: Minecraft 26.x replaced immediate mode level rendering by the submit node system. Rendering is driven from Fabric's
+ * {@code LevelRenderEvents#COLLECT_SUBMITS} event: all {@link Stage stages} are run in order within that single event
+ * (see {@link #renderWorldLastEvent(LevelRenderContext)}), {@link #bufferSource} records vertices and submits them as custom geometry
+ * at the end. Instances can be registered with {@link #register(WorldRenderMacros)} so Structurize drives them every frame.
+ */
 public abstract class WorldRenderMacros
 {
     // 4 chunks squared
@@ -47,10 +69,58 @@ public abstract class WorldRenderMacros
     public static final Stage STAGE_FOR_LINES = Stage.AFTER_ENTITIES;
     public static final float DEFAULT_LINE_WIDTH = 0.025f;
 
+    /**
+     * Render stages, mirrors the former NeoForge RenderLevelStageEvent.Stage. All stages are run in this order within one frame.
+     */
+    public enum Stage
+    {
+        AFTER_SKY,
+        AFTER_SOLID_BLOCKS,
+        AFTER_CUTOUT_MIPPED_BLOCKS_BLOCKS,
+        AFTER_CUTOUT_BLOCKS,
+        AFTER_ENTITIES,
+        AFTER_BLOCK_ENTITIES,
+        AFTER_TRANSLUCENT_BLOCKS,
+        AFTER_TRIPWIRE_BLOCKS,
+        AFTER_PARTICLES,
+        AFTER_WEATHER,
+        AFTER_LEVEL
+    }
+
+    private static final List<WorldRenderMacros> REGISTERED = new CopyOnWriteArrayList<>();
+
+    /**
+     * Registers a render context to be driven by Structurize every frame.
+     */
+    public static void register(final WorldRenderMacros context)
+    {
+        if (!REGISTERED.contains(context))
+        {
+            REGISTERED.add(context);
+        }
+    }
+
+    /**
+     * Called by Structurize from the Fabric level render event, drives all registered contexts.
+     */
+    public static void renderAllRegistered(final LevelRenderContext context)
+    {
+        for (final WorldRenderMacros macros : REGISTERED)
+        {
+            macros.renderWorldLastEvent(context);
+        }
+    }
+
     public Minecraft mc;
-    public RenderLevelStageEvent event;
+    /**
+     * Current fabric level render context
+     */
+    public LevelRenderContext levelRenderContext;
+    public SubmitNodeCollector submitNodeCollector;
+    public CameraRenderState cameraRenderState;
+    public Frustum frustum;
     public LocalPlayer clientPlayer;
-    public BufferSource bufferSource;
+    public final BufferSource bufferSource = new BufferSource();
     public PoseStack poseStack;
     public DeltaTracker deltaTracker;
     public ClientLevel clientLevel;
@@ -62,50 +132,53 @@ public abstract class WorldRenderMacros
     public int clientRenderDist;
 
     /**
-     * Call this from event handler
-     * 
-     * @param event
+     * Call this from the level render (collect submits) event. Runs all stages.
+     *
+     * @param context fabric context
      */
-    public void renderWorldLastEvent(final RenderLevelStageEvent e)
+    public void renderWorldLastEvent(final LevelRenderContext context)
     {
         mc = Minecraft.getInstance();
-        event = e;
+        levelRenderContext = context;
         clientPlayer = mc.player;
-        if (clientPlayer == null) // server login phase
+        if (clientPlayer == null || mc.level == null) // server login phase
         {
             return;
         }
 
-        bufferSource = mc.renderBuffers().bufferSource();
-        poseStack = event.getPoseStack();
-        deltaTracker = event.getPartialTick();
+        submitNodeCollector = context.submitNodeCollector();
+        cameraRenderState = context.levelState().cameraRenderState;
+        frustum = cameraRenderState.cullFrustum;
+        poseStack = context.poseStack();
+        deltaTracker = mc.getDeltaTracker();
         clientLevel = mc.level;
         mainHandItem = clientPlayer.getMainHandItem();
-        cameraPosition = event.getCamera().getPosition();
+        cameraPosition = cameraRenderState.pos;
         clientRenderDist = mc.options.renderDistance().get();
 
-        final Matrix4fStack mvMatrix = RenderSystem.getModelViewStack();
-        mvMatrix.pushMatrix();
-        mvMatrix.identity();
-        mvMatrix.mul(event.getModelViewMatrix());
-        RenderSystem.applyModelViewMatrix();
-
-        renderWithinContext(event.getStage());
-
-        RenderSystem.getModelViewStack().popMatrix();
-        RenderSystem.applyModelViewMatrix();
+        try
+        {
+            for (final Stage stage : Stage.values())
+            {
+                renderWithinContext(stage);
+            }
+        }
+        finally
+        {
+            bufferSource.endBatch();
+        }
     }
 
     /**
      * This is called with properly prepared context. Do here what you want
-     * 
+     *
      * @param stage render world stage
      */
     protected abstract void renderWithinContext(Stage stage);
 
     /**
      * Moved pose context to camera and given pos
-     * 
+     *
      * @see #popPose()
      */
     public final void pushPoseCameraToPos(final BlockPos pos)
@@ -119,18 +192,22 @@ public abstract class WorldRenderMacros
         poseStack.popPose();
     }
 
+    /**
+     * FABRIC-PORT: rendering is deferred in 26.x, the shader model view matrix is no longer used by recorded geometry.
+     * Prefer transforming vertices with {@link #poseStack}.
+     */
+    @Deprecated
     public void pushShaderMvMatrixFromPose()
     {
         final Matrix4fStack mvMatrix = RenderSystem.getModelViewStack();
         mvMatrix.pushMatrix();
         mvMatrix.mul(poseStack.last().pose());
-        RenderSystem.applyModelViewMatrix();
     }
 
+    @Deprecated
     public void popShaderMvMatrix()
     {
         RenderSystem.getModelViewStack().popMatrix();
-        RenderSystem.applyModelViewMatrix();
     }
 
     /**
@@ -138,7 +215,7 @@ public abstract class WorldRenderMacros
      */
     public final boolean isVisible(final AABB aabb)
     {
-        return event.getFrustum().isVisible(aabb);
+        return frustum.isVisible(aabb);
     }
 
     /**
@@ -148,41 +225,40 @@ public abstract class WorldRenderMacros
     {
         return isVisible(pos, pos);
     }
-    
+
     /**
      * @return true if given box can be in any way seen by camera
      */
     public final boolean isVisible(final BlockPos posA, final BlockPos posB)
     {
-        return event.getFrustum()
-            .cubeInFrustum(Math.min(posA.getX(), posB.getX()),
-                Math.min(posA.getY(), posB.getY()),
-                Math.min(posA.getZ(), posB.getZ()),
-                Math.max(posA.getX(), posB.getX()) + 1,
-                Math.max(posA.getY(), posB.getY()) + 1,
-                Math.max(posA.getZ(), posB.getZ()) + 1);
+        return frustum.isVisible(new AABB(Math.min(posA.getX(), posB.getX()),
+            Math.min(posA.getY(), posB.getY()),
+            Math.min(posA.getZ(), posB.getZ()),
+            Math.max(posA.getX(), posB.getX()) + 1,
+            Math.max(posA.getY(), posB.getY()) + 1,
+            Math.max(posA.getZ(), posB.getZ()) + 1));
     }
 
     /**
      * Draw a blueprint at given pos.
      *
-     * @param previewData the blueprint and context to draw.
+     * @param blueprint the blueprint and context to draw.
      * @param pos         position to render at
      */
     public final void renderBlueprint(final BlueprintPreviewData blueprint, final BlockPos pos)
     {
-        BlueprintHandler.getInstance().draw(blueprint, pos, event);
+        BlueprintHandler.getInstance().draw(blueprint, pos, this);
     }
 
     /**
      * Draw a blueprint at list of given pos.
      *
-     * @param previewData the blueprint and context to draw.
+     * @param blueprint the blueprint and context to draw.
      * @param points      list of positions to render at
      */
     public final void renderBlueprint(final BlueprintPreviewData blueprint, final Collection<BlockPos> points)
     {
-        BlueprintHandler.getInstance().drawAtListOfPositions(blueprint, points, event);
+        BlueprintHandler.getInstance().drawAtListOfPositions(blueprint, points, this);
     }
 
     /**
@@ -955,13 +1031,12 @@ public abstract class WorldRenderMacros
         buffer.addVertex(m, x + w, y, z).setColor(red, green, blue, alpha);
     }
 
+
     /**
      * Renders the given list of strings, 3 elements a row.
      *
      * @param pos                     position to render at
      * @param text                    text list
-     * @param matrixStack             stack to use
-     * @param buffer                  render buffer
      * @param forceWhite              force white for no depth rendering
      * @param mergeEveryXListElements merge every X elements of text list using a tostring call
      */
@@ -979,12 +1054,9 @@ public abstract class WorldRenderMacros
      * @param renderPos               position to render at
      * @param worldPos                (logic) position in world
      * @param text                    text list
-     * @param matrixStack             stack to use
-     * @param buffer                  render buffer
      * @param forceWhite              force white for no depth rendering
      * @param mergeEveryXListElements merge every X elements of text list using a tostring call
      */
-    @SuppressWarnings("resource")
     public final void renderDebugText(final BlockPos renderPos,
         final BlockPos worldPos,
         final List<String> text,
@@ -996,21 +1068,18 @@ public abstract class WorldRenderMacros
             throw new IllegalArgumentException("mergeEveryXListElements is less than 1");
         }
 
-        final EntityRenderDispatcher erm = Minecraft.getInstance().getEntityRenderDispatcher();
         final int cap = text.size();
-        if (cap > 0 && erm.distanceToSqr(worldPos.getX(), worldPos.getY(), worldPos.getZ()) <= MAX_DEBUG_TEXT_RENDER_DIST_SQUARED)
+        if (cap > 0 && cameraPosition.distanceToSqr(worldPos.getX(), worldPos.getY(), worldPos.getZ()) <= MAX_DEBUG_TEXT_RENDER_DIST_SQUARED)
         {
             final Font fontrenderer = Minecraft.getInstance().font;
 
             poseStack.pushPose();
             poseStack.translate(renderPos.getX() + 0.5d, renderPos.getY() + 0.6d, renderPos.getZ() + 0.5d);
-            poseStack.mulPose(erm.cameraOrientation());
+            poseStack.rotate(cameraRenderState.orientation);
             poseStack.scale(0.014f, -0.014f, 0.014f);
 
             final float backgroundTextOpacity = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
             final int alphaMask = (int) (backgroundTextOpacity * 255.0F) << 24;
-
-            final Matrix4f rawPosMatrix = poseStack.last().pose();
 
             for (int i = 0; i < cap; i += mergeEveryXListElements)
             {
@@ -1018,19 +1087,28 @@ public abstract class WorldRenderMacros
                     mergeEveryXListElements == 1 ? text.get(i) : text.subList(i, Math.min(i + mergeEveryXListElements, cap)).toString());
                 final float textCenterShift = (float) (-fontrenderer.width(renderText) / 2);
 
-                fontrenderer.drawInBatch(renderText,
+                submitNodeCollector.submitText(poseStack,
                     textCenterShift,
                     0,
-                    forceWhite ? 0xffffffff : 0x20ffffff,
+                    renderText.getVisualOrderText(),
                     false,
-                    rawPosMatrix,
-                    bufferSource,
                     Font.DisplayMode.SEE_THROUGH,
+                    0x00f000f0,
+                    forceWhite ? 0xffffffff : 0x20ffffff,
                     alphaMask,
-                    0x00f000f0);
+                    0);
                 if (!forceWhite)
                 {
-                    fontrenderer.drawInBatch(renderText, textCenterShift, 0, 0xffffffff, false, rawPosMatrix, bufferSource, Font.DisplayMode.NORMAL, 0, 0x00f000f0);
+                    submitNodeCollector.submitText(poseStack,
+                        textCenterShift,
+                        0,
+                        renderText.getVisualOrderText(),
+                        false,
+                        Font.DisplayMode.NORMAL,
+                        0x00f000f0,
+                        0xffffffff,
+                        0,
+                        0);
                 }
                 poseStack.translate(0.0d, fontrenderer.lineHeight + 1, 0.0d);
             }
@@ -1039,225 +1117,317 @@ public abstract class WorldRenderMacros
         }
     }
 
-    public static final class RenderTypes extends RenderType
+    /**
+     * Records vertices per render type and submits them as custom geometry (see {@link SubmitNodeCollector#submitCustomGeometry}).
+     * Vertices are expected to be already transformed (camera relative), ie. added using {@code addVertex(Matrix4fc, x, y, z)}.
+     */
+    public final class BufferSource
     {
-        private RenderTypes(final String nameIn,
-            final VertexFormat formatIn,
-            final VertexFormat.Mode drawModeIn,
-            final int bufferSizeIn,
-            final boolean useDelegateIn,
-            final boolean needsSortingIn,
-            final Runnable setupTaskIn,
-            final Runnable clearTaskIn)
+        private final Map<RenderType, RecordingVertexConsumer> buffers = new LinkedHashMap<>();
+
+        /**
+         * @return recording buffer for given type
+         */
+        public VertexConsumer getBuffer(final RenderType renderType)
         {
-            super(nameIn, formatIn, drawModeIn, bufferSizeIn, useDelegateIn, needsSortingIn, setupTaskIn, clearTaskIn);
+            return buffers.computeIfAbsent(renderType, t -> new RecordingVertexConsumer());
+        }
+
+        /**
+         * Submits given buffer
+         */
+        public void endBatch(final RenderType renderType)
+        {
+            final RecordingVertexConsumer buffer = buffers.remove(renderType);
+            if (buffer != null)
+            {
+                submit(renderType, buffer);
+            }
+        }
+
+        /**
+         * Submits all buffers
+         */
+        public void endBatch()
+        {
+            final List<Map.Entry<RenderType, RecordingVertexConsumer>> entries = new ArrayList<>(buffers.entrySet());
+            buffers.clear();
+            for (final Map.Entry<RenderType, RecordingVertexConsumer> entry : entries)
+            {
+                submit(entry.getKey(), entry.getValue());
+            }
+        }
+
+        private void submit(final RenderType renderType, final RecordingVertexConsumer buffer)
+        {
+            if (buffer.isEmpty() || submitNodeCollector == null)
+            {
+                return;
+            }
+            submitNodeCollector.submitCustomGeometry(new PoseStack(), renderType, (pose, consumer) -> buffer.replay(consumer));
+        }
+    }
+
+    /**
+     * Vertex consumer which stores all vertex data in memory, so it can be replayed into a real buffer later (possibly multiple times).
+     */
+    public static class RecordingVertexConsumer implements VertexConsumer
+    {
+        private final FloatArrayList positions = new FloatArrayList();
+        private final IntArrayList colors = new IntArrayList();
+        private final FloatArrayList uvs = new FloatArrayList();
+        private final IntArrayList overlays = new IntArrayList();
+        private final IntArrayList lights = new IntArrayList();
+        private final FloatArrayList normals = new FloatArrayList();
+        private final FloatArrayList lineWidths = new FloatArrayList();
+        private int vertexCount = 0;
+
+        public boolean isEmpty()
+        {
+            return vertexCount == 0;
+        }
+
+        public int vertexCount()
+        {
+            return vertexCount;
+        }
+
+        @Override
+        public VertexConsumer addVertex(final float x, final float y, final float z)
+        {
+            positions.add(x);
+            positions.add(y);
+            positions.add(z);
+            colors.add(0xffffffff);
+            uvs.add(0);
+            uvs.add(0);
+            overlays.add(OverlayTexture.NO_OVERLAY);
+            lights.add(0x00f000f0);
+            normals.add(0);
+            normals.add(1);
+            normals.add(0);
+            lineWidths.add(1.0f);
+            vertexCount++;
+            return this;
+        }
+
+        @Override
+        public VertexConsumer setColor(final int r, final int g, final int b, final int a)
+        {
+            return setColor((a & 0xff) << 24 | (r & 0xff) << 16 | (g & 0xff) << 8 | (b & 0xff));
+        }
+
+        @Override
+        public VertexConsumer setColor(final int color)
+        {
+            colors.set(vertexCount - 1, color);
+            return this;
+        }
+
+        @Override
+        public VertexConsumer setUv(final float u, final float v)
+        {
+            uvs.set(vertexCount * 2 - 2, u);
+            uvs.set(vertexCount * 2 - 1, v);
+            return this;
+        }
+
+        @Override
+        public VertexConsumer setUv1(final int u, final int v)
+        {
+            overlays.set(vertexCount - 1, (u & 0xffff) | (v & 0xffff) << 16);
+            return this;
+        }
+
+        @Override
+        public VertexConsumer setUv2(final int u, final int v)
+        {
+            lights.set(vertexCount - 1, (u & 0xffff) | (v & 0xffff) << 16);
+            return this;
+        }
+
+        @Override
+        public VertexConsumer setUv3(final float u, final float v)
+        {
+            // unused by our formats
+            return this;
+        }
+
+        @Override
+        public VertexConsumer setNormal(final float x, final float y, final float z)
+        {
+            normals.set(vertexCount * 3 - 3, x);
+            normals.set(vertexCount * 3 - 2, y);
+            normals.set(vertexCount * 3 - 1, z);
+            return this;
+        }
+
+        @Override
+        public VertexConsumer setLineWidth(final float width)
+        {
+            lineWidths.set(vertexCount - 1, width);
+            return this;
+        }
+
+        /**
+         * Replays all recorded vertices into given consumer.
+         */
+        public void replay(final VertexConsumer consumer)
+        {
+            replay(consumer, null, 1.0f);
+        }
+
+        /**
+         * Replays all recorded vertices into given consumer.
+         *
+         * @param consumer   target
+         * @param pose       if not null then positions and normals are transformed using this pose
+         * @param alphaScale alpha multiplier for vertex colors
+         */
+        public void replay(final VertexConsumer consumer, @Nullable final PoseStack.Pose pose, final float alphaScale)
+        {
+            for (int i = 0; i < vertexCount; i++)
+            {
+                final float x = positions.getFloat(i * 3), y = positions.getFloat(i * 3 + 1), z = positions.getFloat(i * 3 + 2);
+                int color = colors.getInt(i);
+                if (alphaScale != 1.0f)
+                {
+                    color = (color & 0x00ffffff) | (Mth.clamp((int) ((color >>> 24) * alphaScale), 0, 255) << 24);
+                }
+                final int overlay = overlays.getInt(i);
+                final int light = lights.getInt(i);
+
+                if (pose != null)
+                {
+                    consumer.addVertex(pose, x, y, z);
+                }
+                else
+                {
+                    consumer.addVertex(x, y, z);
+                }
+                consumer.setColor(color)
+                    .setUv(uvs.getFloat(i * 2), uvs.getFloat(i * 2 + 1))
+                    .setUv1(overlay & 0xffff, overlay >>> 16)
+                    .setUv2(light & 0xffff, light >>> 16);
+                if (pose != null)
+                {
+                    consumer.setNormal(pose, normals.getFloat(i * 3), normals.getFloat(i * 3 + 1), normals.getFloat(i * 3 + 2));
+                }
+                else
+                {
+                    consumer.setNormal(normals.getFloat(i * 3), normals.getFloat(i * 3 + 1), normals.getFloat(i * 3 + 2));
+                }
+                consumer.setLineWidth(lineWidths.getFloat(i));
+            }
+        }
+
+        public void clear()
+        {
+            positions.clear();
+            colors.clear();
+            uvs.clear();
+            overlays.clear();
+            lights.clear();
+            normals.clear();
+            lineWidths.clear();
+            vertexCount = 0;
+        }
+    }
+
+    /**
+     * Structurize render types, 26.x pipeline based. Note 26.x uses reversed depth (greater = closer).
+     */
+    public static final class RenderTypes
+    {
+        private RenderTypes()
+        {
             throw new IllegalStateException();
         }
 
-        private static final RenderType GLINT_LINES = create("structurize_glint_lines",
-            DefaultVertexFormat.POSITION_COLOR,
-            VertexFormat.Mode.DEBUG_LINES,
-            1 << 12,
-            false,
-            false,
-            RenderType.CompositeState.builder()
-                .setTextureState(NO_TEXTURE)
-                .setShaderState(POSITION_COLOR_SHADER)
-                .setTransparencyState(GLINT_TRANSPARENCY)
-                .setDepthTestState(NeverDepthTestStateShard.NEVER_DEPTH_TEST)
-                .setCullState(NO_CULL)
-                .setLightmapState(NO_LIGHTMAP)
-                .setOverlayState(NO_OVERLAY)
-                .setLayeringState(NO_LAYERING)
-                .setOutputState(MAIN_TARGET)
-                .setTexturingState(DEFAULT_TEXTURING)
-                .setWriteMaskState(COLOR_WRITE)
-                .createCompositeState(false));
-
-        private static final RenderType GLINT_LINES_WITH_WIDTH = create("structurize_glint_lines_with_width",
-            DefaultVertexFormat.POSITION_COLOR,
-            VertexFormat.Mode.TRIANGLES,
-            1 << 13,
-            false,
-            false,
-            RenderType.CompositeState.builder()
-                .setTextureState(NO_TEXTURE)
-                .setShaderState(POSITION_COLOR_SHADER)
-                .setTransparencyState(GLINT_TRANSPARENCY)
-                .setDepthTestState(AlwaysDepthTestStateShard.ALWAYS_DEPTH_TEST)
-                .setCullState(CULL)
-                .setLightmapState(NO_LIGHTMAP)
-                .setOverlayState(NO_OVERLAY)
-                .setLayeringState(NO_LAYERING)
-                .setOutputState(MAIN_TARGET)
-                .setTexturingState(DEFAULT_TEXTURING)
-                .setWriteMaskState(COLOR_DEPTH_WRITE)
-                .createCompositeState(false));
-
-        private static final RenderType LINES = create("structurize_lines",
-            DefaultVertexFormat.POSITION_COLOR,
-            VertexFormat.Mode.DEBUG_LINES,
-            1 << 14,
-            false,
-            false,
-            RenderType.CompositeState.builder()
-                .setTextureState(NO_TEXTURE)
-                .setShaderState(POSITION_COLOR_SHADER)
-                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                .setDepthTestState(LEQUAL_DEPTH_TEST)
-                .setCullState(NO_CULL)
-                .setLightmapState(NO_LIGHTMAP)
-                .setOverlayState(NO_OVERLAY)
-                .setLayeringState(NO_LAYERING)
-                .setOutputState(MAIN_TARGET)
-                .setTexturingState(DEFAULT_TEXTURING)
-                .setWriteMaskState(COLOR_WRITE)
-                .createCompositeState(false));
-
-        private static final RenderType LINES_WITH_WIDTH = create("structurize_lines_with_width",
-            DefaultVertexFormat.POSITION_COLOR,
-            VertexFormat.Mode.TRIANGLES,
-            1 << 13,
-            false,
-            false,
-            RenderType.CompositeState.builder()
-                .setTextureState(NO_TEXTURE)
-                .setShaderState(POSITION_COLOR_SHADER)
-                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                .setDepthTestState(LEQUAL_DEPTH_TEST)
-                .setCullState(CULL)
-                .setLightmapState(NO_LIGHTMAP)
-                .setOverlayState(NO_OVERLAY)
-                .setLayeringState(NO_LAYERING)
-                .setOutputState(MAIN_TARGET)
-                .setTexturingState(DEFAULT_TEXTURING)
-                .setWriteMaskState(COLOR_DEPTH_WRITE)
-                .createCompositeState(false));
-
-        private static final RenderType LINES_WITH_WIDTH_DEPTH_INVERT = create("structurize_lines_with_width_depth_invert",
-            DefaultVertexFormat.POSITION_COLOR,
-            VertexFormat.Mode.TRIANGLES,
-            1 << 12,
-            false,
-            false,
-            RenderType.CompositeState.builder()
-                .setTextureState(NO_TEXTURE)
-                .setShaderState(POSITION_COLOR_SHADER)
-                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                .setDepthTestState(GREATER_DEPTH_TEST)
-                .setCullState(CULL)
-                .setLightmapState(NO_LIGHTMAP)
-                .setOverlayState(NO_OVERLAY)
-                .setLayeringState(NO_LAYERING)
-                .setOutputState(MAIN_TARGET)
-                .setTexturingState(DEFAULT_TEXTURING)
-                .setWriteMaskState(COLOR_WRITE)
-                .createCompositeState(false));
-
-        private static final RenderType COLORED_TRIANGLES = create("structurize_colored_triangles",
-            DefaultVertexFormat.POSITION_COLOR,
-            VertexFormat.Mode.TRIANGLES,
-            1 << 13,
-            false,
-            false,
-            RenderType.CompositeState.builder()
-                .setTextureState(NO_TEXTURE)
-                .setShaderState(POSITION_COLOR_SHADER)
-                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                .setDepthTestState(LEQUAL_DEPTH_TEST)
-                .setCullState(CULL)
-                .setLightmapState(NO_LIGHTMAP)
-                .setOverlayState(NO_OVERLAY)
-                .setLayeringState(NO_LAYERING)
-                .setOutputState(MAIN_TARGET)
-                .setTexturingState(DEFAULT_TEXTURING)
-                .setWriteMaskState(COLOR_DEPTH_WRITE)
-                .createCompositeState(false));
-
-        private static final RenderType COLORED_TRIANGLES_NC_ND = create("structurize_colored_triangles_nc_nd",
-            DefaultVertexFormat.POSITION_COLOR,
-            VertexFormat.Mode.TRIANGLES,
-            1 << 12,
-            false,
-            false,
-            RenderType.CompositeState.builder()
-                .setTextureState(NO_TEXTURE)
-                .setShaderState(POSITION_COLOR_SHADER)
-                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                .setDepthTestState(NeverDepthTestStateShard.NEVER_DEPTH_TEST)
-                .setCullState(NO_CULL)
-                .setLightmapState(NO_LIGHTMAP)
-                .setOverlayState(NO_OVERLAY)
-                .setLayeringState(NO_LAYERING)
-                .setOutputState(MAIN_TARGET)
-                .setTexturingState(DEFAULT_TEXTURING)
-                .setWriteMaskState(COLOR_WRITE)
-                .createCompositeState(false));
-
         /**
-         * Register our buffers
+         * Creates position+color render type (with blending and OIT support).
+         *
+         * @param name       unique name
+         * @param topology   primitive topology
+         * @param blend      blend function
+         * @param depthTest  depth test (26.x reversed depth!), null for disabled depth test
+         * @param depthWrite whether to write depth
+         * @param cull       whether to cull back faces
+         * @return new render type
          */
-        public static void registerBuffer(final RegisterRenderBuffersEvent event)
+        public static RenderType createPositionColor(final String name,
+            final PrimitiveTopology topology,
+            final BlendFunction blend,
+            @Nullable final CompareOp depthTest,
+            final boolean depthWrite,
+            final boolean cull)
         {
-            event.registerRenderBuffer(LINES);
-            event.registerRenderBuffer(LINES_WITH_WIDTH);
-            event.registerRenderBuffer(LINES_WITH_WIDTH_DEPTH_INVERT);
-            event.registerRenderBuffer(GLINT_LINES);
-            event.registerRenderBuffer(GLINT_LINES_WITH_WIDTH);
-            event.registerRenderBuffer(COLORED_TRIANGLES);
-            event.registerRenderBuffer(COLORED_TRIANGLES_NC_ND);
-        }
-    
-        /**
-         * Managed by structurize, ends above buffers in context similar to {@link RenderType#LINES}
-         */
-        public static void finishBuffer(final RenderLevelStageEvent event)
-        {
-            final MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-            final Stage stage = event.getStage();
+            final RenderPipeline.Builder pipelineBuilder = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
+                .withLocation(Constants.resLocStruct("pipeline/" + name))
+                .withColorTargetState(new ColorTargetState(blend))
+                .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR)
+                .withPrimitiveTopology(topology)
+                .withCull(cull)
+                .withDepthStencilState(new DepthStencilState(depthTest == null ? CompareOp.ALWAYS_PASS : depthTest, depthWrite));
 
-            if (stage == Stage.AFTER_BLOCK_ENTITIES)
+            final OitPipelineSet.Builder oit = OitPipelineSet.builder(Constants.MOD_ID + "_" + name,
+                RenderPipeline.builder(RenderPipelines.OIT_DEBUG_FILLED_SNIPPET).withPrimitiveTopology(topology).withCull(cull));
+            if (depthTest == null || depthTest == CompareOp.ALWAYS_PASS)
             {
-                bufferSource.endBatch(LINES_WITH_WIDTH_DEPTH_INVERT);
-
-                bufferSource.endBatch(COLORED_TRIANGLES);
-                bufferSource.endBatch(COLORED_TRIANGLES_NC_ND);
-
-                bufferSource.endBatch(LINES);
-                bufferSource.endBatch(LINES_WITH_WIDTH);
-
-                // fallthrough into levelRenderer master endBatch
-                // bufferSource.endBatch(GLINT_LINES);
-                // bufferSource.endBatch(GLINT_LINES_WITH_WIDTH);
+                oit.withoutDepthTest();
             }
+
+            final RenderSetup setup = RenderSetup.builder(pipelineBuilder.build()).setOitPipelines(oit.build()).sortOnUpload().createRenderSetup();
+            return RenderType.create(Constants.MOD_ID + "_" + name, setup);
         }
 
-        public static class NeverDepthTestStateShard extends DepthTestStateShard
-        {
-            public static final DepthTestStateShard NEVER_DEPTH_TEST = new NeverDepthTestStateShard();
+        private static final RenderType GLINT_LINES = createPositionColor("glint_lines",
+            PrimitiveTopology.DEBUG_LINES,
+            BlendFunction.GLINT,
+            null,
+            false,
+            false);
 
-            private NeverDepthTestStateShard()
-            {
-                super("true_never", -1);
-                setupState = () -> {
-                    RenderSystem.enableDepthTest();
-                    RenderSystem.depthFunc(GL30C.GL_NEVER);
-                };
-            }
-        }
+        private static final RenderType GLINT_LINES_WITH_WIDTH = createPositionColor("glint_lines_with_width",
+            PrimitiveTopology.TRIANGLES,
+            BlendFunction.GLINT,
+            CompareOp.ALWAYS_PASS,
+            true,
+            true);
 
-        public static class AlwaysDepthTestStateShard extends DepthTestStateShard
-        {
-            public static final DepthTestStateShard ALWAYS_DEPTH_TEST = new AlwaysDepthTestStateShard();
+        private static final RenderType LINES = createPositionColor("lines",
+            PrimitiveTopology.DEBUG_LINES,
+            BlendFunction.TRANSLUCENT,
+            CompareOp.GREATER_THAN_OR_EQUAL,
+            false,
+            false);
 
-            private AlwaysDepthTestStateShard()
-            {
-                super("true_always", -1);
-                setupState = () -> {
-                    RenderSystem.enableDepthTest();
-                    RenderSystem.depthFunc(GL30C.GL_ALWAYS);
-                };
-            }
-        }
+        private static final RenderType LINES_WITH_WIDTH = createPositionColor("lines_with_width",
+            PrimitiveTopology.TRIANGLES,
+            BlendFunction.TRANSLUCENT,
+            CompareOp.GREATER_THAN_OR_EQUAL,
+            true,
+            true);
+
+        private static final RenderType LINES_WITH_WIDTH_DEPTH_INVERT = createPositionColor("lines_with_width_depth_invert",
+            PrimitiveTopology.TRIANGLES,
+            BlendFunction.TRANSLUCENT,
+            CompareOp.LESS_THAN,
+            false,
+            true);
+
+        private static final RenderType COLORED_TRIANGLES = createPositionColor("colored_triangles",
+            PrimitiveTopology.TRIANGLES,
+            BlendFunction.TRANSLUCENT,
+            CompareOp.GREATER_THAN_OR_EQUAL,
+            true,
+            true);
+
+        private static final RenderType COLORED_TRIANGLES_NC_ND = createPositionColor("colored_triangles_nc_nd",
+            PrimitiveTopology.TRIANGLES,
+            BlendFunction.TRANSLUCENT,
+            null,
+            false,
+            false);
     }
 }

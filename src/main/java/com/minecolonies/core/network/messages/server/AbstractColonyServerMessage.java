@@ -69,7 +69,7 @@ public abstract class AbstractColonyServerMessage extends AbstractServerPlayMess
     @Override
     protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
-        buf.writeUtf(dimensionId.location().toString());
+        buf.writeUtf(dimensionId.identifier().toString());
         buf.writeInt(colonyId);
     }
 

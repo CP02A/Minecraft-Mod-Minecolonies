@@ -25,53 +25,53 @@ public class ModTags
      */
     public static boolean tagsLoaded = false;
 
-    public static final TagKey<Block> decorationItems = BlockTags.create(TagConstants.DECORATION_ITEMS);
-    public static final TagKey<Block> pathingBlocks   = BlockTags.create(TagConstants.PATHING_BLOCKS);
-    public static final TagKey<Block> dangerousBlocks = BlockTags.create(TagConstants.DANGEROUS_BLOCKS);
-    public static final TagKey<Block> freeClimbBlocks = BlockTags.create(TagConstants.FREE_CLIMB_BLOCKS);
-    public static final TagKey<Block> tier1blocks     = BlockTags.create(TagConstants.TIER1_BLOCKS);
-    public static final TagKey<Block> tier2blocks     = BlockTags.create(TagConstants.TIER2_BLOCKS);
-    public static final TagKey<Block> tier3blocks     = BlockTags.create(TagConstants.TIER3_BLOCKS);
-    public static final TagKey<Block> tier4blocks     = BlockTags.create(TagConstants.TIER4_BLOCKS);
-    public static final TagKey<Block> tier5blocks     = BlockTags.create(TagConstants.TIER5_BLOCKS);
-    public static final TagKey<Block> tier6blocks     = BlockTags.create(TagConstants.TIER6_BLOCKS);
-    public static final TagKey<Block> mangroveTree    = BlockTags.create(TagConstants.MANGROVE_TREE_BLOCKS);
-    public static final TagKey<Block> extraTree       = BlockTags.create(TagConstants.EXTRA_TREE_BLOCKS);
-    public static final TagKey<Block> tree            = BlockTags.create(TagConstants.TREE_BLOCKS);
+    public static final TagKey<Block> decorationItems = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, TagConstants.DECORATION_ITEMS);
+    public static final TagKey<Block> pathingBlocks   = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, TagConstants.PATHING_BLOCKS);
+    public static final TagKey<Block> dangerousBlocks = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, TagConstants.DANGEROUS_BLOCKS);
+    public static final TagKey<Block> freeClimbBlocks = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, TagConstants.FREE_CLIMB_BLOCKS);
+    public static final TagKey<Block> tier1blocks     = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, TagConstants.TIER1_BLOCKS);
+    public static final TagKey<Block> tier2blocks     = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, TagConstants.TIER2_BLOCKS);
+    public static final TagKey<Block> tier3blocks     = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, TagConstants.TIER3_BLOCKS);
+    public static final TagKey<Block> tier4blocks     = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, TagConstants.TIER4_BLOCKS);
+    public static final TagKey<Block> tier5blocks     = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, TagConstants.TIER5_BLOCKS);
+    public static final TagKey<Block> tier6blocks     = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, TagConstants.TIER6_BLOCKS);
+    public static final TagKey<Block> mangroveTree    = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, TagConstants.MANGROVE_TREE_BLOCKS);
+    public static final TagKey<Block> extraTree       = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, TagConstants.EXTRA_TREE_BLOCKS);
+    public static final TagKey<Block> tree            = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, TagConstants.TREE_BLOCKS);
 
-    public static final TagKey<Block> concreteBlocks       = BlockTags.create(TagConstants.CONCRETE_BLOCK);
-    public static final TagKey<Item>  concreteItems        = ItemTags.create(TagConstants.CONCRETE_BLOCK);
-    public static final TagKey<Block> concretePowderBlocks = BlockTags.create(TagConstants.CONCRETE_POWDER);
-    public static final TagKey<Item>  concretePowderItems  = ItemTags.create(TagConstants.CONCRETE_POWDER);
+    public static final TagKey<Block> concreteBlocks       = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, TagConstants.CONCRETE_BLOCK);
+    public static final TagKey<Item>  concreteItems        = TagKey.create(net.minecraft.core.registries.Registries.ITEM, TagConstants.CONCRETE_BLOCK);
+    public static final TagKey<Block> concretePowderBlocks = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, TagConstants.CONCRETE_POWDER);
+    public static final TagKey<Item>  concretePowderItems  = TagKey.create(net.minecraft.core.registries.Registries.ITEM, TagConstants.CONCRETE_POWDER);
 
-    public static final TagKey<Block> colonyProtectionException = BlockTags.create(TagConstants.COLONYPROTECTIONEXCEPTION);
-    public static final TagKey<Block> indestructible            = BlockTags.create(TagConstants.INDESTRUCTIBLE);
+    public static final TagKey<Block> colonyProtectionException = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, TagConstants.COLONYPROTECTIONEXCEPTION);
+    public static final TagKey<Block> indestructible            = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, TagConstants.INDESTRUCTIBLE);
 
-    public static final TagKey<Block> oreChanceBlocks = BlockTags.create(TagConstants.ORECHANCEBLOCKS);
+    public static final TagKey<Block> oreChanceBlocks = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, TagConstants.ORECHANCEBLOCKS);
 
-    public static final TagKey<Block> validSpawn = BlockTags.create(TagConstants.VALIDSPAWNBLOCKS);
+    public static final TagKey<Block> validSpawn = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, TagConstants.VALIDSPAWNBLOCKS);
 
-    public static final TagKey<Block> mushroomBlocks   = BlockTags.create(TagConstants.MUSHROOMS);
-    public static final TagKey<Block> hugeMushroomBlocks   = BlockTags.create(TagConstants.MUSHROOMS_HUGE);
-    public static final TagKey<Block> fungiBlocks      = BlockTags.create(TagConstants.FUNGI);
-    public static final TagKey<Item> fungi             = ItemTags.create(TagConstants.FUNGI);
-    public static final TagKey<Item> compostables      = ItemTags.create(TagConstants.COMPOSTABLES);
-    public static final TagKey<Item> compostables_poor = ItemTags.create(TagConstants.COMPOSTABLES_POOR);
-    public static final TagKey<Item> compostables_rich = ItemTags.create(TagConstants.COMPOSTABLES_RICH);
+    public static final TagKey<Block> mushroomBlocks   = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, TagConstants.MUSHROOMS);
+    public static final TagKey<Block> hugeMushroomBlocks   = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, TagConstants.MUSHROOMS_HUGE);
+    public static final TagKey<Block> fungiBlocks      = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, TagConstants.FUNGI);
+    public static final TagKey<Item> fungi             = TagKey.create(net.minecraft.core.registries.Registries.ITEM, TagConstants.FUNGI);
+    public static final TagKey<Item> compostables      = TagKey.create(net.minecraft.core.registries.Registries.ITEM, TagConstants.COMPOSTABLES);
+    public static final TagKey<Item> compostables_poor = TagKey.create(net.minecraft.core.registries.Registries.ITEM, TagConstants.COMPOSTABLES_POOR);
+    public static final TagKey<Item> compostables_rich = TagKey.create(net.minecraft.core.registries.Registries.ITEM, TagConstants.COMPOSTABLES_RICH);
 
-    public static final TagKey<Item> meshes = ItemTags.create(TagConstants.MESHES);
+    public static final TagKey<Item> meshes = TagKey.create(net.minecraft.core.registries.Registries.ITEM, TagConstants.MESHES);
 
-    public static final TagKey<Item> floristFlowers = ItemTags.create(TagConstants.FLORIST_FLOWERS);
-    public static final TagKey<Item> excludedFood = ItemTags.create(TagConstants.EXCLUDED_FOOD);
+    public static final TagKey<Item> floristFlowers = TagKey.create(net.minecraft.core.registries.Registries.ITEM, TagConstants.FLORIST_FLOWERS);
+    public static final TagKey<Item> excludedFood = TagKey.create(net.minecraft.core.registries.Registries.ITEM, TagConstants.EXCLUDED_FOOD);
 
-    public static final TagKey<Item> breakable_ore = ItemTags.create(TagConstants.BREAKABLE_ORE);
-    public static final TagKey<Item> raw_ore = ItemTags.create(TagConstants.RAW_ORE);
+    public static final TagKey<Item> breakable_ore = TagKey.create(net.minecraft.core.registries.Registries.ITEM, TagConstants.BREAKABLE_ORE);
+    public static final TagKey<Item> raw_ore = TagKey.create(net.minecraft.core.registries.Registries.ITEM, TagConstants.RAW_ORE);
 
-    public static final TagKey<Item> poisonous_food = ItemTags.create(TagConstants.POISONOUS_FOOD);
+    public static final TagKey<Item> poisonous_food = TagKey.create(net.minecraft.core.registries.Registries.ITEM, TagConstants.POISONOUS_FOOD);
 
-    public static final TagKey<Item> rawMeat       = ItemTags.create(TagConstants.RAW_MEAT);
-    public static final TagKey<Item> feed           = ItemTags.create(TagConstants.FEED);
-    public static final TagKey<Item> leather        = ItemTags.create(TagConstants.LEATHER);
+    public static final TagKey<Item> rawMeat       = TagKey.create(net.minecraft.core.registries.Registries.ITEM, TagConstants.RAW_MEAT);
+    public static final TagKey<Item> feed           = TagKey.create(net.minecraft.core.registries.Registries.ITEM, TagConstants.FEED);
+    public static final TagKey<Item> leather        = TagKey.create(net.minecraft.core.registries.Registries.ITEM, TagConstants.LEATHER);
 
     public static final TagKey<EntityType<?>> hostile = TagKey.create(Registries.ENTITY_TYPE, TagConstants.HOSTILE);
     public static final TagKey<EntityType<?>> mobAttackBlacklist = TagKey.create(Registries.ENTITY_TYPE, TagConstants.MOB_ATTACK_BLACKLIST);
@@ -81,7 +81,7 @@ public class ModTags
 
     public static final TagKey<EntityType<?>> freeToInteractWith = TagKey.create(Registries.ENTITY_TYPE, TagConstants.ALLOW_INTERACT);
 
-    public static final TagKey<Item> ignoreNBT = ItemTags.create(TagConstants.IGNORE_NBT);
+    public static final TagKey<Item> ignoreNBT = TagKey.create(net.minecraft.core.registries.Registries.ITEM, TagConstants.IGNORE_NBT);
 
     public static final TagKey<Biome> coldBiomes = TagKey.create(Registries.BIOME, TagConstants.COLD_BIOMES);
     public static final TagKey<Biome> temperateBiomes = TagKey.create(Registries.BIOME, TagConstants.TEMPERATE_BIOMES);
@@ -148,17 +148,17 @@ public class ModTags
      */
     private static void initCrafterRules(@NotNull final String crafterName)
     {
-        final Identifier products = new Identifier(MOD_ID, crafterName.concat(PRODUCT));
-        final Identifier ingredients = new Identifier(MOD_ID, crafterName.concat(INGREDIENT));
-        final Identifier productsExcluded = new Identifier(MOD_ID, crafterName.concat(PRODUCT_EXCLUDED));
-        final Identifier ingredientsExcluded = new Identifier(MOD_ID, crafterName.concat(INGREDIENT_EXCLUDED));
-        final Identifier doIngredients = new Identifier(MOD_ID, crafterName.concat(DO_INGREDIENT));
+        final Identifier products = Identifier.fromNamespaceAndPath(MOD_ID, crafterName.concat(PRODUCT));
+        final Identifier ingredients = Identifier.fromNamespaceAndPath(MOD_ID, crafterName.concat(INGREDIENT));
+        final Identifier productsExcluded = Identifier.fromNamespaceAndPath(MOD_ID, crafterName.concat(PRODUCT_EXCLUDED));
+        final Identifier ingredientsExcluded = Identifier.fromNamespaceAndPath(MOD_ID, crafterName.concat(INGREDIENT_EXCLUDED));
+        final Identifier doIngredients = Identifier.fromNamespaceAndPath(MOD_ID, crafterName.concat(DO_INGREDIENT));
 
-        crafterProduct.put(crafterName, ItemTags.create(products));
-        crafterProductExclusions.put(crafterName, ItemTags.create(productsExcluded));
-        crafterIngredient.put(crafterName, ItemTags.create(ingredients));
-        crafterIngredientExclusions.put(crafterName, ItemTags.create(ingredientsExcluded));
-        crafterDoIngredient.put(crafterName, ItemTags.create(doIngredients));
+        crafterProduct.put(crafterName, TagKey.create(net.minecraft.core.registries.Registries.ITEM, products));
+        crafterProductExclusions.put(crafterName, TagKey.create(net.minecraft.core.registries.Registries.ITEM, productsExcluded));
+        crafterIngredient.put(crafterName, TagKey.create(net.minecraft.core.registries.Registries.ITEM, ingredients));
+        crafterIngredientExclusions.put(crafterName, TagKey.create(net.minecraft.core.registries.Registries.ITEM, ingredientsExcluded));
+        crafterDoIngredient.put(crafterName, TagKey.create(net.minecraft.core.registries.Registries.ITEM, doIngredients));
     }
 
     private ModTags()

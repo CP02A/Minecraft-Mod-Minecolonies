@@ -13,7 +13,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.EntityTypeTest;
-import net.minecraft.world.level.portal.DimensionTransition;
+import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -111,11 +111,6 @@ public abstract class AbstractFastMinecoloniesEntity extends PathfinderMob imple
         return level().getGameTime() - lastHorizontalCollision < 10;
     }
 
-    @Override
-    public boolean checkBedExists()
-    {
-        return false;
-    }
 
     @Override
     protected void removeFrost()
@@ -157,7 +152,7 @@ public abstract class AbstractFastMinecoloniesEntity extends PathfinderMob imple
      * Ignores cramming
      */
     @Override
-    public void pushEntities()
+    protected void pushEntities()
     {
         if (this.level().isClientSide())
         {
@@ -189,7 +184,7 @@ public abstract class AbstractFastMinecoloniesEntity extends PathfinderMob imple
      */
     @Nullable
     @Override
-    public Entity changeDimension(final DimensionTransition dimensionTransition)
+    public Entity teleport(final TeleportTransition teleportTransition)
     {
         return null;
     }
@@ -200,21 +195,13 @@ public abstract class AbstractFastMinecoloniesEntity extends PathfinderMob imple
         return false;
     }
 
+    // FABRIC-PORT: updateFluidOnEyes was merged into the fluid interaction update in 26.x, which is throttled below.
     @Override
-    public void updateFluidOnEyes()
-    {
-        if (tickCount % 20 == randomVariance)
-        {
-            super.updateFluidOnEyes();
-        }
-    }
-
-    @Override
-    protected boolean updateInWaterStateAndDoFluidPushing()
+    protected boolean updateFluidInteraction()
     {
         if (tickCount % 10 == randomVariance % 10)
         {
-            isInFluid = super.updateInWaterStateAndDoFluidPushing();
+            isInFluid = super.updateFluidInteraction();
         }
 
         return isInFluid;
@@ -254,22 +241,22 @@ public abstract class AbstractFastMinecoloniesEntity extends PathfinderMob imple
     }
 
     @Override
-    public boolean isInWaterRainOrBubble()
+    public boolean isInWaterOrRain()
     {
         // Used to extinguish fire, only check if on fire
-        if (getRemainingFireTicks() > 0 || level().isClientSide)
+        if (getRemainingFireTicks() > 0 || level().isClientSide())
         {
-            return super.isInWaterRainOrBubble();
+            return super.isInWaterOrRain();
         }
 
         return false;
     }
 
     @Override
-    public void updateFallFlying()
+    protected void updateFallFlying()
     {
         // Simplified updateFallflying to only set flags when they did change
-        if (!this.level().isClientSide && tickCount % 5 == randomVariance % 5)
+        if (!this.level().isClientSide() && tickCount % 5 == randomVariance % 5)
         {
             boolean flag = this.getSharedFlag(7);
             if (!flag || this.onGround() || this.isPassenger() || this.hasEffect(MobEffects.LEVITATION))
@@ -280,10 +267,6 @@ public abstract class AbstractFastMinecoloniesEntity extends PathfinderMob imple
         }
     }
 
-    @Override
-    protected void sendDebugPackets()
-    {
-    }
 
     @Override
     public void setTicksFrozen(int p_146918_)
@@ -291,11 +274,6 @@ public abstract class AbstractFastMinecoloniesEntity extends PathfinderMob imple
 
     }
 
-    @Override
-    public void updateSwimAmount()
-    {
-
-    }
 
     /**
      * Static Byte values to avoid frequent autoboxing
@@ -323,23 +301,34 @@ public abstract class AbstractFastMinecoloniesEntity extends PathfinderMob imple
     }
 
     @Override
-    public void knockback(double power, double xRatio, double zRatio)
+    public void knockback(final double power, final double xRatio, final double zRatio, final DamageSource source, final float damage, final boolean comesFromEffect)
     {
         if (level().getGameTime() - lastKnockBack > 20 * 3)
         {
             lastKnockBack = level().getGameTime();
-            super.knockback(power, xRatio, zRatio);
+            super.knockback(power, xRatio, zRatio, source, damage, comesFromEffect);
         }
     }
 
+    /**
+     * Knockback without damage context (1.21.1 signature, kept for API compatibility).
+     */
+    public void knockback(final double power, final double xRatio, final double zRatio)
+    {
+        knockback(power, xRatio, zRatio, damageSources().generic(), 0, false);
+    }
+
+    /**
+     * FABRIC-PORT: 26.x made Entity#hurt final; server-side damage handling moved to hurtServer.
+     */
     @Override
-    public boolean hurt(final DamageSource dmgSource, final float dmg)
+    public boolean hurtServer(final ServerLevel level, final DamageSource dmgSource, final float dmg)
     {
         if (dmgSource.getEntity() instanceof AbstractFastMinecoloniesEntity otherFastMinecolEntity && otherFastMinecolEntity.getTeamId() == getTeamId())
         {
             return false;
         }
-        return super.hurt(dmgSource, dmg);
+        return super.hurtServer(level, dmgSource, dmg);
     }
 
     /**

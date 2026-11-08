@@ -69,6 +69,8 @@ public class Structurize
 
             forgeBus.register(ClientStructurePackLoader.class);
             forgeBus.register(ClientFutureProcessor.class);
+
+            ClientLifecycleSubscriber.initFabricClient();
         }
 
         forgeBus.register(ServerStructurePackLoader.class);

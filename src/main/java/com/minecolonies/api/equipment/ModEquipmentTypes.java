@@ -189,7 +189,7 @@ public class ModEquipmentTypes
     private static DeferredHolder<EquipmentTypeEntry, EquipmentTypeEntry> register(final String id, final Consumer<EquipmentTypeEntry.Builder> consumer)
     {
         EquipmentTypeEntry.Builder equipmentType = new EquipmentTypeEntry.Builder()
-                                           .setRegistryName(new Identifier(Constants.MOD_ID, id));
+                                           .setRegistryName(Identifier.fromNamespaceAndPath(Constants.MOD_ID, id));
         consumer.accept(equipmentType);
         return DEFERRED_REGISTER.register(id, equipmentType::build);
     }

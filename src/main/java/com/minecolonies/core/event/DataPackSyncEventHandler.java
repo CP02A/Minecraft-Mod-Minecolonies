@@ -13,6 +13,7 @@ import com.minecolonies.core.network.messages.client.UpdateClientWithCompatibili
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.server.level.ServerPlayer;
 import com.ldtteam.shim.bus.api.EventPriority;
 import com.ldtteam.shim.bus.api.SubscribeEvent;
@@ -132,9 +133,9 @@ public class DataPackSyncEventHandler
         @SubscribeEvent(priority = EventPriority.LOWEST)
         public static void sendOnLogin(final PlayerEvent.PlayerLoggedInEvent event)
         {
-            if (!event.getEntity().level().isClientSide && event.getEntity() instanceof ServerPlayer)
+            if (!event.getEntity().level().isClientSide() && event.getEntity() instanceof ServerPlayer)
             {
-                final MinecraftServer server = event.getEntity().getServer();
+                final MinecraftServer server = event.getEntity().level().getServer();
                 sendPackets((ServerPlayer) event.getEntity(), new UpdateClientWithCompatibilityMessage(server.registryAccess()));
             }
         }
@@ -175,7 +176,7 @@ public class DataPackSyncEventHandler
         @SubscribeEvent
         public static void onRecipesLoaded(@NotNull final RecipesUpdatedEvent event)
         {
-            IColonyManager.getInstance().getCompatibilityManager().getFurnaceRecipes().loadRecipes(event.getRecipeManager(), Minecraft.getInstance().level);
+            IColonyManager.getInstance().getCompatibilityManager().getFurnaceRecipes().loadRecipes(event.getRecipes().getAllOfType(RecipeType.SMELTING));
         }
     }
 }

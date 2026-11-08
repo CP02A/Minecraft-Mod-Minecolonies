@@ -35,7 +35,7 @@ public class EntityAIWorkCrusher extends AbstractEntityAICrafting<JobCrusher, Bu
      * Crusher icon
      */
     private final static VisibleCitizenStatus CRUSHING =
-      new VisibleCitizenStatus(new Identifier(Constants.MOD_ID, "textures/icons/work/crusher.png"), "com.minecolonies.gui.visiblestatus.crusher");
+      new VisibleCitizenStatus(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/work/crusher.png"), "com.minecolonies.gui.visiblestatus.crusher");
 
     /**
      * Constructor for the crusher. Defines the tasks the crusher executes.
@@ -142,7 +142,7 @@ public class EntityAIWorkCrusher extends AbstractEntityAICrafting<JobCrusher, Bu
                     currentRequest.addDelivery(currentRecipeStorage.getPrimaryOutput());
                 }
 
-                worker.swing(InteractionHand.MAIN_HAND);
+                worker.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
                 job.setCraftCounter(job.getCraftCounter() + 1);
                 currentRecipeStorage.fullfillRecipe(getLootContext(), ImmutableList.of(worker.getItemHandlerCitizen()));
 

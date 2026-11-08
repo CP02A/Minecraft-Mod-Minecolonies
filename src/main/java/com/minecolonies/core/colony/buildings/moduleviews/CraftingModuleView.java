@@ -191,7 +191,7 @@ public class CraftingModuleView extends AbstractBuildingModuleView
     @Override
     public Identifier getIconResourceLocation()
     {
-        return new Identifier(Constants.MOD_ID, "textures/gui/modules/" + id + ".png");
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/modules/" + id + ".png");
     }
 
     @Override

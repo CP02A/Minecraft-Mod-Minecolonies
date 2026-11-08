@@ -33,7 +33,7 @@ import static com.minecolonies.core.colony.requestsystem.requests.AbstractReques
  */
 public class WindowRequestDetail extends AbstractWindowSkeleton implements ButtonHandler
 {
-    public static final Identifier WINDOW_ID = new Identifier(Constants.MOD_ID, "gui/windowrequestdetail.xml");
+    public static final Identifier WINDOW_ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowrequestdetail.xml");
 
     /**
      * ID of the requester label.
@@ -167,7 +167,7 @@ public class WindowRequestDetail extends AbstractWindowSkeleton implements Butto
     public void onUpdate()
     {
         super.onUpdate();
-        if (!Screen.hasShiftDown())
+        if (!Minecraft.getInstance().hasShiftDown())
         {
             lifeCount++;
         }

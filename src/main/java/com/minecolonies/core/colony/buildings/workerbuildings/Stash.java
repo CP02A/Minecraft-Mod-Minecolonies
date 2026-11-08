@@ -8,7 +8,7 @@ import com.minecolonies.api.colony.buildings.IRSComponent;
 import com.minecolonies.api.colony.requestsystem.resolver.IRequestResolver;
 import com.minecolonies.core.colony.buildings.AbstractBuilding;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.Tuple;
+import com.minecolonies.api.util.Tuple;
 import org.jetbrains.annotations.NotNull;
 
 /**

@@ -171,7 +171,7 @@ public abstract class AbstractBuildingView implements IBuildingView
     protected AbstractBuildingView(final IColonyView c, @NotNull final BlockPos l)
     {
         colony = c;
-        location = new BlockPos(l);
+        location = l.immutable();
         this.iLocation = new StaticLocation(getPosition(), colony.getDimension());
     }
 
@@ -454,7 +454,7 @@ public abstract class AbstractBuildingView implements IBuildingView
 
     private void loadRequestSystemFromNBT(@NotNull final HolderLookup.Provider provider, final CompoundTag compound)
     {
-        this.rsDataStoreToken = StandardFactoryController.getInstance().deserializeTag(provider, compound.getCompound(TAG_RS_BUILDING_DATASTORE));
+        this.rsDataStoreToken = StandardFactoryController.getInstance().deserializeTag(provider, compound.getCompoundOrEmpty(TAG_RS_BUILDING_DATASTORE));
     }
 
     private IRequestSystemBuildingDataStore getDataStore()

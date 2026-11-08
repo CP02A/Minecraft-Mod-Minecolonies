@@ -17,7 +17,7 @@ public class WindowPostBoxMinStock extends MinimumStockModuleWindow
      */
     public WindowPostBoxMinStock(final IMinimumStockModuleView moduleView)
     {
-        super(moduleView, new Identifier(Constants.MOD_ID, "gui/windowpostboxminstock.xml"));
+        super(moduleView, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowpostboxminstock.xml"));
         WindowPostBoxMain.registerPostboxTabs(this, moduleView.getBuildingView());
     }
 

@@ -39,7 +39,7 @@ public class WindowTownHallDeleteAbandonColony extends AbstractWindowSkeleton
 
     public WindowTownHallDeleteAbandonColony(final BlockPos pos, final String oldColonyName, final BlockPos oldColonyPos)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/townhall/windowdeleteabandoncolony.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/townhall/windowdeleteabandoncolony.xml"));
         this.pos = pos;
         mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.BOOK_PAGE_TURN, 1.0F));
 

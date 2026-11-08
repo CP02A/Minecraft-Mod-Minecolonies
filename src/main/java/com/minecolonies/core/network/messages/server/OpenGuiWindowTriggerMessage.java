@@ -27,13 +27,13 @@ public class OpenGuiWindowTriggerMessage extends AbstractServerPlayMessage
     @Override
     protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
-        buf.writeResourceLocation(this.resource);
+        buf.writeIdentifier(this.resource);
     }
 
     protected OpenGuiWindowTriggerMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
-        this.resource = buf.readResourceLocation();
+        this.resource = buf.readIdentifier();
     }
 
     @Override

@@ -29,6 +29,7 @@ import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import com.ldtteam.shim.neoforge.model.data.ModelData;
+import com.ldtteam.shim.neoforge.model.data.ModelDataHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
@@ -157,13 +158,13 @@ public class DynamicTimberFrameBlockEntity extends AbstractMateriallyTexturedBlo
         }
     }
 
-    @Override
+    // FABRIC-PORT: NeoForge IBlockEntityExtension hook; vanilla loads the update packet via loadWithComponents
     public void onDataPacket(final @NonNull Connection net, final @NonNull ValueInput valueInput)
     {
         this.loadAdditional(valueInput);
     }
 
-    @Override
+    // FABRIC-PORT: NeoForge IBlockEntityExtension hook; vanilla loads the update tag via loadWithComponents
     public void handleUpdateTag(final @NonNull ValueInput input)
     {
         this.loadAdditional(input);
@@ -225,7 +226,7 @@ public class DynamicTimberFrameBlockEntity extends AbstractMateriallyTexturedBlo
     protected void applyImplicitComponents(final @NonNull DataComponentGetter components)
     {
         super.applyImplicitComponents(components);
-        MaterialTextureData testTextureData = components.getOrDefault(ModDataComponents.TEXTURE_DATA, MaterialTextureData.EMPTY);
+        MaterialTextureData testTextureData = components.getOrDefault(ModDataComponents.TEXTURE_DATA.get(), MaterialTextureData.EMPTY);
         if (testTextureData.isEmpty())
         {
             testTextureData = MaterialTextureDataUtil.generateRandomTextureDataFrom(this.getBlockState().getBlock());
@@ -238,7 +239,7 @@ public class DynamicTimberFrameBlockEntity extends AbstractMateriallyTexturedBlo
     protected void collectImplicitComponents(final DataComponentMap.@NonNull Builder componentBuilder)
     {
         super.collectImplicitComponents(componentBuilder);
-        componentBuilder.set(ModDataComponents.TEXTURE_DATA, originalTextureData);
+        componentBuilder.set(ModDataComponents.TEXTURE_DATA.get(), originalTextureData);
     }
 
     @Override
@@ -519,7 +520,7 @@ public class DynamicTimberFrameBlockEntity extends AbstractMateriallyTexturedBlo
         }
 
         this.textureDataCache = new MaterialTextureData(textureMapping);
-        this.requestModelDataUpdate();
+        ModelDataHelper.requestModelDataUpdate(this);
         if (level != null)
         {
             setChanged();
@@ -528,8 +529,16 @@ public class DynamicTimberFrameBlockEntity extends AbstractMateriallyTexturedBlo
         }
     }
 
-    @NotNull
+    /**
+     * Fabric: block entity render data, read by the materially textured model during chunk meshing.
+     */
     @Override
+    public Object getRenderData()
+    {
+        return getModelData();
+    }
+
+    @NotNull
     public ModelData getModelData()
     {
         if (!checkedAfterStartup && level != null)

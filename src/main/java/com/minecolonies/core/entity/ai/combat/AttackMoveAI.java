@@ -181,8 +181,8 @@ public class AttackMoveAI<T extends Mob & IThreatTableEntity> extends TargetAI<T
      */
     protected void doAttack(final LivingEntity target)
     {
-        target.hurt(target.level().damageSources().source(DamageSourceKeys.DEFAULT, user), 5);
-        user.swing(InteractionHand.MAIN_HAND);
+        target.hurtOrSimulate(target.level().damageSources().source(DamageSourceKeys.DEFAULT, user), 5);
+        user.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
     }
 
     /**

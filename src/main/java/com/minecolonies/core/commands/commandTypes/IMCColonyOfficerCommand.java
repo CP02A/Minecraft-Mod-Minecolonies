@@ -20,7 +20,7 @@ public interface IMCColonyOfficerCommand extends IMCCommand
     @Override
     default boolean checkPreCondition(final CommandContext<CommandSourceStack> context)
     {
-        if (context.getSource().hasPermission(OP_PERM_LEVEL))
+        if (IMCCommand.hasOpPermission(context.getSource()))
         {
             return true;
         }

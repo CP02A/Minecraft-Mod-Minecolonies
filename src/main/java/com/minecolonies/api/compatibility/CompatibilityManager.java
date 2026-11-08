@@ -1,5 +1,6 @@
 package com.minecolonies.api.compatibility;
 
+import com.minecolonies.api.util.ItemStackUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -301,7 +302,7 @@ public class CompatibilityManager implements ICompatibilityManager
       @NotNull final Registry<?> registry,
       @NotNull final Collection<Identifier> ids)
     {
-        buf.writeCollection(ids, (b, id) -> b.writeResourceLocation(id));
+        buf.writeCollection(ids, (b, id) -> b.writeIdentifier(id));
     }
 
     @NotNull
@@ -310,7 +311,7 @@ public class CompatibilityManager implements ICompatibilityManager
       @NotNull final RegistryFriendlyByteBuf buf,
       @NotNull final Registry<T> registry)
     {
-        return buf.readList(b -> b.readResourceLocation());
+        return buf.readList(b -> b.readIdentifier());
     }
 
     private static final StreamCodec<RegistryFriendlyByteBuf, List<RecipeHolder<?>>> RECIPE_LIST_STREAM_CODEC =
@@ -567,7 +568,7 @@ public class CompatibilityManager implements ICompatibilityManager
     @Override
     public void read(@NotNull final HolderLookup.Provider provider, @NotNull final CompoundTag compound)
     {
-        NBTUtils.streamCompound(compound.getList(TAG_SAP_LEAF, Tag.TAG_COMPOUND))
+        NBTUtils.streamCompound(compound.getListOrEmpty(TAG_SAP_LEAF))
           .map(nbt -> CompatibilityManager.readLeafSaplingEntryFromNBT(provider, nbt))
           .filter(key -> !key.getA().isAir() && !leavesToSaplingMap.containsKey(key.getA().getBlock()) && !leavesToSaplingMap.containsValue(key.getB()))
           .forEach(key -> leavesToSaplingMap.put(key.getA().getBlock(), key.getB()));
@@ -624,11 +625,11 @@ public class CompatibilityManager implements ICompatibilityManager
         {
             if (entry.getValue().getCategory() == MobCategory.MONSTER)
             {
-                monsterSet.add(entry.getKey().location());
+                monsterSet.add(entry.getKey().identifier());
             }
             else if (entry.getValue().is(ModTags.hostile))
             {
-                monsterSet.add(entry.getKey().location());
+                monsterSet.add(entry.getKey().identifier());
             }
         }
 
@@ -812,13 +813,13 @@ public class CompatibilityManager implements ICompatibilityManager
     private static CompoundTag writeLeafSaplingEntryToNBT(@NotNull final HolderLookup.Provider provider, final BlockState state, final ItemStorage storage)
     {
         final CompoundTag compound = NbtUtils.writeBlockState(state);
-        compound.put(NbtTagConstants.STACK, storage.getItemStack().saveOptional(provider));
+        compound.put(NbtTagConstants.STACK, ItemStackUtils.saveOptional(storage.getItemStack(), provider));
         return compound;
     }
 
     private static Tuple<BlockState, ItemStorage> readLeafSaplingEntryFromNBT(@NotNull final HolderLookup.Provider provider, final CompoundTag compound)
     {
-        return new Tuple<>(NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), compound), new ItemStorage(ItemStack.parseOptional(provider, compound.getCompound(NbtTagConstants.STACK)), false, true));
+        return new Tuple<>(NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), compound), new ItemStorage(ItemStackUtils.parseOptional(provider, compound.getCompoundOrEmpty(NbtTagConstants.STACK)), false, true));
     }
 
     /**

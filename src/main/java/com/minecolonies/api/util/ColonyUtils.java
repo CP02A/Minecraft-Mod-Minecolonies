@@ -9,7 +9,7 @@ import com.ldtteam.structurize.util.IOPool;
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.claim.IChunkClaimData;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.Tuple;
+import com.minecolonies.api.util.Tuple;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.phys.AABB;
@@ -68,7 +68,7 @@ public final class ColonyUtils
     {
         final CompletableFuture<Blueprint> future =
             CompletableFuture.supplyAsync(() -> StructurePacks.getBlueprint(structurePack, structurePath, FMLEnvironment.production, world.registryAccess()), IOPool.getExecutor());
-        if (world.isClientSide)
+        if (world.isClientSide())
         {
             ClientFutureProcessor.queueBlueprint(new ClientFutureProcessor.BlueprintProcessingData(future,
                 (blueprint ->
@@ -151,9 +151,20 @@ public final class ColonyUtils
      * @param chunk the chunk to check.
      * @return the colony id.
      */
+    @Nullable
+    private static IChunkClaimData getClaimData(final ChunkAccess chunk)
+    {
+        // FABRIC-PORT: ChunkAccess#getLevel was a NeoForge extension; only LevelChunks know their level in vanilla.
+        if (!(chunk instanceof net.minecraft.world.level.chunk.LevelChunk levelChunk))
+        {
+            return null;
+        }
+        return IColonyManager.getInstance().getClaimData(levelChunk.getLevel().dimension(), chunk.getPos());
+    }
+
     public static int getOwningColony(final ChunkAccess chunk)
     {
-        final IChunkClaimData cap = IColonyManager.getInstance().getClaimData(chunk.getLevel().dimension(), chunk.getPos());
+        final IChunkClaimData cap = getClaimData(chunk);
         return cap == null ? NO_COLONY_ID : cap.getOwningColony();
     }
 
@@ -164,7 +175,7 @@ public final class ColonyUtils
      */
     public static Map<Integer, Set<BlockPos>> getAllClaimingBuildings(final ChunkAccess chunk)
     {
-        final IChunkClaimData cap = IColonyManager.getInstance().getClaimData(chunk.getLevel().dimension(), chunk.getPos());
+        final IChunkClaimData cap = getClaimData(chunk);
         return cap == null ? new HashMap<>() : cap.getAllClaimingBuildings();
     }
 
@@ -175,7 +186,7 @@ public final class ColonyUtils
      */
     public static List<Integer> getStaticClaims(final ChunkAccess chunk)
     {
-        final IChunkClaimData cap = IColonyManager.getInstance().getClaimData(chunk.getLevel().dimension(), chunk.getPos());
+        final IChunkClaimData cap = getClaimData(chunk);
         return cap == null ? new ArrayList<>() : cap.getStaticClaimColonies();
     }
 
@@ -187,7 +198,7 @@ public final class ColonyUtils
     @Nullable
     public static ChunkCapData getChunkCapData(final ChunkAccess chunk)
     {
-        final IChunkClaimData cap = IColonyManager.getInstance().getClaimData(chunk.getLevel().dimension(), chunk.getPos());
-        return cap == null ? new ChunkCapData(chunk.getPos().x, chunk.getPos().z) : new ChunkCapData(chunk.getPos().x, chunk.getPos().z, cap.getOwningColony(), cap.getStaticClaimColonies(), cap.getAllClaimingBuildings());
+        final IChunkClaimData cap = getClaimData(chunk);
+        return cap == null ? new ChunkCapData(chunk.getPos().x(), chunk.getPos().z()) : new ChunkCapData(chunk.getPos().x(), chunk.getPos().z(), cap.getOwningColony(), cap.getStaticClaimColonies(), cap.getAllClaimingBuildings());
     }
 }

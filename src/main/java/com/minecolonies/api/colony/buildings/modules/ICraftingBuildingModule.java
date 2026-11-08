@@ -314,7 +314,7 @@ public interface ICraftingBuildingModule extends IBuildingModule
     static Identifier getUid(@NotNull final JobEntry job, @NotNull final String id)
     {
         final Identifier jobId = job.getKey();
-        return new Identifier(jobId.getNamespace(), jobId.getPath() + "/" + id);
+        return Identifier.fromNamespaceAndPath(jobId.getNamespace(), jobId.getPath() + "/" + id);
     }
 
     /**

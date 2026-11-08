@@ -65,7 +65,7 @@ public class WindowResourceList extends AbstractWindowSkeleton
      */
     public WindowResourceList(final @NotNull BuildingBuilder.View builderView, @NotNull final Map<String, Integer> warehouseSnapshot)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/windowresourcescroll.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowresourcescroll.xml"));
 
         this.builder = builderView;
         this.warehouseSnapshot = warehouseSnapshot;

@@ -2,6 +2,7 @@ package com.ldtteam.structurize.items;
 
 import com.ldtteam.structurize.Structurize;
 import com.ldtteam.structurize.api.BlockPosUtil;
+import com.ldtteam.structurize.api.Utils;
 import com.ldtteam.structurize.api.IScrollableItem;
 import com.ldtteam.structurize.api.ISpecialBlockPickItem;
 import com.ldtteam.structurize.api.Log;
@@ -26,6 +27,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -41,6 +43,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
+import java.util.function.Consumer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
@@ -75,12 +79,12 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
     /**
      * Creates default scan tool item.
      */
-    public ItemScanTool()
+    public static Properties defaultProperties(final Properties properties)
     {
-        this(new Properties().durability(0)
-            .setNoRepair()
+        // FABRIC-PORT: setNoRepair() removed in 26.x; durability 0 items are not repairable anyway
+        return properties.durability(0)
             .rarity(Rarity.UNCOMMON)
-            .component(ModDataComponents.SCAN_TOOL, ScanToolData.EMPTY));
+            .component(ModDataComponents.SCAN_TOOL.get(), ScanToolData.EMPTY);
     }
 
     /**
@@ -98,7 +102,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
     {
         final ScanToolData data = ScanToolData.updateItemStack(itemStack, d -> saveSlot(d, itemStack, playerIn));
 
-        if (!worldIn.isClientSide)
+        if (!worldIn.isClientSide())
         {
             if (playerIn.isShiftKeyDown())
             {
@@ -140,7 +144,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         {
             if (!BlockPosUtil.isInbetween(slot.box().anchor().get(), slot.box().pos1(), slot.box().pos2()))
             {
-                player.displayClientMessage(Component.translatable(ANCHOR_POS_OUTSIDE_SCHEMATIC), false);
+                player.sendSystemMessage(Component.translatable(ANCHOR_POS_OUTSIDE_SCHEMATIC));
                 return;
             }
         }
@@ -148,7 +152,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         final BoundingBox box = BoundingBox.fromCorners(slot.box().pos1(), slot.box().pos2());
         if (box.getXSpan() * box.getYSpan() * box.getZSpan() > Structurize.getConfig().getServer().schematicBlockLimit.get())
         {
-            player.displayClientMessage(Component.translatable(MAX_SCHEMATIC_SIZE_REACHED, Structurize.getConfig().getServer().schematicBlockLimit.get()), false);
+            player.sendSystemMessage(Component.translatable(MAX_SCHEMATIC_SIZE_REACHED, Structurize.getConfig().getServer().schematicBlockLimit.get()));
             return;
         }
 
@@ -178,7 +182,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
 
             if (list.size() > 1)
             {
-                player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.scanbadanchor", fileName), false);
+                player.sendSystemMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.scanbadanchor", fileName));
             }
         }
 
@@ -186,16 +190,20 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
     }
 
     @Override
-    public boolean canAttackBlock(final BlockState state, final Level worldIn, final BlockPos pos, final Player player)
+    public boolean canDestroyBlock(final ItemStack destroyingStack, final BlockState state, final Level worldIn, final BlockPos pos, final net.minecraft.world.entity.LivingEntity user)
     {
+        if (!(user instanceof final Player player))
+        {
+            return false;
+        }
         if (!player.isShiftKeyDown())
         {
-            return super.canAttackBlock(state, worldIn, pos, player);
+            return super.canDestroyBlock(destroyingStack, state, worldIn, pos, user);
         }
 
         if (worldIn.isClientSide())
         {
-            player.displayClientMessage(Component.translatable(ANCHOR_POS_TKEY, pos.getX(), pos.getY(), pos.getZ()), false);
+            player.sendSystemMessage(Component.translatable(ANCHOR_POS_TKEY, pos.getX(), pos.getY(), pos.getZ()));
         }
 
         ItemStack itemstack = player.getMainHandItem();
@@ -212,7 +220,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
 
             if (!(start.equals(pos)) && !(end.equals(pos)))
             {
-                if (worldIn.isClientSide)
+                if (worldIn.isClientSide())
                 {
                     RenderingCache.queue("scan", new BoxPreviewData(bpProvider.getInWorldCorners().getA(), bpProvider.getInWorldCorners().getB(), Optional.of(pos)));
                 }
@@ -220,7 +228,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             }
             else
             {
-                if (worldIn.isClientSide && RenderingCache.getBoxPreviewData("scan") != null)
+                if (worldIn.isClientSide() && RenderingCache.getBoxPreviewData("scan") != null)
                 {
                     RenderingCache.queue("scan", RenderingCache.getBoxPreviewData("scan").withAnchor(Optional.of(pos)));
                 }
@@ -234,22 +242,23 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
     @Override
     public void appendHoverText(@NotNull ItemStack stack,
                                 @Nullable TooltipContext world,
-                                @NotNull List<Component> tooltip,
+                                @NotNull TooltipDisplay display,
+                                @NotNull Consumer<Component> tooltip,
                                 @NotNull TooltipFlag flags)
     {
-        super.appendHoverText(stack, world, tooltip, flags);
+        super.appendHoverText(stack, world, display, tooltip, flags);
 
-        if (stack.has(ModDataComponents.SCAN_TOOL))
+        if (stack.has(ModDataComponents.SCAN_TOOL.get()))
         {
-            tooltip.add(getCurrentSlotDescription(stack));
+            tooltip.accept(getCurrentSlotDescription(stack));
         }
     }
 
-    @Override
+    // FABRIC-PORT TODO: NeoForge IItemExtension#getHighlightTip has no Fabric/vanilla hook (selected item name overlay)
     public Component getHighlightTip(@NotNull final ItemStack stack, @NotNull final Component displayName)
     {
         return Component.empty()
-                .append(super.getHighlightTip(stack, displayName))
+                .append(displayName)
                 .append(Component.literal(" - ").withStyle(ChatFormatting.GRAY))
                 .append(getCurrentSlotDescription(stack));
     }
@@ -396,7 +405,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         if (reader.canRead() && reader.peek() == '/') { reader.read(); }
 
         final CommandDispatcher<CommandSourceStack> dispatcher = player.level().getServer().getCommands().getDispatcher();
-        final ParseResults<CommandSourceStack> parsed = dispatcher.parse(reader, command.getCommandBlock().createCommandSourceStack());
+        final ParseResults<CommandSourceStack> parsed = dispatcher.parse(reader, command.getCommandBlock().createCommandSourceStack(player.level(), CommandSource.NULL));
         if (parsed.getReader().canRead() || parsed.getContext().getNodes().size() < 4
                 || !parsed.getContext().getNodes().get(0).getNode().getName().equals(MOD_ID)
                 || !parsed.getContext().getNodes().get(1).getNode().getName().equals(ScanCommand.NAME))
@@ -434,12 +443,12 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             final ScanToolData.Slot slot = loadSlot(data, stack);
             new ShowScanMessage(slot.box()).sendToPlayer(player);
 
-            player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.copy.ok", name), false);
-            player.playNotifySound(SoundEvents.NOTE_BLOCK_CHIME.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
+            player.sendSystemMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.copy.ok", name));
+            Utils.playNotifySound(player, SoundEvents.NOTE_BLOCK_CHIME.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
         }
         catch (CommandSyntaxException e)
         {
-            player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.copy.notscan"), false);
+            player.sendSystemMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.copy.notscan"));
         }
     }
 
@@ -461,7 +470,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         if (slot.name().isBlank() || slot.name().contains(" "))
         {
             player.sendSystemMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.paste.badname"));
-            player.playNotifySound(SoundEvents.NOTE_BLOCK_BIT.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
+            Utils.playNotifySound(player, SoundEvents.NOTE_BLOCK_BIT.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
             return;
         }
 
@@ -472,8 +481,8 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         }
         else if (!command.getCommandBlock().getCommand().contains(MOD_ID + " " + ScanCommand.NAME + " "))
         {
-            player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.paste.badcommand"), false);
-            player.playNotifySound(SoundEvents.NOTE_BLOCK_BIT.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
+            player.sendSystemMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.paste.badcommand"));
+            Utils.playNotifySound(player, SoundEvents.NOTE_BLOCK_BIT.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
             return;
         }
         else if (!ctrlKey)
@@ -481,16 +490,16 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             final StringReader reader = new StringReader(command.getCommandBlock().getCommand());
             if (reader.canRead() && reader.peek() == '/') { reader.read(); }
 
-            final CommandDispatcher<CommandSourceStack> dispatcher = player.getServer().getCommands().getDispatcher();
-            final ParseResults<CommandSourceStack> parsed = dispatcher.parse(reader, command.getCommandBlock().createCommandSourceStack());
+            final CommandDispatcher<CommandSourceStack> dispatcher = player.level().getServer().getCommands().getDispatcher();
+            final ParseResults<CommandSourceStack> parsed = dispatcher.parse(reader, command.getCommandBlock().createCommandSourceStack(player.level(), CommandSource.NULL));
             if (parsed.getContext().getArguments().containsKey(ScanCommand.FILE_NAME))
             {
                 final CommandContext<CommandSourceStack> cmdContext = parsed.getContext().build(parsed.getReader().getString());
                 final String currentName = StringArgumentType.getString(cmdContext, ScanCommand.FILE_NAME);
                 if (!currentName.equals(slot.name()))
                 {
-                    player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.paste.different", slot.name(), currentName), false);
-                    player.playNotifySound(SoundEvents.NOTE_BLOCK_XYLOPHONE.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
+                    player.sendSystemMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.paste.different", slot.name(), currentName));
+                    Utils.playNotifySound(player, SoundEvents.NOTE_BLOCK_XYLOPHONE.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
                     return;
                 }
             }
@@ -501,8 +510,8 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
 
         ScanToolData.updateItemStack(stack, d -> d.withCommandBlock(command));
 
-        player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.paste.ok", slot.name()), false);
-        player.playNotifySound(SoundEvents.NOTE_BLOCK_CHIME.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
+        player.sendSystemMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.paste.ok", slot.name()));
+        Utils.playNotifySound(player, SoundEvents.NOTE_BLOCK_CHIME.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
     }
 
     /**
@@ -523,7 +532,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         {
             if (player.level().isClientSide())
             {
-                player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.teleport.nocmd"), false);
+                player.sendSystemMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.teleport.nocmd"));
                 player.playSound(SoundEvents.NOTE_BLOCK_BIT.value(), 1.0F, 1.0F);
             }
             return false;
@@ -533,7 +542,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         {
             if (player.level().isClientSide())
             {
-                player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.teleport.dimension"), false);
+                player.sendSystemMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.teleport.dimension"));
                 player.playSound(SoundEvents.NOTE_BLOCK_BIT.value(), 1.0F, 1.0F);
             }
             return false;
@@ -544,7 +553,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         {
             if (player.level().isClientSide())
             {
-                player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.teleport.noscan"), false);
+                player.sendSystemMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.teleport.noscan"));
                 player.playSound(SoundEvents.NOTE_BLOCK_BIT.value(), 1.0F, 1.0F);
             }
             return false;
@@ -572,7 +581,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             target = safeTarget;
         }
 
-        if (target.getY() < level.getMinBuildHeight() + 2)
+        if (target.getY() < level.getMinY() + 2)
         {
             // safety abort if we would teleport to bedrock or below (which can happen if the heightmap check fails)
             Log.getLogger().warn("Aborting attempt to scan-teleport " + player.getName().getString() + " to " + target.toShortString());
@@ -589,8 +598,8 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         {
             player.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
 
-            final CommandSourceStack source = new CommandSourceStack(CommandSource.NULL, player.position(), Vec2.ZERO, serverLevel, 2,
-                    player.getName().getString(), stack.getDisplayName(), serverLevel.getServer(), player);
+            final CommandSourceStack source = new CommandSourceStack(CommandSource.NULL, player.position(), Vec2.ZERO, serverLevel, LevelBasedPermissionSet.GAMEMASTER,
+                    serverLevel.getServer(), player);
             final CommandDispatcher<CommandSourceStack> dispatcher = serverLevel.getServer().getCommands().getDispatcher();
             try
             {
@@ -602,7 +611,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
             }
 
             player.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
-            player.playNotifySound(SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0F, 1.0F);
+            Utils.playNotifySound(player, SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0F, 1.0F);
         }
         return true;
     }
@@ -648,7 +657,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         {
             if (player.level().isClientSide())
             {
-                player.displayClientMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.outsideanchor"), false);
+                player.sendSystemMessage(Component.translatable("com.ldtteam.structurize.gui.scantool.outsideanchor"));
             }
             anchor = Optional.empty();
         }

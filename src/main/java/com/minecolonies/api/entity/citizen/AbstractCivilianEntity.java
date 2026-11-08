@@ -73,23 +73,7 @@ public abstract class AbstractCivilianEntity extends AbstractFastMinecoloniesEnt
      */
     public abstract void setCitizenId(int id);
 
-    @Override
-    public boolean checkBedExists()
-    {
-        if (tickCount % 5 == randomVariance % 5)
-        {
-            return true;
-        }
-
-        if (getSleepingPos().isPresent())
-        {
-            final BlockPos pos = getSleepingPos().get();
-            final BlockState state = level().getBlockState(getSleepingPos().get());
-            return state.getBlock().isBed(state,level(),pos,this);
-        }
-
-        return false;
-    }
+    // FABRIC-PORT: LivingEntity#checkBedExists is private in 26.x (was made public via AT); vanilla's own check (AbstractBedBlock) is used now.
 
     @Override
     public void push(@NotNull final Entity entityIn)
@@ -153,11 +137,11 @@ public abstract class AbstractCivilianEntity extends AbstractFastMinecoloniesEnt
      * @return true if successful.
      */
     @Override
-    public boolean startRiding(final @NotNull Entity entity, final boolean force)
+    public boolean startRiding(final @NotNull Entity entity, final boolean force, final boolean sendEventAndTriggers)
     {
         if (entity instanceof SittingEntity || entity instanceof MinecoloniesMinecart || entity instanceof ICitizenJobMount)
         {
-            return super.startRiding(entity, force);
+            return super.startRiding(entity, force, sendEventAndTriggers);
         }
         return false;
     }

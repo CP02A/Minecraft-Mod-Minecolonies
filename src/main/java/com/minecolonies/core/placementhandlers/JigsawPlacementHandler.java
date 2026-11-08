@@ -13,7 +13,7 @@ import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Tuple;
+import com.ldtteam.structurize.api.Tuple;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -67,7 +67,7 @@ public class JigsawPlacementHandler implements IPlacementHandler
 
         if (tileEntityData != null && tileEntityData.contains("final_state"))
         {
-            final String stateString = tileEntityData.getString("final_state");
+            final String stateString = tileEntityData.getStringOr("final_state", "");
 
             BlockState finalState = Blocks.AIR.defaultBlockState();
 
@@ -109,7 +109,7 @@ public class JigsawPlacementHandler implements IPlacementHandler
             return ImmutableList.of(new ItemStack(Blocks.JIGSAW));
         }
 
-        final String stateString = tileEntityData.getString("final_state");
+        final String stateString = tileEntityData.getStringOr("final_state", "");
 
         BlockState finalState = Blocks.AIR.defaultBlockState();
 

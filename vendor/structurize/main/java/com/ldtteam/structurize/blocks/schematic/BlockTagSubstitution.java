@@ -1,5 +1,8 @@
 package com.ldtteam.structurize.blocks.schematic;
 
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.item.BlockItem;
 import com.ldtteam.structurize.blockentities.BlockEntityTagSubstitution;
 import com.ldtteam.structurize.blocks.interfaces.IAnchorBlock;
 import net.minecraft.core.BlockPos;
@@ -18,6 +21,11 @@ import javax.annotation.Nullable;
  */
 public class BlockTagSubstitution extends BlockSubstitution implements IAnchorBlock, EntityBlock
 {
+    public BlockTagSubstitution(final Properties properties)
+    {
+        super(properties);
+    }
+
     @Nullable
     @Override
     public BlockEntity newBlockEntity(final @NotNull BlockPos blockPos, final @NotNull BlockState blockState)
@@ -27,25 +35,24 @@ public class BlockTagSubstitution extends BlockSubstitution implements IAnchorBl
 
     @NotNull
     @Override
-    @SuppressWarnings("deprecation")
-    public ItemStack getCloneItemStack(@NotNull final LevelReader level,
+    protected ItemStack getCloneItemStack(@NotNull final LevelReader level,
         @NotNull final BlockPos pos,
-        @NotNull final BlockState blockState)
+        @NotNull final BlockState blockState,
+        final boolean includeData)
     {
-        return cloneItemStack(super.getCloneItemStack(level, pos, blockState), level, pos);
-    }
-
-    @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player)
-    {
-        return cloneItemStack(super.getCloneItemStack(state, target, level, pos, player), level, pos);
+        return cloneItemStack(super.getCloneItemStack(level, pos, blockState, includeData), level, pos);
     }
 
     private ItemStack cloneItemStack(final ItemStack stack, LevelReader level, BlockPos pos)
     {
         if (level.getBlockEntity(pos) instanceof final BlockEntityTagSubstitution entity)
         {
-            entity.saveToItem(stack, level.registryAccess());
+            // equivalent of 1.21 BlockEntity#saveToItem
+            final TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, level.registryAccess());
+            entity.saveCustomOnly(output);
+            entity.removeComponentsFromTag(output);
+            BlockItem.setBlockEntityData(stack, entity.getType(), output);
+            stack.applyComponents(entity.collectComponents());
         }
         return stack;
     }

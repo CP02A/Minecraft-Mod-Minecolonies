@@ -6,7 +6,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Pose;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +14,8 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Citizen model.
  */
-public class CitizenModel<T extends AbstractEntityCitizen> extends HumanoidModel<AbstractEntityCitizen>
+// FABRIC-PORT: models now animate from a CitizenRenderState (26.x render states); T kept for source compatibility.
+public class CitizenModel<T extends AbstractEntityCitizen> extends HumanoidModel<CitizenRenderState>
 {
     /**
      * Working render meta.
@@ -25,13 +26,13 @@ public class CitizenModel<T extends AbstractEntityCitizen> extends HumanoidModel
 
     public CitizenModel(final ModelPart part)
     {
-        super(part, RenderType::entityCutoutNoCull);
+        super(part, RenderTypes::entityCutout);
     }
 
     @Override
-    public void setupAnim(@NotNull final AbstractEntityCitizen citizen, float f1, float f2, float f3, float f4, float f5)
+    public void setupAnim(@NotNull final CitizenRenderState citizen)
     {
-        super.setupAnim(citizen, f1, f2, f3, f4, f5);
+        super.setupAnim(citizen);
         if (body.xRot == 0)
         {
             body.xRot = getActualRotation(citizen);
@@ -93,7 +94,7 @@ public class CitizenModel<T extends AbstractEntityCitizen> extends HumanoidModel
      *
      * @return the rotation.
      */
-    public float getActualRotation(@NotNull final AbstractEntityCitizen entity)
+    public float getActualRotation(@NotNull final CitizenRenderState entity)
     {
         return 0;
     }
@@ -103,7 +104,7 @@ public class CitizenModel<T extends AbstractEntityCitizen> extends HumanoidModel
      * @param citizen the citizen entity to check.
      * @return true if so.
      */
-    public boolean isWorking(final AbstractEntityCitizen citizen)
+    public boolean isWorking(final CitizenRenderState citizen)
     {
         return citizen.getRenderMetadata().contains(RENDER_META_WORKING);
     }
@@ -113,7 +114,7 @@ public class CitizenModel<T extends AbstractEntityCitizen> extends HumanoidModel
      * @param citizen the citizen entity to check.
      * @return true if so.
      */
-    public boolean displayHat(final AbstractEntityCitizen citizen)
+    public boolean displayHat(final CitizenRenderState citizen)
     {
         if (citizen.getPose() == Pose.SLEEPING || !citizen.getItemBySlot(EquipmentSlot.HEAD).isEmpty())
         {

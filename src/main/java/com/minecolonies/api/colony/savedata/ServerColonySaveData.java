@@ -32,16 +32,32 @@ public class ServerColonySaveData extends SavedData implements IServerColonySave
     /**
      * World save data name.
      */
-    public static final String NAME = new Identifier(Constants.MOD_ID, "colony_manager").toDebugFileName();
+    public static final String NAME = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "colony_manager").toDebugFileName();
 
     /**
      * Worldsavedata factory.
      */
-    public static final SavedData.Factory<ServerColonySaveData> FACTORY = new SavedData.Factory<>(ServerColonySaveData::new, (d,a) -> {
-        final ServerColonySaveData colonyManagerData = new ServerColonySaveData();
-        colonyManagerData.readNBT(a, d);
-        return colonyManagerData;
-    });
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "colony_manager");
+
+    /**
+     * FABRIC-PORT: 26.x saved data is codec based (SavedDataType). The codec closes over the level's registry access since the
+     * colony NBT (de)serialization needs a HolderLookup.Provider. A null data fixer type is a no-op with Fabric API.
+     *
+     * @param level the level the data belongs to.
+     * @return the saved data type.
+     */
+    public static net.minecraft.world.level.saveddata.SavedDataType<ServerColonySaveData> type(final net.minecraft.server.level.ServerLevel level)
+    {
+        final HolderLookup.Provider provider = level.registryAccess();
+        return new net.minecraft.world.level.saveddata.SavedDataType<>(ID,
+          ServerColonySaveData::new,
+          CompoundTag.CODEC.xmap(tag -> {
+              final ServerColonySaveData colonyManagerData = new ServerColonySaveData();
+              colonyManagerData.readNBT(provider, tag);
+              return colonyManagerData;
+          }, data -> data.save(new CompoundTag(), provider)),
+          null);
+    }
 
     /**
      * The list of all colonies.
@@ -60,7 +76,7 @@ public class ServerColonySaveData extends SavedData implements IServerColonySave
     }
 
     @NotNull
-    @Override
+    // FABRIC-PORT: no longer an override (SavedData#save was replaced by the SavedDataType codec)
     public CompoundTag save(final @NotNull CompoundTag tag, @NotNull final HolderLookup.Provider provider)
     {
         return writeNBT(provider, tag);
@@ -147,7 +163,7 @@ public class ServerColonySaveData extends SavedData implements IServerColonySave
 
     private void readNBT(@NotNull final HolderLookup.Provider provider, final CompoundTag inputTag)
     {
-        final CompoundTag compound = inputTag.getCompound(Constants.MOD_ID);
+        final CompoundTag compound = inputTag.getCompoundOrEmpty(Constants.MOD_ID);
 
         if (!compound.contains(TAG_COLONIES))
         {
@@ -157,7 +173,7 @@ public class ServerColonySaveData extends SavedData implements IServerColonySave
 
         // Load all colonies from Nbt
         Multimap<BlockPos, IColony> tempColonies = ArrayListMultimap.create();
-        for (final Tag tag : compound.getList(TAG_COLONIES, Tag.TAG_COMPOUND))
+        for (final Tag tag : compound.getListOrEmpty(TAG_COLONIES))
         {
             final IColony colony = Colony.loadColony((CompoundTag) tag, null, provider);
             if (colony != null)
@@ -169,7 +185,7 @@ public class ServerColonySaveData extends SavedData implements IServerColonySave
 
         if (compound.contains(TAG_COLONY_MANAGER))
         {
-            IColonyManager.getInstance().read(provider, compound.getCompound(TAG_COLONY_MANAGER));
+            IColonyManager.getInstance().read(provider, compound.getCompoundOrEmpty(TAG_COLONY_MANAGER));
             this.overworld = true;
         }
 

@@ -2,7 +2,7 @@
   "multipart": [
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/timber_frame/one_crossed_rl_spec"
       },
       "when": {
@@ -11,7 +11,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/timber_frame/one_crossed_rl_spec"
       },
       "when": {
@@ -20,7 +20,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/timber_frame/one_crossed_rl_spec"
       },
       "when": {
@@ -29,7 +29,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/timber_frame/one_crossed_rl_spec"
       },
       "when": {
@@ -38,7 +38,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/timber_frame/one_crossed_rl_spec"
       },
       "when": {
@@ -47,7 +47,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/timber_frame/one_crossed_rl_spec"
       },
       "when": {

@@ -48,7 +48,7 @@ public class ItemScrollHighlight extends AbstractItemScroll
     public InteractionResult useOn(UseOnContext ctx)
     {
         // Right click on block
-        if (ctx.getLevel().isClientSide || ctx.getPlayer() == null || !ctx.getPlayer().isShiftKeyDown())
+        if (ctx.getLevel().isClientSide() || ctx.getPlayer() == null || !ctx.getPlayer().isShiftKeyDown())
         {
             return InteractionResult.PASS;
         }
@@ -58,12 +58,12 @@ public class ItemScrollHighlight extends AbstractItemScroll
         {
             ctx.getItemInHand().shrink(1);
 
-            if (ctx.getLevel().random.nextInt(10) == 0)
+            if (ctx.getLevel().getRandom().nextInt(10) == 0)
             {
                 ctx.getPlayer()
-                  .displayClientMessage(Component.translatableEscape(
-                    "minecolonies.scroll.failed" + (ctx.getLevel().random.nextInt(FAIL_RESPONSES_TOTAL) + 1)).setStyle(Style.EMPTY.withColor(
-                    ChatFormatting.GOLD)), true);
+                  .sendOverlayMessage(Component.translatableEscape(
+                    "minecolonies.scroll.failed" + (ctx.getLevel().getRandom().nextInt(FAIL_RESPONSES_TOTAL) + 1)).setStyle(Style.EMPTY.withColor(
+                    ChatFormatting.GOLD)));
                 ctx.getPlayer().addEffect(new MobEffectInstance(MobEffects.GLOWING, TICKS_SECOND * 300));
                 SoundUtils.playSoundForPlayer((ServerPlayer) ctx.getPlayer(), SoundEvents.ENDER_CHEST_OPEN, 0.3f, 1.0f);
                 return InteractionResult.SUCCESS;
@@ -77,7 +77,7 @@ public class ItemScrollHighlight extends AbstractItemScroll
                 if (citizenData.getEntity().isPresent())
                 {
                     citizenData.getEntity().get().addEffect(new MobEffectInstance(MobEffects.GLOWING, TICKS_SECOND * 120));
-                    citizenData.getEntity().get().addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, TICKS_SECOND * 120));
+                    citizenData.getEntity().get().addEffect(new MobEffectInstance(MobEffects.SPEED, TICKS_SECOND * 120));
                 }
             }
 
@@ -100,10 +100,10 @@ public class ItemScrollHighlight extends AbstractItemScroll
     }
 
     @Override
-    public void appendHoverText(@NotNull final ItemStack stack, @Nullable final TooltipContext ctx, @NotNull final List<Component> tooltip, @NotNull final TooltipFlag flagIn)
+    public void appendHoverText(@NotNull final ItemStack stack, @Nullable final TooltipContext ctx, final net.minecraft.world.item.component.TooltipDisplay tooltipDisplay, @NotNull final java.util.function.Consumer<Component> tooltip, @NotNull final TooltipFlag flagIn)
     {
         final MutableComponent guiHint = Component.translatableEscape(TOOL_GENERIC_SCROLL_HIGHLIGHT_DESCRIPTION);
         guiHint.setStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GREEN));
-        tooltip.add(guiHint);
+        tooltip.accept(guiHint);
     }
 }

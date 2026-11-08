@@ -68,7 +68,7 @@ public class GuardTaskSetting extends StringSettingWithDesc
     @Override
     public Identifier getLayoutItem()
     {
-        return new Identifier("minecolonies", "gui/layouthuts/layoutguardtasksetting.xml");
+        return Identifier.fromNamespaceAndPath("minecolonies", "gui/layouthuts/layoutguardtasksetting.xml");
     }
 
     @Override

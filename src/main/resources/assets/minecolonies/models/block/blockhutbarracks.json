@@ -3,12 +3,12 @@
   "parent": "block/cube_all",
   "ambientocclusion": false,
   "textures": {
-    "0": "block/oak_planks",
-    "1": "block/iron_block",
-    "2": "block/oak_log_top",
-    "3": "block/oak_log",
+    "0": "minecraft:block/oak_planks",
+    "1": "minecraft:block/iron_block",
+    "2": "minecraft:block/oak_log_top",
+    "3": "minecraft:block/oak_log",
     "5": "minecolonies:block/books/barrackstextures",
-    "particle": "block/oak_planks"
+    "particle": "minecraft:block/oak_planks"
   },
   "elements": [
     {

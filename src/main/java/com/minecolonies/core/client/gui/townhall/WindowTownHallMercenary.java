@@ -34,7 +34,7 @@ public class WindowTownHallMercenary extends BOWindow implements ButtonHandler
      */
     public WindowTownHallMercenary(final IColonyView c)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/townhall/windowtownhallmercenary.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/townhall/windowtownhallmercenary.xml"));
         this.colony = c;
 
         int amountOfMercenaries = colony.getCitizenCount();
@@ -48,7 +48,7 @@ public class WindowTownHallMercenary extends BOWindow implements ButtonHandler
         {
 
             final Image newImage = new Image();
-            newImage.setImage(new Identifier(Constants.MOD_ID, "textures/entity_icon/citizen/default/citizenmale3" + CitizenData.SUFFIXES.get(ColonyConstants.rand.nextInt(CitizenData.SUFFIXES.size())) + ".png"), false);
+            newImage.setImage(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/entity_icon/citizen/default/citizenmale3" + CitizenData.SUFFIXES.get(ColonyConstants.rand.nextInt(CitizenData.SUFFIXES.size())) + ".png"), false);
             newImage.setSize(10, 10);
             newImage.setPosition(startX, startY);
             this.addChild(newImage);

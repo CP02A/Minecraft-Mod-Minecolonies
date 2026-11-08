@@ -71,6 +71,10 @@ dependencies {
     include "com.electronwill.night-config:core:${project.night_config_version}"
     include "com.electronwill.night-config:toml:${project.night_config_version}"
 
+    // Lambda event-type resolution for the NeoForge-style event bus shim (IEventBus#addListener(Consumer)) - bundled.
+    implementation "net.jodah:typetools:0.6.3"
+    include "net.jodah:typetools:0.6.3"
+
     // @Nullable / @Nonnull annotations used throughout the codebase.
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 

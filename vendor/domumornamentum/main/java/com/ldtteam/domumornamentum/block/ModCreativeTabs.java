@@ -1,5 +1,6 @@
 package com.ldtteam.domumornamentum.block;
 
+import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import com.ldtteam.domumornamentum.shingles.ShingleHeightType;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.Registries;
@@ -20,7 +21,7 @@ public final class ModCreativeTabs {
 
     public static final DeferredRegister<CreativeModeTab> TAB_REG = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MOD_ID);
 
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> GENERAL = TAB_REG.register("general", () -> CreativeModeTab.builder()
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> GENERAL = TAB_REG.register("general", () -> FabricCreativeModeTab.builder()
             .icon(() -> new ItemStack(ModBlocks.getInstance().getArchitectsCutter()))
             .title(Component.translatable("itemGroup." + MOD_ID + ".general"))
             .displayItems(new OutputAwareGenerator((config, output) -> {
@@ -55,8 +56,7 @@ public final class ModCreativeTabs {
 
             })).build());
 
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXTRA_BLOCKS = TAB_REG.register("extra_blocks", () -> CreativeModeTab.builder()
-            .withTabsBefore(GENERAL.getId())
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXTRA_BLOCKS = TAB_REG.register("extra_blocks", () -> FabricCreativeModeTab.builder()
             .icon(() -> new ItemStack(ModBlocks.getInstance().getExtraTopBlocks().get(0)))
             .title(Component.translatable("itemGroup." + MOD_ID + ".extra-blocks"))
             .displayItems(new OutputAwareGenerator((config, output) -> {
@@ -66,8 +66,7 @@ public final class ModCreativeTabs {
         output.accept(ModBlocks.getInstance().getLayingBarrel());
     })).build());
 
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> FLOATING_CARPETS = TAB_REG.register("floating_carpets", () -> CreativeModeTab.builder()
-            .withTabsBefore(EXTRA_BLOCKS.getId())
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> FLOATING_CARPETS = TAB_REG.register("floating_carpets", () -> FabricCreativeModeTab.builder()
             .icon(() -> new ItemStack(ModBlocks.getInstance().getFloatingCarpets().get(0)))
             .title(Component.translatable("itemGroup." + MOD_ID + ".floating-carpets"))
             .displayItems(new OutputAwareGenerator((config, output) -> {

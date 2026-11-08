@@ -3,12 +3,12 @@
   "parent": "minecraft:block/cross",
   "ambientocclusion": false,
   "textures": {
-    "particle": "block/spruce_planks",
-    "0": "block/spruce_planks",
-    "1": "block/dark_oak_planks",
-    "2": "block/white_wool",
-    "3": "block/polished_andesite",
-    "4": "block/iron_block",
+    "particle": "minecraft:block/spruce_planks",
+    "0": "minecraft:block/spruce_planks",
+    "1": "minecraft:block/dark_oak_planks",
+    "2": "minecraft:block/white_wool",
+    "3": "minecraft:block/polished_andesite",
+    "4": "minecraft:block/iron_block",
     "5": "minecolonies:block/books/guardpaper"
   },
   "elements": [

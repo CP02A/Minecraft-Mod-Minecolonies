@@ -14,7 +14,8 @@ import com.minecolonies.core.colony.buildings.moduleviews.CraftingModuleView;
 import com.minecolonies.core.colony.buildings.views.AbstractBuildingView;
 import com.minecolonies.core.network.messages.server.colony.building.worker.AddRemoveRecipeMessage;
 import com.minecolonies.core.util.DomumOrnamentumUtils;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -41,7 +42,7 @@ import static com.minecolonies.api.util.constant.translation.BaseGameTranslation
  */
 public class WindowFurnaceCrafting extends AbstractContainerScreen<ContainerCraftingFurnace>
 {
-    private static final Identifier CRAFTING_FURNACE = new Identifier(Constants.MOD_ID, "textures/gui/furnace.png");
+    private static final Identifier CRAFTING_FURNACE = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/furnace.png");
 
     /**
      * X offset of the button.
@@ -166,7 +167,7 @@ public class WindowFurnaceCrafting extends AbstractContainerScreen<ContainerCraf
 
     private void reopenWithRequest(@Nullable final IRequest<?> request)
     {
-        minecraft.setScreen(this);
+        minecraft.gui.setScreen(this);
 
         final List<ItemStack> stacks = requestables.getOrDefault(request, new ArrayList<>());
         if (!stacks.isEmpty())
@@ -179,15 +180,9 @@ public class WindowFurnaceCrafting extends AbstractContainerScreen<ContainerCraf
      * Draws the background layer of this container (behind the items).
      */
     @Override
-    protected void renderBg(@NotNull final GuiGraphics stack, final float partialTicks, final int mouseX, final int mouseY)
+    public void extractBackground(@NotNull final GuiGraphicsExtractor stack, final int mouseX, final int mouseY, final float partialTicks)
     {
-        stack.blit(CRAFTING_FURNACE, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
-    }
-
-    @Override
-    public void render(@NotNull final GuiGraphics stack, int x, int y, float z)
-    {
-        super.render(stack, x, y, z);
-        this.renderTooltip(stack, x, y);
+        super.extractBackground(stack, mouseX, mouseY, partialTicks);
+        stack.blit(RenderPipelines.GUI_TEXTURED, CRAFTING_FURNACE, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
     }
 }

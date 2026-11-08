@@ -9,7 +9,8 @@ import com.minecolonies.core.colony.buildings.moduleviews.CraftingModuleView;
 import com.minecolonies.core.colony.buildings.views.AbstractBuildingView;
 import com.minecolonies.core.network.messages.server.colony.building.worker.AddRemoveRecipeMessage;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -119,7 +120,9 @@ public class WindowBrewingstandCrafting extends AbstractContainerScreen<Containe
                 input.add(new ItemStorage(potion, 3, false));
                 input.add(new ItemStorage(ingredient));
 
-                final ItemStack primaryOutput = Minecraft.getInstance().level.potionBrewing().mix(ingredient, potion);
+                // FABRIC-PORT TODO: 26.3 made brewing data-driven (RecipeType.BREWING); brewing recipes are not synced to the client,
+                // so the output cannot be computed here. Needs the result to be computed server-side (e.g. synced by ContainerCraftingBrewingstand).
+                final ItemStack primaryOutput = ItemStack.EMPTY;
 
                 if (!ItemStackUtils.isEmpty(primaryOutput) && primaryOutput != potion)
                 {
@@ -130,18 +133,13 @@ public class WindowBrewingstandCrafting extends AbstractContainerScreen<Containe
     }
 
     @Override
-    public void render(@NotNull final GuiGraphics stack, int x, int y, float z)
+    public void extractBackground(@NotNull final GuiGraphicsExtractor stack, final int mouseX, final int mouseY, final float partialTicks)
     {
-        super.render(stack, x, y, z);
-        this.renderTooltip(stack, x, y);
-    }
-
-    protected void renderBg(@NotNull final GuiGraphics stack, final float partialTicks, final int mouseX, final int mouseY)
-    {
-        stack.blit(BREWING_STAND_LOCATION, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+        super.extractBackground(stack, mouseX, mouseY, partialTicks);
+        stack.blit(RenderPipelines.GUI_TEXTURED, BREWING_STAND_LOCATION, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
         int l = Mth.clamp((20 - 1) / 20, 0, 18);
         if (l > 0) {
-            stack.blit(BREWING_STAND_LOCATION, mouseX + 60, mouseY + 44, 176, 29, l, 4);
+            stack.blit(RenderPipelines.GUI_TEXTURED, BREWING_STAND_LOCATION, mouseX + 60, mouseY + 44, 176, 29, l, 4, 256, 256);
         }
     }
 }

@@ -106,7 +106,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
      * Farming icon
      */
     private static final VisibleCitizenStatus FARMING_ICON =
-      new VisibleCitizenStatus(new Identifier(Constants.MOD_ID, "textures/icons/work/farmer.png"), "com.minecolonies.gui.visiblestatus.farmer");
+      new VisibleCitizenStatus(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/work/farmer.png"), "com.minecolonies.gui.visiblestatus.farmer");
 
     /**
      * Changed after finished harvesting in order to dump the inventory.
@@ -377,7 +377,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
         if (farmField.isNoPartOfField(world, position)
               || (world.getBlockState(position.above()).getBlock() instanceof CropBlock)
               || (world.getBlockState(position.above()).getBlock() instanceof BlockScarecrow)
-              || (!blockState.is(BlockTags.DIRT) && !(blockState.getBlock() instanceof MinecoloniesFarmland) && !(blockState.getBlock() instanceof FarmBlock))
+              || (!blockState.is(BlockTags.DIRT) && !(blockState.getBlock() instanceof MinecoloniesFarmland) && !(blockState.getBlock() instanceof FarmlandBlock))
               ||  isRightFarmLandForCrop(farmField, blockState)
               || (world.getBlockState(position.above()).getBlock() instanceof MinecoloniesCropBlock)
         )
@@ -402,8 +402,8 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
           InteractionHand.MAIN_HAND,
           getInventory().getStackInSlot(InventoryUtils.getFirstSlotOfItemHandlerContainingEquipment(getInventory(), ModEquipmentTypes.hoe.get(), TOOL_LEVEL_WOOD_OR_GOLD, building.getMaxEquipmentLevel())),
           blockHitResult);
-        final BlockState toolModifiedState = blockState.getToolModifiedState(useOnContext, ItemAbilities.HOE_TILL, true);
-        if (toolModifiedState == null || !toolModifiedState.is(Blocks.FARMLAND))
+        // Vanilla hoe block transformer: turns_into_farmland with air above -> farmland (was getToolModifiedState(HOE_TILL)).
+        if (!blockState.is(net.minecraft.tags.BlockTags.TURNS_INTO_FARMLAND) || !world.getBlockState(position.above()).isAir())
         {
             return null;
         }
@@ -602,7 +602,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
             {
                 didWork = true;
                 equipHoe();
-                worker.swing(worker.getUsedItemHand());
+                worker.swing(worker.getUsedItemHand(), net.minecraft.world.item.component.SwingAnimation.DEFAULT);
                 createCorrectFarmlandForSeed(farmField.getSeed(), position);
                 CitizenItemUtils.damageItemInHand(worker, InteractionHand.MAIN_HAND, 1);
                 worker.decreaseSaturationForContinuousAction();
@@ -646,7 +646,7 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
         }
         else
         {
-            return blockState.getBlock() instanceof FarmBlock;
+            return blockState.getBlock() instanceof FarmlandBlock;
         }
     }
 

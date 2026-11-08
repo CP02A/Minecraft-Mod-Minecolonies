@@ -137,11 +137,11 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
             {
                 renderData.append(RENDER_META_TORCH);
             }
-            else if (stack.canPerformAction(ItemAbilities.PICKAXE_DIG) && renderData.indexOf(RENDER_META_PICKAXE) == -1)
+            else if (stack.is(net.minecraft.tags.ItemTags.PICKAXES) && renderData.indexOf(RENDER_META_PICKAXE) == -1)
             {
                 renderData.append(RENDER_META_PICKAXE);
             }
-            else if (stack.canPerformAction(ItemAbilities.SHOVEL_DIG) && renderData.indexOf(RENDER_META_SHOVEL) == -1)
+            else if (stack.is(net.minecraft.tags.ItemTags.SHOVELS) && renderData.indexOf(RENDER_META_SHOVEL) == -1)
             {
                 renderData.append(RENDER_META_SHOVEL);
             }
@@ -401,7 +401,7 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
 
                             //Set up the mob to do battle with
                             EntityType<?> mobType = component.entityType();
-                            LivingEntity mob = (LivingEntity) mobType.create(world);
+                            LivingEntity mob = (LivingEntity) mobType.create(world, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
                             float mobHealth = mob.getHealth();
 
                             // Calculate how much damage the mob will do if it lands a hit (Before armor)
@@ -412,7 +412,7 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
                             {
                                 // Clear anti-hurt timers.
                                 worker.hurtTime = 0;
-                                worker.invulnerableTime = 0;
+                                worker.setInvulnerableTime(0);
                                 float damageToDo = BASE_PHYSICAL_DAMAGE;
 
                                 // Figure out who gets to hit who this round
@@ -423,9 +423,9 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
                                 final ItemStack sword = worker.getItemBySlot(EquipmentSlot.MAINHAND);
                                 if (!sword.isEmpty())
                                 {
-                                    if (sword.getItem() instanceof SwordItem swordItem)
+                                    if (sword.is(net.minecraft.tags.ItemTags.SWORDS))
                                     {
-                                        damageToDo += swordItem.getDamage(sword);
+                                        damageToDo += sword.getDamageValue();
                                     }
                                     else
                                     {
@@ -449,7 +449,7 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
                                 }
 
                                 // Get hit by the mob
-                                if (takeDamage && !worker.hurt(source, incomingDamage))
+                                if (takeDamage && !worker.hurtOrSimulate(source, incomingDamage))
                                 {
                                     //Shouldn't get here, but if we do we can force the damage.
                                     incomingDamage = worker.calculateDamageAfterAbsorbs(source, incomingDamage);
@@ -518,7 +518,7 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
                         final Block block = bi.getBlock();
 
                         ItemStack tool = findTool(block.defaultBlockState(), worker.blockPosition());
-                        if (tool.getItem() instanceof TieredItem)
+                        if (tool.get(net.minecraft.core.component.DataComponents.TOOL) != null)
                         {
                             worker.setItemSlot(EquipmentSlot.MAINHAND, tool);
 

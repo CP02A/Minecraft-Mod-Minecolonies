@@ -15,7 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -89,7 +89,7 @@ public class MinecoloniesCropBlock extends AbstractBlockMinecolonies<Minecolonie
     {
         super(BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).noCollission().instabreak().sound(SoundType.CROP).pushReaction(PushReaction.DESTROY));
         this.registerDefaultState(this.stateDefinition.any().setValue(AGE, 0));
-        this.blockId = new Identifier(Constants.MOD_ID, blockName);
+        this.blockId = Identifier.fromNamespaceAndPath(Constants.MOD_ID, blockName);
         this.preferredFarmland = preferredFarmland;
         this.droppedFrom = droppedFrom;
         this.preferredBiome = preferredBiome;
@@ -133,7 +133,7 @@ public class MinecoloniesCropBlock extends AbstractBlockMinecolonies<Minecolonie
         {
             if (level.getRawBrightness(pos, 0) >= 9)
             {
-                final BlockPos offset = pos.relative(Direction.Plane.HORIZONTAL.getRandomDirection(level.random));
+                final BlockPos offset = pos.relative(Direction.Plane.HORIZONTAL.getRandomDirection(level.getRandom()));
                 if (WorldUtil.isBlockLoaded(level, offset)
                     && level.getBlockState(offset.below()).getBlock() == level.getBlockState(pos.below()).getBlock()
                     && level.getBlockState(offset).isAir()
@@ -155,7 +155,7 @@ public class MinecoloniesCropBlock extends AbstractBlockMinecolonies<Minecolonie
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(
+    protected InteractionResult useItemOn(
         final ItemStack stack,
         final BlockState state,
         final Level level,

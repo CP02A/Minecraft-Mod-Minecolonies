@@ -13,7 +13,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -77,17 +76,17 @@ public class ResearchUnlocked implements LootItemCondition
 
     @NotNull
     @Override
-    public LootItemConditionType getType()
+    public MapCodec<? extends LootItemCondition> codec()
     {
-        return ModLootConditions.researchUnlocked.get();
+        return CODEC;
     }
 
     @Override
     public boolean test(@NotNull final LootContext lootContext)
     {
-        return test(lootContext, lootContext.getParamOrNull(LootContextParams.ATTACKING_ENTITY))
-                .or(() -> test(lootContext, lootContext.getParamOrNull(LootContextParams.THIS_ENTITY)))
-                .or(() -> test(lootContext, lootContext.getParamOrNull(LootContextParams.ORIGIN)))
+        return test(lootContext, lootContext.getOptional(LootContextParams.ATTACKING_ENTITY))
+                .or(() -> test(lootContext, lootContext.getOptional(LootContextParams.THIS_ENTITY)))
+                .or(() -> test(lootContext, lootContext.getOptional(LootContextParams.ORIGIN)))
                 .orElse(false);
     }
 

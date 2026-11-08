@@ -7,6 +7,8 @@ import com.minecolonies.core.entity.pathfinding.MNode;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Style;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
@@ -131,16 +133,15 @@ public class PathfindingDebugRenderer
         ctx.poseStack.pushPose();
         ctx.poseStack.translate(0.0F, 0.6F, 0.0F);
 
-        ctx.poseStack.mulPose(Minecraft.getInstance().getEntityRenderDispatcher().cameraOrientation());
+        ctx.poseStack.rotate(ctx.cameraRenderState.orientation);
         ctx.poseStack.scale(0.014F, -0.014F, 0.014F);
-        final Matrix4f mat = ctx.poseStack.last().pose();
 
         ctx.renderFillRectangle(-i - 1, -5, 0, 2 * i + 2, 17, 0x7f000000);
 
         ctx.poseStack.translate(0.0F, -5F, -0.1F);
-        fontrenderer.drawInBatch(s1, -fontrenderer.width(s1) / 2.0f, 1, 0xFFFFFFFF, false, mat, ctx.bufferSource, Font.DisplayMode.NORMAL, 0, 15728880);
+        ctx.submitNodeCollector.submitText(ctx.poseStack, -fontrenderer.width(s1) / 2.0f, 1, FormattedCharSequence.forward(s1, Style.EMPTY), false, Font.DisplayMode.NORMAL, 15728880, 0xFFFFFFFF, 0, 0);
         ctx.poseStack.translate(0.0F, 8F, -0.1F);
-        fontrenderer.drawInBatch(s2, -fontrenderer.width(s2) / 2.0f, 1, 0xFFFFFFFF, false, mat, ctx.bufferSource, Font.DisplayMode.NORMAL, 0, 15728880);
+        ctx.submitNodeCollector.submitText(ctx.poseStack, -fontrenderer.width(s2) / 2.0f, 1, FormattedCharSequence.forward(s2, Style.EMPTY), false, Font.DisplayMode.NORMAL, 15728880, 0xFFFFFFFF, 0, 0);
 
         ctx.poseStack.popPose();
     }

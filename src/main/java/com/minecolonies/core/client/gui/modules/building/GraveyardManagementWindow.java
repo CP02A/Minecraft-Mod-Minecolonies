@@ -73,7 +73,7 @@ public class GraveyardManagementWindow extends AbstractModuleWindow<GraveyardMan
      */
     public GraveyardManagementWindow(final GraveyardManagementModuleView moduleView)
     {
-        super(moduleView, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutgraveyard.xml"));
+        super(moduleView, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutgraveyard.xml"));
     }
 
     @Override

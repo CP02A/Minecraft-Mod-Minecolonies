@@ -200,7 +200,7 @@ public class EntityAICombatTraining extends AbstractEntityAITraining<JobCombatTr
                 final int shieldSlot = InventoryUtils.findFirstSlotInItemHandlerWith(getInventory(), Items.SHIELD);
                 if (shieldSlot != -1)
                 {
-                    worker.playSound(SoundEvents.SHIELD_BLOCK, (float) BASIC_VOLUME, (float) SoundUtils.getRandomPitch(worker.getRandom()));
+                    worker.playSound(SoundEvents.SHIELD_BLOCK.value(), (float) BASIC_VOLUME, (float) SoundUtils.getRandomPitch(worker.getRandom()));
                     CitizenItemUtils.setHeldItem(worker, InteractionHand.OFF_HAND, shieldSlot);
                     worker.startUsingItem(InteractionHand.OFF_HAND);
                     worker.getLookControl().setLookAt(trainingPartner, (float) TURN_AROUND, (float) TURN_AROUND);
@@ -208,9 +208,9 @@ public class EntityAICombatTraining extends AbstractEntityAITraining<JobCombatTr
             }
             else
             {
-                worker.swing(InteractionHand.MAIN_HAND);
+                worker.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
                 worker.playSound(SoundEvents.PLAYER_ATTACK_SWEEP, (float) BASIC_VOLUME, (float) SoundUtils.getRandomPitch(worker.getRandom()));
-                trainingPartner.hurt(world.damageSources().source(DamageSourceKeys.TRAINING, worker), 0.0F);
+                trainingPartner.hurtOrSimulate(world.damageSources().source(DamageSourceKeys.TRAINING, worker), 0.0F);
                 CitizenItemUtils.damageItemInHand(worker, InteractionHand.MAIN_HAND, 1);
             }
             EntityNavigationUtils.walkAwayFrom(worker, trainingPartner.blockPosition(), 4, 1.0);
@@ -306,14 +306,14 @@ public class EntityAICombatTraining extends AbstractEntityAITraining<JobCombatTr
                   Items.SHIELD);
                 if (shieldSlot != -1)
                 {
-                    worker.playSound(SoundEvents.SHIELD_BLOCK, (float) BASIC_VOLUME, (float) SoundUtils.getRandomPitch(worker.getRandom()));
+                    worker.playSound(SoundEvents.SHIELD_BLOCK.value(), (float) BASIC_VOLUME, (float) SoundUtils.getRandomPitch(worker.getRandom()));
                     CitizenItemUtils.setHeldItem(worker, InteractionHand.OFF_HAND, shieldSlot);
                     worker.startUsingItem(InteractionHand.OFF_HAND);
                 }
             }
             else
             {
-                worker.swing(InteractionHand.MAIN_HAND);
+                worker.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
                 worker.playSound(SoundEvents.PLAYER_ATTACK_SWEEP, (float) BASIC_VOLUME, (float) SoundUtils.getRandomPitch(worker.getRandom()));
                 CitizenItemUtils.damageItemInHand(worker, InteractionHand.MAIN_HAND, 1);
             }

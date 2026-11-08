@@ -33,7 +33,7 @@ public class WindowTownHallColonyReactivate extends AbstractWindowSkeleton
 
     public WindowTownHallColonyReactivate(final BlockPos pos, final String closestName, final int closestDistance)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/townhall/windowcolonyreactivate.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/townhall/windowcolonyreactivate.xml"));
         this.pos = pos;
         this.closestName = closestName;
         this.closestDistance = closestDistance;
@@ -48,7 +48,7 @@ public class WindowTownHallColonyReactivate extends AbstractWindowSkeleton
         final String story = ColonyStoryListener.pickRandom(ColonyStoryListener.abandonedColonyStories, biome, random);
 
         this.findPaneOfTypeByID("title", Text.class).setText(Component.translatable("com.minecolonies.core.gui.colony.reactivate.title", this.preName));
-        this.findPaneOfTypeByID("text1", Text.class).setText(Component.translatable(story, this.preName, Component.translatable(biome.unwrapKey().get().location().toLanguageKey("biome"))));
+        this.findPaneOfTypeByID("text1", Text.class).setText(Component.translatable(story, this.preName, Component.translatable(biome.unwrapKey().get().identifier().toLanguageKey("biome"))));
         this.findPaneOfTypeByID("text2", Text.class).setText(Component.translatable("com.minecolonies.core.gui.colony.reactivate.question", this.preName));
     }
 

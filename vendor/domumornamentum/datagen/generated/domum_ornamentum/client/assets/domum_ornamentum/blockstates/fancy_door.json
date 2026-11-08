@@ -2,7 +2,7 @@
   "multipart": [
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_top_left_open_spec"
       },
       "when": {
@@ -15,7 +15,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_top_left_spec",
         "y": 270
       },
@@ -29,7 +29,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_top_right_open_spec",
         "y": 180
       },
@@ -43,7 +43,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_top_right_spec",
         "y": 270
       },
@@ -57,7 +57,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_bottom_left_open_spec"
       },
       "when": {
@@ -70,7 +70,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_bottom_left_spec",
         "y": 270
       },
@@ -84,7 +84,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_bottom_right_open_spec",
         "y": 180
       },
@@ -98,7 +98,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_bottom_right_spec",
         "y": 270
       },
@@ -112,7 +112,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_top_left_open_spec"
       },
       "when": {
@@ -125,7 +125,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_top_left_spec",
         "y": 270
       },
@@ -139,7 +139,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_top_right_open_spec",
         "y": 180
       },
@@ -153,7 +153,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_top_right_spec",
         "y": 270
       },
@@ -167,7 +167,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_bottom_left_open_spec"
       },
       "when": {
@@ -180,7 +180,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_bottom_left_spec",
         "y": 270
       },
@@ -194,7 +194,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_bottom_right_open_spec",
         "y": 180
       },
@@ -208,7 +208,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_bottom_right_spec",
         "y": 270
       },
@@ -222,7 +222,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_top_left_open_spec",
         "y": 180
       },
@@ -236,7 +236,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_top_left_spec",
         "y": 90
       },
@@ -250,7 +250,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_top_right_open_spec"
       },
       "when": {
@@ -263,7 +263,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_top_right_spec",
         "y": 90
       },
@@ -277,7 +277,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_bottom_left_open_spec",
         "y": 180
       },
@@ -291,7 +291,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_bottom_left_spec",
         "y": 90
       },
@@ -305,7 +305,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_bottom_right_open_spec"
       },
       "when": {
@@ -318,7 +318,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_bottom_right_spec",
         "y": 90
       },
@@ -332,7 +332,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_top_left_open_spec",
         "y": 180
       },
@@ -346,7 +346,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_top_left_spec",
         "y": 90
       },
@@ -360,7 +360,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_top_right_open_spec"
       },
       "when": {
@@ -373,7 +373,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_top_right_spec",
         "y": 90
       },
@@ -387,7 +387,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_bottom_left_open_spec",
         "y": 180
       },
@@ -401,7 +401,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_bottom_left_spec",
         "y": 90
       },
@@ -415,7 +415,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_bottom_right_open_spec"
       },
       "when": {
@@ -428,7 +428,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_bottom_right_spec",
         "y": 90
       },
@@ -442,7 +442,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_top_left_open_spec",
         "y": 270
       },
@@ -456,7 +456,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_top_left_spec",
         "y": 180
       },
@@ -470,7 +470,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_top_right_open_spec",
         "y": 90
       },
@@ -484,7 +484,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_top_right_spec",
         "y": 180
       },
@@ -498,7 +498,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_bottom_left_open_spec",
         "y": 270
       },
@@ -512,7 +512,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_bottom_left_spec",
         "y": 180
       },
@@ -526,7 +526,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_bottom_right_open_spec",
         "y": 90
       },
@@ -540,7 +540,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_bottom_right_spec",
         "y": 180
       },
@@ -554,7 +554,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_top_left_open_spec",
         "y": 270
       },
@@ -568,7 +568,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_top_left_spec",
         "y": 180
       },
@@ -582,7 +582,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_top_right_open_spec",
         "y": 90
       },
@@ -596,7 +596,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_top_right_spec",
         "y": 180
       },
@@ -610,7 +610,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_bottom_left_open_spec",
         "y": 270
       },
@@ -624,7 +624,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_bottom_left_spec",
         "y": 180
       },
@@ -638,7 +638,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_bottom_right_open_spec",
         "y": 90
       },
@@ -652,7 +652,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_bottom_right_spec",
         "y": 180
       },
@@ -666,7 +666,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_top_left_open_spec",
         "y": 90
       },
@@ -680,7 +680,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_top_left_spec"
       },
       "when": {
@@ -693,7 +693,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_top_right_open_spec",
         "y": 270
       },
@@ -707,7 +707,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_top_right_spec"
       },
       "when": {
@@ -720,7 +720,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_bottom_left_open_spec",
         "y": 90
       },
@@ -734,7 +734,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_bottom_left_spec"
       },
       "when": {
@@ -747,7 +747,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_bottom_right_open_spec",
         "y": 270
       },
@@ -761,7 +761,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_full_bottom_right_spec"
       },
       "when": {
@@ -774,7 +774,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_top_left_open_spec",
         "y": 90
       },
@@ -788,7 +788,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_top_left_spec"
       },
       "when": {
@@ -801,7 +801,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_top_right_open_spec",
         "y": 270
       },
@@ -815,7 +815,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_top_right_spec"
       },
       "when": {
@@ -828,7 +828,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_bottom_left_open_spec",
         "y": 90
       },
@@ -842,7 +842,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_bottom_left_spec"
       },
       "when": {
@@ -855,7 +855,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_bottom_right_open_spec",
         "y": 270
       },
@@ -869,7 +869,7 @@
     },
     {
       "apply": {
-        "type": "domum_ornamentum:materially_textured",
+        "fabric:type": "domum_ornamentum:materially_textured",
         "parent": "domum_ornamentum:block/door/fancy/door_creeper_bottom_right_spec"
       },
       "when": {

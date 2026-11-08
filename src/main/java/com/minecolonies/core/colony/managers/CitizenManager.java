@@ -124,7 +124,7 @@ public class CitizenManager implements ICitizenManager
     {
         if (entity.getCivilianID() == 0 || citizens.get(entity.getCivilianID()) == null)
         {
-            if (!entity.isAddedToLevel())
+            if (!com.minecolonies.core.colony.EntityCompat.isAddedToLevel(entity))
             {
                 Log.getLogger().warn("Discarding entity not added to world, should be only called after:", new Exception());
             }
@@ -136,7 +136,7 @@ public class CitizenManager implements ICitizenManager
 
         if (data == null || !entity.getUUID().equals(data.getUUID()))
         {
-            if (!entity.isAddedToLevel())
+            if (!com.minecolonies.core.colony.EntityCompat.isAddedToLevel(entity))
             {
                 Log.getLogger().warn("Discarding entity not added to world, should be only called after:", new Exception());
             }
@@ -152,7 +152,7 @@ public class CitizenManager implements ICitizenManager
             return;
         }
 
-        if (!entity.isAddedToLevel())
+        if (!com.minecolonies.core.colony.EntityCompat.isAddedToLevel(entity))
         {
             Log.getLogger().warn("Discarding entity not added to world, should be only called after:", new Exception());
         }
@@ -175,7 +175,7 @@ public class CitizenManager implements ICitizenManager
         citizens.forEach((id, citizen) -> citizen.getEntity().ifPresent(e -> e.remove(Entity.RemovalReason.DISCARDED)));
         citizens.clear();
         //  Citizens before Buildings, because Buildings track the Citizens
-        citizens.putAll(NBTUtils.streamCompound(compound.getList(TAG_CITIZENS, Tag.TAG_COMPOUND))
+        citizens.putAll(NBTUtils.streamCompound(compound.getListOrEmpty(TAG_CITIZENS))
                           .map(s -> deserializeCitizen(provider, s))
                           .collect(Collectors.toMap(ICitizenData::getId, Function.identity())));
 
@@ -301,12 +301,12 @@ public class CitizenManager implements ICitizenManager
                 existing = serverLevel.getEntity(citizenData.getUUID());
                 if (existing != null)
                 {
-                    serverLevel.entityManager.stopTracking(existing);
+                    ((com.minecolonies.fabric.mixin.colony.PersistentEntitySectionManagerInvoker<Entity>) ((com.minecolonies.fabric.mixin.colony.ServerLevelAccessor) serverLevel).minecolonies$getEntityManager()).minecolonies$stopTracking(existing);
                 }
             }
         }
 
-        final EntityCitizen entity = (EntityCitizen) ModEntities.CITIZEN.create(world);
+        final EntityCitizen entity = (EntityCitizen) ModEntities.CITIZEN.create(world, net.minecraft.world.entity.EntitySpawnReason.EVENT);
 
         entity.setUUID(citizenData.getUUID());
         entity.setPos(spawnPoint.getX() + HALF_BLOCK, spawnPoint.getY() + SLIGHTLY_UP, spawnPoint.getZ() + HALF_BLOCK);
@@ -314,7 +314,7 @@ public class CitizenManager implements ICitizenManager
         entity.setCitizenId(citizenData.getId());
         entity.getCitizenColonyHandler().setColonyId(colony.getID());
         world.addFreshEntity(entity);
-        if (entity.isAddedToLevel())
+        if (com.minecolonies.core.colony.EntityCompat.isAddedToLevel(entity))
         {
             entity.getCitizenColonyHandler().registerWithColony(citizenData.getColony().getID(), citizenData.getId());
         }
@@ -603,7 +603,7 @@ public class CitizenManager implements ICitizenManager
                 final ICitizenData newCitizen = createAndRegisterCivilianData();
                 if (firstCitizen)
                 {
-                    colony.getQuestManager().injectAvailableQuest(new QuestInstance(new Identifier(MOD_ID, "tutorial/welcome"), colony, List.of(new CitizenTriggerReturnData(newCitizen))));
+                    colony.getQuestManager().injectAvailableQuest(new QuestInstance(Identifier.fromNamespaceAndPath(MOD_ID, "tutorial/welcome"), colony, List.of(new CitizenTriggerReturnData(newCitizen))));
                 }
 
                 // For first citizen, give a random chance of male or female.

@@ -21,13 +21,17 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 import static com.minecolonies.api.util.constant.WindowConstants.*;
-import static org.jline.utils.AttributedStyle.WHITE;
 
 /**
  * BOWindow for all the filterable entity lists.
  */
 public class EntityListModuleWindow extends AbstractModuleWindow<IEntityListModuleView>
 {
+    /**
+     * Text colour formerly taken from org.jline AttributedStyle.WHITE (value 7), kept for identical rendering.
+     */
+    private static final int WHITE = 7;
+
     /**
      * Resource scrolling list.
      */
@@ -63,7 +67,7 @@ public class EntityListModuleWindow extends AbstractModuleWindow<IEntityListModu
      */
     public EntityListModuleWindow(final IEntityListModuleView moduleView)
     {
-        super(moduleView, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutfilterableentitylist.xml"));
+        super(moduleView, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutfilterableentitylist.xml"));
         this.isInverted = moduleView.isInverted();
         this.id = moduleView.getId();
 
@@ -149,7 +153,7 @@ public class EntityListModuleWindow extends AbstractModuleWindow<IEntityListModu
      */
     private void updateResources()
     {
-        final Predicate<Identifier> filterPredicate = res -> filter.isEmpty() || BuiltInRegistries.ENTITY_TYPE.get(res).getDescription().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)) || res.toString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US));
+        final Predicate<Identifier> filterPredicate = res -> filter.isEmpty() || BuiltInRegistries.ENTITY_TYPE.getValue(res).getDescription().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)) || res.toString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US));
         currentDisplayedList.clear();
         for (final Identifier storage : groupedItemList)
         {
@@ -213,7 +217,7 @@ public class EntityListModuleWindow extends AbstractModuleWindow<IEntityListModu
             {
                 final Identifier resource = currentDisplayedList.get(index);
                 final Text resourceLabel = rowPane.findPaneOfTypeByID(RESOURCE_NAME, Text.class);
-                resourceLabel.setText(BuiltInRegistries.ENTITY_TYPE.get(resource).getDescription());
+                resourceLabel.setText(BuiltInRegistries.ENTITY_TYPE.getValue(resource).getDescription());
                 resourceLabel.setColors(WHITE);
                 final boolean isAllowedItem  = buildingView.getModuleViewMatching(IEntityListModuleView.class, view -> view.getId().equals(id)).isAllowedEntity(resource);
                 final Button switchButton = rowPane.findPaneOfTypeByID(BUTTON_SWITCH, Button.class);

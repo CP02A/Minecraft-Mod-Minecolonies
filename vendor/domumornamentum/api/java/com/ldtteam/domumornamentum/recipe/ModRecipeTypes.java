@@ -11,7 +11,7 @@ public class ModRecipeTypes
 {
     public static final DeferredRegister<RecipeType<?>> RECIPES = DeferredRegister.create(BuiltInRegistries.RECIPE_TYPE, Constants.MOD_ID);
 
-    public static DeferredHolder<RecipeType<?>, RecipeType<ArchitectsCutterRecipe>> ARCHITECTS_CUTTER  = RECIPES.register("architects_cutter", () -> RecipeType.simple(Constants.resLocDO("architects_cutter")));
+    public static DeferredHolder<RecipeType<?>, RecipeType<ArchitectsCutterRecipe>> ARCHITECTS_CUTTER  = RECIPES.register("architects_cutter", () -> new RecipeType<>() { @Override public String toString() { return Constants.resLocDO("architects_cutter").toString(); } });
 
     private ModRecipeTypes()
     {

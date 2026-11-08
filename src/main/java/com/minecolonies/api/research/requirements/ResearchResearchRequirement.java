@@ -37,7 +37,7 @@ public class ResearchResearchRequirement implements IResearchRequirement
      */
     public ResearchResearchRequirement(final CompoundTag nbt)
     {
-        this.researchId = Identifier.parse(nbt.getString(TAG_ID));
+        this.researchId = Identifier.parse(nbt.getStringOr(TAG_ID, ""));
     }
 
     /**

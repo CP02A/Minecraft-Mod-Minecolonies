@@ -17,6 +17,7 @@ import com.minecolonies.core.network.messages.server.colony.ColonyStructureStyle
 import com.minecolonies.core.network.messages.server.colony.ColonyTextureStyleMessage;
 import com.minecolonies.core.network.messages.server.colony.TeamColonyColorChangeMessage;
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
@@ -136,7 +137,7 @@ public class WindowMainPage extends AbstractWindowTownHall
         colorDropDownList = findPaneOfTypeByID(DROPDOWN_COLOR_ID, DropDownList.class);
         colorDropDownList.setHandler(this::onDropDownListChanged);
 
-        final List<ChatFormatting> textColors = Arrays.stream(ChatFormatting.values()).filter(ChatFormatting::isColor).toList();
+        final List<ChatFormatting> textColors = Arrays.stream(ChatFormatting.values()).filter(format -> TextColor.fromLegacyFormat(format) != null).toList();
 
         colorDropDownList.setDataProvider(new DropDownList.DataProvider()
         {
@@ -151,7 +152,7 @@ public class WindowMainPage extends AbstractWindowTownHall
             {
                 if (index >= 0 && index < textColors.size())
                 {
-                    final String colorName = textColors.get(index).getName().replace("_", " ");
+                    final String colorName = textColors.get(index).name().toLowerCase(Locale.ROOT).replace("_", " ");
                     return Component.literal(colorName.substring(0, 1).toUpperCase(Locale.US) + colorName.substring(1));
                 }
                 return Component.empty();
@@ -237,7 +238,7 @@ public class WindowMainPage extends AbstractWindowTownHall
     private void openBannerPicker(@NotNull final Button button)
     {
         Screen window = new WindowBannerPicker(buildingView.getColony(), this, isFeatureUnlocked);
-        Minecraft.getInstance().setScreen(window);
+        Minecraft.getInstance().gui.setScreen(window);
     }
 
     /**
@@ -351,14 +352,7 @@ public class WindowMainPage extends AbstractWindowTownHall
      */
     private void patreonClicked()
     {
-        Minecraft.getInstance().setScreen(new ConfirmLinkScreen((check) -> {
-            if (check)
-            {
-                Util.getPlatform().openUri("https://www.patreon.com/Minecolonies");
-            }
-
-            Minecraft.getInstance().setScreen(this.screen);
-        }, "https://www.patreon.com/Minecolonies", true));
+        ConfirmLinkScreen.confirmLinkNow(this.screen, java.net.URI.create("https://www.patreon.com/Minecolonies"), true);
     }
 
     @Override

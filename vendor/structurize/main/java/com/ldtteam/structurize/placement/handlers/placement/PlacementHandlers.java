@@ -14,7 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.Tuple;
+import com.ldtteam.structurize.api.Tuple;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -27,6 +27,8 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.*;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -783,7 +785,7 @@ public final class PlacementHandlers
         @Override
         public boolean canHandle(final Level world, final BlockPos pos, final BlockState blockState)
         {
-            return blockState.getBlock() instanceof DirtPathBlock;
+            return blockState.getBlock() instanceof PathBlock;
         }
 
         @Override
@@ -1067,13 +1069,13 @@ public final class PlacementHandlers
                 return ActionProcessingResult.SUCCESS;
             }
 
-            if (blockState.getValue(PointedDripstoneBlock.THICKNESS) != DripstoneThickness.TIP && blockState.getValue(PointedDripstoneBlock.THICKNESS) != DripstoneThickness.TIP_MERGE)
+            if (blockState.getValue(PointedDripstoneBlock.THICKNESS) != SpeleothemThickness.TIP && blockState.getValue(PointedDripstoneBlock.THICKNESS) != SpeleothemThickness.TIP_MERGE)
             {
                 return ActionProcessingResult.PASS;
             }
 
             final Direction dir = blockState.getValue(PointedDripstoneBlock.TIP_DIRECTION).getOpposite();
-            if (blockState.getValue(PointedDripstoneBlock.THICKNESS) == DripstoneThickness.TIP_MERGE)
+            if (blockState.getValue(PointedDripstoneBlock.THICKNESS) == SpeleothemThickness.TIP_MERGE)
             {
                 placeDripStoneInDir(dir.getOpposite(), blueprint, pos.subtract(centerPos).offset(blueprint.getPrimaryBlockOffset()), pos, blockState, world);
                 placeDripStoneInDir(dir, blueprint, pos.subtract(centerPos).offset(blueprint.getPrimaryBlockOffset()), pos, blockState, world);
@@ -1382,7 +1384,7 @@ public final class PlacementHandlers
                 final BlockEntity worldBlockEntity = world.getBlockEntity(pos);
                 if (worldBlockEntity != null)
                 {
-                    worldBlockEntity.loadWithComponents(newTile.saveWithFullMetadata(world.registryAccess()), world.registryAccess());
+                    worldBlockEntity.loadWithComponents(TagValueInput.create(ProblemReporter.DISCARDING, world.registryAccess(), newTile.saveWithFullMetadata(world.registryAccess())));
                     worldBlockEntity.setChanged();
                 }
                 else
@@ -1390,7 +1392,7 @@ public final class PlacementHandlers
                     world.setBlockEntity(newTile);
                 }
                 world.getBlockState(pos).mirror(settings.mirror());
-                world.getBlockState(pos).rotate(world, pos, settings.rotation());
+                world.getBlockState(pos).rotate(settings.rotation());
             }
         }
     }

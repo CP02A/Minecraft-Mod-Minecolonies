@@ -25,12 +25,34 @@ public final class Utils
     }
 
     /**
+     * Replacement for removed Player#playNotifySound: plays a sound audible only to the given player.
+     */
+    public static void playNotifySound(@NotNull final Player player, final net.minecraft.sounds.SoundEvent sound, final SoundSource source, final float volume, final float pitch)
+    {
+        if (player instanceof final net.minecraft.server.level.ServerPlayer serverPlayer)
+        {
+            serverPlayer.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound),
+                source,
+                player.getX(),
+                player.getY(),
+                player.getZ(),
+                volume,
+                pitch,
+                player.getRandom().nextLong()));
+        }
+        else
+        {
+            player.level().playLocalSound(player, sound, source, volume, pitch);
+        }
+    }
+
+    /**
      * Play a success sound.
      * @param player the player to play it for.
      */
     public static void playSuccessSound(@NotNull final Player player)
     {
-        player.playNotifySound(SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.NEUTRAL, 1.0f, 1.0f);
+        playNotifySound(player, SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.NEUTRAL, 1.0f, 1.0f);
     }
 
     /**
@@ -39,7 +61,7 @@ public final class Utils
      */
     public static void playErrorSound(@NotNull final Player player)
     {
-        player.playNotifySound(SoundEvents.NOTE_BLOCK_DIDGERIDOO.value(), SoundSource.NEUTRAL, 1.0f, 0.3f);
+        playNotifySound(player, SoundEvents.NOTE_BLOCK_DIDGERIDOO.value(), SoundSource.NEUTRAL, 1.0f, 0.3f);
     }
 
     /**
@@ -63,7 +85,7 @@ public final class Utils
      */
     public static boolean nbtContains(final CompoundTag originTag, final CompoundTag compareTag)
     {
-        for (final String childTagKey : originTag.getAllKeys())
+        for (final String childTagKey : originTag.keySet())
         {
             final Tag originChildTag = originTag.get(childTagKey);
             final Tag compareChildTag = compareTag.get(childTagKey);

@@ -5,7 +5,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
@@ -99,7 +99,7 @@ public class CustomArrowEntity extends Arrow
                 {
                     source = level().damageSources().arrow(this, shooter);
                 }
-                player.hurt(source, (float) getBaseDamage());
+                player.hurtOrSimulate(source, (float) getBaseDamage());
                 setBaseDamage(0);
             }
         }

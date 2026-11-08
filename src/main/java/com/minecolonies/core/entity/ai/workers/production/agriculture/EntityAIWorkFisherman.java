@@ -547,7 +547,7 @@ public class EntityAIWorkFisherman extends AbstractEntityAISkill<JobFisherman, B
      */
     private void throwRod()
     {
-        if (!world.isClientSide)
+        if (!world.isClientSide())
         {
             WorkerUtil.faceBlock(job.getWater().getA(), worker);
             world.playSound(null,
@@ -555,7 +555,7 @@ public class EntityAIWorkFisherman extends AbstractEntityAISkill<JobFisherman, B
               SoundEvents.FISHING_BOBBER_THROW,
               SoundSource.NEUTRAL,
               0.5F,
-              (float) (0.4D / (this.world.random.nextFloat() * 0.4D + 0.8D)));
+              (float) (0.4D / (this.world.getRandom().nextFloat() * 0.4D + 0.8D)));
 
             this.entityFishHook = new NewBobberEntity(ModEntities.FISHHOOK, worker, worker.level(),
               EnchantmentHelper.getFishingLuckBonus((ServerLevel) worker.level(), worker.getMainHandItem(), worker),
@@ -564,7 +564,7 @@ public class EntityAIWorkFisherman extends AbstractEntityAISkill<JobFisherman, B
             world.addFreshEntity(this.entityFishHook);
         }
 
-        worker.swing(worker.getUsedItemHand());
+        worker.swing(worker.getUsedItemHand(), net.minecraft.world.item.component.SwingAnimation.DEFAULT);
     }
 
     /**
@@ -679,7 +679,7 @@ public class EntityAIWorkFisherman extends AbstractEntityAISkill<JobFisherman, B
     {
         if (entityFishHook != null)
         {
-            worker.swing(worker.getUsedItemHand());
+            worker.swing(worker.getUsedItemHand(), net.minecraft.world.item.component.SwingAnimation.DEFAULT);
             final int i = entityFishHook.retrieve(worker.getMainHandItem());
             generateBonusLoot();
             CitizenItemUtils.damageItemInHand(worker, InteractionHand.MAIN_HAND, i);

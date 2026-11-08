@@ -23,10 +23,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Tuple;
+import com.minecolonies.api.util.Tuple;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Cow;
-import net.minecraft.world.entity.animal.MushroomCow;
+import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.animal.cow.MushroomCow;
 import net.minecraft.world.entity.animal.goat.Goat;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -62,22 +62,22 @@ public class BuildingCowboy extends AbstractBuilding
     /**
      * Milking amount setting.
      */
-    public static final ISettingKey<IntSetting> MILKING_AMOUNT  = new SettingKey<>(IntSetting.class, new Identifier(MOD_ID, "milking_amount"));
+    public static final ISettingKey<IntSetting> MILKING_AMOUNT  = new SettingKey<>(IntSetting.class, Identifier.fromNamespaceAndPath(MOD_ID, "milking_amount"));
 
     /**
      * Stewing amount setting.
      */
-    public static final ISettingKey<IntSetting> STEWING_AMOUNT = new SettingKey<>(IntSetting.class, new Identifier(MOD_ID, "stewing_amount"));
+    public static final ISettingKey<IntSetting> STEWING_AMOUNT = new SettingKey<>(IntSetting.class, Identifier.fromNamespaceAndPath(MOD_ID, "stewing_amount"));
 
     /**
      * Milking days setting.
      */
-    public static final ISettingKey<IntSetting> MILKING_DAYS  = new SettingKey<>(IntSetting.class, new Identifier(MOD_ID, "milking_days"));
+    public static final ISettingKey<IntSetting> MILKING_DAYS  = new SettingKey<>(IntSetting.class, Identifier.fromNamespaceAndPath(MOD_ID, "milking_days"));
 
     /**
      * Milking days setting.
      */
-    public static final ISettingKey<StringSetting> MILK_ITEM  = new SettingKey<>(StringSetting.class, new Identifier(MOD_ID, "milk_item"));
+    public static final ISettingKey<StringSetting> MILK_ITEM  = new SettingKey<>(StringSetting.class, Identifier.fromNamespaceAndPath(MOD_ID, "milk_item"));
 
 
     /**
@@ -232,9 +232,9 @@ public class BuildingCowboy extends AbstractBuilding
         @Override
         public void deserializeNBT(@NotNull final HolderLookup.Provider provider, CompoundTag compound)
         {
-            this.currentMilk = compound.getInt("milkValue");
-            this.currentStew = compound.getInt("stewValue");
-            this.currentMilkDays = compound.getInt("milkDays");
+            this.currentMilk = compound.getIntOr("milkValue", 0);
+            this.currentStew = compound.getIntOr("stewValue", 0);
+            this.currentMilkDays = compound.getIntOr("milkDays", 0);
         }
 
         @Override

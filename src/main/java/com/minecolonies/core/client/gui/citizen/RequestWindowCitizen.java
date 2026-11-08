@@ -35,7 +35,7 @@ import static com.minecolonies.api.util.constant.TranslationConstants.COM_MINECO
  */
 public class RequestWindowCitizen extends AbstractWindowCitizen
 {
-    public static final Identifier WINDOW_ID = new Identifier(Constants.MOD_ID, "gui/citizen/requests.xml");
+    public static final Identifier WINDOW_ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/citizen/requests.xml");
 
     /**
      * The request that should be opened.

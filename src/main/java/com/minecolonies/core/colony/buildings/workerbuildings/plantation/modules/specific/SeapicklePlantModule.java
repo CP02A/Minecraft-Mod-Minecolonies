@@ -15,7 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SeaPickleBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -101,7 +101,7 @@ public class SeapicklePlantModule extends BoneMealedPlantModule
     }
 
     @Override
-    public @NonNull List<Item> getValidBonemeal()
+    public @NotNull List<Item> getValidBonemeal()
     {
         // Only base minecraft bonemeal has water growing capabilities.
         // Compost (by design) should not inherit this functionality.
@@ -111,7 +111,7 @@ public class SeapicklePlantModule extends BoneMealedPlantModule
     @Override
     public void applyBonemeal(final AbstractEntityCitizen worker, final BlockPos workPosition, final ItemStack stackInSlot, final Player fakePlayer)
     {
-        BoneMealItem.applyBonemeal(stackInSlot, worker.level(), workPosition.above(), fakePlayer);
+        BoneMealItem.growCrop(stackInSlot, worker.level(), workPosition.above());
         BoneMealItem.addGrowthParticles(worker.level(), workPosition.above(), 1);
     }
 }

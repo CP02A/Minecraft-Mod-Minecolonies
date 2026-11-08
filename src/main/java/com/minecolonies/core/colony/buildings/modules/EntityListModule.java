@@ -51,13 +51,13 @@ public class EntityListModule extends AbstractBuildingModule implements IEntityL
     {
         if (compound.contains(id))
         {
-            compound = compound.getCompound(id);
+            compound = compound.getCompoundOrEmpty(id);
         }
 
-        final ListTag filterableList = compound.getList(TAG_MOBLIST, Tag.TAG_STRING);
+        final ListTag filterableList = compound.getListOrEmpty(TAG_MOBLIST);
         for (int i = 0; i < filterableList.size(); ++i)
         {
-            final Identifier res = Identifier.parse(filterableList.getString(i));
+            final Identifier res = Identifier.parse(filterableList.getStringOr(i, ""));
             if (BuiltInRegistries.ENTITY_TYPE.containsKey(res))
             {
                 mobsAllowed.add(res);
@@ -114,7 +114,7 @@ public class EntityListModule extends AbstractBuildingModule implements IEntityL
         buf.writeInt(mobsAllowed.size());
         for (final Identifier entity : mobsAllowed)
         {
-            buf.writeResourceLocation(entity);
+            buf.writeIdentifier(entity);
         }
     }
 

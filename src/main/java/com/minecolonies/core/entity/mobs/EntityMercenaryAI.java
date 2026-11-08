@@ -168,7 +168,7 @@ public class EntityMercenaryAI extends Goal
 
                     if (!ItemStackUtils.isEmpty(stack))
                     {
-                        entity.swing(InteractionHand.OFF_HAND);
+                        entity.swing(InteractionHand.OFF_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
                         MessageUtils.format(MESSAGE_INFO_COLONY_MERCENARY_STEAL_BUILDING, stack.getHoverName().getString()).sendTo(entity.getColony()).forAllPlayers();
                     }
                 }
@@ -182,7 +182,7 @@ public class EntityMercenaryAI extends Goal
             else
             {
                 movingToBuilding = false;
-                currentPatrolPos = BlockPosUtil.getRandomPosition(entity.getCommandSenderWorld(), entity.blockPosition(), entity.blockPosition(), 10, 27);
+                currentPatrolPos = BlockPosUtil.getRandomPosition(entity.level(), entity.blockPosition(), entity.blockPosition(), 10, 27);
             }
         }
 
@@ -237,9 +237,9 @@ public class EntityMercenaryAI extends Goal
         // Check if we can attack
         if (distance < MELEE_ATTACK_DIST && attacktimer == 0)
         {
-            entity.swing(InteractionHand.MAIN_HAND);
+            entity.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
             entity.playSound(MercenarySounds.mercenaryAttack, 0.55f, 1.0f);
-            entity.getTarget().hurt(entity.level().damageSources().mobAttack(entity), 15);
+            entity.getTarget().hurtOrSimulate(entity.level().damageSources().mobAttack(entity), 15);
             entity.getTarget().setRemainingFireTicks(3 * TICKS_PER_SECOND);
             attacktimer = ATTACK_DELAY;
         }

@@ -75,7 +75,7 @@ public class ChunkCache implements LevelReader
             {
                 if (WorldUtil.isEntityChunkLoaded(world, new ChunkPos(k, l)) && worldIn.getChunkSource() instanceof ServerChunkCache serverChunkCache)
                 {
-                    final ChunkHolder holder = serverChunkCache.chunkMap.getVisibleChunkIfPresent(ChunkPos.asLong(k, l));
+                    final ChunkHolder holder = ((com.minecolonies.fabric.mixin.api.ChunkMapInvoker) serverChunkCache.chunkMap).minecolonies$getVisibleChunkIfPresent(ChunkPos.pack(k, l));
                     if (holder != null)
                     {
                         this.chunkArray[k - this.chunkX][l - this.chunkZ] = (LevelChunk) holder.getChunkIfPresent(ChunkStatus.FULL);
@@ -85,8 +85,8 @@ public class ChunkCache implements LevelReader
         }
         this.dimType = worldIn.dimensionType();
 
-        minBuildHeight = worldIn.getMinBuildHeight();
-        maxBuildHeight = worldIn.getMaxBuildHeight();
+        minBuildHeight = worldIn.getMinY();
+        maxBuildHeight = worldIn.getMaxY() + 1;
     }
 
     /**
@@ -120,15 +120,31 @@ public class ChunkCache implements LevelReader
     }
 
     @Override
-    public int getMinBuildHeight()
+    public int getMinY()
     {
         return minBuildHeight;
     }
 
     @Override
-    public int getMaxBuildHeight()
+    public int getHeight()
+    {
+        return maxBuildHeight - minBuildHeight;
+    }
+
+    private int getMinBuildHeight()
+    {
+        return minBuildHeight;
+    }
+
+    private int getMaxBuildHeight()
     {
         return maxBuildHeight;
+    }
+
+    @Override
+    public net.minecraft.world.attribute.EnvironmentAttributeReader environmentAttributes()
+    {
+        return world.environmentAttributes();
     }
 
     @NotNull
@@ -297,7 +313,6 @@ public class ChunkCache implements LevelReader
         return x >= 0 && x < chunkArray.length && z >= 0 && z < chunkArray[x].length && chunkArray[x][z] != null;
     }
 
-    @Override
     public float getShade(final Direction direction, final boolean b)
     {
         return 0;

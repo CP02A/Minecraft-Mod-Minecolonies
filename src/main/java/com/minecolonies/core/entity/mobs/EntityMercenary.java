@@ -21,7 +21,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.util.Tuple;
+import com.minecolonies.api.util.Tuple;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -32,7 +32,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.animal.horse.Llama;
+import net.minecraft.world.entity.animal.equine.Llama;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.Npc;
@@ -324,27 +324,37 @@ public class EntityMercenary extends AbstractFastMinecoloniesEntity implements N
     }
 
     @Override
-    public void addAdditionalSaveData(final CompoundTag compound)
+    public void addAdditionalSaveData(final net.minecraft.world.level.storage.ValueOutput valueOutput)
     {
-        compound.putLong(TAG_TIME, worldTimeAtSpawn);
-        compound.putInt(TAG_COLONY_ID, this.colony == null ? 0 : colony.getID());
-        super.addAdditionalSaveData(compound);
+        super.addAdditionalSaveData(valueOutput);
+        final CompoundTag compound = new CompoundTag();
+        addAdditionalSaveDataTag(compound);
+        com.minecolonies.core.entity.NbtValueIO.write(valueOutput, compound);
     }
 
-    @Override
-    public void readAdditionalSaveData(final CompoundTag compound)
+    private void addAdditionalSaveDataTag(final CompoundTag compound)
     {
-        worldTimeAtSpawn = compound.getLong(TAG_TIME);
+
+        compound.putLong(TAG_TIME, worldTimeAtSpawn);
+        compound.putInt(TAG_COLONY_ID, this.colony == null ? 0 : colony.getID());
+        }
+
+    @Override
+    public void readAdditionalSaveData(final net.minecraft.world.level.storage.ValueInput valueInput)
+    {
+        super.readAdditionalSaveData(valueInput);
+        final CompoundTag compound = com.minecolonies.core.entity.NbtValueIO.read(valueInput);
+
+        worldTimeAtSpawn = compound.getLongOr(TAG_TIME, 0L);
         if (compound.contains(TAG_COLONY_ID))
         {
-            colonyId = compound.getInt(TAG_COLONY_ID);
+            colonyId = compound.getIntOr(TAG_COLONY_ID, 0);
             if (colonyId != 0)
             {
                 setColony(IColonyManager.getInstance().getColonyByWorld(colonyId, level()));
             }
         }
-        super.readAdditionalSaveData(compound);
-    }
+        }
 
     @Override
     public Component getName()
@@ -390,13 +400,13 @@ public class EntityMercenary extends AbstractFastMinecoloniesEntity implements N
     }
 
     @Override
-    public boolean hurt(final DamageSource source, final float damage)
+    public boolean hurtServer(final net.minecraft.server.level.ServerLevel level, final DamageSource source, final float damage)
     {
         if (source.getEntity() instanceof LivingEntity)
         {
             this.setTarget((LivingEntity) source.getEntity());
         }
-        return super.hurt(source, damage);
+        return super.hurtServer(level, source, damage);
     }
 
     @Override
@@ -405,8 +415,8 @@ public class EntityMercenary extends AbstractFastMinecoloniesEntity implements N
         if (slapTimer == 0 && entityIn instanceof Player)
         {
             slapTimer = SLAP_INTERVAL;
-            entityIn.hurt(entityIn.level().damageSources().source(DamageSourceKeys.SLAP, this), 1.0f);
-            this.swing(InteractionHand.OFF_HAND);
+            entityIn.hurtOrSimulate(entityIn.level().damageSources().source(DamageSourceKeys.SLAP, this), 1.0f);
+            this.swing(InteractionHand.OFF_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
         }
 
         if (slapTimer == 0 && entityIn instanceof EntityCitizen && colony != null && ((EntityCitizen) entityIn).isActive())
@@ -416,7 +426,7 @@ public class EntityMercenary extends AbstractFastMinecoloniesEntity implements N
             final ItemStack stack = handler.extractItem(rand.nextInt(handler.getSlots()), 5, false);
             if (!ItemStackUtils.isEmpty(stack))
             {
-                this.swing(InteractionHand.OFF_HAND);
+                this.swing(InteractionHand.OFF_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
                 MessageUtils.format(MESSAGE_INFO_COLONY_MERCENARY_STEAL_CITIZEN, entityIn.getName().getString(), stack.getHoverName().getString()).sendTo(colony).forAllPlayers();
             }
         }
@@ -453,7 +463,7 @@ public class EntityMercenary extends AbstractFastMinecoloniesEntity implements N
     @Override
     public void aiStep()
     {
-        if (level() != null && !level().isClientSide)
+        if (level() != null && !level().isClientSide())
         {
             stateMachine.tick();
         }
@@ -496,7 +506,7 @@ public class EntityMercenary extends AbstractFastMinecoloniesEntity implements N
         final List<EntityMercenary> soldiers = new ArrayList<>();
         for (int i = 0; i < amountOfMercenaries; i++)
         {
-            final EntityMercenary merc = (EntityMercenary) ModEntities.MERCENARY.create(world);
+            final EntityMercenary merc = (EntityMercenary) ModEntities.MERCENARY.create(world, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
             merc.setColony(colony);
             merc.setPos(spawn.getX() + i, spawn.getY(), spawn.getZ());
             merc.setDoSpawnEvent();
@@ -505,7 +515,7 @@ public class EntityMercenary extends AbstractFastMinecoloniesEntity implements N
         }
 
         // spawn leader for the event.
-        final EntityMercenary merc = (EntityMercenary) ModEntities.MERCENARY.create(world);
+        final EntityMercenary merc = (EntityMercenary) ModEntities.MERCENARY.create(world, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
         merc.setColony(colony);
         merc.setPos(spawn.getX(), spawn.getY(), spawn.getZ() + 1);
         merc.setLeader(soldiers);

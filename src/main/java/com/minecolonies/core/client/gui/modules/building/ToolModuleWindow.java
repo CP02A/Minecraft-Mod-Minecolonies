@@ -23,7 +23,7 @@ public class ToolModuleWindow extends AbstractModuleWindow<ToolModuleView>
      */
     public ToolModuleWindow(final ToolModuleView moduleView)
     {
-        super(moduleView,  new Identifier(Constants.MOD_ID, "gui/layouthuts/layouttool.xml"));
+        super(moduleView,  Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layouttool.xml"));
 
         findPaneOfTypeByID("desc", Text.class).setText(Component.translatableEscape("com.minecolonies.coremod.gui.tooldesc." + BuiltInRegistries.ITEM.getKey(moduleView.getTool()).getPath()));
         registerButton(BUTTON_GIVE_TOOL, this::givePlayerScepter);

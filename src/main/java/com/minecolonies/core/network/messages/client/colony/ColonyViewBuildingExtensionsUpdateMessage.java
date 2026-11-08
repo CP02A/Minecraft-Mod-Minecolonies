@@ -62,7 +62,7 @@ public class ColonyViewBuildingExtensionsUpdateMessage extends AbstractClientPla
     protected void toBytes(@NotNull final RegistryFriendlyByteBuf buf)
     {
         buf.writeInt(colonyId);
-        buf.writeUtf(dimension.location().toString());
+        buf.writeUtf(dimension.identifier().toString());
         buf.writeInt(extensions.size());
         for (final IBuildingExtension extension : extensions.keySet())
         {

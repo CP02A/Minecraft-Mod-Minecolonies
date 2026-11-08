@@ -16,7 +16,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -78,7 +78,7 @@ public class SeagrassPlantModule extends BoneMealedPlantModule
     }
 
     @Override
-    public @NonNull List<Item> getValidBonemeal()
+    public @NotNull List<Item> getValidBonemeal()
     {
         // Only base minecraft bonemeal has water growing capabilities.
         // Compost (by design) should not inherit this functionality.

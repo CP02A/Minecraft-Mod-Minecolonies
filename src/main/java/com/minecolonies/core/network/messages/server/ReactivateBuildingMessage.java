@@ -65,7 +65,7 @@ public class ReactivateBuildingMessage extends AbstractServerPlayMessage impleme
     @Override
     protected void onExecute(final IPayloadContext ctxIn, final ServerPlayer player)
     {
-        final Level world = player.getCommandSenderWorld();
+        final Level world = player.level();
 
         if (!isInRange(player.blockPosition(), pos))
         {

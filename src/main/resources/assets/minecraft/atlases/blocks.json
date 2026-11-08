@@ -2,10 +2,6 @@
   "sources": [
     {
       "type": "minecraft:single",
-      "resource": "minecraft:map/map_icons"
-    },
-    {
-      "type": "minecraft:single",
       "resource": "minecraft:entity/chest/normal"
     },
     {
@@ -14,11 +10,11 @@
     },
     {
       "type": "minecraft:single",
-      "resource": "minecraft:entity/chicken"
+      "resource": "minecraft:entity/chicken/chicken_temperate"
     },
     {
       "type": "minecraft:single",
-      "resource": "minecraft:entity/armorstand/wood"
+      "resource": "minecraft:entity/armorstand/armorstand"
     },
     {
       "type": "minecraft:single",
@@ -26,7 +22,7 @@
     },
     {
       "type": "minecraft:single",
-      "resource": "minecraft:models/armor/leather_layer_1"
+      "resource": "minecraft:entity/equipment/humanoid/leather"
     },
     {
       "type": "minecraft:single",
@@ -35,6 +31,96 @@
     {
       "type": "minecraft:single",
       "resource": "minecolonies:gui/builderhut/builder_paper_sketch_block"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "minecolonies:item/scarecrow",
+      "sprite": "minecolonies:block/item_atlas_alias/minecolonies/scarecrow"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "minecraft:item/arrow",
+      "sprite": "minecolonies:block/item_atlas_alias/minecraft/arrow"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "minecraft:item/beetroot",
+      "sprite": "minecolonies:block/item_atlas_alias/minecraft/beetroot"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "minecraft:item/bread",
+      "sprite": "minecolonies:block/item_atlas_alias/minecraft/bread"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "minecraft:item/brick",
+      "sprite": "minecolonies:block/item_atlas_alias/minecraft/brick"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "minecraft:item/bucket",
+      "sprite": "minecolonies:block/item_atlas_alias/minecraft/bucket"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "minecraft:item/carrot",
+      "sprite": "minecolonies:block/item_atlas_alias/minecraft/carrot"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "minecraft:item/clay_ball",
+      "sprite": "minecolonies:block/item_atlas_alias/minecraft/clay_ball"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "minecraft:item/diamond_pickaxe",
+      "sprite": "minecolonies:block/item_atlas_alias/minecraft/diamond_pickaxe"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "minecraft:item/egg",
+      "sprite": "minecolonies:block/item_atlas_alias/minecraft/egg"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "minecraft:item/feather",
+      "sprite": "minecolonies:block/item_atlas_alias/minecraft/feather"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "minecraft:item/iron_pickaxe",
+      "sprite": "minecolonies:block/item_atlas_alias/minecraft/iron_pickaxe"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "minecraft:item/netherite_pickaxe",
+      "sprite": "minecolonies:block/item_atlas_alias/minecraft/netherite_pickaxe"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "minecraft:item/rotten_flesh",
+      "sprite": "minecolonies:block/item_atlas_alias/minecraft/rotten_flesh"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "minecraft:item/salmon",
+      "sprite": "minecolonies:block/item_atlas_alias/minecraft/salmon"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "minecraft:item/shears",
+      "sprite": "minecolonies:block/item_atlas_alias/minecraft/shears"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "minecraft:item/string",
+      "sprite": "minecolonies:block/item_atlas_alias/minecraft/string"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "minecraft:item/tropical_fish",
+      "sprite": "minecolonies:block/item_atlas_alias/minecraft/tropical_fish"
     }
   ]
 }

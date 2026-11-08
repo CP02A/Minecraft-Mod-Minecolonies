@@ -14,7 +14,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -94,7 +93,7 @@ public class ItemScanAnalyzer extends AbstractItemWithPosSelector
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(final Level worldIn, final Player playerIn, final InteractionHand handIn)
+    public InteractionResult use(final Level worldIn, final Player playerIn, final InteractionHand handIn)
     {
         checkTimeout(playerIn.getItemInHand(handIn), worldIn);
         return super.use(worldIn, playerIn, handIn);
@@ -103,7 +102,7 @@ public class ItemScanAnalyzer extends AbstractItemWithPosSelector
     @Override
     public InteractionResult onAirRightClick(final BlockPos start, final BlockPos end, final Level worldIn, final Player playerIn, final ItemStack itemStack)
     {
-        if (worldIn.isClientSide)
+        if (worldIn.isClientSide())
         {
             if (start != null && end != null && (!lastPos.equals(start) || !lastPos2.equals(end)))
             {
@@ -171,7 +170,7 @@ public class ItemScanAnalyzer extends AbstractItemWithPosSelector
     {
         if (box.getXsize() * box.getYsize() * box.getZsize() > Structurize.getConfig().getServer().schematicBlockLimit.get())
         {
-            player.displayClientMessage(Component.translatableEscape(MAX_SCHEMATIC_SIZE_REACHED, Structurize.getConfig().getServer().schematicBlockLimit.get()), false);
+            player.sendSystemMessage(Component.translatableEscape(MAX_SCHEMATIC_SIZE_REACHED, Structurize.getConfig().getServer().schematicBlockLimit.get()));
             return null;
         }
 

@@ -8,7 +8,7 @@ import com.ldtteam.structurize.management.Manager;
 import com.ldtteam.structurize.util.ChangeStorage;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Tuple;
+import com.ldtteam.structurize.api.Tuple;
 import net.minecraft.world.entity.player.Player;
 import com.ldtteam.shim.neoforge.network.handling.IPayloadContext;
 
@@ -30,7 +30,12 @@ public class OperationHistoryMessage extends AbstractPlayMessage
     protected OperationHistoryMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
-        operationIDs = buf.readList(b -> new Tuple<>(b.readUtf(), b.readInt()));
+        final int size = buf.readVarInt();
+        operationIDs = new ArrayList<>(size);
+        for (int i = 0; i < size; i++)
+        {
+            operationIDs.add(new Tuple<>(buf.readUtf(), buf.readInt()));
+        }
     }
 
     public OperationHistoryMessage()
@@ -42,10 +47,12 @@ public class OperationHistoryMessage extends AbstractPlayMessage
     @Override
     protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
-        buf.writeCollection(operationIDs, (b, operation) -> {
-            b.writeUtf(operation.getA());
-            b.writeInt(operation.getB());
-        });
+        buf.writeVarInt(operationIDs.size());
+        for (final Tuple<String, Integer> operation : operationIDs)
+        {
+            buf.writeUtf(operation.getA());
+            buf.writeInt(operation.getB());
+        }
     }
 
     @Override

@@ -63,7 +63,7 @@ public class SittingEntity extends Entity
     /**
      * Do not let the entity be destroyed
      */
-    public boolean hurt(DamageSource source, float amount)
+    public boolean hurtServer(final net.minecraft.server.level.ServerLevel level, final DamageSource source, final float amount)
     {
         return false;
     }
@@ -77,16 +77,26 @@ public class SittingEntity extends Entity
     }
 
     @Override
-    protected void readAdditionalSaveData(final CompoundTag compound)
+    public void readAdditionalSaveData(final net.minecraft.world.level.storage.ValueInput valueInput)
     {
+        final CompoundTag compound = com.minecolonies.core.entity.NbtValueIO.read(valueInput);
 
-    }
+
+        }
 
     @Override
-    protected void addAdditionalSaveData(final CompoundTag compound)
+    public void addAdditionalSaveData(final net.minecraft.world.level.storage.ValueOutput valueOutput)
+    {
+        final CompoundTag compound = new CompoundTag();
+        addAdditionalSaveDataTag(compound);
+        com.minecolonies.core.entity.NbtValueIO.write(valueOutput, compound);
+    }
+
+    private void addAdditionalSaveDataTag(final CompoundTag compound)
     {
 
-    }
+
+        }
 
     @Override
     protected void defineSynchedData(final SynchedEntityData.Builder builder)
@@ -104,7 +114,7 @@ public class SittingEntity extends Entity
     @Override
     public void tick()
     {
-        if (this.level().isClientSide)
+        if (this.level().isClientSide())
         {
             return;
         }
@@ -126,26 +136,26 @@ public class SittingEntity extends Entity
     protected void addPassenger(Entity passenger)
     {
         super.addPassenger(passenger);
-        if (this.level().isClientSide)
+        if (this.level().isClientSide())
         {
             return;
         }
 
-        passenger.dimensions = passenger.getType().getDimensions().scale(1.0f, 0.5f);
+        ((com.minecolonies.fabric.mixin.entity.EntityDimensionsAccessor) passenger).minecolonies$setDimensions(passenger.getType().getDimensions().scale(1.0f, 0.5f));
     }
 
     @Override
     protected void removePassenger(Entity passenger)
     {
         super.removePassenger(passenger);
-        if (this.level().isClientSide)
+        if (this.level().isClientSide())
         {
             return;
         }
 
         if (passenger instanceof LivingEntity)
         {
-            passenger.dimensions = ((LivingEntity) passenger).isBaby() ? passenger.getType().getDimensions().scale(0.5f) : passenger.getType().getDimensions();
+            ((com.minecolonies.fabric.mixin.entity.EntityDimensionsAccessor) passenger).minecolonies$setDimensions(((LivingEntity) passenger).isBaby() ? passenger.getType().getDimensions().scale(0.5f) : passenger.getType().getDimensions());
         }
     }
 
@@ -214,7 +224,7 @@ public class SittingEntity extends Entity
         }
         existingSittingEntities.computeIfAbsent(entity.level().dimension(), k -> new HashSet<>()).add(pos);
 
-        final SittingEntity sittingEntity = (SittingEntity) ModEntities.SITTINGENTITY.create(entity.level());
+        final SittingEntity sittingEntity = (SittingEntity) ModEntities.SITTINGENTITY.create(entity.level(), net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
 
         // Find the lowest box and sit on that
         final BlockState state = entity.level().getBlockState(pos);

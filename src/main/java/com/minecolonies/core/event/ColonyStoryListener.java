@@ -10,6 +10,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.resources.FileToIdConverter;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.biome.Biome;
@@ -25,14 +27,14 @@ import java.util.*;
 import java.util.function.Predicate;
 
 import static com.minecolonies.api.util.constant.Constants.MOD_ID;
-import static com.minecolonies.core.generation.DataGeneratorConstants.COLONY_STORIES_DIR;
+
 import static com.ldtteam.shim.fml.common.EventBusSubscriber.Bus.MOD;
 
 /**
  * Loads and listens to colony story changes.
  */
 @EventBusSubscriber(value = Dist.CLIENT, modid = Constants.MOD_ID, bus = MOD)
-public class ColonyStoryListener extends SimpleJsonResourceReloadListener
+public class ColonyStoryListener extends SimpleJsonResourceReloadListener<JsonElement>
 {
     /**
      * Gson instance
@@ -42,19 +44,19 @@ public class ColonyStoryListener extends SimpleJsonResourceReloadListener
     /**
      * Names for abandoned colonies.
      */
-    public static final Identifier ABANDONED_COLONY_NAME = new Identifier(MOD_ID, "abandoned_name");
+    public static final Identifier ABANDONED_COLONY_NAME = Identifier.fromNamespaceAndPath(MOD_ID, "abandoned_name");
     /**
      * Stories for abandoned colonies.
      */
-    public static final Identifier ABANDONED_COLONY_STORY = new Identifier(MOD_ID, "abandoned");
+    public static final Identifier ABANDONED_COLONY_STORY = Identifier.fromNamespaceAndPath(MOD_ID, "abandoned");
     /**
      * Stories for supply camps.
      */
-    public static final Identifier SUPPLY_CAMP_STORY = new Identifier(MOD_ID, "camp");
+    public static final Identifier SUPPLY_CAMP_STORY = Identifier.fromNamespaceAndPath(MOD_ID, "camp");
     /**
      * Stories for supply ships.
      */
-    public static final Identifier SUPPLY_SHIP_STORY = new Identifier(MOD_ID, "ship");
+    public static final Identifier SUPPLY_SHIP_STORY = Identifier.fromNamespaceAndPath(MOD_ID, "ship");
 
     /**
      * List of story and lore elements loaded from data.
@@ -76,7 +78,7 @@ public class ColonyStoryListener extends SimpleJsonResourceReloadListener
      */
     public ColonyStoryListener()
     {
-        super(GSON, COLONY_STORIES_DIR);
+        super(ExtraCodecs.JSON, FileToIdConverter.json("colony/stories"));
     }
 
     /**
@@ -228,7 +230,7 @@ public class ColonyStoryListener extends SimpleJsonResourceReloadListener
             {
                 final RegistryAccess registryAccess = ServerLifecycleHooks.getCurrentServer().registryAccess();
                 final ResourceKey<Biome> key = ResourceKey.create(Registries.BIOME, Identifier.parse(value));
-                final Holder<Biome> biome = registryAccess.registryOrThrow(Registries.BIOME).getHolderOrThrow(key);
+                final Holder<Biome> biome = registryAccess.lookupOrThrow(Registries.BIOME).getOrThrow(key);
                 return new BiomeFilter(b -> b.equals(biome));
             }
         }

@@ -32,7 +32,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Tuple;
+import com.minecolonies.api.util.Tuple;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -55,10 +55,10 @@ public class BuildingLumberjack extends AbstractBuilding
     /**
      * Replant setting.
      */
-    public static final ISettingKey<BoolSetting> REPLANT = new SettingKey<>(BoolSetting.class, new Identifier(com.minecolonies.api.util.constant.Constants.MOD_ID, "replant"));
-    public static final ISettingKey<BoolSetting> RESTRICT = new SettingKey<>(BoolSetting.class, new Identifier(com.minecolonies.api.util.constant.Constants.MOD_ID, "restrict"));
-    public static final ISettingKey<BoolSetting> DEFOLIATE = new SettingKey<>(BoolSetting.class, new Identifier(com.minecolonies.api.util.constant.Constants.MOD_ID, "defoliate"));
-    public static final ISettingKey<DynamicTreesSetting> DYNAMIC_TREES_SIZE = new SettingKey<>(DynamicTreesSetting.class, new Identifier(com.minecolonies.api.util.constant.Constants.MOD_ID, "dynamictreeharvestsize"));
+    public static final ISettingKey<BoolSetting> REPLANT = new SettingKey<>(BoolSetting.class, Identifier.fromNamespaceAndPath(com.minecolonies.api.util.constant.Constants.MOD_ID, "replant"));
+    public static final ISettingKey<BoolSetting> RESTRICT = new SettingKey<>(BoolSetting.class, Identifier.fromNamespaceAndPath(com.minecolonies.api.util.constant.Constants.MOD_ID, "restrict"));
+    public static final ISettingKey<BoolSetting> DEFOLIATE = new SettingKey<>(BoolSetting.class, Identifier.fromNamespaceAndPath(com.minecolonies.api.util.constant.Constants.MOD_ID, "defoliate"));
+    public static final ISettingKey<DynamicTreesSetting> DYNAMIC_TREES_SIZE = new SettingKey<>(DynamicTreesSetting.class, Identifier.fromNamespaceAndPath(com.minecolonies.api.util.constant.Constants.MOD_ID, "dynamictreeharvestsize"));
 
     /**
      * NBT tag for lj restriction start
@@ -176,7 +176,7 @@ public class BuildingLumberjack extends AbstractBuilding
             endRestriction = null;
         }
 
-        final ListTag netherTreeBinTagList = compound.getList(TAG_NETHER_TREE_LIST, Tag.TAG_COMPOUND);
+        final ListTag netherTreeBinTagList = compound.getListOrEmpty(TAG_NETHER_TREE_LIST);
         for (int i = 0; i < netherTreeBinTagList.size(); i++)
         {
             netherTrees.add(BlockPosUtil.readFromListNBT(netherTreeBinTagList, i));
@@ -296,13 +296,13 @@ public class BuildingLumberjack extends AbstractBuilding
                     if (rand < threshold)
                     {
                         final BonemealableBlock growable = (BonemealableBlock) block;
-                        if (growable.isValidBonemealTarget(world, pos, blockState))
+                        if (growable.isValidBonemealTarget(world, pos, blockState, net.minecraft.world.level.block.BonemealSource.INTERACTION))
                         {
-                            if (!world.isClientSide)
+                            if (!world.isClientSide())
                             {
-                                if (growable.isBonemealSuccess(world, world.random, pos, blockState))
+                                if (growable.isBonemealSuccess(world, world.getRandom(), pos, blockState, net.minecraft.world.level.block.BonemealSource.INTERACTION))
                                 {
-                                    growable.performBonemeal((ServerLevel) world, world.random, pos, blockState);
+                                    growable.performBonemeal((ServerLevel) world, world.getRandom(), pos, blockState, net.minecraft.world.level.block.BonemealSource.INTERACTION);
                                     return;
                                 }
                             }

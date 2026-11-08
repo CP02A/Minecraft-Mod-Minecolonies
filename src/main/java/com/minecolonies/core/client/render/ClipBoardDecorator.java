@@ -8,10 +8,9 @@ import com.minecolonies.api.colony.requestsystem.resolver.retrying.IRetryingRequ
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.items.component.ColonyId;
 import com.minecolonies.api.util.Log;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import com.ldtteam.shim.neoforge.client.IItemDecorator;
@@ -26,7 +25,7 @@ public class ClipBoardDecorator implements IItemDecorator
     private        long        lastChange;
 
     @Override
-    public boolean render(GuiGraphics graphics, Font font, ItemStack stack, int xOffset, int yOffset)
+    public boolean render(GuiGraphicsExtractor graphics, Font font, ItemStack stack, int xOffset, int yOffset)
     {
         final long gametime = Minecraft.getInstance().level.getGameTime();
 
@@ -64,15 +63,12 @@ public class ClipBoardDecorator implements IItemDecorator
 
                         if (!requestTokens.isEmpty())
                         {
-                            final PoseStack ps = graphics.pose();
-                            ps.pushPose();
-                            ps.translate(0, 0, 200);
-                            graphics.drawCenteredString(font,
+                            // FABRIC-PORT: 2D GUI pose has no z anymore; decorations are drawn after the item.
+                            graphics.centeredText(font,
                                 Component.literal(requestTokens.size() + ""),
                                 xOffset + 15,
                                 yOffset - 2,
                                 0xFFFF4500);
-                            ps.popPose();
                             return true;
                         }
 

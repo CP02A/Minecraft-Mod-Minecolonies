@@ -21,7 +21,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Tuple;
+import com.minecolonies.api.util.Tuple;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -47,12 +47,12 @@ public class BuildingMiner extends AbstractBuildingStructureBuilder
     /**
      * Setting for solid filling block.
      */
-    public static final ISettingKey<BlockSetting> FILL_BLOCK = new SettingKey<>(BlockSetting.class, new Identifier(Constants.MOD_ID, "fillblock"));
+    public static final ISettingKey<BlockSetting> FILL_BLOCK = new SettingKey<>(BlockSetting.class, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "fillblock"));
 
     /**
      * Max depth the miner is going for.
      */
-    public static final ISettingKey<IntSetting> MAX_DEPTH = new SettingKey<>(IntSetting.class, new Identifier(Constants.MOD_ID, "maxdepth"));
+    public static final ISettingKey<IntSetting> MAX_DEPTH = new SettingKey<>(IntSetting.class, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "maxdepth"));
 
     /**
      * Mine height levels:
@@ -203,7 +203,7 @@ public class BuildingMiner extends AbstractBuildingStructureBuilder
      */
     public int normalizeMaxDepth(final int max, final Level level)
     {
-        final int worldMaxDepth = level.getMinBuildHeight() + 5;
+        final int worldMaxDepth = level.getMinY() + 5;
         final IntSetting maxDepth = getSetting(MAX_DEPTH);
         if (maxDepth.getValue() == maxDepth.getDefault())
         {

@@ -4,6 +4,7 @@ import com.ldtteam.blockui.BOGuiGraphics;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneParams;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.state.MapRenderState;
 import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 
@@ -57,15 +58,16 @@ public class MinecraftMap extends Pane
     {
         if (mapData != null)
         {
-            ms.pose().pushPose();
-            ms.pose().translate(x, y, 0.01f);
-            ms.pose().scale(getWidth() / MAP_SIZE, getHeight() / MAP_SIZE, 1);
+            ms.pose().pushMatrix();
+            ms.pose().translate(x, y);
+            ms.pose().scale((float) getWidth() / MAP_SIZE, (float) getHeight() / MAP_SIZE);
 
-            // if fifth bool == false => enable all map decos
-            Minecraft.getInstance().gameRenderer.getMapRenderer().render(ms.pose(), ms.bufferSource(), mapId, mapData, true, 15728880);
+            // only decorations shown on item frames are rendered (same as the former "active" flag = true)
+            final MapRenderState mapRenderState = new MapRenderState();
+            Minecraft.getInstance().getMapRenderer().extractRenderState(mapId, mapData, mapRenderState);
+            ms.map(mapRenderState);
 
-            ms.flush();
-            ms.pose().popPose();
+            ms.pose().popMatrix();
         }
     }
 }

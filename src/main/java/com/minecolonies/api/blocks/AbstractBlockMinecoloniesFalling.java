@@ -17,13 +17,13 @@ public abstract class AbstractBlockMinecoloniesFalling<B extends AbstractBlockMi
     @Override
     public void registerBlockItem(final Registry<Item> registry, final Item.Properties properties)
     {
-        Registry.register(registry, getRegistryName(), new BlockItem(this, properties));
+        Registry.register(registry, getRegistryName(), new BlockItem(this, properties.setId(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ITEM, getRegistryName())).useBlockDescriptionPrefix()));
     }
 
     @Override
     public B registerBlock(final Registry<Block> registry)
     {
-        Registry.register(registry, getRegistryName(), this);
+        BlockIdHelper.register(registry, getRegistryName(), this);
         return (B) this;
     }
 }

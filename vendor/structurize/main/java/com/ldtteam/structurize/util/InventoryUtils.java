@@ -94,7 +94,8 @@ public class InventoryUtils
     public static void consumeStack(final ItemStack tempStack, final IItemHandler handler)
     {
         int count = tempStack.getCount();
-        final ItemStack container = tempStack.getCraftingRemainingItem();
+        final net.minecraft.world.item.ItemStackTemplate remainder = tempStack.getItem().getCraftingRemainder(tempStack);
+        final ItemStack container = remainder == null ? ItemStack.EMPTY : remainder.create();
 
         for (int i = 0; i < handler.getSlots(); i++)
         {

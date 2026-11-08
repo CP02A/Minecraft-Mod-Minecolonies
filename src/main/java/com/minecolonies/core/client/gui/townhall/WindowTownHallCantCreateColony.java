@@ -26,7 +26,7 @@ public class WindowTownHallCantCreateColony extends AbstractWindowSkeleton
 
     public WindowTownHallCantCreateColony(final BlockPos pos, final MutableComponent warningMsg, final boolean displayConfigTooltip)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/townhall/windowcantfoundcolony.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/townhall/windowcantfoundcolony.xml"));
         mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.BOOK_PAGE_TURN, 1.0F));
         this.pos = pos;
         registerButton(BUTTON_CANCEL, this::close);

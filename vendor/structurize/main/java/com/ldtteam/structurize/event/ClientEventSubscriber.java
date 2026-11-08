@@ -13,18 +13,18 @@ import com.ldtteam.structurize.network.messages.ScanToolTeleportMessage;
 import com.ldtteam.structurize.storage.rendering.RenderingCache;
 import com.ldtteam.structurize.storage.rendering.types.BoxPreviewData;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
+import com.ldtteam.structurize.fabric.mixin.client.KeyMappingAccessor;
+import net.minecraft.util.profiling.Profiler;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import com.ldtteam.shim.bus.api.EventPriority;
 import com.ldtteam.shim.bus.api.SubscribeEvent;
 import com.ldtteam.shim.neoforge.client.event.ClientPlayerNetworkEvent.LoggingOut;
 import com.ldtteam.shim.neoforge.client.event.ClientTickEvent;
 import com.ldtteam.shim.neoforge.client.event.InputEvent;
 import com.ldtteam.shim.neoforge.client.event.RenderGuiLayerEvent;
-import com.ldtteam.shim.neoforge.client.event.RenderLevelStageEvent;
 import com.ldtteam.shim.neoforge.client.gui.VanillaGuiLayers;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,30 +36,13 @@ public class ClientEventSubscriber
     @SubscribeEvent
     public static void renderWorldLastEvent(final RenderGuiLayerEvent.Pre event)
     {
-        if ((event.getName().equals(VanillaGuiLayers.PLAYER_HEALTH) || event.getName().equals(VanillaGuiLayers.FOOD_LEVEL)) && Minecraft.getInstance().screen instanceof BOScreen &&
-              ((BOScreen) Minecraft.getInstance().screen).getWindow() instanceof WindowExtendedBuildTool)
+        if ((event.getName().equals(VanillaGuiLayers.PLAYER_HEALTH) || event.getName().equals(VanillaGuiLayers.FOOD_LEVEL)) && Minecraft.getInstance().gui.screen() instanceof BOScreen &&
+              ((BOScreen) Minecraft.getInstance().gui.screen()).getWindow() instanceof WindowExtendedBuildTool)
         {
              event.setCanceled(true);
         }
     }
 
-
-    /**
-     * Used to catch the renderWorldLastEvent in order to draw the debug nodes for pathfinding.
-     *
-     * @param event the catched event.
-     */
-    @SubscribeEvent
-    public static void renderWorldLastEvent(final RenderLevelStageEvent event)
-    {
-        WorldRenderContext.INSTANCE.renderWorldLastEvent(event);
-    }
-
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void finishBuffers(final RenderLevelStageEvent event)
-    {
-        WorldRenderContext.RenderTypes.finishBuffer(event);
-    }
 
     /**
      * Used to catch the clientTickEvent.
@@ -71,13 +54,13 @@ public class ClientEventSubscriber
     public static void onClientTickEvent(final ClientTickEvent.Post event)
     {
         final Minecraft mc = Minecraft.getInstance();
-        mc.getProfiler().push("structurize");
+        Profiler.get().push("structurize");
 
         if (mc.level != null && mc.level.getGameTime() % (Constants.TICKS_SECOND * BlueprintHandler.CACHE_EXPIRE_CHECK_SECONDS) == 0)
         {
-            mc.getProfiler().push("blueprint_manager_tick");
+            Profiler.get().push("blueprint_manager_tick");
             BlueprintHandler.getInstance().cleanCache();
-            mc.getProfiler().pop();
+            Profiler.get().pop();
         }
 
         if (ModKeyMappings.TELEPORT.get().consumeClick() && mc.level != null && mc.player != null &&
@@ -89,14 +72,14 @@ public class ClientEventSubscriber
             }
         }
 
-        mc.getProfiler().pop();
+        Profiler.get().pop();
     }
 
     @SubscribeEvent
     public static void onPreClientTickEvent(@NotNull final ClientTickEvent.Pre event)
     {
         final Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.screen != null || mc.level == null) return;
+        if (mc.player == null || mc.gui.screen() != null || mc.level == null) return;
 
         if (mc.options.keyPickItem.consumeClick())
         {
@@ -106,25 +89,23 @@ public class ClientEventSubscriber
                 pos = null;
             }
 
-            final ItemStack current = mc.player.getInventory().getSelected();
+            final ItemStack current = mc.player.getInventory().getSelectedItem();
             if (current.getItem() instanceof ISpecialBlockPickItem clickableItem)
             {
-                final boolean ctrlKey = Screen.hasControlDown();
-                switch (clickableItem.onBlockPick(mc.player, current, pos, ctrlKey))
+                final boolean ctrlKey = mc.hasControlDown();
+                final InteractionResult result = clickableItem.onBlockPick(mc.player, current, pos, ctrlKey);
+                if (result instanceof InteractionResult.Pass)
                 {
-                    case PASS:
-                        ++mc.options.keyPickItem.clickCount;
-                        break;
-                    case FAIL:
-                        break;
-                    default:
-                        new ItemMiddleMouseMessage(pos, ctrlKey).sendToServer();
-                        break;
+                    incrementClickCount(mc);
+                }
+                else if (!(result instanceof InteractionResult.Fail))
+                {
+                    new ItemMiddleMouseMessage(pos, ctrlKey).sendToServer();
                 }
             }
             else
             {
-                ++mc.options.keyPickItem.clickCount;
+                incrementClickCount(mc);
             }
         }
 
@@ -142,24 +123,22 @@ public class ClientEventSubscriber
     public static void onMouseWheel(final InputEvent.MouseScrollingEvent event)
     {
         final Minecraft mc = Minecraft.getInstance();
-        if (event.isCanceled() || mc.player == null || mc.screen != null || mc.level == null) return;
+        if (event.isCanceled() || mc.player == null || mc.gui.screen() != null || mc.level == null) return;
         if (!mc.player.isShiftKeyDown()) return;
 
-        final ItemStack current = mc.player.getInventory().getSelected();
+        final ItemStack current = mc.player.getInventory().getSelectedItem();
         if (current.getItem() instanceof IScrollableItem scrollableItem)
         {
-            final boolean ctrlKey = Screen.hasControlDown();
-            switch (scrollableItem.onMouseScroll(mc.player, current, event.getScrollDeltaX(), event.getScrollDeltaY(), ctrlKey))
+            final boolean ctrlKey = mc.hasControlDown();
+            final InteractionResult result = scrollableItem.onMouseScroll(mc.player, current, event.getScrollDeltaX(), event.getScrollDeltaY(), ctrlKey);
+            if (result instanceof InteractionResult.Fail)
             {
-                case PASS:
-                    break;
-                case FAIL:
-                    event.setCanceled(true);
-                    break;
-                default:
-                    event.setCanceled(true);
-                    new ItemMiddleMouseMessage(event.getScrollDeltaX(), event.getScrollDeltaY(), ctrlKey).sendToServer();
-                    break;
+                event.setCanceled(true);
+            }
+            else if (!(result instanceof InteractionResult.Pass))
+            {
+                event.setCanceled(true);
+                new ItemMiddleMouseMessage(event.getScrollDeltaX(), event.getScrollDeltaY(), ctrlKey).sendToServer();
             }
         }
     }
@@ -169,5 +148,11 @@ public class ClientEventSubscriber
     {
         // clear local caches
         WindowExtendedBuildTool.clearStaticData();
+    }
+
+    private static void incrementClickCount(final Minecraft mc)
+    {
+        final KeyMappingAccessor accessor = (KeyMappingAccessor) mc.options.keyPickItem;
+        accessor.structurize$setClickCount(accessor.structurize$getClickCount() + 1);
     }
 }

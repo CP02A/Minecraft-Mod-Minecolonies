@@ -44,7 +44,7 @@ public class WindowHutMinerModule extends AbstractModuleWindow<MinerLevelManagem
      */
     public WindowHutMinerModule(final MinerLevelManagementModuleView moduleView)
     {
-        super(moduleView, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutminermodule.xml"));
+        super(moduleView, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutminermodule.xml"));
         registerButton(BUTTON_REPAIR, this::repairClicked);
         registerButton(BUTTON_MINE_LEVEL, this::mineLevelClicked);
     }

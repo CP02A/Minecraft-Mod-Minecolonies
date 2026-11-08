@@ -384,7 +384,7 @@ public class LocalResearchTree implements ILocalResearchTree
         inProgress.clear();
         isComplete.clear();
         maxLevelResearchCompleted.clear();
-        NBTUtils.streamCompound(compound.getList(TAG_RESEARCH_TREE, Tag.TAG_COMPOUND))
+        NBTUtils.streamCompound(compound.getListOrEmpty(TAG_RESEARCH_TREE))
           .map(researchCompound -> (ILocalResearch) StandardFactoryController.getInstance().deserializeTag(provider, researchCompound))
           .forEach(research -> {
               /// region Updated ID helper.
@@ -394,8 +394,8 @@ public class LocalResearchTree implements ILocalResearchTree
                   {
                       final ResearchState currentState = research.getState();
                       final int progress = research.getProgress();
-                      research = new LocalResearch(new Identifier(com.minecolonies.api.util.constant.Constants.MOD_ID, research.getId().getPath()),
-                        new Identifier(com.minecolonies.api.util.constant.Constants.MOD_ID, research.getBranch().getPath()), research.getDepth());
+                      research = new LocalResearch(Identifier.fromNamespaceAndPath(com.minecolonies.api.util.constant.Constants.MOD_ID, research.getId().getPath()),
+                        Identifier.fromNamespaceAndPath(com.minecolonies.api.util.constant.Constants.MOD_ID, research.getBranch().getPath()), research.getDepth());
                       research.setState(currentState);
                       research.setProgress(progress);
                   }

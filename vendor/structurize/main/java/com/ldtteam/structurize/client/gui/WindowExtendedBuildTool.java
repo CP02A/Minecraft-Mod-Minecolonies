@@ -734,7 +734,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 final ButtonImage button = rowPane.findPaneOfTypeByID("alternative", ButtonImage.class);
                 rowPane.findPaneOfTypeByID("id", Text.class).setText(Component.literal(depth + ":" + list.get(index).getKey()));
                 button.setText(Component.literal(list.get(index).getKey()));
-                button.setTextColor(ChatFormatting.BLACK.getColor());
+                button.setTextColor(net.minecraft.network.chat.TextColor.fromLegacyFormat(ChatFormatting.BLACK).getValue());
             }
         });
     }
@@ -793,7 +793,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                     rowPane.findPaneOfTypeByID("id", Text.class).setText(Component.literal(buttonId));
                     button.setImage(Constants.resLocStruct("textures/gui/buildtool/button_medium.png"));
                     button.setText(Component.literal("Level: " + (index + (hasAlternatives ? 0 : 1))));
-                    button.setTextColor(ChatFormatting.BLACK.getColor());
+                    button.setTextColor(net.minecraft.network.chat.TextColor.fromLegacyFormat(ChatFormatting.BLACK).getValue());
                 }
             }
         });
@@ -935,7 +935,7 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
         final Component desc = Component.literal(descString);
         img.setText(desc);
         img.setVisible(true);
-        img.setTextColor(ChatFormatting.BLACK.getColor());
+        img.setTextColor(net.minecraft.network.chat.TextColor.fromLegacyFormat(ChatFormatting.BLACK).getValue());
     }
 
     @Override

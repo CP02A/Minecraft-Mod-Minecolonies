@@ -99,7 +99,7 @@ public class PlantationFieldsModuleWindow extends AbstractModuleWindow<BuildingP
      */
     public PlantationFieldsModuleWindow(final BuildingPlantation.PlantationFieldsModuleView moduleView)
     {
-        super(moduleView, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutplantationfields.xml"));
+        super(moduleView, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutplantationfields.xml"));
         registerButton(TAG_BUTTON_ASSIGNMENT_MODE, this::assignmentModeClicked);
         registerButton(TAG_BUTTON_ASSIGN, this::assignClicked);
     }

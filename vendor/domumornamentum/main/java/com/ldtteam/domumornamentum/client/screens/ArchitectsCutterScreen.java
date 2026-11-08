@@ -442,4 +442,16 @@ public class ArchitectsCutterScreen extends AbstractContainerScreen<ArchitectsCu
     protected int getHiddenTypeRows() {
         return (ModBlocks.getInstance().getOrComputeItemGroups().size() + 10 - 1) / 10 - 1;
     }
+
+    /** Fabric: replaces NeoForge AbstractContainerScreen#getGuiLeft (used by JEI). */
+    public int getGuiLeft()
+    {
+        return leftPos;
+    }
+
+    /** Fabric: replaces NeoForge AbstractContainerScreen#getGuiTop (used by JEI). */
+    public int getGuiTop()
+    {
+        return topPos;
+    }
 }

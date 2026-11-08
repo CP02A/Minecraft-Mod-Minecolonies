@@ -27,7 +27,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Tuple;
+import com.ldtteam.structurize.api.Tuple;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.phys.AABB;
 import org.apache.commons.lang3.concurrent.UncheckedExecutionException;
@@ -125,7 +125,7 @@ public class ColonyBlueprintRenderer
         {
             shouldRenderBlueprints = !shouldRenderBlueprints;
 
-            ctx.clientPlayer.playNotifySound(SoundEvents.NOTE_BLOCK_PLING.value(), SoundSource.NEUTRAL, 1.0F, shouldRenderBlueprints ? 0.75F : 0.25F);
+            ctx.clientLevel.playLocalSound(ctx.clientPlayer.getX(), ctx.clientPlayer.getY(), ctx.clientPlayer.getZ(), SoundEvents.NOTE_BLOCK_PLING.value(), SoundSource.NEUTRAL, 1.0F, shouldRenderBlueprints ? 0.75F : 0.25F, false);
         }
 
         if (!ctx.hasNearestColony())

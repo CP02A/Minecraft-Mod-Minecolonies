@@ -107,7 +107,7 @@ public class PlantationFieldBuildRequestMessage extends AbstractServerPlayMessag
         buf.writeBlockPos(this.pos);
         buf.writeUtf(this.packName);
         buf.writeUtf(this.path);
-        buf.writeUtf(this.dimension.location().toString());
+        buf.writeUtf(this.dimension.identifier().toString());
         buf.writeByte(this.rotationMirror.ordinal());
         buf.writeBlockPos(this.builder);
     }

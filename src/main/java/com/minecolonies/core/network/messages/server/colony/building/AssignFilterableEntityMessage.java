@@ -55,7 +55,7 @@ public class AssignFilterableEntityMessage extends AbstractBuildingServerMessage
     {
         super(buf, type);
         this.assign = buf.readBoolean();
-        this.entity =buf.readResourceLocation();
+        this.entity =buf.readIdentifier();
         this.id = buf.readInt();
     }
 
@@ -64,7 +64,7 @@ public class AssignFilterableEntityMessage extends AbstractBuildingServerMessage
     {
         super.toBytes(buf);
         buf.writeBoolean(this.assign);
-        buf.writeResourceLocation(this.entity);
+        buf.writeIdentifier(this.entity);
         buf.writeInt(id);
     }
 

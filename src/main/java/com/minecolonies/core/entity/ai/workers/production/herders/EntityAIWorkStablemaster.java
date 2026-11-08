@@ -31,7 +31,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.world.entity.animal.equine.AbstractHorse;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -87,7 +87,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
      * Get horse icon
      */
     private final static VisibleCitizenStatus FIND_HORSE =
-      new VisibleCitizenStatus(new Identifier(Constants.MOD_ID, "textures/icons/work/stablemaster.png"), "com.minecolonies.gui.visiblestatus.stablemaster");
+      new VisibleCitizenStatus(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/work/stablemaster.png"), "com.minecolonies.gui.visiblestatus.stablemaster");
 
     /**
      * Creates the abstract part of the AI. Always use this constructor!
@@ -702,7 +702,7 @@ public class EntityAIWorkStablemaster extends AbstractEntityAIHerder<JobStablema
      */
     public void detachHorse(AbstractHorse horse)
     {
-        if (worker == null || horse == null || horse.level().isClientSide)
+        if (worker == null || horse == null || horse.level().isClientSide())
         {
             return;
         }

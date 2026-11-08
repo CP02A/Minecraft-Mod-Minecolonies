@@ -1,5 +1,7 @@
 package com.minecolonies.core.client.render.mobs.drownedpirates;
 
+import com.minecolonies.core.client.render.mobs.AbstractRaiderRenderer;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import com.minecolonies.api.entity.mobs.AbstractEntityMinecoloniesMonster;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -10,12 +12,12 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Renderer used for Chief Barbarians.
  */
-public class RendererDrownedChiefPirate extends AbstractRendererDrownedPirate<AbstractEntityMinecoloniesMonster, HumanoidModel<AbstractEntityMinecoloniesMonster>>
+public class RendererDrownedChiefPirate extends AbstractRendererDrownedPirate<AbstractEntityMinecoloniesMonster, HumanoidModel<HumanoidRenderState>>
 {
     /**
      * Texture of the entity.
      */
-    private static final Identifier TEXTURE1 = new Identifier("minecolonies", "textures/entity/raiders/drowned_pirate_nude.png");
+    private static final Identifier TEXTURE1 = Identifier.fromNamespaceAndPath("minecolonies", "textures/entity/raiders/drowned_pirate_nude.png");
 
 
     /**
@@ -25,7 +27,7 @@ public class RendererDrownedChiefPirate extends AbstractRendererDrownedPirate<Ab
      */
     public RendererDrownedChiefPirate(final EntityRendererProvider.Context context)
     {
-        super(context, new HumanoidModel<>(context.bakeLayer(ModelLayers.PLAYER_INNER_ARMOR)), 0.5F);
+        super(context, AbstractRaiderRenderer.innerArmorBodyModel(), 0.5F);
     }
 
     @NotNull

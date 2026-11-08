@@ -6,7 +6,7 @@ import com.ldtteam.structurize.util.BlockUtils;
 import com.minecolonies.core.blocks.BlockScarecrow;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Tuple;
+import com.ldtteam.structurize.api.Tuple;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;

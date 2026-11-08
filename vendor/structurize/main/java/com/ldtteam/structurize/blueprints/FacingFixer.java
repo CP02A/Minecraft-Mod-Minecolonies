@@ -4,7 +4,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.GlazedTerracottaBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -21,19 +21,19 @@ import static net.minecraft.core.Direction.WEST;
  * Used during mirroring of blueprint palette
  */
 
-public record FacingFixer(Predicate<BlockState> test, DirectionProperty property, Function<Direction, Direction> mapping)
+public record FacingFixer(Predicate<BlockState> test, EnumProperty<Direction> property, Function<Direction, Direction> mapping)
 {
     public static final List<FacingFixer> MIRROR_FIXERS = new ArrayList<>();
 
-    public static final FacingFixer GLAZED_TERRACOTA_SPECIAL = mirrorFixer(bs -> bs.getBlock() == Blocks.LIGHT_GRAY_GLAZED_TERRACOTTA ||
-            bs.getBlock() == Blocks.PINK_GLAZED_TERRACOTTA ||
-            bs.getBlock() == Blocks.BLUE_GLAZED_TERRACOTTA ||
-            bs.getBlock() == Blocks.CYAN_GLAZED_TERRACOTTA,
+    public static final FacingFixer GLAZED_TERRACOTA_SPECIAL = mirrorFixer(bs -> bs.getBlock() == Blocks.GLAZED_TERRACOTTA.lightGray() ||
+            bs.getBlock() == Blocks.GLAZED_TERRACOTTA.pink() ||
+            bs.getBlock() == Blocks.GLAZED_TERRACOTTA.blue() ||
+            bs.getBlock() == Blocks.GLAZED_TERRACOTTA.cyan(),
         GlazedTerracottaBlock.FACING,
         FacingMapping.SOUTH_EAST_AND_NORTH_WEST);
 
     public static final FacingFixer GLAZED_TERRACOTA_MAJORITY = mirrorFixer(bs -> bs.getBlock() instanceof GlazedTerracottaBlock &&
-            bs.getBlock() != Blocks.MAGENTA_GLAZED_TERRACOTTA,
+            bs.getBlock() != Blocks.GLAZED_TERRACOTTA.magenta(),
         GlazedTerracottaBlock.FACING,
         FacingMapping.NORTH_EAST_AND_SOUTH_WEST);
 
@@ -44,7 +44,7 @@ public record FacingFixer(Predicate<BlockState> test, DirectionProperty property
      * @return fixer registered as mirror fixer
      * @see #MIRROR_FIXERS
      */
-    public static FacingFixer mirrorFixer(final Predicate<BlockState> test, final DirectionProperty property, final Function<Direction, Direction> mapping)
+    public static FacingFixer mirrorFixer(final Predicate<BlockState> test, final EnumProperty<Direction> property, final Function<Direction, Direction> mapping)
     {
         final FacingFixer result = new FacingFixer(test, property, mapping);
         MIRROR_FIXERS.add(result);

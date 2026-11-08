@@ -143,10 +143,10 @@ public class PlaySoundForCitizenMessage extends AbstractClientPlayMessage
     @Override
     protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
-        buf.writeResourceLocation(this.soundEvent.getLocation());
+        buf.writeIdentifier(this.soundEvent.location());
         buf.writeInt(soundSource.ordinal());
         buf.writeBlockPos(pos);
-        buf.writeUtf(dimensionID.location().toString());
+        buf.writeUtf(dimensionID.identifier().toString());
         buf.writeFloat(volume);
         buf.writeFloat(pitch);
         buf.writeInt(length);
@@ -157,7 +157,7 @@ public class PlaySoundForCitizenMessage extends AbstractClientPlayMessage
     public PlaySoundForCitizenMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
-        this.soundEvent = BuiltInRegistries.SOUND_EVENT.get(buf.readResourceLocation());
+        this.soundEvent = BuiltInRegistries.SOUND_EVENT.getValue(buf.readIdentifier());
         this.soundSource = SoundSource.values()[buf.readInt()];
         this.pos = buf.readBlockPos();
         this.dimensionID = ResourceKey.create(Registries.DIMENSION, Identifier.parse(buf.readUtf(32767)));

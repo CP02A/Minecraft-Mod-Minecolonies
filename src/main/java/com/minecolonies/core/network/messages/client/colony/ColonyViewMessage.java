@@ -74,7 +74,7 @@ public class ColonyViewMessage extends AbstractClientPlayMessage
         colonyBuffer.resetReaderIndex();
         buf.writeInt(colonyId);
         buf.writeBoolean(isNewSubscription);
-        buf.writeUtf(dim.location().toString());
+        buf.writeUtf(dim.identifier().toString());
 
         int len = colonyBuffer.readableBytes();
         buf.writeVarInt(len);

@@ -83,7 +83,7 @@ public class BlockConstructionTape extends AbstractBlockMinecoloniesConstruction
     @Override
     public Identifier getRegistryName()
     {
-        return new Identifier(Constants.MOD_ID, BLOCK_NAME);
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, BLOCK_NAME);
     }
 
     @NotNull

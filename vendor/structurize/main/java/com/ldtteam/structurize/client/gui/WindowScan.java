@@ -1,5 +1,6 @@
 package com.ldtteam.structurize.client.gui;
 
+import net.minecraft.client.input.CharacterEvent;
 import com.ldtteam.blockui.Color;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.controls.*;
@@ -207,7 +208,7 @@ public class WindowScan extends AbstractWindowSkeleton
         }
         catch (Exception e)
         {
-            Minecraft.getInstance().player.displayClientMessage(Component.literal("Invalid Number"), false);
+            Minecraft.getInstance().player.sendSystemMessage(Component.literal("Invalid Number"));
         }
         close();
     }
@@ -361,8 +362,14 @@ public class WindowScan extends AbstractWindowSkeleton
     }
 
     @Override
-    public boolean onUnhandledKeyTyped(final int ch, final int key)
+    public boolean onCharactedEvent(final CharacterEvent event)
     {
+        if (super.onCharactedEvent(event))
+        {
+            return true;
+        }
+
+        final int ch = event.codepoint();
         if (ch >= '0' && ch <= '9')
         {
             updateBounds();
@@ -372,7 +379,7 @@ public class WindowScan extends AbstractWindowSkeleton
             return true;
         }
 
-        return super.onUnhandledKeyTyped(ch, key);
+        return false;
     }
 
     private void loadSlot()
@@ -424,7 +431,7 @@ public class WindowScan extends AbstractWindowSkeleton
         }
         catch (final NumberFormatException e)
         {
-            Minecraft.getInstance().player.displayClientMessage(Component.literal("Invalid Number"), false);
+            Minecraft.getInstance().player.sendSystemMessage(Component.literal("Invalid Number"));
             return;
         }
 
@@ -460,7 +467,7 @@ public class WindowScan extends AbstractWindowSkeleton
             // LEASH_KNOT, while not directly serializable, still serializes as part of the mob
             // and drops a lead, so we should alert builders that it exists in the scan
             if (!entities.containsKey(entity.getName().getString())
-                && (entity.getType().canSerialize() || entity.getType().equals(EntityType.LEASH_KNOT))
+                && (entity.getType().canSerialize() || entity.getType().equals(net.minecraft.world.entity.EntityTypes.LEASH_KNOT))
                 && (filter.isEmpty() || (entity.getName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
                 || (entity.toString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))))))
             {
@@ -551,7 +558,7 @@ public class WindowScan extends AbstractWindowSkeleton
         }
 
         if (filter.isEmpty()
-            || res.getDescriptionId().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
+            || res.getItem().getDescriptionId().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US))
             || res.getHoverName().getString().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)))
         {
             final ItemStorage stackToStore = new ItemStorage(res, 1, true, false);
@@ -595,16 +602,16 @@ public class WindowScan extends AbstractWindowSkeleton
             public void updateElement(final int index, final Pane rowPane)
             {
                 final EntityType<?> entity = tempEntities.get(index);
-                ItemStack entityIcon = entity.create(Minecraft.getInstance().level).getPickResult();
-                if (entity == EntityType.GLOW_ITEM_FRAME)
+                ItemStack entityIcon = entity.create(Minecraft.getInstance().level, net.minecraft.world.entity.EntitySpawnReason.LOAD).getPickResult();
+                if (entity == net.minecraft.world.entity.EntityTypes.GLOW_ITEM_FRAME)
                 {
                     entityIcon = new ItemStack(Items.GLOW_ITEM_FRAME);
                 }
-                else if (entity == EntityType.ITEM_FRAME)
+                else if (entity == net.minecraft.world.entity.EntityTypes.ITEM_FRAME)
                 {
                     entityIcon = new ItemStack(Items.ITEM_FRAME);
                 }
-                else if (entity == EntityType.MINECART)
+                else if (entity == net.minecraft.world.entity.EntityTypes.MINECART)
                 {
                     entityIcon = new ItemStack(Items.MINECART);
                 }

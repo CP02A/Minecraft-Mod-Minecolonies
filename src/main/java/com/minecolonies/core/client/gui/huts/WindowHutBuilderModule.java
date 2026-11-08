@@ -20,7 +20,7 @@ public class WindowHutBuilderModule extends AbstractWindowWorkerModuleBuilding<B
      * The advancement location.
      */
 
-    private static final Identifier GUIDE_ADVANCEMENT = new Identifier(Constants.MOD_ID, "minecolonies/check_out_guide");
+    private static final Identifier GUIDE_ADVANCEMENT = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "minecolonies/check_out_guide");
 
     /**
      * If the guide should be attempted to be opened.
@@ -45,7 +45,7 @@ public class WindowHutBuilderModule extends AbstractWindowWorkerModuleBuilding<B
      */
     public WindowHutBuilderModule(final BuildingBuilder.View building, final boolean needGuide)
     {
-        super(building, new Identifier(Constants.MOD_ID, "gui/windowhutworkerplaceholder.xml"));
+        super(building, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowhutworkerplaceholder.xml"));
         this.needGuide = needGuide;
     }
 
@@ -55,7 +55,7 @@ public class WindowHutBuilderModule extends AbstractWindowWorkerModuleBuilding<B
         if (needGuide)
         {
             final AdvancementHolder ad = Minecraft.getInstance().player.connection.getAdvancements().get(GUIDE_ADVANCEMENT);
-            if (ad == null || !Minecraft.getInstance().player.connection.getAdvancements().progress.getOrDefault(ad, new AdvancementProgress()).isDone())
+            if (ad == null || !Minecraft.getInstance().player.connection.getAdvancements().progress().getOrDefault(ad, new AdvancementProgress()).isDone())
             {
                 close();
                 new WindowHutGuide(buildingView).open();

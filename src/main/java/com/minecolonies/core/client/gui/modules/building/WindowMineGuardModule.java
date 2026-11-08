@@ -40,7 +40,7 @@ public class WindowMineGuardModule  extends AbstractModuleWindow<MinerGuardAssig
      */
     public WindowMineGuardModule(final MinerGuardAssignModuleView moduleView)
     {
-        super(moduleView, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutguardlist.xml"));
+        super(moduleView, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutguardlist.xml"));
         this.guardsList = findPaneOfTypeByID(LIST_GUARDS, ScrollingList.class);
         pullGuardsFromHut();
 

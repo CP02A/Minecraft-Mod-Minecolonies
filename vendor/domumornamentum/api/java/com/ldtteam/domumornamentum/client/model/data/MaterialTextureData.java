@@ -121,7 +121,7 @@ public record MaterialTextureData(Map<Identifier, Block> components)
      */
     public void writeToItemStack(final ItemStack itemStack)
     {
-        itemStack.set(IDomumOrnamentumApi.getInstance().getMaterialTextureComponentType(), this.isEmpty() ? EMPTY : this);
+        itemStack.set(IDomumOrnamentumApi.getInstance().getMaterialTextureComponentType().get(), this.isEmpty() ? EMPTY : this);
     }
 
     /**
@@ -129,7 +129,7 @@ public record MaterialTextureData(Map<Identifier, Block> components)
      */
     public static MaterialTextureData readFromItemStack(final ItemStack itemStack)
     {
-        return itemStack.getOrDefault(IDomumOrnamentumApi.getInstance().getMaterialTextureComponentType(), MaterialTextureData.EMPTY);
+        return itemStack.getOrDefault(IDomumOrnamentumApi.getInstance().getMaterialTextureComponentType().get(), MaterialTextureData.EMPTY);
     }
 
     /**
@@ -164,7 +164,7 @@ public record MaterialTextureData(Map<Identifier, Block> components)
 
         public void writeToItemStack(final ItemStack itemStack)
         {
-            itemStack.set(IDomumOrnamentumApi.getInstance().getMaterialTextureComponentType(), build());
+            itemStack.set(IDomumOrnamentumApi.getInstance().getMaterialTextureComponentType().get(), build());
         }
     }
 }

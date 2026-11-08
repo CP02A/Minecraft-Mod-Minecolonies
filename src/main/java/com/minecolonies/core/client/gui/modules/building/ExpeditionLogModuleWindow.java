@@ -13,7 +13,11 @@ import com.minecolonies.core.colony.buildings.moduleviews.ExpeditionLogModuleVie
 import com.minecolonies.core.network.messages.server.colony.building.MarkBuildingDirtyMessage;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,7 +39,7 @@ public class ExpeditionLogModuleWindow extends AbstractModuleWindow<ExpeditionLo
 
     public ExpeditionLogModuleWindow(@NotNull final ExpeditionLogModuleView module)
     {
-        super(module, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutexpeditionlog.xml"));
+        super(module, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutexpeditionlog.xml"));
     }
 
     @Override
@@ -148,7 +152,8 @@ public class ExpeditionLogModuleWindow extends AbstractModuleWindow<ExpeditionLo
                 child = new EntityIcon();
                 mobsView.addChild(child);
             }
-            child.setEntity(mobs.get(i).getA());
+            final Entity mob = mobs.get(i).getA().create(Minecraft.getInstance().level, EntitySpawnReason.LOAD);
+            child.setEntityState(mob instanceof LivingEntity ? new EntityIcon.DynamicState<>(mob, null) : null);
             child.setCount(mobs.get(i).getB());
             child.setSize(MOB_SIZE, MOB_SIZE);
             child.setPosition(MOB_SIZE * i + marginLeft, marginTop);

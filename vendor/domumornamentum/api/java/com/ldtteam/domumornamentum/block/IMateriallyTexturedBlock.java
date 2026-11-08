@@ -88,7 +88,7 @@ public interface IMateriallyTexturedBlock
             Block block = mtbe.getTextureData().components().get(getMainComponent().getId());
             if (block != null)
             {
-                return block.getExplosionResistance(state, level, pos, explosion);
+                return block.getExplosionResistance();
             }
         }
         return inputFunction.apply(state, level, pos, explosion);
@@ -120,7 +120,7 @@ public interface IMateriallyTexturedBlock
             Block block = mtbe.getTextureData().components().get(getMainComponent().getId());
             if (block != null)
             {
-                return block.getSoundType(state, level, pos, entity);
+                return block.defaultBlockState().getSoundType();
             }
         }
 

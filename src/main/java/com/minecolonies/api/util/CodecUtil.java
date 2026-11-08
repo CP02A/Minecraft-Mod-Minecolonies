@@ -25,7 +25,7 @@ public class CodecUtil
      * Chunk pos codec
      */
     public static final Codec<ChunkPos> CHUNK_POS = Codec.INT_STREAM
-        .comapFlatMap(stream -> Util.fixedSize(stream, 2).map(arr -> new ChunkPos(arr[0], arr[1])), pos -> IntStream.of(pos.x, pos.z))
+        .comapFlatMap(stream -> Util.fixedSize(stream, 2).map(arr -> new ChunkPos(arr[0], arr[1])), pos -> IntStream.of(pos.x(), pos.z()))
         .stable();
 
     /**

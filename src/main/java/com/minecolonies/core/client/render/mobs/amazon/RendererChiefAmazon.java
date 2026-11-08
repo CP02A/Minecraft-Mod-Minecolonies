@@ -15,7 +15,7 @@ public class RendererChiefAmazon extends AbstractRendererAmazon<AbstractEntityMi
     /**
      * Texture of the entity.
      */
-    private static final Identifier TEXTURE = new Identifier("minecolonies", "textures/entity/raiders/amazon_chief.png");
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath("minecolonies", "textures/entity/raiders/amazon_chief.png");
 
     /**
      * Constructor method for renderer

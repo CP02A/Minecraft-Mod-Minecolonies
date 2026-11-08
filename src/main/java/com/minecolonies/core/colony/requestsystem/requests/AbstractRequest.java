@@ -36,7 +36,7 @@ public abstract class AbstractRequest<R extends IRequestable> implements IReques
     /**
      * Default display icon (none).
      */
-    public static final Identifier MISSING = new Identifier(Constants.MOD_ID, "missingno");
+    public static final Identifier MISSING = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "missingno");
 
     @NotNull
     private final IToken<?>       token;

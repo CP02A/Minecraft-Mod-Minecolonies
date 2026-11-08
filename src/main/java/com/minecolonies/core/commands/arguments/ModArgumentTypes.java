@@ -1,24 +1,39 @@
 package com.minecolonies.core.commands.arguments;
 
-import net.minecraft.commands.synchronization.ArgumentTypeInfo;
-import net.minecraft.commands.synchronization.ArgumentTypeInfos;
+import com.minecolonies.core.commands.colonycommands.CommandDeleteColony;
+import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
-import net.minecraft.core.registries.Registries;
-import com.ldtteam.shim.neoforge.registries.DeferredHolder;
-import com.ldtteam.shim.neoforge.registries.DeferredRegister;
+import net.minecraft.resources.Identifier;
 
 import static com.minecolonies.api.util.constant.Constants.MOD_ID;
 
 /**
  * This class handles registration for custom argument types.
+ * FABRIC-PORT: registered through Fabric's ArgumentTypeRegistry (registers both the registry entry and the class mapping,
+ * which NeoForge's ArgumentTypeInfos#registerByClass did before).
  */
 public class ModArgumentTypes
 {
-    public static final DeferredRegister<ArgumentTypeInfo<?, ?>> ARGUMENT_TYPES = DeferredRegister.create(Registries.COMMAND_ARGUMENT_TYPE, MOD_ID);
+    private static boolean registered = false;
 
-    public static final DeferredHolder<ArgumentTypeInfo<?, ?>, SingletonArgumentInfo<ColonyIdArgument>> COLONY_ID = ARGUMENT_TYPES.register("colony_id",
-        () -> ArgumentTypeInfos.registerByClass(ColonyIdArgument.class, SingletonArgumentInfo.contextFree(ColonyIdArgument::id)));
+    /**
+     * Register all custom argument types. Called once from the mod constructor.
+     */
+    public static void register()
+    {
+        if (registered)
+        {
+            return;
+        }
+        registered = true;
 
-    public static final DeferredHolder<ArgumentTypeInfo<?, ?>, SingletonArgumentInfo<MultiColonyIdArgument>> MULTI_COLONY_ID = ARGUMENT_TYPES.register("multi_colony_id",
-        () -> ArgumentTypeInfos.registerByClass(MultiColonyIdArgument.class, SingletonArgumentInfo.contextFree(MultiColonyIdArgument::id)));
+        ArgumentTypeRegistry.registerArgumentType(Identifier.fromNamespaceAndPath(MOD_ID, "colony_id"),
+          ColonyIdArgument.class, SingletonArgumentInfo.contextFree(ColonyIdArgument::id));
+
+        ArgumentTypeRegistry.registerArgumentType(Identifier.fromNamespaceAndPath(MOD_ID, "multi_colony_id"),
+          MultiColonyIdArgument.class, SingletonArgumentInfo.contextFree(MultiColonyIdArgument::id));
+
+        ArgumentTypeRegistry.registerArgumentType(Identifier.fromNamespaceAndPath(MOD_ID, "delete_buildings"),
+          CommandDeleteColony.DeleteBuildingsArgumentType.class, SingletonArgumentInfo.contextFree(CommandDeleteColony.DeleteBuildingsArgumentType::argument));
+    }
 }

@@ -4,7 +4,9 @@ import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.core.datalistener.*;
 import com.minecolonies.core.entity.pathfinding.Pathfinding;
 import com.minecolonies.core.util.BackUpHelper;
+import com.minecolonies.core.datalistener.util.RegistryAwareJsonReloadListener;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import com.ldtteam.shim.bus.api.SubscribeEvent;
 import com.ldtteam.shim.neoforge.client.event.ClientTickEvent;
 import com.ldtteam.shim.neoforge.event.AddReloadListenerEvent;
@@ -48,15 +50,30 @@ public class FMLEventHandler
     @SubscribeEvent
     public static void onAddReloadListenerEvent(@NotNull final AddReloadListenerEvent event)
     {
-        event.addListener(new CrafterRecipeListener());
-        event.addListener(new ResearchListener());
-        event.addListener(new CustomVisitorListener());
-        event.addListener(new CitizenNameListener());
-        event.addListener(new QuestJsonListener());
-        event.addListener(new ItemNbtListener());
-        event.addListener(StudyItemListener.INSTANCE);
-        event.addListener(new DiseasesListener());
-        event.addListener(new RecruitmentItemsListener());
+        addListener(event, new CrafterRecipeListener());
+        addListener(event, new ResearchListener());
+        addListener(event, new CustomVisitorListener());
+        addListener(event, new CitizenNameListener());
+        addListener(event, new QuestJsonListener());
+        addListener(event, new ItemNbtListener());
+        addListener(event, StudyItemListener.INSTANCE);
+        addListener(event, new DiseasesListener());
+        addListener(event, new RecruitmentItemsListener());
+    }
+
+    /**
+     * Add a reload listener, injecting the registry lookup for our json listeners (NeoForge's ContextAwareReloadListener did this before).
+     *
+     * @param event    the event.
+     * @param listener the listener.
+     */
+    private static void addListener(final AddReloadListenerEvent event, final PreparableReloadListener listener)
+    {
+        if (listener instanceof RegistryAwareJsonReloadListener registryAware)
+        {
+            registryAware.injectRegistryLookup(event.getRegistryAccess());
+        }
+        event.addListener(listener);
     }
 
     @SubscribeEvent

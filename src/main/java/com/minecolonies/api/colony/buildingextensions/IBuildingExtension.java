@@ -146,7 +146,7 @@ public interface IBuildingExtension extends IModuleContainer<IBuildingExtensionM
 
         public static ExtensionId deserializeNBT(final HolderLookup.Provider provider, final CompoundTag nbt)
         {
-            return new ExtensionId(BlockPosUtil.read(nbt, TAG_POS), BuildingExtensionRegistries.getBuildingExtensionRegistry().get(Identifier.parse(nbt.getString(TAG_ID))));
+            return new ExtensionId(BlockPosUtil.read(nbt, TAG_POS), BuildingExtensionRegistries.getBuildingExtensionRegistry().getValue(Identifier.parse(nbt.getStringOr(TAG_ID, ""))));
         }
     }
 }

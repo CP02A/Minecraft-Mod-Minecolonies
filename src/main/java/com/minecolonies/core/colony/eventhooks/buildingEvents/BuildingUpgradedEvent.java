@@ -17,7 +17,7 @@ public class BuildingUpgradedEvent extends AbstractBuildingEvent
     /**
      * This events id, registry entries use res locations as ids.
      */
-    public static final Identifier BUILDING_UPGRADED_EVENT_ID = new Identifier(Constants.MOD_ID, "building_upgraded");
+    public static final Identifier BUILDING_UPGRADED_EVENT_ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "building_upgraded");
 
     /**
      * Creates a new building upgraded event.

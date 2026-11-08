@@ -188,9 +188,10 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
      * Disable vanilla steering logic for villagers
      */
     @Override
-    public boolean isControlledByLocalInstance()
+    protected boolean isLocalClientAuthoritative()
     {
-        return this.isEffectiveAi();
+        // FABRIC-PORT: replaces the 1.21.1 isControlledByLocalInstance override (returned isEffectiveAi(), i.e. never on the client).
+        return false;
     }
 
     /**
@@ -209,7 +210,7 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
 
     @NotNull
     @Override
-    public InteractionResult interactAt(final Player player, final Vec3 vec, final InteractionHand hand)
+    public InteractionResult interact(final Player player, final InteractionHand hand, final Vec3 vec)
     {
         if (!player.level().isClientSide())
         {
@@ -227,7 +228,7 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
             }
         }
 
-        return super.interactAt(player, vec, hand);
+        return super.interact(player, hand, vec);
     }
 
     /**
@@ -244,7 +245,7 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
      */
     public void setTexture()
     {
-        if (!CompatibilityUtils.getWorldFromCitizen(this).isClientSide)
+        if (!CompatibilityUtils.getWorldFromCitizen(this).isClientSide())
         {
             return;
         }
@@ -422,7 +423,7 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
         {
             entityStateController.tick();
         }
-        updateSwingTime();
+        // FABRIC-PORT: swing time is ticked by LivingEntity#baseTick in 26.x (updateSwingTime removed).
         if (collisionCounter > 0)
         {
             collisionCounter--;
@@ -524,7 +525,7 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
      */
     public int getRecentlyHit()
     {
-        return lastHurtByPlayerTime;
+        return lastHurtByPlayerMemoryTime;
     }
 
     /**
@@ -643,7 +644,10 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
      */
     public abstract void callForHelp(final Entity attacker, final int guardHelpRange);
 
-    @Override
+    /**
+     * FABRIC-PORT: LivingEntity#detectEquipmentUpdates is private in 26.x (was an AT override); vanilla now syncs equipment changes itself,
+     * this method is kept for explicit calls only.
+     */
     public void detectEquipmentUpdates()
     {
         if (this.isEquipmentDirty && tickCount % 20 == randomVariance)
@@ -657,14 +661,14 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
             list.add(new Pair<>(EquipmentSlot.LEGS, getItemBySlot(EquipmentSlot.LEGS)));
             list.add(new Pair<>(EquipmentSlot.OFFHAND, getItemBySlot(EquipmentSlot.OFFHAND)));
             list.add(new Pair<>(EquipmentSlot.MAINHAND, getItemBySlot(EquipmentSlot.MAINHAND)));
-            ((ServerLevel) this.level()).getChunkSource().broadcast(this, new ClientboundSetEquipmentPacket(this.getId(), list));
+            ((ServerLevel) this.level()).getChunkSource().sendToTrackingPlayers(this, new ClientboundSetEquipmentPacket(this.getId(), list));
         }
     }
 
     @Override
     public void setItemSlot(final EquipmentSlot slot, @NotNull final ItemStack newItem)
     {
-        if (!level().isClientSide)
+        if (!level().isClientSide())
         {
             final ItemStack previous = getItemBySlot(slot);
             if (!ItemStackUtils.compareItemStacksIgnoreStackSize(previous, newItem, false, true))
@@ -760,7 +764,8 @@ public abstract class AbstractEntityCitizen extends AbstractCivilianEntity imple
         {
             return super.getTeamColor();
         }
-        return getCitizenColonyHandler().getColony().getTeamColonyColor().getColor();
+        final net.minecraft.network.chat.TextColor color = net.minecraft.network.chat.TextColor.fromLegacyFormat(getCitizenColonyHandler().getColony().getTeamColonyColor());
+        return color == null ? super.getTeamColor() : color.getValue();
     }
 
     @Override

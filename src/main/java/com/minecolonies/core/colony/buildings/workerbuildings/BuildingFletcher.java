@@ -81,7 +81,7 @@ public class BuildingFletcher extends AbstractBuilding
             if (isRecipeAllowed.isPresent()) return isRecipeAllowed.get();
 
             final Item output = recipe.getPrimaryOutput().getItem();
-            return output instanceof ArrowItem || (output instanceof ArmorItem armorItem && recipe.getPrimaryOutput().has(DataComponents.DYED_COLOR) && armorItem.getMaterial() == ArmorMaterials.LEATHER);
+            return output instanceof ArrowItem || (recipe.getPrimaryOutput().has(DataComponents.DYED_COLOR) && com.minecolonies.core.colony.ItemCompat.hasArmorAsset(recipe.getPrimaryOutput(), net.minecraft.world.item.equipment.EquipmentAssets.LEATHER));
         }
     }
 

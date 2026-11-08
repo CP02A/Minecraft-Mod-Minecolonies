@@ -341,7 +341,7 @@ public final class ModJobsInitializer
      */
     private static DeferredHolder<JobEntry, JobEntry> register(final DeferredRegister<JobEntry> deferredRegister, final String path, final Supplier<JobEntry> supplier)
     {
-        ModJobs.jobs.add(new Identifier(Constants.MOD_ID, path));
+        ModJobs.jobs.add(Identifier.fromNamespaceAndPath(Constants.MOD_ID, path));
         return deferredRegister.register(path, supplier);
     }
 }

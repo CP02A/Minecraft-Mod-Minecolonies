@@ -33,7 +33,6 @@ import com.minecolonies.core.blocks.BlockPlantationField;
 import com.minecolonies.core.blocks.huts.BlockHutGateHouse;
 import com.minecolonies.core.blocks.huts.BlockHutMiner;
 import com.minecolonies.core.blocks.huts.BlockHutSchool;
-import com.minecolonies.core.client.render.SpearItemTileEntityRenderer;
 import com.minecolonies.core.colony.crafting.CustomRecipeManagerMessage;
 import com.minecolonies.core.colony.requestsystem.init.RequestSystemInitializer;
 import com.minecolonies.core.colony.requestsystem.init.StandardFactoryControllerInitializer;
@@ -71,8 +70,10 @@ import com.minecolonies.core.placementhandlers.main.SuppliesHandler;
 import com.minecolonies.core.placementhandlers.main.SurvivalHandler;
 import com.minecolonies.core.research.GlobalResearchTreeMessage;
 import com.minecolonies.core.structures.MineColoniesStructures;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
-import net.minecraft.world.entity.animal.horse.Horse;
+import net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization;
+import net.minecraft.world.entity.animal.equine.Horse;
+import net.minecraft.world.item.crafting.BrewingRecipe;
+import com.minecolonies.api.crafting.registry.ModRecipeSerializer;
 import com.ldtteam.shim.api.distmarker.Dist;
 import com.ldtteam.shim.bus.api.EventPriority;
 import com.ldtteam.shim.bus.api.IEventBus;
@@ -84,8 +85,6 @@ import com.ldtteam.shim.fml.event.lifecycle.FMLLoadCompleteEvent;
 import com.ldtteam.shim.fml.javafmlmod.FMLModContainer;
 import com.ldtteam.shim.neoforge.capabilities.Capabilities.ItemHandler;
 import com.ldtteam.shim.neoforge.capabilities.RegisterCapabilitiesEvent;
-import com.ldtteam.shim.neoforge.client.extensions.common.IClientItemExtensions;
-import com.ldtteam.shim.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import com.ldtteam.shim.neoforge.common.NeoForge;
 import com.ldtteam.shim.neoforge.event.TagsUpdatedEvent;
 import com.ldtteam.shim.neoforge.event.entity.EntityAttributeCreationEvent;
@@ -114,7 +113,7 @@ public class MineColonies
         LanguageHandler.loadLangPath("assets/minecolonies/lang/%s.json");
         config = new Configurations<>(modContainer, modBus, ClientConfiguration::new, ServerConfiguration::new, CommonConfiguration::new);
 
-        ModArgumentTypes.ARGUMENT_TYPES.register(modBus);
+        ModArgumentTypes.register();
         TileEntityInitializer.BLOCK_ENTITIES.register(modBus);
         AdvancementTriggers.DEFERRED_REGISTER.register(modBus);
         ModIngredientTypeInitializer.DEFERRED_REGISTER.register(modBus);
@@ -187,8 +186,6 @@ public class MineColonies
              }
         }
 
-        modBus.addListener(GatherDataHandler::dataGeneratorSetup);
-
         modBus.register(this.getClass());
 
         InteractionValidatorInitializer.init();
@@ -225,6 +222,12 @@ public class MineColonies
         event.enqueueWork(ModLootConditions::init);
         event.enqueueWork(ModTags::init);
         event.enqueueWork(ModEquipmentTypes::initRegisterEquipmentTiers);
+
+        // FABRIC-PORT: 26.x does not sync recipes to the client anymore. The vanilla crafting/smelting and the Domum cutter serializers are
+        // synced by the Fabric entrypoint; additionally sync brewing (brewing teaching / crafting GUIs) and our own recipe types.
+        RecipeSynchronization.synchronizeRecipeSerializer(BrewingRecipe.SERIALIZER);
+        RecipeSynchronization.synchronizeRecipeSerializer(ModRecipeSerializer.CompostRecipeSerializer.get());
+        RecipeSynchronization.synchronizeRecipeSerializer(ModRecipeSerializer.ZeroWasteRecipeSerializer.get());
     }
 
     /**
@@ -482,18 +485,9 @@ public class MineColonies
         ItemSettingMessage.TYPE.register(registry);
     }
 
-    @SubscribeEvent
-    static void onRegisterClientExtensions(RegisterClientExtensionsEvent event)
-    {
-        event.registerItem(new IClientItemExtensions() {
-            @NotNull
-            @Override
-            public BlockEntityWithoutLevelRenderer getCustomRenderer()
-            {
-                return new SpearItemTileEntityRenderer();
-            }
-        }, ModItems.spear);
-    }
+    // FABRIC-PORT TODO: the spear's custom item renderer (SpearItemTileEntityRenderer via IClientItemExtensions#getCustomRenderer)
+    // no longer exists in 26.x (BlockEntityWithoutLevelRenderer was removed). It must be re-registered as a SpecialModelRenderer
+    // referenced from the spear's item model definition (client area).
 
     /**
      * Report known incompatibilities to the log.

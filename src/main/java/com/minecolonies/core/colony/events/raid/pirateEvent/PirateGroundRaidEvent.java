@@ -29,7 +29,7 @@ public class PirateGroundRaidEvent extends HordeRaidEvent
     /**
      * This raids event id, registry entries use res locations as ids.
      */
-    public static final Identifier PIRATE_GROUND_RAID_EVENT_TYPE_ID = new Identifier(Constants.MOD_ID, "pirate_ground_raid");
+    public static final Identifier PIRATE_GROUND_RAID_EVENT_TYPE_ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "pirate_ground_raid");
 
     public PirateGroundRaidEvent(IColony colony)
     {

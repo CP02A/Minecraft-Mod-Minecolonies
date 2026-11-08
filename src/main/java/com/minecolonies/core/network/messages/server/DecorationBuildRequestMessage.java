@@ -112,7 +112,7 @@ public class DecorationBuildRequestMessage extends AbstractServerPlayMessage
         buf.writeBlockPos(this.pos);
         buf.writeUtf(this.packName);
         buf.writeUtf(this.path);
-        buf.writeUtf(this.dimension.location().toString());
+        buf.writeUtf(this.dimension.identifier().toString());
         buf.writeByte(rotationMirror.ordinal());
         buf.writeBlockPos(this.builder);
     }

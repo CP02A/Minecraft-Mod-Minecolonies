@@ -25,7 +25,7 @@ public class NorsemenShipRaidEvent extends AbstractShipRaidEvent
     /**
      * This raids event id, registry entries use res locations as ids.
      */
-    public static final Identifier NORSEMEN_RAID_EVENT_TYPE_ID = new Identifier(Constants.MOD_ID, "norsemen_ship_raid");
+    public static final Identifier NORSEMEN_RAID_EVENT_TYPE_ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "norsemen_ship_raid");
 
     /**
      * Ship description

@@ -1,5 +1,6 @@
 package com.ldtteam.domumornamentum.network;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
@@ -13,7 +14,7 @@ public interface IServerboundDistributor extends CustomPacketPayload
         final Minecraft mc = Minecraft.getInstance();
         if (mc != null && mc.getConnection() != null)
         {
-            mc.getConnection().send(this);
+            ClientPlayNetworking.send(this);
         }
     }
 }

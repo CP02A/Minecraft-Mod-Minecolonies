@@ -13,7 +13,7 @@ import org.jetbrains.annotations.UnknownNullability;
  */
 public class WorkerIdleSideEffect implements IQuestSideEffect, ICitizenQuestSideEffect
 {
-    public static final Identifier ID = new Identifier(Constants.MOD_ID, "workeridle");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "workeridle");
 
     /**
      * Citizen data we applied to

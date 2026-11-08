@@ -45,7 +45,7 @@ public interface ITownHallView extends IBuildingView
         public static final StreamCodec<RegistryFriendlyByteBuf, MapEntry> STREAM_CODEC =
             StreamCodec.composite(MapId.STREAM_CODEC,
                 MapEntry::mapId,
-                StreamCodec.of((buf, data) -> buf.writeNbt(data.save(new CompoundTag(), buf.registryAccess())), buf -> MapItemSavedData.load(buf.readNbt(), buf.registryAccess())),
+                net.minecraft.network.codec.ByteBufCodecs.fromCodecWithRegistries(MapItemSavedData.CODEC),
                 MapEntry::mapData,
                 MapEntry::new);
     }

@@ -76,7 +76,7 @@ public class AnimalManager implements IAnimalManager
 
         if (animal.getManagedAnimalId() == 0 || animalMap.get(animal.getManagedAnimalId()) == null)
         {
-            if (!animalEntity.isAddedToLevel())
+            if (!com.minecolonies.core.colony.EntityCompat.isAddedToLevel(animalEntity))
             {
                 Log.getLogger().warn("Discarding entity not added to world, should be only called after:", new Exception());
             }
@@ -89,7 +89,7 @@ public class AnimalManager implements IAnimalManager
 
         if (data == null || !animalEntity.getUUID().equals(data.getUUID()))
         {
-            if (!animalEntity.isAddedToLevel())
+            if (!com.minecolonies.core.colony.EntityCompat.isAddedToLevel(animalEntity))
             {
                 Log.getLogger().warn("Discarding entity not added to world, should be only called after:", new Exception());
             }
@@ -119,7 +119,7 @@ public class AnimalManager implements IAnimalManager
             return;
         }
 
-        if (!animalEntity.isAddedToLevel())
+        if (!com.minecolonies.core.colony.EntityCompat.isAddedToLevel(animalEntity))
         {
             Log.getLogger().warn("Discarding entity not added to world, should be only called after:", new Exception());
         }
@@ -275,20 +275,20 @@ public class AnimalManager implements IAnimalManager
     public void read(@NotNull final HolderLookup.Provider provider, @NotNull final CompoundTag compound)
     {
         // If the tag doesn't exist, don't mutate current state.
-        if (!compound.contains(TAG_ANIMAL_MANAGER, Tag.TAG_COMPOUND))
+        if (!compound.contains(TAG_ANIMAL_MANAGER))
         {
             return;
         }
 
-        final CompoundTag animalManagerNBT = compound.getCompound(TAG_ANIMAL_MANAGER);
+        final CompoundTag animalManagerNBT = compound.getCompoundOrEmpty(TAG_ANIMAL_MANAGER);
 
         // Start from a clean slate so reloads don't accumulate stale entries.
         animalMap.clear();
 
         // Restore next id even if animals list is absent/corrupt.
-        if (animalManagerNBT.contains(TAG_NEXTID, Tag.TAG_INT))
+        if (animalManagerNBT.contains(TAG_NEXTID))
         {
-            nextAnimalID = animalManagerNBT.getInt(TAG_NEXTID);
+            nextAnimalID = animalManagerNBT.getIntOr(TAG_NEXTID, 0);
         }
         else
         {
@@ -296,13 +296,13 @@ public class AnimalManager implements IAnimalManager
         }
 
         // Read animals list (if present). If missing, we still keep nextAnimalID restored.
-        if (animalManagerNBT.contains(TAG_ANIMALS, Tag.TAG_LIST))
+        if (animalManagerNBT.contains(TAG_ANIMALS))
         {
-            final ListTag animalList = animalManagerNBT.getList(TAG_ANIMALS, Tag.TAG_COMPOUND);
+            final ListTag animalList = animalManagerNBT.getListOrEmpty(TAG_ANIMALS);
 
             for (int i = 0; i < animalList.size(); i++)
             {
-                final CompoundTag animalTag = animalList.getCompound(i);
+                final CompoundTag animalTag = animalList.getCompoundOrEmpty(i);
 
                 try
                 {

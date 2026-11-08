@@ -68,7 +68,7 @@ public class TileEntityBarrel extends AbstractTileEntityBarrel implements ITicka
     {
         final Level world = this.getLevel();
 
-        if (!world.isClientSide && (world.getGameTime() % (world.random.nextInt(AVERAGE_TICKS * 2) + 1) == 0))
+        if (!world.isClientSide() && (world.getGameTime() % (world.getRandom().nextInt(AVERAGE_TICKS * 2) + 1) == 0))
         {
             this.updateTick(world, this.getBlockPos(), world.getBlockState(this.getBlockPos()), new Random());
         }
@@ -202,23 +202,35 @@ public class TileEntityBarrel extends AbstractTileEntityBarrel implements ITicka
     }
 
     @Override
-    public void saveAdditional(final CompoundTag compound, @NotNull final HolderLookup.Provider provider)
+    public void saveAdditional(final net.minecraft.world.level.storage.ValueOutput valueOutput)
     {
-        super.saveAdditional(compound, provider);
+        super.saveAdditional(valueOutput);
+        final CompoundTag compound = new CompoundTag();
+        final HolderLookup.Provider provider = com.minecolonies.core.entity.NbtValueIO.lookup(this);
+        saveAdditionalTag(compound, provider);
+        com.minecolonies.core.entity.NbtValueIO.write(valueOutput, compound);
+    }
+
+    private void saveAdditionalTag(final CompoundTag compound, final HolderLookup.Provider provider)
+    {
+
 
         compound.putInt("items", this.items);
         compound.putInt("timer", this.timer);
         compound.putBoolean("done", this.done);
-    }
+        }
 
     @Override
-    public void loadAdditional(final CompoundTag compound, @NotNull final HolderLookup.Provider provider)
+    public void loadAdditional(final net.minecraft.world.level.storage.ValueInput valueInput)
     {
-        super.loadAdditional(compound, provider);
-        this.items = compound.getInt("items");
-        this.timer = compound.getInt("timer");
-        this.done = compound.getBoolean("done");
-    }
+        super.loadAdditional(valueInput);
+        final CompoundTag compound = com.minecolonies.core.entity.NbtValueIO.read(valueInput);
+        final HolderLookup.Provider provider = valueInput.lookup();
+
+        this.items = compound.getIntOr("items", 0);
+        this.timer = compound.getIntOr("timer", 0);
+        this.done = compound.getBooleanOr("done", false);
+        }
 
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket()
@@ -230,16 +242,9 @@ public class TileEntityBarrel extends AbstractTileEntityBarrel implements ITicka
     @Override
     public CompoundTag getUpdateTag(@NotNull final HolderLookup.Provider provider)
     {
-        return saveWithId(provider);
+        return saveWithoutMetadata(provider);
     }
 
-    @Override
-    public void onDataPacket(final Connection net, final ClientboundBlockEntityDataPacket packet, @NotNull final HolderLookup.Provider provider)
-    {
-        final CompoundTag compound = packet.getTag();
-        this.loadAdditional(compound, provider);
-        setChanged();
-    }
 
     @Override
     public void setChanged()
@@ -250,13 +255,6 @@ public class TileEntityBarrel extends AbstractTileEntityBarrel implements ITicka
         }
     }
 
-    @Override
-    public final void handleUpdateTag(final CompoundTag tag, @NotNull final HolderLookup.Provider provider)
-    {
-        this.items = tag.getInt("items");
-        this.timer = tag.getInt("timer");
-        this.done = tag.getBoolean("done");
-    }
 
     /**
      * Returns the number of items that the block contains

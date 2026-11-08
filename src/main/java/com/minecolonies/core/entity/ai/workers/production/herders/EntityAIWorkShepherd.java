@@ -12,7 +12,7 @@ import com.minecolonies.core.util.citizenutils.CitizenItemUtils;
 import com.minecolonies.core.network.messages.client.LocalizedParticleEffectMessage;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.animal.Sheep;
+import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -26,7 +26,7 @@ import static com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState.*
 import static com.minecolonies.api.util.constant.Constants.TICKS_SECOND;
 import static com.minecolonies.api.util.constant.StatisticsConstants.ITEM_OBTAINED;
 import static com.minecolonies.core.colony.buildings.modules.BuildingModules.STATS_MODULE;
-import static net.minecraft.world.entity.animal.Sheep.ITEM_BY_DYE;
+
 
 /**
  * The AI behind the {@link JobShepherd} for Breeding, Killing and Shearing sheep.
@@ -132,22 +132,22 @@ public class EntityAIWorkShepherd extends AbstractEntityAIHerder<JobShepherd, Bu
             int enchantmentLevel = worker.getMainHandItem().getEnchantmentLevel(Utils.getRegistryValue(Enchantments.FORTUNE, world));
             enchantmentLevel *= Math.max(1.0, (getPrimarySkillLevel() / 5.0));
 
-            worker.swing(InteractionHand.MAIN_HAND);
+            worker.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
 
             final List<ItemStack> items = new ArrayList<>();
-            if (!this.world.isClientSide)
+            if (!this.world.isClientSide())
             {
                 sheep.setSheared(true);
                 int qty = 1 + worker.getRandom().nextInt(enchantmentLevel + 1);
 
                 for (int j = 0; j < qty; ++j)
                 {
-                    items.add(new ItemStack(ITEM_BY_DYE.get(sheep.getColor())));
+                    items.add(new ItemStack(woolByDye(sheep.getColor())));
                 }
             }
 
             sheep.playSound(SoundEvents.SHEEP_SHEAR, 1.0F, 1.0F);
-            new LocalizedParticleEffectMessage(new ItemStack(ITEM_BY_DYE.get(sheep.getColor())), sheep.getOnPos().above()).sendToTrackingEntity(worker);
+            new LocalizedParticleEffectMessage(new ItemStack(woolByDye(sheep.getColor())), sheep.getOnPos().above()).sendToTrackingEntity(worker);
             dyeSheepChance(sheep);
 
             CitizenItemUtils.damageItemInHand(worker, InteractionHand.MAIN_HAND, 1);
@@ -184,5 +184,16 @@ public class EntityAIWorkShepherd extends AbstractEntityAIHerder<JobShepherd, Bu
                 sheep.setColor(colors[dyeIndex]);
             }
         }
+    }
+
+    /**
+     * Wool item for a dye color (replacement for the removed Sheep.ITEM_BY_DYE).
+     *
+     * @param color the color.
+     * @return the wool item.
+     */
+    private static net.minecraft.world.level.ItemLike woolByDye(final net.minecraft.world.item.DyeColor color)
+    {
+        return net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(net.minecraft.resources.Identifier.withDefaultNamespace(color.getName() + "_wool"));
     }
 }

@@ -17,6 +17,7 @@ import com.minecolonies.api.blocks.AbstractBlockHut;
 import com.minecolonies.api.blocks.interfaces.IBuildingBrowsableBlock;
 import com.minecolonies.api.util.constant.Constants;
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -50,10 +51,10 @@ public class WindowBuildingBrowser extends AbstractWindowSkeleton
      * Number of worker threads to spawn to scan blueprints (each pack on a separate thread); higher reduces total search time.
      */
     private static final int WORKER_THREADS = 4;
-    @SuppressWarnings("ConstantConditions") private static final int COLOR_NORMAL          = ChatFormatting.BLACK.getColor();
-    @SuppressWarnings("ConstantConditions") private static final int COLOR_CHILD           = ChatFormatting.DARK_GREEN.getColor();
-    @SuppressWarnings("ConstantConditions") private static final int COLOR_INVISIBLE       = ChatFormatting.DARK_BLUE.getColor();
-    @SuppressWarnings("ConstantConditions") private static final int COLOR_INVISIBLE_CHILD = ChatFormatting.BLUE.getColor();
+    @SuppressWarnings("ConstantConditions") private static final int COLOR_NORMAL          = TextColor.BLACK.getValue();
+    @SuppressWarnings("ConstantConditions") private static final int COLOR_CHILD           = TextColor.DARK_GREEN.getValue();
+    @SuppressWarnings("ConstantConditions") private static final int COLOR_INVISIBLE       = TextColor.DARK_BLUE.getValue();
+    @SuppressWarnings("ConstantConditions") private static final int COLOR_INVISIBLE_CHILD = TextColor.BLUE.getValue();
 
     private static final Map<Block, List<BuildingInfo>> buildingCache = new HashMap<>();
 
@@ -69,7 +70,7 @@ public class WindowBuildingBrowser extends AbstractWindowSkeleton
      */
     public WindowBuildingBrowser(@NotNull final Block block)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/windowbrowsebuilding.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowbrowsebuilding.xml"));
         this.block = block;
     }
 
@@ -417,7 +418,7 @@ public class WindowBuildingBrowser extends AbstractWindowSkeleton
             assert !anchor.hasTileEntityData() || anchor.getTileEntityData() != null;   // quiet warnings
             if (anchor.hasTileEntityData() && anchor.getTileEntityData().contains(TAG_BLUEPRINTDATA))
             {
-                final Map<BlockPos, List<String>> tagMap = IBlueprintDataProviderBE.readTagPosMapFrom(anchor.getTileEntityData().getCompound(TAG_BLUEPRINTDATA));
+                final Map<BlockPos, List<String>> tagMap = IBlueprintDataProviderBE.readTagPosMapFrom(anchor.getTileEntityData().getCompoundOrEmpty(TAG_BLUEPRINTDATA));
                 final List<String> anchorTags = tagMap.computeIfAbsent(BlockPos.ZERO, k -> new ArrayList<>());
                 if (anchorTags.contains(INVISIBLE_TAG))
                 {

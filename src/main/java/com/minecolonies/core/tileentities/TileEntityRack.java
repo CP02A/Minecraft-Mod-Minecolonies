@@ -43,7 +43,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import com.ldtteam.shim.neoforge.client.model.data.ModelData;
+import com.ldtteam.shim.neoforge.model.data.ModelData;
 import com.ldtteam.shim.neoforge.items.IItemHandler;
 import com.ldtteam.shim.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
@@ -303,7 +303,7 @@ public class TileEntityRack extends AbstractTileEntityRack implements IMateriall
     @Override
     public void updateItemStorage()
     {
-        if (level != null && !level.isClientSide)
+        if (level != null && !level.isClientSide())
         {
             final boolean beforeEmpty = content.isEmpty();
             updateContent();
@@ -399,65 +399,77 @@ public class TileEntityRack extends AbstractTileEntityRack implements IMateriall
     }
 
     @Override
-    public void loadAdditional(final CompoundTag compound, @NotNull final HolderLookup.Provider provider)
+    public void loadAdditional(final net.minecraft.world.level.storage.ValueInput valueInput)
     {
-        super.loadAdditional(compound, provider);
+        super.loadAdditional(valueInput);
+        final CompoundTag compound = com.minecolonies.core.entity.NbtValueIO.read(valueInput);
+        final HolderLookup.Provider provider = valueInput.lookup();
+
         if (compound.contains(TAG_SIZE))
         {
-            size = compound.getInt(TAG_SIZE);
+            size = compound.getIntOr(TAG_SIZE, 0);
             inventory = createInventory(DEFAULT_SIZE + size * SLOT_PER_LINE);
         }
 
-        final ListTag inventoryTagList = compound.getList(TAG_INVENTORY, TAG_COMPOUND);
+        final ListTag inventoryTagList = compound.getListOrEmpty(TAG_INVENTORY);
         for (int i = 0; i < inventoryTagList.size(); i++)
         {
-            final CompoundTag compoundTag = inventoryTagList.getCompound(i);
+            final CompoundTag compoundTag = inventoryTagList.getCompoundOrEmpty(i);
             if (!compoundTag.contains(TAG_EMPTY))
             {
                 if (compoundTag.contains("Count"))
                 {
                     CompoundTag fixedTag = DataFixerUtils.runDataFixer(compoundTag, References.ITEM_STACK, DataVersion.v1_20_1);
-                    inventory.setStackInSlot(i, ItemStack.parseOptional(provider, fixedTag));
+                    inventory.setStackInSlot(i, com.minecolonies.core.colony.NbtCompat.parseOptional(provider, fixedTag));
                 }
                 else
                 {
-                    inventory.setStackInSlot(i, ItemStack.parseOptional(provider, compoundTag));
+                    inventory.setStackInSlot(i, com.minecolonies.core.colony.NbtCompat.parseOptional(provider, compoundTag));
                 }
             }
         }
 
         updateContent();
 
-        this.inWarehouse = compound.getBoolean(TAG_IN_WAREHOUSE);
+        this.inWarehouse = compound.getBooleanOr(TAG_IN_WAREHOUSE, false);
         if (compound.contains(TAG_POS))
         {
             this.buildingPos = BlockPosUtil.read(compound, TAG_POS);
         }
-        version = compound.getByte(TAG_VERSION);
+        version = compound.getByteOr(TAG_VERSION, (byte) 0);
 
         invalidateCap();
 
-        if (level != null && level.isClientSide)
+        if (level != null && level.isClientSide())
         {
             refreshTextureCache();
         }
-    }
+        }
 
     @Override
-    public void saveAdditional(final CompoundTag compound, @NotNull final HolderLookup.Provider provider)
+    public void saveAdditional(final net.minecraft.world.level.storage.ValueOutput valueOutput)
     {
-        super.saveAdditional(compound, provider);
+        super.saveAdditional(valueOutput);
+        final CompoundTag compound = new CompoundTag();
+        final HolderLookup.Provider provider = com.minecolonies.core.entity.NbtValueIO.lookup(this);
+        saveAdditionalTag(compound, provider);
+        com.minecolonies.core.entity.NbtValueIO.write(valueOutput, compound);
+    }
+
+    private void saveAdditionalTag(final CompoundTag compound, final HolderLookup.Provider provider)
+    {
+
         compound.putInt(TAG_SIZE, size);
         @NotNull final ListTag inventoryTagList = new ListTag();
         for (int slot = 0; slot < inventory.getSlots(); slot++)
         {
-            inventoryTagList.add(inventory.getStackInSlot(slot).saveOptional(provider));
+            inventoryTagList.add(com.minecolonies.core.colony.NbtCompat.saveOptional(inventory.getStackInSlot(slot), provider));
         }
         compound.put(TAG_INVENTORY, inventoryTagList);
         compound.putBoolean(TAG_IN_WAREHOUSE, inWarehouse);
         BlockPosUtil.write(compound, TAG_POS, buildingPos);
         compound.putByte(TAG_VERSION, version);
-    }
+        }
 
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket()
@@ -469,20 +481,10 @@ public class TileEntityRack extends AbstractTileEntityRack implements IMateriall
     @Override
     public CompoundTag getUpdateTag(@NotNull final HolderLookup.Provider provider)
     {
-        return this.saveWithId(provider);
+        return this.saveWithoutMetadata(provider);
     }
 
-    @Override
-    public void onDataPacket(final Connection net, final ClientboundBlockEntityDataPacket packet, @NotNull final HolderLookup.Provider provider)
-    {
-        this.loadAdditional(packet.getTag(), provider);
-    }
 
-    @Override
-    public void handleUpdateTag(final CompoundTag tag, @NotNull final HolderLookup.Provider provider)
-    {
-        this.loadAdditional(tag, provider);
-    }
 
     @Override
     @Nullable
@@ -582,7 +584,6 @@ public class TileEntityRack extends AbstractTileEntityRack implements IMateriall
      */
     private void invalidateCap()
     {
-        invalidateCapabilities();
         lastItemHandlerCap = null;
     }
 
@@ -664,7 +665,7 @@ public class TileEntityRack extends AbstractTileEntityRack implements IMateriall
                 }
 
                 final Identifier secondaryResLoc = secondarytextureMapping.get(index);
-                if (!block.defaultBlockState().isSolidRender(EmptyBlockGetter.INSTANCE, BlockPos.ZERO))
+                if (!block.defaultBlockState().isSolidRender())
                 {
                     resMap.put(secondaryResLoc, block);
                     block = Blocks.BARREL;
@@ -678,8 +679,8 @@ public class TileEntityRack extends AbstractTileEntityRack implements IMateriall
                 resMap.put(resLoc, block);
 
                 if (this.textureDataCache == null
-                      || !this.textureDataCache.getTexturedComponents().getOrDefault(resLoc, Blocks.BEDROCK).equals(resMap.get(resLoc))
-                      || !this.textureDataCache.getTexturedComponents().getOrDefault(secondaryResLoc, Blocks.BEDROCK).equals(resMap.get(secondaryResLoc)))
+                      || !this.textureDataCache.components().getOrDefault(resLoc, Blocks.BEDROCK).equals(resMap.get(resLoc))
+                      || !this.textureDataCache.components().getOrDefault(secondaryResLoc, Blocks.BEDROCK).equals(resMap.get(secondaryResLoc)))
                 {
                     update = true;
                 }
@@ -702,7 +703,7 @@ public class TileEntityRack extends AbstractTileEntityRack implements IMateriall
             }
 
             final Identifier secondaryResLoc = secondarytextureMapping.get(i);
-            if (block != Blocks.AIR && !block.defaultBlockState().isSolidRender(EmptyBlockGetter.INSTANCE, BlockPos.ZERO))
+            if (block != Blocks.AIR && !block.defaultBlockState().isSolidRender())
             {
                 resMap.put(secondaryResLoc, block);
                 block = Blocks.BARREL;
@@ -716,8 +717,8 @@ public class TileEntityRack extends AbstractTileEntityRack implements IMateriall
             resMap.put(resLoc, block);
 
             if (this.textureDataCache == null
-                  || !this.textureDataCache.getTexturedComponents().getOrDefault(resLoc, Blocks.BEDROCK).equals(resMap.get(resLoc))
-                  || !this.textureDataCache.getTexturedComponents().getOrDefault(secondaryResLoc, Blocks.BEDROCK).equals(resMap.get(secondaryResLoc)))
+                  || !this.textureDataCache.components().getOrDefault(resLoc, Blocks.BEDROCK).equals(resMap.get(resLoc))
+                  || !this.textureDataCache.components().getOrDefault(secondaryResLoc, Blocks.BEDROCK).equals(resMap.get(secondaryResLoc)))
             {
                 update = true;
             }
@@ -726,7 +727,7 @@ public class TileEntityRack extends AbstractTileEntityRack implements IMateriall
         if (update)
         {
             this.textureDataCache = new MaterialTextureData(resMap);
-            this.requestModelDataUpdate();
+            com.ldtteam.shim.neoforge.model.data.ModelDataHelper.requestModelDataUpdate(this);
             if (level != null)
             {
                 level.sendBlockUpdated(getBlockPos(), Blocks.AIR.defaultBlockState(), getBlockState(), Block.UPDATE_ALL);
@@ -735,7 +736,6 @@ public class TileEntityRack extends AbstractTileEntityRack implements IMateriall
     }
 
     @NotNull
-    @Override
     public ModelData getModelData()
     {
         if (!checkedAfterStartup && level != null)
@@ -747,6 +747,12 @@ public class TileEntityRack extends AbstractTileEntityRack implements IMateriall
         return ModelData.builder()
                  .with(ModProperties.MATERIAL_TEXTURE_PROPERTY, textureDataCache)
                  .build();
+    }
+
+    @Override
+    public Object getRenderData()
+    {
+        return getModelData();
     }
 
     @Override

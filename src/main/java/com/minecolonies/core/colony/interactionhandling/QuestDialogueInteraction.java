@@ -39,9 +39,9 @@ public class QuestDialogueInteraction extends StandardInteraction
     /**
      * Three icon options.
      */
-    private static final Identifier QUEST_START_ICON = new Identifier(Constants.MOD_ID, "textures/icons/queststart.png");
-    private static final Identifier QUEST_NEXT_TASK_ICON = new Identifier(Constants.MOD_ID, "textures/icons/nexttask.png");
-    private static final Identifier QUEST_WAITING_TASK_ICON = new Identifier(Constants.MOD_ID, "textures/icons/opentask.png");
+    private static final Identifier QUEST_START_ICON = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/queststart.png");
+    private static final Identifier QUEST_NEXT_TASK_ICON = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/nexttask.png");
+    private static final Identifier QUEST_WAITING_TASK_ICON = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/opentask.png");
 
     /**
      * Currently open colony quest.
@@ -236,11 +236,11 @@ public class QuestDialogueInteraction extends StandardInteraction
     public void deserializeNBT(@NotNull final HolderLookup.Provider provider, final @NotNull CompoundTag compoundNBT)
     {
         super.deserializeNBT(provider, compoundNBT);
-        this.questId = Identifier.parse(compoundNBT.getString(TAG_QUEST_ID));
-        this.index = compoundNBT.getInt(TAG_QUEST_INDEX);
+        this.questId = Identifier.parse(compoundNBT.getStringOr(TAG_QUEST_ID, ""));
+        this.index = compoundNBT.getIntOr(TAG_QUEST_INDEX, 0);
         this.currentElement = ((DialogueObjectiveTemplateTemplate) IQuestManager.GLOBAL_SERVER_QUESTS.get(questId).getObjective(index)).getDialogueTree();
         this.startElement = currentElement;
-        this.finished = compoundNBT.getBoolean(TAG_FINISHED);
+        this.finished = compoundNBT.getBooleanOr(TAG_FINISHED, false);
     }
 
     @Override

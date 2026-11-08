@@ -2,13 +2,14 @@ package com.minecolonies.api.client.render.modeltype;
 
 import com.minecolonies.api.entity.mobs.AbstractEntityMinecoloniesMonster;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.model.geom.ModelPart;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Amazon model.
  */
-public class AmazonModel<T extends AbstractEntityMinecoloniesMonster> extends HumanoidModel<AbstractEntityMinecoloniesMonster>
+public class AmazonModel<T extends AbstractEntityMinecoloniesMonster> extends HumanoidModel<HumanoidRenderState>
 {
     public AmazonModel(final ModelPart part)
     {
@@ -16,9 +17,9 @@ public class AmazonModel<T extends AbstractEntityMinecoloniesMonster> extends Hu
     }
 
     @Override
-    public void setupAnim(@NotNull final AbstractEntityMinecoloniesMonster entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch)
+    public void setupAnim(@NotNull final HumanoidRenderState entity)
     {
-        super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+        super.setupAnim(entity);
         head.y -= 3;
         rightLeg.y -= 3.5;
         leftLeg.y -= 3.5;

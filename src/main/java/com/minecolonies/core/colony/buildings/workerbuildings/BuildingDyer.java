@@ -116,18 +116,19 @@ public class BuildingDyer extends AbstractBuilding
                     Tags.Items.DYES_BROWN, Tags.Items.DYES_GREEN, Tags.Items.DYES_RED, Tags.Items.DYES_BLACK);
             for (final ItemStack item : IColonyManager.getInstance().getCompatibilityManager().getListOfAllItems())
             {
-                if (!(item.getItem() instanceof ArmorItem armorItem) || !item.has(DataComponents.DYED_COLOR))
+                if (!com.minecolonies.core.colony.ItemCompat.isArmor(item) || !item.has(DataComponents.DYED_COLOR))
                 {
                     continue;
                 }
 
                 for (final TagKey<Item> dyeTag : dyes)
                 {
-                    final List<ItemStack> dyeItems = BuiltInRegistries.ITEM.getTag(dyeTag).get()
+                    final List<ItemStack> dyeItems = BuiltInRegistries.ITEM.getOrThrow(dyeTag)
                             .stream().map(ItemStack::new).toList();
                     if (dyeItems.isEmpty()) { continue; }
 
-                    if (dyeItems.get(0).getItem() instanceof final DyeItem dye)
+                    final net.minecraft.world.item.DyeColor dye = dyeItems.get(0).get(DataComponents.DYE);
+                    if (dye != null)
                     {
 
                         final ItemStack result = DyedItemColor.applyDyes(item, List.of(dye));
@@ -151,7 +152,7 @@ public class BuildingDyer extends AbstractBuilding
         {
             IRecipeStorage recipe = super.getFirstRecipe(stackPredicate);
 
-            if(recipe == null && stackPredicate.test(new ItemStack(Items.WHITE_WOOL)))
+            if(recipe == null && stackPredicate.test(new ItemStack(Items.WOOL.white())))
             {
                 final HashMap<ItemStorage, Integer> inventoryCounts = new HashMap<>();
 
@@ -191,14 +192,14 @@ public class BuildingDyer extends AbstractBuilding
                 return false;
             }
 
-            return recipe.getPrimaryOutput().getItem() == Items.WHITE_WOOL;
+            return recipe.getPrimaryOutput().getItem() == Items.WOOL.white();
         }
 
         @Override
         public IRecipeStorage getFirstFulfillableRecipe(final Predicate<ItemStack> stackPredicate, final int count, final boolean considerReservation)
         {
             IRecipeStorage recipe = super.getFirstFulfillableRecipe(stackPredicate, count, considerReservation);
-            if (recipe == null && stackPredicate.test(new ItemStack(Items.WHITE_WOOL)))
+            if (recipe == null && stackPredicate.test(new ItemStack(Items.WOOL.white())))
             {
                 final Set<IItemHandler> handlers = new HashSet<>();
                 for (final ICitizenData workerEntity : building.getAllAssignedCitizen())
@@ -230,8 +231,8 @@ public class BuildingDyer extends AbstractBuilding
         {
             if (woolItems == null)
             {
-                woolItems = BuiltInRegistries.ITEM.getOrCreateTag(ItemTags.WOOL).stream()
-                  .filter(item -> !item.value().equals(Items.WHITE_WOOL))
+                woolItems = BuiltInRegistries.ITEM.get(ItemTags.WOOL).stream().flatMap(net.minecraft.core.HolderSet::stream)
+                  .filter(item -> !item.value().equals(Items.WOOL.white()))
                   .map(i -> new ItemStorage(new ItemStack(i))).collect(Collectors.toList());
             }
             return woolItems;
@@ -245,8 +246,8 @@ public class BuildingDyer extends AbstractBuilding
         private IToken<?> getTokenForWool(ItemStorage wool)
         {
             final IRecipeStorage tempRecipe = RecipeStorage.builder()
-                    .withInputs(ImmutableList.of(wool, new ItemStorage(new ItemStack(Items.WHITE_DYE))))
-                    .withPrimaryOutput(new ItemStack(Items.WHITE_WOOL))
+                    .withInputs(ImmutableList.of(wool, new ItemStorage(new ItemStack(Items.DYE.white()))))
+                    .withPrimaryOutput(new ItemStack(Items.WOOL.white()))
                     .build();
 
             return IColonyManager.getInstance().getRecipeManager().checkOrAddRecipe(tempRecipe);

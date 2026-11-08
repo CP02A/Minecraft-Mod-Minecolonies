@@ -14,11 +14,11 @@ import static com.minecolonies.api.util.constant.Constants.MOD_ID;
 
 public class ModCraftingTypes
 {
-    public static final Identifier SMALL_CRAFTING_ID = new Identifier(MOD_ID, "smallcrafting");
-    public static final Identifier LARGE_CRAFTING_ID = new Identifier(MOD_ID, "largecrafting");
-    public static final Identifier SMELTING_ID = new Identifier(MOD_ID, "smelting");
-    public static final Identifier BREWING_ID = new Identifier(MOD_ID, "brewing");
-    public static final Identifier ARCHITECTS_CUTTER_ID = new Identifier("domum_ornamentum", "architects_cutter");
+    public static final Identifier SMALL_CRAFTING_ID = Identifier.fromNamespaceAndPath(MOD_ID, "smallcrafting");
+    public static final Identifier LARGE_CRAFTING_ID = Identifier.fromNamespaceAndPath(MOD_ID, "largecrafting");
+    public static final Identifier SMELTING_ID = Identifier.fromNamespaceAndPath(MOD_ID, "smelting");
+    public static final Identifier BREWING_ID = Identifier.fromNamespaceAndPath(MOD_ID, "brewing");
+    public static final Identifier ARCHITECTS_CUTTER_ID = Identifier.fromNamespaceAndPath("domum_ornamentum", "architects_cutter");
 
     public static DeferredHolder<CraftingType, RecipeCraftingType<CraftingInput, CraftingRecipe>>     SMALL_CRAFTING;
     public static DeferredHolder<CraftingType, RecipeCraftingType<CraftingInput, CraftingRecipe>>     LARGE_CRAFTING;

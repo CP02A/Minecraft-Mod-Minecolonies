@@ -1,7 +1,7 @@
 {
   "parent": "block/cube_all",
   "textures": {
-    "particle": "block/oak_planks",
+    "particle": "minecraft:block/oak_planks",
     "down": "structurize:block/blocksolidsubstitution",
     "up": "structurize:block/blocksolidsubstitution",
     "north": "structurize:block/blocksolidsubstitution",

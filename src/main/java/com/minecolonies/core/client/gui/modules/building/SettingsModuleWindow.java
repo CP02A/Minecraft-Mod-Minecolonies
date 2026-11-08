@@ -33,7 +33,7 @@ public class SettingsModuleWindow extends AbstractModuleWindow<SettingsModuleVie
      */
     public SettingsModuleWindow(final SettingsModuleView moduleView)
     {
-        super(moduleView, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutsettings.xml"));
+        super(moduleView, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutsettings.xml"));
         settingsList = window.findPaneOfTypeByID(LIST_SETTINGS, ScrollingList.class);
     }
 

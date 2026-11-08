@@ -48,7 +48,7 @@ public class ItemScepterLumberjack extends AbstractItemMinecolonies implements I
     @Override
     public InteractionResult useOn(final UseOnContext context)
     {
-        if (context.getLevel().isClientSide)
+        if (context.getLevel().isClientSide())
         {
             return InteractionResult.FAIL;
         }
@@ -64,7 +64,7 @@ public class ItemScepterLumberjack extends AbstractItemMinecolonies implements I
     @Override
     public boolean canAttackBlock(@NotNull final BlockState state, @NotNull final Level world, @NotNull final BlockPos pos, @NotNull final Player player)
     {
-        if (!world.isClientSide)
+        if (!world.isClientSide())
         {
             final ItemStack scepter = player.getMainHandItem();
             MessageUtils.format(TOOL_LUMBERJACK_SCEPTER_POSITION_A_SET).sendTo(player);

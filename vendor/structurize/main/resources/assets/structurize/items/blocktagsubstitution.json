@@ -1,0 +1,18 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "structurize:item/blocktagsubstitution"
+      },
+      {
+        "type": "minecraft:special",
+        "base": "structurize:item/blocktagsubstitution",
+        "model": {
+          "type": "structurize:tag_substitution"
+        }
+      }
+    ]
+  }
+}

@@ -24,7 +24,9 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.item.EnchantedBookItem;
+import net.minecraft.world.item.Items;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.item.ItemStack;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -100,7 +102,7 @@ public class WindowPostBoxMain extends AbstractWindowSkeleton
      */
     public WindowPostBoxMain(final PostBox.View postBoxView)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/windowpostboxrequest.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowpostboxrequest.xml"));
         this.postBoxView = postBoxView;
         this.requestTreeWindowModule = registerLayoutModule(PostBoxRequestTreeWindowModule::new, postBoxView, 261, 44);
         registerPostboxTabs(this, postBoxView);
@@ -214,7 +216,7 @@ public class WindowPostBoxMain extends AbstractWindowSkeleton
 
         tabsWindowModule.renderTabButton(nextTabIndex++,
             TabsWindowModule.TabImageSide.LEFT,
-            new Identifier(Constants.MOD_ID, "textures/gui/modules/main.png"),
+            Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/modules/main.png"),
             Component.translatable(LABEL_MAIN_TAB_NAME),
             button -> buildingView.getWindow().open());
 
@@ -251,10 +253,10 @@ public class WindowPostBoxMain extends AbstractWindowSkeleton
     private void updateResources()
     {
         final Predicate<ItemStack> filterPredicate =
-            stack -> filter.isEmpty() || stack.getDescriptionId().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)) || stack.getHoverName()
+            stack -> filter.isEmpty() || stack.getItem().getDescriptionId().toLowerCase(Locale.US).contains(filter.toLowerCase(Locale.US)) || stack.getHoverName()
                 .getString()
                 .toLowerCase(Locale.US)
-                .contains(filter.toLowerCase(Locale.US)) || (stack.getItem() instanceof EnchantedBookItem && stack.getTagEnchantments()
+                .contains(filter.toLowerCase(Locale.US)) || (stack.is(Items.ENCHANTED_BOOK) && stack.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY)
                 .entrySet()
                 .stream()
                 .anyMatch(f -> f.getKey().getRegisteredName().contains(filter.toLowerCase(Locale.US))));

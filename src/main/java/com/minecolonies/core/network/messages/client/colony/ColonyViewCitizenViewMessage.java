@@ -64,7 +64,7 @@ public class ColonyViewCitizenViewMessage extends AbstractClientPlayMessage
         citizenBuffer.resetReaderIndex();
         buf.writeInt(colonyId);
         buf.writeInt(citizenId);
-        buf.writeUtf(dimension.location().toString());
+        buf.writeUtf(dimension.identifier().toString());
 
         int len = citizenBuffer.readableBytes();
         buf.writeVarInt(len);

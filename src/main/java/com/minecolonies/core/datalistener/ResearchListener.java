@@ -11,8 +11,8 @@ import com.minecolonies.core.util.GsonHelper;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.util.Tuple;
+import com.minecolonies.core.datalistener.util.RegistryAwareJsonReloadListener;
+import com.minecolonies.api.util.Tuple;
 import net.minecraft.util.profiling.ProfilerFiller;
 import com.ldtteam.shim.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +27,7 @@ import static com.minecolonies.core.research.GlobalResearchBranch.*;
 /**
  * Loader for Json-based researches
  */
-public class ResearchListener extends SimpleJsonResourceReloadListener
+public class ResearchListener extends RegistryAwareJsonReloadListener
 {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
@@ -154,7 +154,7 @@ public class ResearchListener extends SimpleJsonResourceReloadListener
      */
     public ResearchListener()
     {
-        super(GSON, "researches");
+        super("researches");
     }
 
     @Override

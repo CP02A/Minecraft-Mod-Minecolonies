@@ -6,6 +6,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 
 public class CommandKillPig implements IMCOPCommand
 {
@@ -21,7 +22,7 @@ public class CommandKillPig implements IMCOPCommand
     {
         entitiesKilled = 0;
 
-        context.getSource().getLevel().getEntities(EntityType.PIG, entity -> true).forEach(entity ->
+        context.getSource().getLevel().getEntities(EntityTypes.PIG, entity -> true).forEach(entity ->
         {
             entity.remove(Entity.RemovalReason.DISCARDED);
             entitiesKilled++;

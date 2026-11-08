@@ -1,7 +1,7 @@
 {
   "ambientocclusion": false,
   "textures": {
-    "particle": "block/oak_log"
+    "particle": "minecraft:block/oak_log"
   },
   "display": {
     "gui": {
@@ -84,9 +84,9 @@
         0
       ],
       "scale": [
-        0.40,
-        0.40,
-        0.40
+        0.4,
+        0.4,
+        0.4
       ]
     },
     "firstperson_lefthand": {
@@ -101,9 +101,9 @@
         0
       ],
       "scale": [
-        0.40,
-        0.40,
-        0.40
+        0.4,
+        0.4,
+        0.4
       ]
     }
   }

@@ -2,11 +2,11 @@ package com.minecolonies.api.advancements;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.ContextAwarePredicate;
-import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
-import net.minecraft.advancements.critereon.SimpleCriterionTrigger.SimpleInstance;
+import net.minecraft.advancements.triggers.Criterion;
+import net.minecraft.core.Holder;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.advancements.triggers.SimpleCriterionTrigger;
+import net.minecraft.advancements.triggers.SimpleCriterionTrigger.SimpleInstance;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ExtraCodecs;
 
@@ -35,12 +35,12 @@ public class CreateBuildRequestTrigger extends SimpleCriterionTrigger<CreateBuil
         return CreateBuildRequestTriggerInstance.CODEC;
     }
 
-    public static record CreateBuildRequestTriggerInstance(Optional<ContextAwarePredicate> player, Optional<String> hutName, int level) implements SimpleInstance
+    public static record CreateBuildRequestTriggerInstance(Optional<Holder<LootItemCondition>> player, Optional<String> hutName, int level) implements SimpleInstance
     {
         public static final int DEFAULT_LEVEL = -1;
 
         public static final Codec<CreateBuildRequestTriggerInstance> CODEC = RecordCodecBuilder.create(builder -> builder
-            .group(EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(CreateBuildRequestTriggerInstance::player),
+            .group(LootItemCondition.CODEC.optionalFieldOf("player").forGetter(CreateBuildRequestTriggerInstance::player),
                 Codec.STRING.optionalFieldOf("hut_name").forGetter(CreateBuildRequestTriggerInstance::hutName),
               ExtraCodecs.intRange(0, 5).optionalFieldOf("level", DEFAULT_LEVEL).forGetter(CreateBuildRequestTriggerInstance::level))
             .apply(builder, CreateBuildRequestTriggerInstance::new));

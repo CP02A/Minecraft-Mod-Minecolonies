@@ -6,14 +6,15 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.core.Direction;
 
 public abstract class AbstractBlockMinecoloniesDefault<B extends AbstractBlockMinecoloniesDefault<B>> extends AbstractBlockMinecoloniesContainer<B>
 {
     /**
      * The position it faces.
      */
-    public static final DirectionProperty FACING           = HorizontalDirectionalBlock.FACING;
+    public static final EnumProperty<Direction> FACING           = HorizontalDirectionalBlock.FACING;
     /**
      * Hardness of the block.
      */
@@ -51,13 +52,13 @@ public abstract class AbstractBlockMinecoloniesDefault<B extends AbstractBlockMi
     @Override
     public B registerBlock(final Registry<Block> registry)
     {
-        Registry.register(registry, getRegistryName(), this);
+        com.minecolonies.api.blocks.BlockIdHelper.register(registry, getRegistryName(), this);
         return (B) this;
     }
 
     @Override
     public void registerBlockItem(final Registry<Item> registry, final Item.Properties properties)
     {
-        Registry.register(registry, getRegistryName(), new BlockItem(this, properties));
+        Registry.register(registry, getRegistryName(), new BlockItem(this, properties.setId(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ITEM, getRegistryName())).useBlockDescriptionPrefix()));
     }
 }

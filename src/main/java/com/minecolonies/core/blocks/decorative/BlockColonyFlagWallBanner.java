@@ -69,8 +69,7 @@ public class BlockColonyFlagWallBanner extends AbstractColonyFlagBanner<BlockCol
         return CODEC;
     }
 
-    @Override
-    public String getDescriptionId() { return this.asItem().getDescriptionId(); }
+    // FABRIC-PORT: Block#getDescriptionId is final in 26.x; the registration should use Properties#overrideDescription(<banner item description id>).
 
     @Override
     public boolean canSurvive(BlockState state, LevelReader worldIn, BlockPos pos)
@@ -130,6 +129,6 @@ public class BlockColonyFlagWallBanner extends AbstractColonyFlagBanner<BlockCol
     @Override
     public Identifier getRegistryName()
     {
-        return new Identifier(Constants.MOD_ID, REGISTRY_NAME_WALL);
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, REGISTRY_NAME_WALL);
     }
 }

@@ -7,18 +7,21 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
 import com.minecolonies.core.client.gui.AbstractWindowSkeleton;
 import com.minecolonies.core.network.messages.server.CreateColonyMessage;
-import com.minecolonies.core.network.messages.client.VanillaParticleMessage;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.PowerParticleOption;
+import net.minecraft.util.RandomSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import static com.minecolonies.api.util.constant.CitizenConstants.CITIZEN_HEIGHT;
+import static com.minecolonies.api.util.constant.CitizenConstants.CITIZEN_WIDTH;
 import static com.minecolonies.api.util.constant.Constants.TICKS_SECOND;
 import static com.minecolonies.api.util.constant.TranslationConstants.*;
 import static com.minecolonies.api.util.constant.WindowConstants.*;
@@ -42,7 +45,7 @@ public class WindowTownHallColonyManage extends AbstractWindowSkeleton
 
     public WindowTownHallColonyManage(final BlockPos pos, final String closestName, final int closestDistance, final String preName, final boolean reactivate)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/townhall/windowcolonymanagement.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/townhall/windowcolonymanagement.xml"));
         this.pos = pos;
         this.reactivate = reactivate;
         mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.BOOK_PAGE_TURN, 1.0F));
@@ -69,7 +72,18 @@ public class WindowTownHallColonyManage extends AbstractWindowSkeleton
     {
         final String colonyName = this.findPaneOfTypeByID("colonyname", TextField.class).getText();
 
-        new VanillaParticleMessage(pos.getX(), pos.getY(), pos.getZ(), ParticleTypes.DRAGON_BREATH).onExecute(null, mc.player);
+        // Same effect as VanillaParticleMessage#spawnParticles (dragon breath is no longer a SimpleParticleType in 26.x).
+        final RandomSource rand = RandomSource.create();
+        for (int i = 0; i < 5; ++i)
+        {
+            mc.level.addParticle(PowerParticleOption.create(ParticleTypes.DRAGON_BREATH, 1.0F),
+              pos.getX() + (rand.nextFloat() * CITIZEN_WIDTH * 2.0F) - CITIZEN_WIDTH,
+              pos.getY() + 1.0D + (rand.nextFloat() * CITIZEN_HEIGHT),
+              pos.getZ() + (rand.nextFloat() * CITIZEN_WIDTH * 2.0F) - CITIZEN_WIDTH,
+              rand.nextGaussian() * 0.02D,
+              rand.nextGaussian() * 0.02D,
+              rand.nextGaussian() * 0.02D);
+        }
         Minecraft.getInstance().level.playSound(Minecraft.getInstance().player, Minecraft.getInstance().player.blockPosition(),
           SoundEvents.CAMPFIRE_CRACKLE, SoundSource.AMBIENT, 2.5f, 0.8f);
         final BlockEntity entity = Minecraft.getInstance().level.getBlockEntity(pos);

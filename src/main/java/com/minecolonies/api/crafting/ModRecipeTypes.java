@@ -8,8 +8,8 @@ import com.ldtteam.shim.neoforge.registries.DeferredHolder;
 public final class ModRecipeTypes
 {
 
-    public static final Identifier CLASSIC_ID    = new Identifier(Constants.MOD_ID, "classic");
-    public static final Identifier MULTI_OUTPUT_ID    = new Identifier(Constants.MOD_ID, "multi_output");
+    public static final Identifier CLASSIC_ID    = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "classic");
+    public static final Identifier MULTI_OUTPUT_ID    = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "multi_output");
 
     public static DeferredHolder<RecipeTypeEntry, RecipeTypeEntry> Classic;
     public static DeferredHolder<RecipeTypeEntry, RecipeTypeEntry> MultiOutput;

@@ -23,7 +23,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Tuple;
+import com.minecolonies.api.util.Tuple;
 import net.minecraft.world.item.ItemStack;
 
 import org.jetbrains.annotations.NotNull;
@@ -40,8 +40,8 @@ public class BuildingBuilder extends AbstractBuildingStructureBuilder
     /**
      * Settings key for the building mode.
      */
-    public static final ISettingKey<StringSetting> MODE = new SettingKey<>(StringSetting.class, new Identifier(Constants.MOD_ID, "mode"));
-    public static final ISettingKey<BuilderModeSetting> BUILDING_MODE = new SettingKey<>(BuilderModeSetting.class, new Identifier(Constants.MOD_ID, "buildmode"));
+    public static final ISettingKey<StringSetting> MODE = new SettingKey<>(StringSetting.class, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "mode"));
+    public static final ISettingKey<BuilderModeSetting> BUILDING_MODE = new SettingKey<>(BuilderModeSetting.class, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "buildmode"));
 
     /**
      * Both setting options.
@@ -98,7 +98,7 @@ public class BuildingBuilder extends AbstractBuildingStructureBuilder
     public void deserializeNBT(@NotNull final HolderLookup.Provider provider, final CompoundTag compound)
     {
         super.deserializeNBT(provider, compound);
-        this.purgedMobsToday = compound.getBoolean(TAG_PURGED_MOBS);
+        this.purgedMobsToday = compound.getBooleanOr(TAG_PURGED_MOBS, false);
     }
 
     @Override

@@ -25,7 +25,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Bee;
+import net.minecraft.world.entity.animal.bee.Bee;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -366,7 +366,7 @@ public class EntityAIWorkBeekeeper extends AbstractEntityAIInteract<JobBeekeeper
             return getState();
         }
 
-        worker.swing(InteractionHand.MAIN_HAND);
+        worker.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
         final ItemStack itemStack = worker.getMainHandItem();
         if (!building.getHarvestTypes().equals(BuildingBeekeeper.HONEY) && ModEquipmentTypes.shears.get().checkIsEquipment(itemStack))
         {
@@ -400,13 +400,13 @@ public class EntityAIWorkBeekeeper extends AbstractEntityAIInteract<JobBeekeeper
         if ((50 - (dex / 99. * 50.)) / 100 > worker.getRandom().nextDouble())
         {
             final List<Entity> bees =
-              ((BeehiveBlockEntity) world.getBlockEntity(hive)).releaseAllOccupants(world.getBlockState(hive), BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY);
+              ((com.minecolonies.fabric.mixin.entity.BeehiveBlockEntityInvoker) world.getBlockEntity(hive)).minecolonies$releaseAllOccupants(world.getBlockState(hive), BeehiveBlockEntity.BeeReleaseStatus.EMERGENCY);
             bees.stream()
               .filter(entity -> entity instanceof Bee)
               .map(entity -> (Bee) entity)
               .filter(bee -> worker.position().distanceToSqr(bee.position()) <= 16.0D)
               .forEach(bee -> {
-                  bee.setRemainingPersistentAngerTime(400 + worker.getRandom().nextInt(400));
+                  bee.setTimeToRemainAngry(400 + worker.getRandom().nextInt(400));
                   bee.setLastHurtByMob(worker);
               });
         }
@@ -491,7 +491,7 @@ public class EntityAIWorkBeekeeper extends AbstractEntityAIInteract<JobBeekeeper
             if (!animal.isInLove() && walkingToAnimal(animal))
             {
                 animal.setInLove(null);
-                worker.swing(InteractionHand.MAIN_HAND);
+                worker.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
                 InventoryUtils.reduceStackInItemHandler(worker.getInventoryCitizen(), worker.getMainHandItem());
             }
         }
@@ -558,7 +558,7 @@ public class EntityAIWorkBeekeeper extends AbstractEntityAIInteract<JobBeekeeper
      */
     public boolean equipBreedItem(final InteractionHand hand)
     {
-        if (checkIfRequestForTagExistOrCreateAsync(ItemTags.FLOWERS, NUM_OF_FLOWERS_TO_BREED))
+        if (checkIfRequestForTagExistOrCreateAsync(net.minecraft.tags.BlockItemTags.FLOWERS.item(), NUM_OF_FLOWERS_TO_BREED))
         {
             ItemListModule flowersModule = building.getModuleMatching(ItemListModule.class, m -> m.getId().equals(BUILDING_FLOWER_LIST));
             CitizenItemUtils

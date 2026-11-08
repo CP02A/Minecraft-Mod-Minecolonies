@@ -2,12 +2,12 @@ package com.minecolonies.api.advancements;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.ContextAwarePredicate;
-import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
-import net.minecraft.advancements.critereon.SimpleCriterionTrigger.SimpleInstance;
+import net.minecraft.advancements.triggers.Criterion;
+import net.minecraft.core.Holder;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.advancements.predicates.ItemPredicate;
+import net.minecraft.advancements.triggers.SimpleCriterionTrigger;
+import net.minecraft.advancements.triggers.SimpleCriterionTrigger.SimpleInstance;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
@@ -35,12 +35,12 @@ public class CitizenEatFoodTrigger extends SimpleCriterionTrigger<CitizenEatFood
         return CitizenEatFoodTriggerInstance.CODEC;
     }
 
-    public static record CitizenEatFoodTriggerInstance(Optional<ContextAwarePredicate> player, List<ItemPredicate> itemPredicates) implements SimpleInstance
+    public static record CitizenEatFoodTriggerInstance(Optional<Holder<LootItemCondition>> player, List<ItemPredicate> itemPredicates) implements SimpleInstance
     {
         public static final List<ItemPredicate> DEFAULT_OUTPUT_ITEM_PREDICATES = Collections.emptyList();
 
         public static final Codec<CitizenEatFoodTriggerInstance> CODEC = RecordCodecBuilder.create(builder -> builder
-            .group(EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(CitizenEatFoodTriggerInstance::player),
+            .group(LootItemCondition.CODEC.optionalFieldOf("player").forGetter(CitizenEatFoodTriggerInstance::player),
               ItemPredicate.CODEC.listOf().optionalFieldOf("items", DEFAULT_OUTPUT_ITEM_PREDICATES).forGetter(CitizenEatFoodTriggerInstance::itemPredicates))
             .apply(builder, CitizenEatFoodTriggerInstance::new));
 

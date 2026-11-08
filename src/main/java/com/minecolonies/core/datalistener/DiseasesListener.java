@@ -17,11 +17,12 @@ import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import com.minecolonies.core.datalistener.util.RegistryAwareJsonReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.util.random.WeightedRandomList;
+import net.minecraft.util.random.Weighted;
+import net.minecraft.util.random.WeightedList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +33,7 @@ import java.util.Map;
 /**
  * Loads and listens to diseases data.
  */
-public class DiseasesListener extends SimpleJsonResourceReloadListener
+public class DiseasesListener extends RegistryAwareJsonReloadListener
 {
     /**
      * Gson instance
@@ -49,14 +50,14 @@ public class DiseasesListener extends SimpleJsonResourceReloadListener
     /**
      * The map of diseases.
      */
-    private static WeightedRandomList<Disease> DISEASES = WeightedRandomList.create();
+    private static WeightedList<Disease> DISEASES = WeightedList.of();
 
     /**
      * Default constructor.
      */
     public DiseasesListener()
     {
-        super(GSON, "colony/diseases");
+        super("colony/diseases");
     }
 
     /**
@@ -68,9 +69,9 @@ public class DiseasesListener extends SimpleJsonResourceReloadListener
     {
         final RegistryFriendlyByteBuf byteBuf = new RegistryFriendlyByteBuf(new FriendlyByteBuf(Unpooled.buffer()), player.level().registryAccess());
         byteBuf.writeInt(DISEASES.unwrap().size());
-        for (final Disease disease : DISEASES.unwrap())
+        for (final Disease disease : getDiseases())
         {
-            byteBuf.writeResourceLocation(disease.id());
+            byteBuf.writeIdentifier(disease.id());
             Utils.serializeCodecMess(ComponentSerialization.STREAM_CODEC, byteBuf, disease.name());
             byteBuf.writeInt(disease.rarity());
             byteBuf.writeInt(disease.cureItems().size());
@@ -93,7 +94,7 @@ public class DiseasesListener extends SimpleJsonResourceReloadListener
         final int size = byteBuf.readInt();
         for (int i = 0; i < size; i++)
         {
-            final Identifier id = byteBuf.readResourceLocation();
+            final Identifier id = byteBuf.readIdentifier();
             final Component name = Utils.deserializeCodecMess(ComponentSerialization.STREAM_CODEC, byteBuf);
             final int rarity = byteBuf.readInt();
 
@@ -106,7 +107,7 @@ public class DiseasesListener extends SimpleJsonResourceReloadListener
 
             newDiseases.add(new Disease(id, name, rarity, cureItems));
         }
-        DISEASES = WeightedRandomList.create(newDiseases);
+        DISEASES = createWeightedList(newDiseases);
     }
 
     /**
@@ -117,7 +118,7 @@ public class DiseasesListener extends SimpleJsonResourceReloadListener
     @NotNull
     public static List<Disease> getDiseases()
     {
-        return DISEASES.unwrap();
+        return DISEASES.unwrap().stream().map(Weighted::value).toList();
     }
 
     /**
@@ -129,7 +130,7 @@ public class DiseasesListener extends SimpleJsonResourceReloadListener
     @Nullable
     public static Disease getDisease(final Identifier id)
     {
-        for (final Disease disease : DISEASES.unwrap())
+        for (final Disease disease : getDiseases())
         {
             if (disease.id().equals(id))
             {
@@ -185,6 +186,17 @@ public class DiseasesListener extends SimpleJsonResourceReloadListener
 
             diseases.add(new Disease(entry.getKey(), name, rarity, cureItems));
         }
-        DISEASES = WeightedRandomList.create(diseases);
+        DISEASES = createWeightedList(diseases);
+    }
+
+    /**
+     * Create the weighted list of diseases, weighted by their rarity.
+     *
+     * @param diseases the diseases.
+     * @return the weighted list.
+     */
+    private static WeightedList<Disease> createWeightedList(final List<Disease> diseases)
+    {
+        return WeightedList.of(diseases.stream().map(disease -> new Weighted<>(disease, disease.getWeight())).toList());
     }
 }

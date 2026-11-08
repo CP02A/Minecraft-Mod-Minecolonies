@@ -1,5 +1,6 @@
 package com.minecolonies.core.client.gui.modules.building;
 
+import net.minecraft.client.Minecraft;
 import com.ldtteam.blockui.Pane;
 import com.ldtteam.blockui.PaneBuilders;
 import com.ldtteam.blockui.controls.*;
@@ -14,14 +15,12 @@ import com.minecolonies.core.colony.buildings.moduleviews.CraftingModuleView;
 import com.minecolonies.core.network.messages.server.colony.building.worker.AddRemoveRecipeMessage;
 import com.minecolonies.core.network.messages.server.colony.building.worker.ChangeRecipePriorityMessage;
 import com.minecolonies.core.network.messages.server.colony.building.worker.ToggleRecipeMessage;
-import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 
@@ -77,7 +76,7 @@ public class WindowListRecipes extends AbstractModuleWindow<CraftingModuleView>
      */
     public WindowListRecipes(final CraftingModuleView module)
     {
-        super(module, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutlistrecipes.xml"));
+        super(module, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutlistrecipes.xml"));
         recipeList = findPaneOfTypeByID(RECIPE_LIST, ScrollingList.class);
         recipeStatus = findPaneOfTypeByID(RECIPE_STATUS, Text.class);
 
@@ -109,7 +108,7 @@ public class WindowListRecipes extends AbstractModuleWindow<CraftingModuleView>
      */
     private void backwardClicked(final Button button)
     {
-        final boolean shift = InputConstants.isKeyDown(mc.getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT);
+        final boolean shift = mc.hasShiftDown();
         final int row = recipeList.getListElementIndexByPane(button);
         moduleView.switchOrder(row, row + 1, shift);
         new ChangeRecipePriorityMessage(buildingView, row, false, moduleView.getProducer().getRuntimeID(), shift).sendToServer();
@@ -122,7 +121,7 @@ public class WindowListRecipes extends AbstractModuleWindow<CraftingModuleView>
      */
     private void forwardClicked(final Button button)
     {
-        final boolean shift = InputConstants.isKeyDown(mc.getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT);
+        final boolean shift = mc.hasShiftDown();
         final int row = recipeList.getListElementIndexByPane(button);
         moduleView.switchOrder(row, row - 1, shift);
         new ChangeRecipePriorityMessage(buildingView, row, true, moduleView.getProducer().getRuntimeID(), shift).sendToServer();
@@ -184,7 +183,7 @@ public class WindowListRecipes extends AbstractModuleWindow<CraftingModuleView>
                     if (moduleView.isRecipeAlterationAllowed())
                     {
                         removeButton.on();
-                        if (recipe.getRecipeSource() != null && !Screen.hasControlDown())
+                        if (recipe.getRecipeSource() != null && !Minecraft.getInstance().hasControlDown())
                         {
                             removeButton.disable();
                             PaneBuilders.tooltipBuilder()
@@ -282,7 +281,7 @@ public class WindowListRecipes extends AbstractModuleWindow<CraftingModuleView>
     public void onUpdate()
     {
         super.onUpdate();
-        if (!Screen.hasShiftDown())
+        if (!Minecraft.getInstance().hasShiftDown())
         {
             lifeCount++;
         }

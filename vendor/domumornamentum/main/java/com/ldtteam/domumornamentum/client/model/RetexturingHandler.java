@@ -9,7 +9,6 @@ import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.resources.model.geometry.QuadCollection;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import com.ldtteam.domumornamentum.client.model.utils.SingleBlockBlockAndTintGetter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
@@ -17,7 +16,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import com.ldtteam.shim.neoforge.client.model.quad.MutableQuad;
+import net.minecraft.client.model.geom.builders.UVPair;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -56,6 +55,25 @@ public final class RetexturingHandler {
      */
     public static List<TargetTextureSource> targetsFor(final MaterialTextureData textureData) {
         return resolvedTargets(textureData).targets();
+    }
+
+    /**
+     * Retextures a flat quad list (item models) according to the given texture mapping. Erased slots are dropped.
+     */
+    public static List<BakedQuad> retexturedQuads(final List<BakedQuad> quads, final MaterialTextureData textureData) {
+        if (textureData.isEmpty()) {
+            return quads;
+        }
+
+        final ResolvedTargets resolved = resolvedTargets(textureData);
+        final List<BakedQuad> result = new ArrayList<>(quads.size());
+        for (final BakedQuad quad : quads) {
+            final BakedQuad retextured = processQuad(quad, textureData, resolved);
+            if (retextured != null) {
+                result.add(retextured);
+            }
+        }
+        return result;
     }
 
     /**
@@ -159,23 +177,35 @@ public final class RetexturingHandler {
         final float minV = sourceSprite.getV0();
         final float vDelta = sourceSprite.getV1() - minV;
 
-        final MutableQuad quad = new MutableQuad().setFrom(shape);
+        final long[] uvs = new long[BakedQuad.VERTEX_COUNT];
         for (int vertexIndex = 0; vertexIndex < BakedQuad.VERTEX_COUNT; vertexIndex++) {
+            final long packed = shape.packedUV(vertexIndex);
             //Normalize within the shape sprite's atlas bounds, then map onto the full target sprite.
-            final float u = uDelta > 0 ? Mth.clamp((quad.u(vertexIndex) - minU) / uDelta, 0f, 1f) : 0.5f;
-            final float v = vDelta > 0 ? Mth.clamp((quad.v(vertexIndex) - minV) / vDelta, 0f, 1f) : 0.5f;
+            final float u = uDelta > 0 ? Mth.clamp((UVPair.unpackU(packed) - minU) / uDelta, 0f, 1f) : 0.5f;
+            final float v = vDelta > 0 ? Mth.clamp((UVPair.unpackV(packed) - minV) / vDelta, 0f, 1f) : 0.5f;
 
-            quad.setUv(vertexIndex, targetSprite.getU(u), targetSprite.getV(v));
+            uvs[vertexIndex] = UVPair.pack(targetSprite.getU(u), targetSprite.getV(v));
         }
 
         //Adopt the target's sprite and render attributes so cutout/translucent targets render correctly.
-        final BakedQuad.MaterialInfo sourceInfo = textureSource.materialInfo();
-        quad.setSprite(sourceInfo.sprite(), sourceInfo.layer(), sourceInfo.itemRenderType());
-
         //Tint: index into this block instance's dynamic tint list (see MateriallyTexturedBlockTintProvider).
-        quad.setTintIndex(materialIndex);
+        final BakedQuad.MaterialInfo sourceInfo = textureSource.materialInfo();
+        final BakedQuad.MaterialInfo shapeInfo = shape.materialInfo();
+        final BakedQuad.MaterialInfo info = new BakedQuad.MaterialInfo(
+                sourceInfo.sprite(),
+                sourceInfo.layer(),
+                sourceInfo.itemRenderType(),
+                sourceInfo.itemGlintRenderType(),
+                sourceInfo.itemGlintSpecialRenderType(),
+                materialIndex,
+                shapeInfo.shadeDirectionOverride(),
+                shapeInfo.lightEmission());
 
-        return quad.toBakedQuad();
+        return new BakedQuad(
+                shape.position0(), shape.position1(), shape.position2(), shape.position3(),
+                uvs[0], uvs[1], uvs[2], uvs[3],
+                shape.direction(),
+                info);
     }
 
     private static ResolvedTargets resolvedTargets(final MaterialTextureData textureData) {
@@ -217,12 +247,7 @@ public final class RetexturingHandler {
 
         BakedQuad sourceQuad = null;
 
-        //Simulated single-block environment: the target model is queried as if it stood at the retextured position.
-        final SingleBlockBlockAndTintGetter getter = new SingleBlockBlockAndTintGetter.Builder()
-                .withBlockState(state)
-                .withPos(BlockPos.ZERO)
-                .createSingleBlockBlockAndTintGetter();
-
+        //Context-free query of the target model (Fabric: vanilla collectParts, no level needed for the sprite lookup).
         final RandomSource random = RANDOM.get();
         random.setSeed(state.getSeed(BlockPos.ZERO));
 
@@ -230,7 +255,7 @@ public final class RetexturingHandler {
         Minecraft.getInstance().getModelManager()
                 .getBlockStateModelSet()
                 .get(state)
-                .collectParts(getter, BlockPos.ZERO, state, random, parts);
+                .collectParts(random, parts);
 
         outer:
         for (final BlockStateModelPart part : parts) {

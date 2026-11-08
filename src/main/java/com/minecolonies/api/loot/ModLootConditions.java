@@ -1,7 +1,14 @@
 package com.minecolonies.api.loot;
 
 import com.minecolonies.api.util.constant.Constants;
-import net.minecraft.advancements.critereon.*;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.advancements.predicates.DataComponentMatchers;
+import net.minecraft.advancements.predicates.EnchantmentPredicate;
+import net.minecraft.advancements.predicates.ItemPredicate;
+import net.minecraft.advancements.predicates.MinMaxBounds;
+import net.minecraft.core.component.predicates.DataComponentPredicates;
+import net.minecraft.core.component.predicates.EnchantmentsPredicate;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -10,7 +17,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 import com.ldtteam.shim.neoforge.registries.DeferredHolder;
 import com.ldtteam.shim.neoforge.registries.DeferredRegister;
@@ -23,24 +29,24 @@ import static com.minecolonies.api.util.constant.Constants.MOD_ID;
 /** Container class for registering custom loot conditions */
 public final class ModLootConditions
 {
-    public final static DeferredRegister<LootItemConditionType> DEFERRED_REGISTER = DeferredRegister.create(Registries.LOOT_CONDITION_TYPE, Constants.MOD_ID);
+    public final static DeferredRegister<MapCodec<? extends LootItemCondition>> DEFERRED_REGISTER = DeferredRegister.create(Registries.LOOT_CONDITION_TYPE, Constants.MOD_ID);
 
-    public static final Identifier ENTITY_IN_BIOME_TAG_ID = new Identifier(MOD_ID, "entity_in_biome_tag");
-    public static final Identifier RESEARCH_UNLOCKED_ID = new Identifier(MOD_ID, "research_unlocked");
-    public static final Identifier GENERATE_SUPPLY_LOOT_ID = new Identifier(MOD_ID, "generate_supply_loot");
+    public static final Identifier ENTITY_IN_BIOME_TAG_ID = Identifier.fromNamespaceAndPath(MOD_ID, "entity_in_biome_tag");
+    public static final Identifier RESEARCH_UNLOCKED_ID = Identifier.fromNamespaceAndPath(MOD_ID, "research_unlocked");
+    public static final Identifier GENERATE_SUPPLY_LOOT_ID = Identifier.fromNamespaceAndPath(MOD_ID, "generate_supply_loot");
 
-    public static final DeferredHolder<LootItemConditionType, LootItemConditionType> entityInBiomeTag;
-    public static final DeferredHolder<LootItemConditionType, LootItemConditionType> researchUnlocked;
-    public static final DeferredHolder<LootItemConditionType, LootItemConditionType> generateSupplyLoot;
+    public static final DeferredHolder<MapCodec<? extends LootItemCondition>, MapCodec<EntityInBiomeTag>> entityInBiomeTag;
+    public static final DeferredHolder<MapCodec<? extends LootItemCondition>, MapCodec<ResearchUnlocked>> researchUnlocked;
+    public static final DeferredHolder<MapCodec<? extends LootItemCondition>, MapCodec<GenerateSupplyLoot>> generateSupplyLoot;
 
 
     // also some convenience definitions for existing conditions; some stolen from BlockLootSubProvider
-    public static final LootItemCondition.Builder HAS_SHEARS = MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS));
-    public static final LootItemCondition.Builder HAS_NETHERITE_HOE = MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.NETHERITE_HOE));
-    public static final LootItemCondition.Builder HAS_DIAMOND_HOE   = MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.DIAMOND_HOE));
-    public static final LootItemCondition.Builder HAS_IRON_HOE      = MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.IRON_HOE));
-    public static final LootItemCondition.Builder HAS_GOLDEN_HOE    = MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.GOLDEN_HOE));
-    public static final LootItemCondition.Builder HAS_HOE = MatchTool.toolMatches(ItemPredicate.Builder.item().of(ItemTags.HOES));
+    public static final LootItemCondition.Builder HAS_SHEARS = MatchTool.toolMatches(ItemPredicate.Builder.item().of(BuiltInRegistries.ITEM, Items.SHEARS));
+    public static final LootItemCondition.Builder HAS_NETHERITE_HOE = MatchTool.toolMatches(ItemPredicate.Builder.item().of(BuiltInRegistries.ITEM, Items.NETHERITE_HOE));
+    public static final LootItemCondition.Builder HAS_DIAMOND_HOE   = MatchTool.toolMatches(ItemPredicate.Builder.item().of(BuiltInRegistries.ITEM, Items.DIAMOND_HOE));
+    public static final LootItemCondition.Builder HAS_IRON_HOE      = MatchTool.toolMatches(ItemPredicate.Builder.item().of(BuiltInRegistries.ITEM, Items.IRON_HOE));
+    public static final LootItemCondition.Builder HAS_GOLDEN_HOE    = MatchTool.toolMatches(ItemPredicate.Builder.item().of(BuiltInRegistries.ITEM, Items.GOLDEN_HOE));
+    public static final LootItemCondition.Builder HAS_HOE = MatchTool.toolMatches(ItemPredicate.Builder.item().of(BuiltInRegistries.ITEM, ItemTags.HOES));
 
     public static LootItemCondition.Builder hasShears()
     {
@@ -56,11 +62,15 @@ public final class ModLootConditions
     {
         return MatchTool.toolMatches(
                 ItemPredicate.Builder.item()
-                        .withSubPredicate(
-                                ItemSubPredicates.ENCHANTMENTS,
-                                ItemEnchantmentsPredicate.enchantments(
-                                        List.of(new EnchantmentPredicate(enchantments.getOrThrow(Enchantments.SILK_TOUCH), MinMaxBounds.Ints.atLeast(1)))
-                                )
+                        .withComponents(
+                                DataComponentMatchers.Builder.components()
+                                        .partial(
+                                                DataComponentPredicates.ENCHANTMENTS,
+                                                EnchantmentsPredicate.enchantments(
+                                                        List.of(new EnchantmentPredicate(enchantments.getOrThrow(Enchantments.SILK_TOUCH), MinMaxBounds.Ints.atLeast(1)))
+                                                )
+                                        )
+                                        .build()
                         )
         );
     }
@@ -83,13 +93,13 @@ public final class ModLootConditions
     static
     {
         entityInBiomeTag = DEFERRED_REGISTER.register(ModLootConditions.ENTITY_IN_BIOME_TAG_ID.getPath(),
-          () -> new LootItemConditionType(EntityInBiomeTag.CODEC));
+          () -> EntityInBiomeTag.CODEC);
 
         researchUnlocked = DEFERRED_REGISTER.register(ModLootConditions.RESEARCH_UNLOCKED_ID.getPath(),
-          () -> new LootItemConditionType(ResearchUnlocked.CODEC));
+          () -> ResearchUnlocked.CODEC);
 
         generateSupplyLoot = DEFERRED_REGISTER.register(ModLootConditions.GENERATE_SUPPLY_LOOT_ID.getPath(),
-                () -> new LootItemConditionType(GenerateSupplyLoot.CODEC));
+                () -> GenerateSupplyLoot.CODEC);
     }
 
 

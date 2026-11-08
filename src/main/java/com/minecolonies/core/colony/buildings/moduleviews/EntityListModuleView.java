@@ -110,7 +110,7 @@ public class EntityListModuleView extends AbstractBuildingModuleView implements 
 
         for (int j = 0; j < size; j++)
         {
-            listOfEntities.add(buf.readResourceLocation());
+            listOfEntities.add(buf.readIdentifier());
         }
     }
 
@@ -124,6 +124,6 @@ public class EntityListModuleView extends AbstractBuildingModuleView implements 
     @Override
     public Identifier getIconResourceLocation()
     {
-        return new Identifier(Constants.MOD_ID, "textures/gui/modules/workers.png");
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/modules/workers.png");
     }
 }

@@ -103,13 +103,13 @@ public abstract class AbstractInteractionResponseHandler implements IInteraction
     public CompoundTag serializeNBT(@NotNull final HolderLookup.Provider provider)
     {
         final CompoundTag tag = new CompoundTag();
-        tag.putString(TAG_INQUIRY, Component.Serializer.toJson(this.inquiry, provider));
+        tag.putString(TAG_INQUIRY, com.minecolonies.api.util.ComponentJson.toJson(this.inquiry, provider));
         final ListTag list = new ListTag();
         for (final Map.Entry<Component, Component> element : responses.entrySet())
         {
             final CompoundTag elementTag = new CompoundTag();
-            elementTag.putString(TAG_RESPONSE, Component.Serializer.toJson(element.getKey(), provider));
-            elementTag.putString(TAG_NEXT_INQUIRY, Component.Serializer.toJson(element.getValue(), provider));
+            elementTag.putString(TAG_RESPONSE, com.minecolonies.api.util.ComponentJson.toJson(element.getKey(), provider));
+            elementTag.putString(TAG_NEXT_INQUIRY, com.minecolonies.api.util.ComponentJson.toJson(element.getValue(), provider));
 
             list.add(elementTag);
         }
@@ -125,15 +125,15 @@ public abstract class AbstractInteractionResponseHandler implements IInteraction
      */
     public void deserializeNBT(@NotNull final HolderLookup.Provider provider, @NotNull final CompoundTag compoundNBT)
     {
-        this.inquiry = Component.Serializer.fromJson(compoundNBT.getString(TAG_INQUIRY), provider);
-        final ListTag list = compoundNBT.getList(TAG_RESPONSES, Tag.TAG_COMPOUND);
+        this.inquiry = com.minecolonies.api.util.ComponentJson.fromJson(compoundNBT.getStringOr(TAG_INQUIRY, ""), provider);
+        final ListTag list = compoundNBT.getListOrEmpty(TAG_RESPONSES);
         for (int i = 0; i < list.size(); i++)
         {
-            final CompoundTag nbt = list.getCompound(i);
-            this.responses.put(Component.Serializer.fromJson(nbt.getString(TAG_RESPONSE), provider), Component.Serializer.fromJson(nbt.getString(TAG_NEXT_INQUIRY), provider));
+            final CompoundTag nbt = list.getCompoundOrEmpty(i);
+            this.responses.put(com.minecolonies.api.util.ComponentJson.fromJson(nbt.getStringOr(TAG_RESPONSE, ""), provider), com.minecolonies.api.util.ComponentJson.fromJson(nbt.getStringOr(TAG_NEXT_INQUIRY, ""), provider));
         }
-        this.primary = compoundNBT.getBoolean(TAG_PRIMARY);
-        this.priority = ChatPriority.values()[compoundNBT.getInt(TAG_PRIORITY)];
+        this.primary = compoundNBT.getBooleanOr(TAG_PRIMARY, false);
+        this.priority = ChatPriority.values()[compoundNBT.getIntOr(TAG_PRIORITY, 0)];
     }
 
     @Override

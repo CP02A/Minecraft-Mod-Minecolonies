@@ -22,20 +22,20 @@ import java.util.function.Function;
  */
 public class BuildingExtensionRegistries
 {
-    public static final Identifier FARM_FIELD_ID                      = new Identifier(Constants.MOD_ID, "farmfield");
-    public static final Identifier PLANTATION_SUGAR_CANE_FIELD_ID     = new Identifier(Constants.MOD_ID, "plantation_sugar_cane");
-    public static final Identifier PLANTATION_CACTUS_FIELD_ID         = new Identifier(Constants.MOD_ID, "plantation_cactus");
-    public static final Identifier PLANTATION_BAMBOO_FIELD_ID         = new Identifier(Constants.MOD_ID, "plantation_bamboo");
-    public static final Identifier PLANTATION_COCOA_BEANS_FIELD_ID    = new Identifier(Constants.MOD_ID, "plantation_cocoa_beans");
-    public static final Identifier PLANTATION_VINES_FIELD_ID          = new Identifier(Constants.MOD_ID, "plantation_vines");
-    public static final Identifier PLANTATION_KELP_FIELD_ID           = new Identifier(Constants.MOD_ID, "plantation_kelp");
-    public static final Identifier PLANTATION_SEAGRASS_FIELD_ID       = new Identifier(Constants.MOD_ID, "plantation_seagrass");
-    public static final Identifier PLANTATION_SEA_PICKLES_FIELD_ID    = new Identifier(Constants.MOD_ID, "plantation_sea_pickles");
-    public static final Identifier PLANTATION_GLOWBERRIES_FIELD_ID    = new Identifier(Constants.MOD_ID, "plantation_glowberries");
-    public static final Identifier PLANTATION_WEEPING_VINES_FIELD_ID  = new Identifier(Constants.MOD_ID, "plantation_weeping_vines");
-    public static final Identifier PLANTATION_TWISTING_VINES_FIELD_ID = new Identifier(Constants.MOD_ID, "plantation_twisting_vines");
-    public static final Identifier PLANTATION_CRIMSON_PLANTS_FIELD_ID = new Identifier(Constants.MOD_ID, "plantation_crimson_plants");
-    public static final Identifier PLANTATION_WARPED_PLANTS_FIELD_ID  = new Identifier(Constants.MOD_ID, "plantation_warped_plants");
+    public static final Identifier FARM_FIELD_ID                      = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "farmfield");
+    public static final Identifier PLANTATION_SUGAR_CANE_FIELD_ID     = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "plantation_sugar_cane");
+    public static final Identifier PLANTATION_CACTUS_FIELD_ID         = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "plantation_cactus");
+    public static final Identifier PLANTATION_BAMBOO_FIELD_ID         = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "plantation_bamboo");
+    public static final Identifier PLANTATION_COCOA_BEANS_FIELD_ID    = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "plantation_cocoa_beans");
+    public static final Identifier PLANTATION_VINES_FIELD_ID          = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "plantation_vines");
+    public static final Identifier PLANTATION_KELP_FIELD_ID           = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "plantation_kelp");
+    public static final Identifier PLANTATION_SEAGRASS_FIELD_ID       = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "plantation_seagrass");
+    public static final Identifier PLANTATION_SEA_PICKLES_FIELD_ID    = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "plantation_sea_pickles");
+    public static final Identifier PLANTATION_GLOWBERRIES_FIELD_ID    = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "plantation_glowberries");
+    public static final Identifier PLANTATION_WEEPING_VINES_FIELD_ID  = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "plantation_weeping_vines");
+    public static final Identifier PLANTATION_TWISTING_VINES_FIELD_ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "plantation_twisting_vines");
+    public static final Identifier PLANTATION_CRIMSON_PLANTS_FIELD_ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "plantation_crimson_plants");
+    public static final Identifier PLANTATION_WARPED_PLANTS_FIELD_ID  = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "plantation_warped_plants");
 
     public static DeferredHolder<BuildingExtensionEntry, BuildingExtensionEntry> farmField;
     public static DeferredHolder<BuildingExtensionEntry, BuildingExtensionEntry> plantationSugarCaneField;

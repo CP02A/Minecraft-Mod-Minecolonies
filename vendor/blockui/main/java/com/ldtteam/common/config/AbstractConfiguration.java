@@ -2,7 +2,6 @@ package com.ldtteam.common.config;
 
 import com.ldtteam.common.language.LanguageHandler;
 import net.minecraft.server.TickTask;
-import com.ldtteam.shim.fml.LogicalSide;
 import com.ldtteam.shim.fml.loading.FMLEnvironment;
 import com.ldtteam.shim.neoforge.common.ModConfigSpec.BooleanValue;
 import com.ldtteam.shim.neoforge.common.ModConfigSpec.Builder;
@@ -12,7 +11,9 @@ import com.ldtteam.shim.neoforge.common.ModConfigSpec.EnumValue;
 import com.ldtteam.shim.neoforge.common.ModConfigSpec.IntValue;
 import com.ldtteam.shim.neoforge.common.ModConfigSpec.LongValue;
 import com.ldtteam.shim.neoforge.common.ModConfigSpec.RestartType;
+import com.ldtteam.shim.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -280,8 +281,15 @@ public abstract class AbstractConfiguration
 
             if (!Objects.equals(newValue, lastValue))
             {
-                LogicalSidedProvider.WORKQUEUE.get(FMLEnvironment.getDist().isClient() ? LogicalSide.CLIENT : LogicalSide.SERVER)
-                    .tell(new TickTask(0, () -> listener.onChange(lastValue, newValue)));
+                final Runnable changeEvent = () -> listener.onChange(lastValue, newValue);
+                if (FMLEnvironment.getDist().isClient())
+                {
+                    ClientConfigHelper.scheduleOnClient(changeEvent);
+                }
+                else
+                {
+                    ServerLifecycleHooks.getCurrentServer().schedule(new TickTask(0, changeEvent));
+                }
                 lastValue = newValue;
             }
         }

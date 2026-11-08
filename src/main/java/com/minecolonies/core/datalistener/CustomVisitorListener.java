@@ -18,7 +18,7 @@ import com.minecolonies.api.util.MathUtils;
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.MineColonies;
 import com.minecolonies.core.colony.interactionhandling.RecruitmentInteraction;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import com.minecolonies.core.datalistener.util.RegistryAwareJsonReloadListener;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -32,7 +32,7 @@ import java.util.UUID;
 /**
  * Loads and listens to custom visitor data added
  */
-public class CustomVisitorListener extends SimpleJsonResourceReloadListener
+public class CustomVisitorListener extends RegistryAwareJsonReloadListener
 {
     /**
      * Gson instance
@@ -66,7 +66,7 @@ public class CustomVisitorListener extends SimpleJsonResourceReloadListener
 
     public CustomVisitorListener()
     {
-        super(GSON, "visitors");
+        super("visitors");
     }
 
     @Override

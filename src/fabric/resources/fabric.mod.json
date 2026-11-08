@@ -15,7 +15,9 @@
   "provides": ["structurize", "blockui", "domum_ornamentum"],
   "entrypoints": {
     "main": ["com.minecolonies.fabric.MineColoniesFabric"],
-    "client": ["com.minecolonies.fabric.MineColoniesFabricClient"]
+    "client": ["com.minecolonies.fabric.MineColoniesFabricClient", "com.ldtteam.blockui.fabric.BlockUIFabricClient", "com.ldtteam.domumornamentum.fabric.DomumOrnamentumFabricClient"],
+    "jei_mod_plugin": ["com.minecolonies.core.compatibility.jei.JEIPlugin"],
+    "journeymap": ["com.minecolonies.core.compatibility.journeymap.JourneymapPlugin"]
   },
   "mixins": [
     "minecolonies-shim.mixins.json",

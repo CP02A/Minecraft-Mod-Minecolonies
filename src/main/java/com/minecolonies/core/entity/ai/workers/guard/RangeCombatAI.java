@@ -36,7 +36,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -61,7 +61,7 @@ public class RangeCombatAI extends AttackMoveAI<EntityCitizen>
      * Visible combat icon
      */
     private final static VisibleCitizenStatus ARCHER_COMBAT =
-      new VisibleCitizenStatus(new Identifier(Constants.MOD_ID, "textures/icons/work/archer_combat.png"), "com.minecolonies.gui.visiblestatus.archer_combat");
+      new VisibleCitizenStatus(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/work/archer_combat.png"), "com.minecolonies.gui.visiblestatus.archer_combat");
 
     private final AbstractEntityAIGuard parentAI;
 
@@ -178,7 +178,7 @@ public class RangeCombatAI extends AttackMoveAI<EntityCitizen>
         }
 
         user.getCitizenData().setVisibleStatus(ARCHER_COMBAT);
-        user.swing(InteractionHand.MAIN_HAND);
+        user.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
         user.stopUsingItem();
 
         int amountOfArrows = 1;
@@ -196,7 +196,7 @@ public class RangeCombatAI extends AttackMoveAI<EntityCitizen>
 
             if (user.getCitizenColonyHandler().getColonyOrRegister().getResearchManager().getResearchEffects().getEffectStrength(ARROW_PIERCE) > 0)
             {
-                arrow.setPierceLevel((byte) 2);
+                ((com.minecolonies.fabric.mixin.entity.AbstractArrowInvoker) arrow).minecolonies$setPierceLevel((byte) 2);
             }
 
             // Add bow enchant effects: Knocback and fire
@@ -296,7 +296,7 @@ public class RangeCombatAI extends AttackMoveAI<EntityCitizen>
                             if (isMarksman())
                             {
                                 // Calculate true damage from reduced arrow damage.
-                                entityRayTraceResult.getEntity().hurt(user.level().damageSources().source(DamageSourceKeys.PIERCE, user), (float) arrow.getBaseDamage() * (float) marksManTrueDamageShare() * 10);
+                                entityRayTraceResult.getEntity().hurtOrSimulate(user.level().damageSources().source(DamageSourceKeys.PIERCE, user), (float) arrow.getBaseDamage() * (float) marksManTrueDamageShare() * 10);
                             }
 
                             return true;

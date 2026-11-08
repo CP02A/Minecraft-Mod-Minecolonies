@@ -39,7 +39,7 @@ public class WindowHutNameEntry extends BOWindow implements ButtonHandler
      */
     public WindowHutNameEntry(final IBuildingView b)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/windowhutnameentry.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowhutnameentry.xml"));
         this.building = b;
     }
 

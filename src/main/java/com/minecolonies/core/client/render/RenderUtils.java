@@ -5,8 +5,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.UseAnim;
-import com.ldtteam.shim.neoforge.client.extensions.common.IClientItemExtensions;
+import net.minecraft.world.item.ItemUseAnimation;
+import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 
 public class RenderUtils
 {
@@ -33,54 +33,54 @@ public class RenderUtils
         {
             if (entity.getUsedItemHand() == hand && entity.getUseItemRemainingTicks() > 0)
             {
-                UseAnim useanim = itemstack.getUseAnimation();
-                if (useanim == UseAnim.BLOCK)
+                ItemUseAnimation useanim = itemstack.getUseAnimation();
+                if (useanim == ItemUseAnimation.BLOCK)
                 {
                     return HumanoidModel.ArmPose.BLOCK;
                 }
 
-                if (useanim == UseAnim.BOW)
+                if (useanim == ItemUseAnimation.BOW)
                 {
                     return HumanoidModel.ArmPose.BOW_AND_ARROW;
                 }
 
-                if (useanim == UseAnim.SPEAR)
+                if (useanim == ItemUseAnimation.TRIDENT)
                 {
-                    return HumanoidModel.ArmPose.THROW_SPEAR;
+                    return HumanoidModel.ArmPose.THROW_TRIDENT;
                 }
 
-                if (useanim == UseAnim.CROSSBOW && hand == entity.getUsedItemHand())
+                if (useanim == ItemUseAnimation.SPEAR)
+                {
+                    return HumanoidModel.ArmPose.SPEAR;
+                }
+
+                if (useanim == ItemUseAnimation.CROSSBOW && hand == entity.getUsedItemHand())
                 {
                     return HumanoidModel.ArmPose.CROSSBOW_CHARGE;
                 }
 
-                if (useanim == UseAnim.SPYGLASS)
+                if (useanim == ItemUseAnimation.SPYGLASS)
                 {
                     return HumanoidModel.ArmPose.SPYGLASS;
                 }
 
-                if (useanim == UseAnim.TOOT_HORN)
+                if (useanim == ItemUseAnimation.TOOT_HORN)
                 {
                     return HumanoidModel.ArmPose.TOOT_HORN;
                 }
 
-                if (useanim == UseAnim.BRUSH)
+                if (useanim == ItemUseAnimation.BRUSH)
                 {
                     return HumanoidModel.ArmPose.BRUSH;
                 }
             }
-            else if (!entity.swinging && itemstack.getItem() instanceof CrossbowItem && CrossbowItem.isCharged(itemstack))
+            else if (!entity.isSwinging() && itemstack.getItem() instanceof CrossbowItem && CrossbowItem.isCharged(itemstack))
             {
                 return HumanoidModel.ArmPose.CROSSBOW_HOLD;
             }
 
-            HumanoidModel.ArmPose forgeArmPose = IClientItemExtensions.of(itemstack).getArmPose(entity, hand, itemstack);
-            if (forgeArmPose != null)
-            {
-                return forgeArmPose;
-            }
-
-            return HumanoidModel.ArmPose.ITEM;
+            // FABRIC-PORT: NeoForge IClientItemExtensions#getArmPose has no Fabric equivalent; vanilla spear pose check instead.
+            return HumanoidMobRenderer.usesSpearPose(itemstack, hand.asArm(entity.getMainArm()), entity) ? HumanoidModel.ArmPose.SPEAR : HumanoidModel.ArmPose.ITEM;
         }
     }
 }

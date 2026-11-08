@@ -298,7 +298,7 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
 
         if (takeDamageOnCompleteStuck)
         {
-            entity.hurt(world.damageSources().source(DamageSourceKeys.STUCK_DAMAGE), entity.getMaxHealth() * damagePct);
+            entity.hurtOrSimulate(world.damageSources().source(DamageSourceKeys.STUCK_DAMAGE), entity.getMaxHealth() * damagePct);
         }
 
         if (completeStuckBlockBreakRange > 0)
@@ -591,7 +591,7 @@ public class PathingStuckHandler<NAV extends PathNavigation & IMinecoloniesNavig
 
         if (breakBlocksAhead(world, entity.blockPosition(), facing) && entity.getHealth() >= entity.getMaxHealth() / 3)
         {
-            entity.hurt(world.damageSources().source(DamageSourceKeys.STUCK_DAMAGE), (float) Math.max(0.5, entity.getHealth() / 20.0));
+            entity.hurtOrSimulate(world.damageSources().source(DamageSourceKeys.STUCK_DAMAGE), (float) Math.max(0.5, entity.getHealth() / 20.0));
         }
     }
 

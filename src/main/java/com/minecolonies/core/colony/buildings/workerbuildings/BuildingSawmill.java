@@ -103,7 +103,7 @@ public class BuildingSawmill extends AbstractBuilding
                         amountOfValidBlocks += stack.getCount();
                         continue;
                     }
-                    for (final TagKey<Item> tag : stack.getTags().toList())
+                    for (final TagKey<Item> tag : stack.typeHolder().tags().toList())
                     {
                         if (tag.location().getPath().contains("wood"))
                         {

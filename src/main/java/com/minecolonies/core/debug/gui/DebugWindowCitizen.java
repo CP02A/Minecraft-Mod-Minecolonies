@@ -30,7 +30,7 @@ public class DebugWindowCitizen extends AbstractWindowSkeleton
 
     public DebugWindowCitizen(final ICitizenDataView citizen)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/citizen/debug.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/citizen/debug.xml"));
         if (Objects.equals(outputMessage, Component.empty()))
         {
             outputMessage = Component.literal("Enabled Citizen AI History!");

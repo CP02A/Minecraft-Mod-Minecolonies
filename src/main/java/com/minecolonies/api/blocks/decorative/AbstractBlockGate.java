@@ -7,7 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -89,11 +89,11 @@ public abstract class AbstractBlockGate extends DoorBlock implements LiquidBlock
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(final ItemStack stack, final BlockState state, final Level worldIn, final BlockPos pos, final Player player, final InteractionHand handIn, final BlockHitResult hit)
+    protected InteractionResult useItemOn(final ItemStack stack, final BlockState state, final Level worldIn, final BlockPos pos, final Player player, final InteractionHand handIn, final BlockHitResult hit)
     {
         toggleGate(worldIn, pos, state.getValue(FACING).getClockWise());
         worldIn.levelEvent(player, state.getValue(OPEN) ? 1005 : 1011, pos, 0);
-        return ItemInteractionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override
@@ -187,7 +187,15 @@ public abstract class AbstractBlockGate extends DoorBlock implements LiquidBlock
     }
 
     @Override
-    public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor worldIn, BlockPos currentPos, BlockPos facingPos)
+    protected BlockState updateShape(
+      BlockState stateIn,
+      final LevelReader worldIn,
+      final net.minecraft.world.level.ScheduledTickAccess ticks,
+      final BlockPos currentPos,
+      final Direction facing,
+      final BlockPos facingPos,
+      final BlockState facingState,
+      final net.minecraft.util.RandomSource random)
     {
         if (stateIn.hasProperty(BlockStateProperties.WATERLOGGED))
         {
@@ -346,7 +354,7 @@ public abstract class AbstractBlockGate extends DoorBlock implements LiquidBlock
     }
 
     @Override
-    public VoxelShape getOcclusionShape(BlockState state, BlockGetter worldIn, BlockPos pos)
+    protected VoxelShape getOcclusionShape(BlockState state)
     {
         return getShapeForState(state);
     }
@@ -457,7 +465,7 @@ public abstract class AbstractBlockGate extends DoorBlock implements LiquidBlock
      * Mostly redstone stuff for opening
      */
     @Override
-    public void neighborChanged(final BlockState state, final Level worldIn, @NotNull final BlockPos pos, Block blockIn, final BlockPos fromPos, boolean isMoving)
+    protected void neighborChanged(final BlockState state, final Level worldIn, @NotNull final BlockPos pos, Block blockIn, @Nullable final net.minecraft.world.level.redstone.Orientation orientation, boolean isMoving)
     {
         boolean powered = worldIn.hasNeighborSignal(pos);
         if (powered != state.getValue(OPEN))
@@ -471,7 +479,7 @@ public abstract class AbstractBlockGate extends DoorBlock implements LiquidBlock
     {
         BlockPos blockpos = context.getClickedPos();
 
-        if (blockpos.getY() < context.getLevel().getMaxBuildHeight() && context.getLevel().getBlockState(blockpos.above()).canBeReplaced(context))
+        if (blockpos.getY() < context.getLevel().getMaxY() && context.getLevel().getBlockState(blockpos.above()).canBeReplaced(context))
         {
             return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection());
         }
@@ -490,7 +498,7 @@ public abstract class AbstractBlockGate extends DoorBlock implements LiquidBlock
      */
     public AbstractBlockGate registerBlock(final Registry<Block> registry)
     {
-        Registry.register(registry, new Identifier(Constants.MOD_ID, this.name), this);
+        com.minecolonies.api.blocks.BlockIdHelper.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, this.name), this);
         return this;
     }
 
@@ -502,12 +510,12 @@ public abstract class AbstractBlockGate extends DoorBlock implements LiquidBlock
      */
     public void registerBlockItem(final Registry<Item> registry, final Item.Properties properties)
     {
-        Registry.register(registry, new Identifier(Constants.MOD_ID, this.name), new BlockItem(this, properties));
+        Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, this.name), new BlockItem(this, properties.setId(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ITEM, Identifier.fromNamespaceAndPath(Constants.MOD_ID, this.name))).useBlockDescriptionPrefix()));
     }
 
     @Override
     public boolean canPlaceLiquid(
-        @Nullable Player player,
+        @Nullable net.minecraft.world.entity.LivingEntity player,
         @NotNull final BlockGetter blockGetter,
         @NotNull final BlockPos pos,
         @NotNull final BlockState state,

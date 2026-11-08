@@ -6,6 +6,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -86,7 +88,7 @@ public interface IMCCommand
      */
     default boolean checkPreCondition(final CommandContext<CommandSourceStack> context)
     {
-        return context.getSource().getEntity() instanceof Player || context.getSource().hasPermission(OP_PERM_LEVEL);
+        return context.getSource().getEntity() instanceof Player || hasOpPermission(context.getSource());
     }
 
     /**
@@ -106,12 +108,23 @@ public interface IMCCommand
 
     static boolean isPlayerOped(final Player player)
     {
-        if (player.getServer() == null)
+        if (player.level().getServer() == null)
         {
             return false;
         }
 
-        return player.getServer().getPlayerList().isOp(player.getGameProfile());
+        return player.level().getServer().getPlayerList().isOp(player.nameAndId());
+    }
+
+    /**
+     * Check if the command source has the OP permission level ({@link #OP_PERM_LEVEL}).
+     *
+     * @param source the command source.
+     * @return true if so.
+     */
+    static boolean hasOpPermission(final CommandSourceStack source)
+    {
+        return source.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.byId(OP_PERM_LEVEL)));
     }
 
     @FunctionalInterface

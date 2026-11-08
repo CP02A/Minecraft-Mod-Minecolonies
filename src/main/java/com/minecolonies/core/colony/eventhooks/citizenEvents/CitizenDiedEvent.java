@@ -19,7 +19,7 @@ public class CitizenDiedEvent extends AbstractCitizenEvent
     /**
      * This events id, registry entries use res locations as ids.
      */
-    public static final Identifier CITIZEN_DIED_EVENT_ID = new Identifier(Constants.MOD_ID, "citizen_died");
+    public static final Identifier CITIZEN_DIED_EVENT_ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "citizen_died");
 
     private String deathCause;
 
@@ -68,7 +68,7 @@ public class CitizenDiedEvent extends AbstractCitizenEvent
     public void deserializeNBT(@NotNull final HolderLookup.Provider provider, CompoundTag compound)
     {
         super.deserializeNBT(provider, compound);
-        deathCause = compound.getString(TAG_DEATH_CAUSE);
+        deathCause = compound.getStringOr(TAG_DEATH_CAUSE, "");
     }
 
     @Override

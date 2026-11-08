@@ -1,5 +1,7 @@
 package com.minecolonies.core.entity.ai.workers.production;
 
+import net.minecraft.tags.BlockTags;
+import com.minecolonies.core.entity.pathfinding.PathfindingUtils;
 import com.ldtteam.structurize.api.RotationMirror;
 import com.ldtteam.structurize.util.BlockUtils;
 import com.minecolonies.api.MinecoloniesAPIProxy;
@@ -39,7 +41,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootParams.Builder;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
+import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import com.ldtteam.shim.neoforge.common.ItemAbilities;
 import org.jetbrains.annotations.NotNull;
@@ -69,7 +71,7 @@ public class EntityAIStructureMiner extends AbstractEntityAIStructureWithWorkOrd
     /**
      * The loot parameter set definition
      */
-    public static final LootContextParamSet LUCKY_ORE_PARAM_SET = (new LootContextParamSet.Builder())
+    public static final ContextKeySet LUCKY_ORE_PARAM_SET = (new ContextKeySet.Builder())
                                                                     .required(LootContextParams.ORIGIN)
                                                                     .required(LootContextParams.THIS_ENTITY)
                                                                     .required(LootContextParams.TOOL)
@@ -78,7 +80,7 @@ public class EntityAIStructureMiner extends AbstractEntityAIStructureWithWorkOrd
     /**
      * Lucky ore loot table
      */
-    public static final Identifier LUCKY_ORE_LOOT_TABLE = new Identifier(Constants.MOD_ID, "miner/lucky_ore");
+    public static final Identifier LUCKY_ORE_LOOT_TABLE = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "miner/lucky_ore");
 
     /**
      * Lead the miner to the other side of the shaft.
@@ -130,7 +132,7 @@ public class EntityAIStructureMiner extends AbstractEntityAIStructureWithWorkOrd
      * Mining icon
      */
     private final static VisibleCitizenStatus MINING =
-      new VisibleCitizenStatus(new Identifier(Constants.MOD_ID, "textures/icons/work/miner.png"), "com.minecolonies.gui.visiblestatus.miner");
+      new VisibleCitizenStatus(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/icons/work/miner.png"), "com.minecolonies.gui.visiblestatus.miner");
 
     //The current block to mine
     @Nullable
@@ -244,11 +246,11 @@ public class EntityAIStructureMiner extends AbstractEntityAIStructureWithWorkOrd
             {
                 renderData.append(RENDER_META_STONE);
             }
-            else if (stack.canPerformAction(ItemAbilities.PICKAXE_DIG) && renderData.indexOf(RENDER_META_PICKAXE) == -1)
+            else if (stack.is(net.minecraft.tags.ItemTags.PICKAXES) && renderData.indexOf(RENDER_META_PICKAXE) == -1)
             {
                 renderData.append(RENDER_META_PICKAXE);
             }
-            else if (stack.canPerformAction(ItemAbilities.SHOVEL_DIG) && renderData.indexOf(RENDER_META_SHOVEL) == -1)
+            else if (stack.is(net.minecraft.tags.ItemTags.SHOVELS) && renderData.indexOf(RENDER_META_SHOVEL) == -1)
             {
                 renderData.append(RENDER_META_SHOVEL);
             }
@@ -278,7 +280,7 @@ public class EntityAIStructureMiner extends AbstractEntityAIStructureWithWorkOrd
 
         if (!mineBlock(blockToMine, getCurrentWorkingPosition()))
         {
-            worker.swing(InteractionHand.MAIN_HAND);
+            worker.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
             return getState();
         }
 
@@ -366,7 +368,7 @@ public class EntityAIStructureMiner extends AbstractEntityAIStructureWithWorkOrd
             return getState();
         }
 
-        if (!world.getBlockState(nextLadder).isLadder(world, nextLadder, worker) && !world.getBlockState(nextLadder).isSolid())
+        if (!world.getBlockState(nextLadder).is(BlockTags.CLIMBABLE) && !world.getBlockState(nextLadder).isSolid())
         {
             if (!checkIfRequestForItemExistOrCreate(new ItemStack(Blocks.LADDER), LADDER_REQUEST_BATCHES, 1))
             {
@@ -415,7 +417,7 @@ public class EntityAIStructureMiner extends AbstractEntityAIStructureWithWorkOrd
     {
         final BuildingMiner buildingMiner = building;
         // Check if we reached the bottom of the shaft
-        if (getLastLadder(buildingMiner.getLadderLocation(), world) < world.getMinBuildHeight() + SHAFT_BASE_DEPTH)
+        if (getLastLadder(buildingMiner.getLadderLocation(), world) < world.getMinY() + SHAFT_BASE_DEPTH)
         {
             AdvancementUtils.TriggerAdvancementPlayersForColony(job.getColony(), AdvancementTriggers.DEEP_MINE.get()::trigger);
         }
@@ -763,7 +765,7 @@ public class EntityAIStructureMiner extends AbstractEntityAIStructureWithWorkOrd
     private boolean secureBlock(@NotNull final BlockPos curBlock, @NotNull final BlockPos safeStand)
     {
         final BlockState stateAtPos = getBlockState(curBlock);
-        if ((!stateAtPos.blocksMotion() && getBlock(curBlock) != Blocks.TORCH) || !stateAtPos.getFluidState().isEmpty()
+        if ((!PathfindingUtils.blocksMotion(stateAtPos) && getBlock(curBlock) != Blocks.TORCH) || !stateAtPos.getFluidState().isEmpty()
               || IColonyManager.getInstance().getCompatibilityManager().isOre(world.getBlockState(curBlock)))
         {
             if (!mineBlock(curBlock, safeStand))
@@ -835,7 +837,7 @@ public class EntityAIStructureMiner extends AbstractEntityAIStructureWithWorkOrd
 
     private void setBlockFromInventory(@NotNull final BlockPos location, @NotNull final Block block)
     {
-        worker.swing(worker.getUsedItemHand());
+        worker.swing(worker.getUsedItemHand(), net.minecraft.world.item.component.SwingAnimation.DEFAULT);
         setBlockFromInventory(location, block, block.defaultBlockState());
     }
 
@@ -1003,7 +1005,7 @@ public class EntityAIStructureMiner extends AbstractEntityAIStructureWithWorkOrd
 
                 final ResourceKey<LootTable> lootTableId = ResourceKey.create(Registries.LOOT_TABLE, LUCKY_ORE_LOOT_TABLE.withSuffix(String.valueOf(building.getBuildingLevel())));
                 final LootParams lootParams = new Builder((ServerLevel) this.world)
-                                                .withParameter(LootContextParams.ORIGIN, position.getCenter())
+                                                .withParameter(LootContextParams.ORIGIN, net.minecraft.world.phys.Vec3.atCenterOf(position))
                                                 .withParameter(LootContextParams.THIS_ENTITY, worker)
                                                 .withParameter(LootContextParams.TOOL, worker.getMainHandItem())
                                                 .create(LUCKY_ORE_PARAM_SET);
@@ -1060,6 +1062,6 @@ public class EntityAIStructureMiner extends AbstractEntityAIStructureWithWorkOrd
         @NotNull final BlockPos nextLadder =
           new BlockPos(building.getLadderLocation().getX(), getLastLadder(building.getLadderLocation(), world) - 1, building.getLadderLocation().getZ());
 
-        return !world.getBlockState(nextLadder).isLadder(world, nextLadder, worker) && !world.getBlockState(nextLadder).isSolid();
+        return !world.getBlockState(nextLadder).is(BlockTags.CLIMBABLE) && !world.getBlockState(nextLadder).isSolid();
     }
 }

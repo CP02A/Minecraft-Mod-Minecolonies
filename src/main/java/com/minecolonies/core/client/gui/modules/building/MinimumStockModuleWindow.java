@@ -44,7 +44,7 @@ public class MinimumStockModuleWindow extends AbstractModuleWindow<IMinimumStock
      */
     public MinimumStockModuleWindow(final IMinimumStockModuleView moduleView)
     {
-        this(moduleView, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutminimumstock.xml"));
+        this(moduleView, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutminimumstock.xml"));
     }
 
     /**
@@ -64,7 +64,7 @@ public class MinimumStockModuleWindow extends AbstractModuleWindow<IMinimumStock
         {
             final ButtonImage button = findPaneOfTypeByID(STOCK_ADD, ButtonImage.class);
             button.setText(Component.translatableEscape(LABEL_LIMIT_REACHED));
-            button.setImage(new Identifier(Constants.MOD_ID, "textures/gui/builderhut/builder_button_medium_disabled.png"));
+            button.setImage(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/builderhut/builder_button_medium_disabled.png"));
         }
 
         registerButton(STOCK_REMOVE, this::removeStock);

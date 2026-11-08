@@ -20,7 +20,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 
 import static com.minecolonies.api.entity.mobs.RaiderMobUtils.MOB_ATTACK_DAMAGE;
 
@@ -116,14 +116,14 @@ public class RaiderRangedAI<T extends AbstractEntityMinecoloniesMonster & IThrea
 
         if (user.getDifficulty() > ARROW_PIERCE_DIFFICULTY)
         {
-            arrowEntity.setPierceLevel((byte) 2);
+            ((com.minecolonies.fabric.mixin.entity.AbstractArrowInvoker) arrowEntity).minecolonies$setPierceLevel((byte) 2);
         }
 
         // Shoot arrow
         CombatUtils.shootArrow(arrowEntity, target, 10.0f);
 
         // Visuals
-        user.swing(InteractionHand.MAIN_HAND);
+        user.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
         user.stopUsingItem();
         SoundEvent attackSound = SoundEvents.SKELETON_SHOOT;
         if (arrowEntity instanceof ICustomAttackSound)

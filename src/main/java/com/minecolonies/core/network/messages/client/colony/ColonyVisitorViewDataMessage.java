@@ -84,7 +84,7 @@ public class ColonyVisitorViewDataMessage extends AbstractClientPlayMessage
     {
         visitorBuf.resetReaderIndex();
         buf.writeInt(colonyId);
-        buf.writeUtf(dimension.location().toString());
+        buf.writeUtf(dimension.identifier().toString());
         buf.writeBoolean(refresh);
 
         int len = visitorBuf.readableBytes();

@@ -56,7 +56,7 @@ public abstract class AbstractBuildingMainWindow<B extends IBuildingView> extend
         Button buttonInfo = findPaneOfTypeByID(BUTTON_INFO, Button.class);
         if (buttonInfo != null)
         {
-            buttonInfo.setVisible(I18n.exists(PARTIAL_INFO_TEXT + buildingView.getBuildingType().getTranslationKey().replace("com.minecolonies.building.", "") + ".0"));
+            buttonInfo.setVisible(net.minecraft.locale.Language.getInstance().has(PARTIAL_INFO_TEXT + buildingView.getBuildingType().getTranslationKey().replace("com.minecolonies.building.", "") + ".0"));
         }
     }
 

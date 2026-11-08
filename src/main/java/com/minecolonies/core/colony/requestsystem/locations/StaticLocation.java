@@ -95,14 +95,14 @@ public class StaticLocation implements ILocation
     public int hashCode()
     {
         int result = pos.hashCode();
-        result = 31 * result + getDimension().location().toString().hashCode();
+        result = 31 * result + getDimension().identifier().toString().hashCode();
         return result;
     }
 
     @Override
     public String toString()
     {
-        return "Dim: " + dimension.location() + " " + pos.getX() + " " + pos.getY() + " " + pos.getZ() + " ";
+        return "Dim: " + dimension.identifier() + " " + pos.getX() + " " + pos.getY() + " " + pos.getZ() + " ";
     }
 
     /**
@@ -155,7 +155,7 @@ public class StaticLocation implements ILocation
         {
             final CompoundTag compound = new CompoundTag();
             compound.putLong(NBT_POS, request.getInDimensionLocation().asLong());
-            compound.putString(NBT_DIM, request.getDimension().location().toString());
+            compound.putString(NBT_DIM, request.getDimension().identifier().toString());
             return compound;
         }
 
@@ -170,8 +170,8 @@ public class StaticLocation implements ILocation
         @Override
         public StaticLocation deserialize(@NotNull final HolderLookup.Provider provider, @NotNull final IFactoryController controller, @NotNull final CompoundTag nbt)
         {
-            final BlockPos pos = BlockPos.of(nbt.getLong(NBT_POS));
-            final String dim = nbt.getString(NBT_DIM);
+            final BlockPos pos = BlockPos.of(nbt.getLongOr(NBT_POS, 0L));
+            final String dim = nbt.getStringOr(NBT_DIM, "");
             return new StaticLocation(pos, ResourceKey.create(Registries.DIMENSION, Identifier.parse(dim)));
         }
 
@@ -233,7 +233,7 @@ public class StaticLocation implements ILocation
     public static void serialize(RegistryFriendlyByteBuf buffer, StaticLocation location)
     {
         buffer.writeBlockPos(location.pos);
-        buffer.writeUtf(location.dimension.location().toString());
+        buffer.writeUtf(location.dimension.identifier().toString());
     }
 
     /**

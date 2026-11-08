@@ -62,7 +62,7 @@ public final class ItemStackUtils
             return List.of();
         }
 
-        final BlockPos blockpos = new BlockPos(compound.getInt("x"), compound.getInt("y"), compound.getInt("z"));
+        final BlockPos blockpos = new BlockPos(compound.getIntOr("x", 0), compound.getIntOr("y", 0), compound.getIntOr("z", 0));
         final BlockEntity tileEntity = BlockEntity.loadStatic(blockpos, state, compound, level.registryAccess());
         if (tileEntity == null)
         {
@@ -93,7 +93,7 @@ public final class ItemStackUtils
             if (!ItemStackUtils.isEmpty(stack))
             {
                 sink.accept(stack);
-                    deepExtractItemHandler(stack.getCapability(ItemHandler.ITEM), sink);
+                    deepExtractItemHandler(ItemHandler.ITEM.getCapability(stack), sink);
             }
         }
     }
@@ -122,7 +122,7 @@ public final class ItemStackUtils
             return Set.of(new InvWrapper(container));
         }
 
-        final IItemHandler unsidedItemHandler = provider.getLevel().getCapability(ItemHandler.BLOCK, pos, state, provider, null);
+        final IItemHandler unsidedItemHandler = ItemHandler.BLOCK.getCapability(provider.getLevel(), pos, state, provider, null);
         if (unsidedItemHandler != null)
         {
             // weak assumption of unsided being partial view only
@@ -132,7 +132,7 @@ public final class ItemStackUtils
         final Set<IItemHandler> handlerSet = new HashSet<>();
         for (final Direction side : Direction.values())
         {
-            final IItemHandler cap = provider.getLevel().getCapability(ItemHandler.BLOCK, pos, state, provider, side);
+            final IItemHandler cap = ItemHandler.BLOCK.getCapability(provider.getLevel(), pos, state, provider, side);
             if (cap != null)
             {
                 handlerSet.add(cap);
@@ -238,12 +238,12 @@ public final class ItemStackUtils
         }
         if (itemHandler == null)
         {
-            itemHandler = entity.getCapability(ItemHandler.ENTITY);
+            itemHandler = ItemHandler.ENTITY.getCapability(entity);
         }
         if (itemHandler == null)
         {
             // weak assumption of unsided being partial view only
-            itemHandler = entity.getCapability(ItemHandler.ENTITY_AUTOMATION, null);
+            itemHandler = ItemHandler.ENTITY_AUTOMATION.getCapability(entity, null);
         }
 
         if (itemHandler != null)
@@ -255,19 +255,19 @@ public final class ItemStackUtils
         {
             final ItemStack stack = itemFrame.getItem();
             entityContent.add(stack);
-            deepExtractItemHandler(stack.getCapability(ItemHandler.ITEM), entityContent::add);
+            deepExtractItemHandler(ItemHandler.ITEM.getCapability(stack), entityContent::add);
         }
         else if (entity instanceof final ItemEntity itemEntity)
         {
             final ItemStack stack = itemEntity.getItem();
             entityContent.add(stack);
-            deepExtractItemHandler(stack.getCapability(ItemHandler.ITEM), entityContent::add);
+            deepExtractItemHandler(ItemHandler.ITEM.getCapability(stack), entityContent::add);
         }
         else // sided item handler
         {
             for (final Direction side : Direction.values())
             {
-                final IItemHandler cap = entity.getCapability(ItemHandler.ENTITY_AUTOMATION, side);
+                final IItemHandler cap = ItemHandler.ENTITY_AUTOMATION.getCapability(entity, side);
                 if (cap != null)
                 {
                     deepExtractItemHandler(cap, entityContent::add);
@@ -286,9 +286,9 @@ public final class ItemStackUtils
     {
         if (entity instanceof final ItemFrame itemFrame)
         {
-            return itemFrame.getFrameItemStack();
+            return new ItemStack(itemFrame.getType() == net.minecraft.world.entity.EntityTypes.GLOW_ITEM_FRAME ? net.minecraft.world.item.Items.GLOW_ITEM_FRAME : net.minecraft.world.item.Items.ITEM_FRAME);
         }
-        return entity.getPickedResult(new EntityHitResult(entity));
+        return entity.getPickResult();
     }
 
     /**

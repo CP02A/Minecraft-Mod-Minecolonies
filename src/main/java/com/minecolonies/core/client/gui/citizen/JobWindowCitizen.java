@@ -16,7 +16,7 @@ public class JobWindowCitizen extends AbstractWindowCitizen
      */
     public JobWindowCitizen(final ICitizenDataView citizen)
     {
-        super(citizen, new Identifier(Constants.MOD_ID, "gui/citizen/job.xml"));
+        super(citizen, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/citizen/job.xml"));
         CitizenWindowUtils.updateJobPage(citizen, this, colony);
     }
 }

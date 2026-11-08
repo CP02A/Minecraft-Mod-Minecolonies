@@ -31,9 +31,9 @@ import java.util.Optional;
 
 public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickItem
 {
-    public ItemTagSubstitution()
+    public ItemTagSubstitution(final Properties properties)
     {
-        super(ModBlocks.blockTagSubstitution.get(), new Properties().component(ModDataComponents.CAPTURED_BLOCK, CapturedBlock.EMPTY));
+        super(ModBlocks.blockTagSubstitution.get(), properties.useBlockDescriptionPrefix().component(ModDataComponents.CAPTURED_BLOCK.get(), CapturedBlock.EMPTY));
     }
 
     @NotNull
@@ -77,7 +77,7 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
     @NotNull
     private ItemStack getPickedBlock(@NotNull Player player, @NotNull BlockPos pos, @NotNull BlockState blockstate)
     {
-        return blockstate.getCloneItemStack(Minecraft.getInstance().hitResult, player.level(), pos, player);
+        return blockstate.getCloneItemStack(player.level(), pos, false);
     }
 
     public void onAbsorbBlock(@NotNull final ServerPlayer player,
@@ -110,23 +110,22 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
     {
         if (blockentity == null) return true;
 
-        final HolderSet.Named<BlockEntityType<?>> tag = BuiltInRegistries.BLOCK_ENTITY_TYPE.getTag(ModTags.SUBSTITUTION_ABSORB_WHITELIST).get();
-        return tag.contains(blockentity.getType().builtInRegistryHolder());
+        return blockentity.getType().builtInRegistryHolder().is(ModTags.SUBSTITUTION_ABSORB_WHITELIST);
     }
 
-    @Override
+    // FABRIC-PORT TODO: NeoForge IItemExtension#getHighlightTip has no Fabric/vanilla hook (selected item name overlay)
     public Component getHighlightTip(@NotNull final ItemStack stack, @NotNull final Component displayName)
     {
         final ItemStack absorbed = CapturedBlock.readFromItemStack(stack).itemStack();
         if (!absorbed.isEmpty())
         {
             return Component.empty()
-                    .append(super.getHighlightTip(stack, displayName))
+                    .append(displayName)
                     .append(Component.literal(" - ").withStyle(ChatFormatting.GRAY))
                     .append(absorbed.getHoverName());
         }
 
-        return super.getHighlightTip(stack, displayName);
+        return displayName;
     }
 
     @NotNull

@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import com.ldtteam.shim.neoforge.network.handling.IPayloadContext;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -48,14 +49,24 @@ public class TransferRecipeCraftingTeachingMessage extends AbstractServerPlayMes
     protected TransferRecipeCraftingTeachingMessage(final RegistryFriendlyByteBuf buf, final PlayMessageType<?> type)
     {
         super(buf, type);
-        itemStacks = buf.readMap(FriendlyByteBuf::readInt, b -> ItemStack.OPTIONAL_STREAM_CODEC.decode((RegistryFriendlyByteBuf) b));
+        final int size = buf.readVarInt();
+        itemStacks = new HashMap<>(size);
+        for (int i = 0; i < size; i++)
+        {
+            itemStacks.put(buf.readInt(), ItemStack.OPTIONAL_STREAM_CODEC.decode(buf));
+        }
         complete = buf.readBoolean();
     }
 
     @Override
     protected void toBytes(final RegistryFriendlyByteBuf buf)
     {
-        buf.writeMap(itemStacks, FriendlyByteBuf::writeInt, (b, v) -> ItemStack.OPTIONAL_STREAM_CODEC.encode((RegistryFriendlyByteBuf) b, v));
+        buf.writeVarInt(itemStacks.size());
+        for (final Map.Entry<Integer, ItemStack> entry : itemStacks.entrySet())
+        {
+            buf.writeInt(entry.getKey());
+            ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, entry.getValue());
+        }
         buf.writeBoolean(complete);
     }
 

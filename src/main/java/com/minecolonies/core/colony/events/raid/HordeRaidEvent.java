@@ -79,7 +79,7 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
     /**
      * The raids visual raidbar
      */
-    protected final ServerBossEvent raidBar = new ServerBossEvent(Component.literal("Colony Raid"), BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.NOTCHED_10);
+    protected final ServerBossEvent raidBar = new ServerBossEvent(java.util.UUID.randomUUID(), Component.literal("Colony Raid"), BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.NOTCHED_10);
 
     /**
      * The references to living raiders left
@@ -317,7 +317,7 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
         {
             return null;
         }
-        return campFires.get(colony.getWorld().random.nextInt(campFires.size()));
+        return campFires.get(colony.getWorld().getRandom().nextInt(campFires.size()));
     }
 
     @Override
@@ -520,17 +520,17 @@ public abstract class HordeRaidEvent implements IColonyRaidEvent, IColonyCampFir
     @Override
     public void deserializeNBT(@NotNull final HolderLookup.Provider provider, final CompoundTag compound)
     {
-        id = compound.getInt(TAG_EVENT_ID);
+        id = compound.getIntOr(TAG_EVENT_ID, 0);
         setHorde(Horde.loadFromNbt(compound));
         spawnPoint = BlockPosUtil.read(compound, TAG_SPAWN_POS);
 
-        for (final Tag posCompound : compound.getList(TAG_CAMPFIRE_LIST, TAG_COMPOUND))
+        for (final Tag posCompound : compound.getListOrEmpty(TAG_CAMPFIRE_LIST))
         {
             campFires.add(BlockPosUtil.read((CompoundTag) posCompound, NbtTagConstants.TAG_POS));
         }
 
-        status = EventStatus.values()[compound.getInt(TAG_EVENT_STATUS)];
-        daysToGo = compound.getInt(TAG_DAYS_LEFT);
+        status = EventStatus.values()[compound.getIntOr(TAG_EVENT_STATUS, 0)];
+        daysToGo = compound.getIntOr(TAG_DAYS_LEFT, 0);
         wayPoints = BlockPosUtil.readPosListFromNBT(compound, TAG_WAYPOINT);
     }
 

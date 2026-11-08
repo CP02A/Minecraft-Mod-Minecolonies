@@ -1,5 +1,6 @@
 package com.minecolonies.core.network.messages.server.colony.building;
 
+import com.ldtteam.shim.neoforge.common.extensions.IMenuTypeExtension;
 import com.ldtteam.common.network.PlayMessageType;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
@@ -65,7 +66,7 @@ public class OpenCraftingGUIMessage extends AbstractBuildingServerMessage<IBuild
         {
             if (module.canLearn(ModCraftingTypes.SMELTING.get()))
             {
-                player.openMenu(new MenuProvider()
+                IMenuTypeExtension.openMenu(player, new MenuProvider()
                 {
                     @NotNull
                     @Override
@@ -84,7 +85,7 @@ public class OpenCraftingGUIMessage extends AbstractBuildingServerMessage<IBuild
             }
             else if (module.canLearn(ModCraftingTypes.BREWING.get()))
             {
-                player.openMenu(new MenuProvider()
+                IMenuTypeExtension.openMenu(player, new MenuProvider()
                 {
                     @NotNull
                     @Override
@@ -103,7 +104,7 @@ public class OpenCraftingGUIMessage extends AbstractBuildingServerMessage<IBuild
             }
             else
             {
-                player.openMenu(new MenuProvider()
+                IMenuTypeExtension.openMenu(player, new MenuProvider()
                   {
                       @NotNull
                       @Override

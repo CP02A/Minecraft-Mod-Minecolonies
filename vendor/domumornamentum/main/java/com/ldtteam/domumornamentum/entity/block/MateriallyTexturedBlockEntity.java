@@ -75,31 +75,30 @@ public class MateriallyTexturedBlockEntity extends AbstractMateriallyTexturedBlo
         textureData = input.read(BLOCK_ENTITY_TEXTURE_DATA, MaterialTextureData.CODEC).orElse(MaterialTextureData.EMPTY);
     }
 
-    @Override
     public void requestModelDataUpdate()
     {
-        super.requestModelDataUpdate();
-
-        // manually ask level to recompile rendering
+        // manually ask level to recompile rendering (Fabric: model data is read at mesh time from getRenderData())
         if (level != null && level.isClientSide())
         {
             level.setBlocksDirty(worldPosition, Blocks.AIR.defaultBlockState(), getBlockState());
         }
     }
 
-    @Override
-    public void onLoad()
-    {
-        // noop (dont call requestModelDataUpdate)
-    }
-
     @NotNull
-    @Override
     public ModelData getModelData()
     {
         return ModelData.builder()
           .with(ModProperties.MATERIAL_TEXTURE_PROPERTY, this.textureData)
           .build();
+    }
+
+    /**
+     * Fabric: block entity render data, read by the materially textured model during chunk meshing.
+     */
+    @Override
+    public Object getRenderData()
+    {
+        return getModelData();
     }
 
     @Override
@@ -113,14 +112,14 @@ public class MateriallyTexturedBlockEntity extends AbstractMateriallyTexturedBlo
     protected void applyImplicitComponents(final @NonNull DataComponentGetter components)
     {
         super.applyImplicitComponents(components);
-        updateTextureDataWith(components.getOrDefault(ModDataComponents.TEXTURE_DATA, MaterialTextureData.EMPTY));
+        updateTextureDataWith(components.getOrDefault(ModDataComponents.TEXTURE_DATA.get(), MaterialTextureData.EMPTY));
     }
 
     @Override
     protected void collectImplicitComponents(final DataComponentMap.@NonNull Builder componentBuilder)
     {
         super.collectImplicitComponents(componentBuilder);
-        componentBuilder.set(ModDataComponents.TEXTURE_DATA, textureData);
+        componentBuilder.set(ModDataComponents.TEXTURE_DATA.get(), textureData);
     }
 
     @SuppressWarnings("deprecation")

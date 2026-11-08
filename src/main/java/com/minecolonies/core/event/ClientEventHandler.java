@@ -57,7 +57,6 @@ import com.ldtteam.shim.bus.api.SubscribeEvent;
 import com.ldtteam.shim.fml.ModList;
 import com.ldtteam.shim.neoforge.client.event.ClientPlayerNetworkEvent;
 import com.ldtteam.shim.neoforge.client.event.CustomizeGuiOverlayEvent;
-import com.ldtteam.shim.neoforge.client.event.RenderLevelStageEvent;
 import com.ldtteam.shim.neoforge.client.event.sound.PlaySoundEvent;
 import com.ldtteam.shim.neoforge.common.util.Lazy;
 import com.ldtteam.shim.neoforge.event.entity.player.ItemTooltipEvent;
@@ -87,16 +86,12 @@ public class ClientEventHandler
      */
     private static final Lazy<Map<String, BuildingEntry>> crafterToBuilding = Lazy.of(ClientEventHandler::buildCrafterToBuildingMap);
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void renderWorldLastEvent(@NotNull final RenderLevelStageEvent event)
-    {
-        WorldEventContext.INSTANCE.renderWorldLastEvent(event);
-    }
+    // FABRIC-PORT: world rendering (WorldEventContext) self-registers with Structurize's render callback.
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onwWorldTick(@NotNull final LevelTickEvent.Pre event)
     {
-        if (event.getLevel().isClientSide && ColonyConstants.rand.nextInt(20) == 0)
+        if (event.getLevel().isClientSide() && ColonyConstants.rand.nextInt(20) == 0)
         {
             WorldEventContext.INSTANCE.checkNearbyColony(event.getLevel());
         }
@@ -155,7 +150,7 @@ public class ClientEventHandler
             event.getToolTip().add(extraItemTooltips.get(stack.getItem()));
         }
 
-        if (stack.is(ItemTags.DYEABLE) && IMinecoloniesAPI.getInstance().getConfig().getClient().showdyetooltips.get())
+        if (stack.has(DataComponents.DYED_COLOR) && IMinecoloniesAPI.getInstance().getConfig().getClient().showdyetooltips.get())
         {
             IMinecoloniesAPI.getInstance().getColonyManager().getCompatibilityManager().getDyeColor(stack).ifPresent(c ->
             {
@@ -192,7 +187,7 @@ public class ClientEventHandler
 
                 if (DomumOrnamentumUtils.isDoBlock(blockItem.getBlock()))
                 {
-                    for (Block block : MaterialTextureData.readFromItemStack(event.getItemStack()).getTexturedComponents().values())
+                    for (Block block : MaterialTextureData.readFromItemStack(event.getItemStack()).components().values())
                     {
                         tier = Math.max(tier, SchemAnalyzerUtil.getBlockTier(block));
                     }

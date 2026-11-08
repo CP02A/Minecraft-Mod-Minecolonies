@@ -36,7 +36,7 @@ public class CommandCitizenKill implements IMCColonyOfficerCommand
     {
         final IColony colony = ColonyIdArgument.getColony(context, COLONYID_ARG);
 
-        if (!context.getSource().hasPermission(OP_PERM_LEVEL) && !MineColonies.getConfig().getServer().canPlayerUseKillCitizensCommand.get())
+        if (!IMCCommand.hasOpPermission(context.getSource()) && !MineColonies.getConfig().getServer().canPlayerUseKillCitizensCommand.get())
         {
             context.getSource().sendSuccess(() -> Component.translatableEscape(CommandTranslationConstants.COMMAND_DISABLED_IN_CONFIG), true);
             return 0;

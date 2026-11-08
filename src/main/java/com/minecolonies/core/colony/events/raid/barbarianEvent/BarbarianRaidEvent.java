@@ -29,7 +29,7 @@ public class BarbarianRaidEvent extends HordeRaidEvent
     /**
      * This raids event id, registry entries use res locations as ids.
      */
-    public static final Identifier BARBARIAN_RAID_EVENT_TYPE_ID = new Identifier(Constants.MOD_ID, "barbarian_raid");
+    public static final Identifier BARBARIAN_RAID_EVENT_TYPE_ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "barbarian_raid");
 
     public BarbarianRaidEvent(IColony colony)
     {

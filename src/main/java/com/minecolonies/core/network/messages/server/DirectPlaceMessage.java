@@ -97,7 +97,7 @@ public class DirectPlaceMessage extends AbstractServerPlayMessage
     @Override
     protected void onExecute(final IPayloadContext ctxIn, final ServerPlayer player)
     {
-        final Level world = player.getCommandSenderWorld();
+        final Level world = player.level();
         final IColony colony = IColonyManager.getInstance().getColonyByPosFromWorld(world, pos);
         if (player.blockPosition().distSqr(pos) > 5 * 5 || !state.equals(BlockUtils.getBlockStateFromStack(stack)) || !world.getBlockState(pos).isAir()
             || !(state.getBlock() instanceof AbstractBlockHut))
@@ -119,7 +119,7 @@ public class DirectPlaceMessage extends AbstractServerPlayMessage
                 return;
             }
 
-            player.getCommandSenderWorld().setBlockAndUpdate(pos, state);
+            player.level().setBlockAndUpdate(pos, state);
             if (world.getBlockEntity(pos) instanceof final TileEntityColonyBuilding hut)
             {
                 hut.setStructurePack(StructurePacks.selectedPack);

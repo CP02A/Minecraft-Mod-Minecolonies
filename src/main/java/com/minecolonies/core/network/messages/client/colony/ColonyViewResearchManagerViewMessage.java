@@ -60,7 +60,7 @@ public class ColonyViewResearchManagerViewMessage extends AbstractClientPlayMess
     protected void toBytes(@NotNull final RegistryFriendlyByteBuf buf)
     {
         buf.writeInt(colonyId);
-        buf.writeUtf(dimension.location().toString());
+        buf.writeUtf(dimension.identifier().toString());
         buf.writeNbt(researchManagerData);
     }
 

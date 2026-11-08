@@ -3,8 +3,34 @@
   "minVersion": "0.8",
   "package": "com.minecolonies.fabric.mixin",
   "compatibilityLevel": "JAVA_25",
-  "mixins": [],
-  "client": [],
+  "mixins": [
+    "entity.MobAccessor",
+    "entity.AbstractFurnaceBlockEntityInvoker",
+    "entity.BrewingStandBlockEntityAccessor",
+    "entity.BeehiveBlockEntityInvoker",
+    "entity.DoorBlockInvoker",
+    "entity.CombatTrackerAccessor",
+    "entity.AbstractArrowInvoker",
+    "entity.EntityDimensionsAccessor",
+    "colony.BaseSpawnerAccessor",
+    "colony.PersistentEntitySectionManagerInvoker",
+    "colony.ServerLevelAccessor",
+    "colony.StemBlockAccessor",
+    "api.ApiServerLevelAccessor",
+    "api.ChunkMapInvoker",
+    "api.BlockBehaviourAccessor",
+    "api.CreativeModeTabAccessor",
+    "misc.CommandSourceStackAccessor",
+    "misc.MobTargetSelectorAccessor",
+    "misc.MiscBaseSpawnerAccessor",
+    "api.BlockBehaviourIdMixin",
+    "api.BlockPropertiesAccessor",
+    "api.BlockBehaviourFieldsAccessor"
+  ],
+  "client": [
+    "client.compat.AbstractContainerScreenAccessor",
+    "client.render.AbstractHorseRendererMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

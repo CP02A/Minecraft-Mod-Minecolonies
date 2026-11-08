@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "type": "domum_ornamentum:materially_textured",
+      "fabric:type": "domum_ornamentum:materially_textured",
       "parent": "domum_ornamentum:block/allbrick/dark_brick"
     }
   }

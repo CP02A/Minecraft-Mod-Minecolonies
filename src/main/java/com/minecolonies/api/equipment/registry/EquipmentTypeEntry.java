@@ -83,7 +83,7 @@ public final class EquipmentTypeEntry
     {
         final String namespace = serialized.getNamespace().equals("minecraft") ? Constants.MOD_ID : serialized.getNamespace();
         final String path = serialized.getPath().isEmpty() ? ModEquipmentTypes.none.get().registryName.getPath() : serialized.getPath();
-        return new Identifier(namespace, path);
+        return Identifier.fromNamespaceAndPath(namespace, path);
     }
 
     /**

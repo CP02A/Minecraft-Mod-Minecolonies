@@ -213,8 +213,8 @@ public class EntityAIWorkSifter extends AbstractEntityAICrafting<JobSifter, Buil
         new LocalizedParticleEffectMessage(meshItem, building.getID()).sendToTrackingEntity(worker);
         new LocalizedParticleEffectMessage(inputItem, building.getID().below()).sendToTrackingEntity(worker);
 
-        worker.swing(InteractionHand.MAIN_HAND);
-        SoundUtils.playSoundAtCitizen(world, building.getID(), SoundEvents.LEASH_KNOT_BREAK);
+        worker.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
+        SoundUtils.playSoundAtCitizen(world, building.getID(), SoundEvents.LEAD_BREAK);
         return getState();
     }
 }

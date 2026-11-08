@@ -72,13 +72,13 @@ public interface ISimpleModelType extends IModelType
         final int moddedTextureId = (entityCitizen.getTextureId() % getNumTextures()) + 1;
         final String textureIdentifier =
           getName().getPath() + (entityCitizen.isFemale() ? "female" : "male") + moddedTextureId + entityCitizen.getEntityData().get(DATA_TEXTURE_SUFFIX);
-        final Identifier modified = new Identifier(Constants.MOD_ID, BASE_FOLDER + style + "/" + textureIdentifier + ".png");
+        final Identifier modified = Identifier.fromNamespaceAndPath(Constants.MOD_ID, BASE_FOLDER + style + "/" + textureIdentifier + ".png");
         if (Minecraft.getInstance().getResourceManager().getResource(modified).isPresent())
         {
             return modified;
         }
 
-        return new Identifier(Constants.MOD_ID, BASE_FOLDER + DEFAULT_FOLDER + "/" + textureIdentifier + ".png");
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, BASE_FOLDER + DEFAULT_FOLDER + "/" + textureIdentifier + ".png");
     }
 
     default Identifier getTextureIcon(@NotNull final AbstractEntityCitizen entityCitizen)
@@ -93,6 +93,6 @@ public interface ISimpleModelType extends IModelType
         final String textureIdentifier =
           getTextureBase() + (entityCitizen.isFemale() ? "female" : "male") + moddedTextureId + entityCitizen.getEntityData()
             .get(DATA_TEXTURE_SUFFIX);
-        return new Identifier(Constants.MOD_ID, "textures/entity_icon/citizen/" + style + "/" + textureIdentifier + ".png");
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/entity_icon/citizen/" + style + "/" + textureIdentifier + ".png");
     }
 }

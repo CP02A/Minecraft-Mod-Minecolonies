@@ -12,6 +12,7 @@ import com.minecolonies.api.items.ModItems;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.CompatibilityUtils;
 import com.minecolonies.api.util.constant.Constants;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.util.Mth;
@@ -120,7 +121,7 @@ public final class RaiderMobUtils
 
             for (int i = 0; i < numberOfSpawns; i++)
             {
-                final AbstractEntityMinecoloniesRaider entity = (AbstractEntityMinecoloniesRaider) entityToSpawn.create(world);
+                final AbstractEntityMinecoloniesRaider entity = (AbstractEntityMinecoloniesRaider) entityToSpawn.create(world, EntitySpawnReason.EVENT);
 
                 if (entity != null)
                 {
@@ -130,7 +131,7 @@ public final class RaiderMobUtils
                         spawnpos = spawnLocation.above();
                     }
 
-                    entity.absMoveTo(spawnpos.getX(), spawnpos.getY(), spawnpos.getZ(), (float) Mth.wrapDegrees(world.random.nextDouble() * WHOLE_CIRCLE), 0.0F);
+                    entity.snapTo(spawnpos.getX(), spawnpos.getY(), spawnpos.getZ(), (float) Mth.wrapDegrees(world.getRandom().nextDouble() * WHOLE_CIRCLE), 0.0F);
                     CompatibilityUtils.addEntity(world, entity);
                     entity.setColony(colony);
                     entity.setEventID(eventID);

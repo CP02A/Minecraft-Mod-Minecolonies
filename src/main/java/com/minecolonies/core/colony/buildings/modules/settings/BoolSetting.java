@@ -78,7 +78,7 @@ public class BoolSetting implements ISetting<Boolean>
     @Override
     public Identifier getLayoutItem()
     {
-        return new Identifier("minecolonies", "gui/layouthuts/layoutboolsetting.xml");
+        return Identifier.fromNamespaceAndPath("minecolonies", "gui/layouthuts/layoutboolsetting.xml");
     }
 
     @OnlyIn(Dist.CLIENT)

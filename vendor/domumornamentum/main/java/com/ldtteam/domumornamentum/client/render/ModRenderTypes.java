@@ -7,7 +7,6 @@ import com.google.common.base.Suppliers;
 import com.ldtteam.domumornamentum.util.Constants;
 
 import net.minecraft.client.renderer.rendertype.LayeringTransform;
-import net.minecraft.client.renderer.rendertype.OutputTarget;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -50,7 +49,6 @@ public enum ModRenderTypes
 		{
 			var state = RenderSetup.builder(ModRenderPipelines.MEASUREMENT_LINES.pipeline())
 					.setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
-					.setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
 					.createRenderSetup();
 			return RenderType.create(Constants.MOD_ID + ":measurement_lines", state);
 		}
@@ -61,7 +59,6 @@ public enum ModRenderTypes
 		{
 			var state = RenderSetup.builder(ModRenderPipelines.CHISEL_PREVIEW_INSIDE_BLOCKS.pipeline())
 					.setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
-					.setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
 					.createRenderSetup();
 			return RenderType.create(Constants.MOD_ID + ":chisel_preview_inside_blocks", state);
 		}
@@ -72,7 +69,6 @@ public enum ModRenderTypes
 		{
 			var state = RenderSetup.builder(ModRenderPipelines.CHISEL_PREVIEW_OUTSIDE_BLOCKS.pipeline())
 					.setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
-					.setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
 					.createRenderSetup();
 			return RenderType.create(Constants.MOD_ID + ":chisel_preview_outside_blocks", state);
 		}
@@ -83,7 +79,6 @@ public enum ModRenderTypes
 		{
 			var state = RenderSetup.builder(ModRenderPipelines.WIREFRAME_LINES.pipeline())
 					.setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
-					.setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
 					.sortOnUpload()
 					.createRenderSetup();
 			return RenderType.create(Constants.MOD_ID + ":wireframe_lines", state);
@@ -95,7 +90,6 @@ public enum ModRenderTypes
 		{
 			var state = RenderSetup.builder(ModRenderPipelines.WIREFRAME_LINES_ALWAYS.pipeline())
 					.setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
-					.setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
 					.sortOnUpload()
 					.createRenderSetup();
 			return RenderType.create(Constants.MOD_ID + ":wireframe_lines_always", state);
@@ -109,7 +103,6 @@ public enum ModRenderTypes
 		{
 			var state = RenderSetup.builder(ModRenderPipelines.WIREFRAME_BODY.pipeline())
 					.setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
-					.setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
 					.sortOnUpload()
 					.createRenderSetup();
 			return RenderType.create(Constants.MOD_ID + ":wireframe_body", state);
@@ -126,7 +119,6 @@ public enum ModRenderTypes
 					.withTexture("Sampler0", TextureAtlas.LOCATION_BLOCKS)
 					.useLightmap()
 					.useOverlay()
-					.setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
 					.affectsCrumbling()
 					.sortOnUpload()
 					.createRenderSetup();
@@ -142,7 +134,6 @@ public enum ModRenderTypes
 					.withTexture("Sampler0", TextureAtlas.LOCATION_BLOCKS)
 					.useLightmap()
 					.useOverlay()
-					.setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
 					.affectsCrumbling()
 					.sortOnUpload()
 					.createRenderSetup();
@@ -156,7 +147,6 @@ public enum ModRenderTypes
 		private static RenderType ghostBlockColoredPreview()
 		{
 			var state = RenderSetup.builder(ModRenderPipelines.GHOST_BLOCK_COLORED.pipeline())
-					.setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
 					.affectsCrumbling()
 					.sortOnUpload()
 					.createRenderSetup();
@@ -168,7 +158,6 @@ public enum ModRenderTypes
 		private static RenderType ghostBlockColoredPreviewAlways()
 		{
 			var state = RenderSetup.builder(ModRenderPipelines.GHOST_BLOCK_COLORED_ALWAYS.pipeline())
-					.setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
 					.affectsCrumbling()
 					.sortOnUpload()
 					.createRenderSetup();

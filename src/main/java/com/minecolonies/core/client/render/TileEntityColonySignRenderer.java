@@ -6,30 +6,30 @@ import com.minecolonies.core.tileentities.TileEntityColonySign;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import com.ldtteam.shim.api.distmarker.Dist;
-import com.ldtteam.shim.api.distmarker.OnlyIn;
-import com.ldtteam.shim.neoforge.client.RenderTypeHelper;
-import com.ldtteam.shim.neoforge.client.model.data.ModelData;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.BlockModelResolver;
+import net.minecraft.client.renderer.block.model.BlockDisplayContext;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Matrix4f;
+import org.jetbrains.annotations.Nullable;
+import java.util.ArrayList;
 
 import java.util.List;
 
@@ -37,165 +37,182 @@ import static com.minecolonies.api.util.constant.TranslationConstants.NEXT;
 import static com.minecolonies.api.util.constant.TranslationConstants.PREVIOUS;
 import static com.minecolonies.core.blocks.BlockColonySign.CONNECTED;
 
-@OnlyIn(Dist.CLIENT)
-public class TileEntityColonySignRenderer implements BlockEntityRenderer<TileEntityColonySign>
+public class TileEntityColonySignRenderer implements BlockEntityRenderer<TileEntityColonySign, TileEntityColonySignRenderer.State>
 {
     /**
-     * The models of the signs.
+     * Display context for the sign model.
      */
-    private final BakedModel model;
-    private final BakedModel model2;
+    private static final BlockDisplayContext DISPLAY_CONTEXT = BlockDisplayContext.create();
 
     /**
-     * Cached render dispatcher.
+     * One line of text on the sign.
+     *
+     * @param text the text.
+     * @param y    the y position.
      */
-    private final BlockRenderDispatcher renderDispatcher;
+    public record TextLine(FormattedCharSequence text, float x, float y) {}
+
+    /**
+     * Sign render state.
+     */
+    public static class State extends BlockEntityRenderState
+    {
+        public boolean                     render;
+        public float                       rotation;
+        public final BlockModelRenderState model = new BlockModelRenderState();
+        public final List<TextLine>        lines = new ArrayList<>();
+    }
+
+    /**
+     * Block model resolver.
+     */
+    private final BlockModelResolver blockModelResolver;
+
+    /**
+     * The font.
+     */
+    private final Font font;
 
     public TileEntityColonySignRenderer(final BlockEntityRendererProvider.Context context)
     {
         super();
-        model = context.getBlockRenderDispatcher().getBlockModel(ModBlocks.blockColonySign.defaultBlockState());
-        model2 = context.getBlockRenderDispatcher().getBlockModel(ModBlocks.blockColonySign.defaultBlockState().setValue(CONNECTED, true));
-        renderDispatcher = context.getBlockRenderDispatcher();
+        this.blockModelResolver = context.blockModelResolver();
+        this.font = context.font();
     }
 
     @Override
-    public void render(
-        @NotNull final TileEntityColonySign tileEntity,
-        final float partialTicks,
-        final PoseStack matrixStack,
-        @NotNull final MultiBufferSource buffer,
-        final int combinedLight,
-        final int combinedOverlay)
+    public State createRenderState()
     {
-        final float relativeRotationToColony = tileEntity.getRelativeRotation();
-        final BlockState state = tileEntity.getBlockState();
-        if (state.getBlock() == ModBlocks.blockColonySign)
-        {
-            matrixStack.pushPose();
-            matrixStack.translate(0.5, 0.5, 0.5);
-            matrixStack.mulPose(Axis.YP.rotationDegrees(relativeRotationToColony));
-            matrixStack.translate(-0.5, -0.5, -0.5);
-            renderSingleBlock(state, matrixStack, buffer, combinedLight, combinedOverlay, tileEntity.getTargetColonyId() != tileEntity.getCachedSignAboveColony());
-            matrixStack.popPose();
-
-           renderTextOnSide(matrixStack, relativeRotationToColony, tileEntity, buffer, combinedLight, true);
-           renderTextOnSide(matrixStack, relativeRotationToColony, tileEntity, buffer, combinedLight, false);
-        }
+        return new State();
     }
 
-    /**
-     * Render the text on the sign and handle rotation etc.
-     * @param matrixStack the matrix stack.
-     * @param relativeRotationToColony the relative rotation.
-     * @param tileEntity the block entity.
-     * @param buffer the buffer.
-     * @param combinedLight the light.
-     * @param mirrored if mirrored or not.
-     */
-    private void renderTextOnSide(final PoseStack matrixStack, final float relativeRotationToColony, final @NotNull TileEntityColonySign tileEntity, final @NotNull MultiBufferSource buffer, final int combinedLight, final boolean mirrored)
+    @Override
+    public void extractRenderState(
+      @NotNull final TileEntityColonySign tileEntity,
+      @NotNull final State renderState,
+      final float partialTicks,
+      @NotNull final Vec3 cameraPosition,
+      final ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress)
     {
-        matrixStack.pushPose();
-        matrixStack.translate(0.5f, 0.5F, 0.5f);
-        matrixStack.mulPose(Axis.YP.rotationDegrees(relativeRotationToColony));
-        if (mirrored)
+        BlockEntityRenderer.super.extractRenderState(tileEntity, renderState, partialTicks, cameraPosition, breakProgress);
+        renderState.lines.clear();
+        final BlockState state = tileEntity.getBlockState();
+        renderState.render = state.getBlock() == ModBlocks.blockColonySign;
+        if (!renderState.render)
         {
-            matrixStack.mulPose(Axis.YP.rotationDegrees(180));
+            return;
         }
-        matrixStack.translate(-0.0f, -0.1F, 0.2f);
 
-        matrixStack.scale(0.007F, -0.007F, 0.007F);
+        renderState.rotation = tileEntity.getRelativeRotation();
+        final boolean connected = tileEntity.getTargetColonyId() != tileEntity.getCachedSignAboveColony();
+        this.blockModelResolver.update(renderState.model, ModBlocks.blockColonySign.defaultBlockState().setValue(CONNECTED, connected), DISPLAY_CONTEXT);
 
         final String colonyName = tileEntity.getColonyName();
         final int distance = tileEntity.getColonyDistance();
         if (colonyName.isEmpty())
         {
-            renderText(matrixStack, buffer, combinedLight, "Unknown Colony", 0, 0);
-            renderText(matrixStack, buffer, combinedLight, Component.translatable("com.minecolonies.coremod.dist.blocks",distance).getString(), 3, 0);
+            addText(renderState.lines, "Unknown Colony", 0, 0);
+            addText(renderState.lines, Component.translatable("com.minecolonies.coremod.dist.blocks", distance).getString(), 3, 0);
         }
         else
         {
             final String targetColonyName = tileEntity.getTargetColonyName();
-            if (!targetColonyName.isEmpty() && tileEntity.getTargetColonyId() != tileEntity.getCachedSignAboveColony())
+            if (!targetColonyName.isEmpty() && connected)
             {
                 final int targetColonyDistance = tileEntity.getTargetColonyDistance();
-                renderColonyNameOnSign(colonyName, matrixStack, buffer, combinedLight, distance, -10);
-                renderColonyNameOnSign(targetColonyName, matrixStack, buffer, combinedLight, targetColonyDistance, -60);
+                addColonyNameOnSign(renderState.lines, colonyName, distance, -10);
+                addColonyNameOnSign(renderState.lines, targetColonyName, targetColonyDistance, -60);
             }
             else
             {
-                renderColonyNameOnSign(colonyName, matrixStack, buffer, combinedLight, distance, -35);
+                addColonyNameOnSign(renderState.lines, colonyName, distance, -35);
             }
+        }
+    }
+
+    @Override
+    public void submit(@NotNull final State state, @NotNull final PoseStack matrixStack, @NotNull final SubmitNodeCollector submitNodeCollector, @NotNull final CameraRenderState camera)
+    {
+        if (!state.render)
+        {
+            return;
+        }
+
+        matrixStack.pushPose();
+        matrixStack.translate(0.5, 0.5, 0.5);
+        matrixStack.rotate(Axis.YP.rotationDegrees(state.rotation));
+        matrixStack.translate(-0.5, -0.5, -0.5);
+        state.model.submit(matrixStack, submitNodeCollector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+        matrixStack.popPose();
+
+        renderTextOnSide(matrixStack, submitNodeCollector, state, true);
+        renderTextOnSide(matrixStack, submitNodeCollector, state, false);
+    }
+
+    /**
+     * Render the text on the sign and handle rotation etc.
+     *
+     * @param matrixStack         the matrix stack.
+     * @param submitNodeCollector the collector.
+     * @param state               the render state.
+     * @param mirrored            if mirrored or not.
+     */
+    private void renderTextOnSide(final PoseStack matrixStack, final SubmitNodeCollector submitNodeCollector, final State state, final boolean mirrored)
+    {
+        matrixStack.pushPose();
+        matrixStack.translate(0.5f, 0.5F, 0.5f);
+        matrixStack.rotate(Axis.YP.rotationDegrees(state.rotation));
+        if (mirrored)
+        {
+            matrixStack.rotate(Axis.YP.rotationDegrees(180));
+        }
+        matrixStack.translate(-0.0f, -0.1F, 0.2f);
+
+        matrixStack.scale(0.007F, -0.007F, 0.007F);
+
+        for (final TextLine line : state.lines)
+        {
+            submitNodeCollector.submitText(matrixStack, line.x(), line.y(), line.text(), false, Font.DisplayMode.NORMAL, state.lightCoords, 0xdcdcdc00, 0, 0);
         }
         matrixStack.popPose();
     }
 
     /**
-     * Render the name and distance on the sign at offset.
+     * Add the name and distance on the sign at offset.
+     *
+     * @param lines      the lines to add to.
      * @param colonyName the name.
-     * @param matrixStack the stack.
-     * @param buffer the buffer.
-     * @param combinedLight the light.
-     * @param distance the distance to the colony.
-     * @param offset the offset to render it at.
+     * @param distance   the distance to the colony.
+     * @param offset     the offset to render it at.
      */
-    private void renderColonyNameOnSign(final String colonyName, final PoseStack matrixStack, final @NotNull MultiBufferSource buffer, final int combinedLight, final int distance, final int offset)
+    private void addColonyNameOnSign(final List<TextLine> lines, final String colonyName, final int distance, final int offset)
     {
-        final int textWidth = Minecraft.getInstance().font.width(colonyName);
+        final int textWidth = font.width(colonyName);
         if (textWidth > 90)
         {
-            final List<FormattedText> splitName = Minecraft.getInstance().font.getSplitter().splitLines(colonyName, 90, Style.EMPTY);;
+            final List<FormattedText> splitName = font.getSplitter().splitLines(colonyName, 90, Style.EMPTY);
             for (int i = 0; i < Math.min(2, splitName.size()); i++)
             {
-                renderText(matrixStack, buffer, combinedLight, splitName.get(i).getString(), i, offset);
+                addText(lines, splitName.get(i).getString(), i, offset);
             }
-            renderText(matrixStack, buffer, combinedLight, Component.translatable("com.minecolonies.coremod.dist.blocks",distance).getString(), 3, offset);
+            addText(lines, Component.translatable("com.minecolonies.coremod.dist.blocks", distance).getString(), 3, offset);
         }
         else
         {
-            renderText(matrixStack, buffer, combinedLight, colonyName, 0, offset);
-            renderText(matrixStack, buffer, combinedLight, Component.translatable("com.minecolonies.coremod.dist.blocks",distance).getString(), 3, offset);
+            addText(lines, colonyName, 0, offset);
+            addText(lines, Component.translatable("com.minecolonies.coremod.dist.blocks", distance).getString(), 3, offset);
         }
     }
 
     /**
-     * Utility ro render a single block (the sign model).
-     * @param state the state of the sign.
-     * @param pose the poststack.
-     * @param buffer the buffer.
-     * @param combinedLight light combined.
-     * @param combinedOverlay overlay.
-     * @param connected if two colonies are connected.
-     */
-    private void renderSingleBlock(final BlockState state, final PoseStack pose, final MultiBufferSource buffer, final int combinedLight, final int combinedOverlay, final boolean connected)
-    {
-        final BakedModel usedModel = connected ? model2 : model;
-        for (net.minecraft.client.renderer.RenderType rt : usedModel.getRenderTypes(state, RandomSource.create(42), ModelData.EMPTY))
-        {
-            this.renderDispatcher.getModelRenderer().renderModel(pose.last(),
-                buffer.getBuffer(RenderTypeHelper.getEntityRenderType(rt, false)),
-                state,
-                usedModel,
-                0,
-                0,
-                0,
-                combinedLight,
-                combinedOverlay,
-                ModelData.EMPTY,
-                rt);
-        }
-    }
-
-    /**
-     * Text render utility.
-     * @param matrixStack the matrix stack.
-     * @param buffer the buffer.
-     * @param combinedLight the light.
-     * @param text the text to render.
-     * @param line the line of the text.
+     * Text utility.
+     *
+     * @param lines  the lines to add to.
+     * @param text   the text to render.
+     * @param line   the line of the text.
      * @param offset additional offset.
      */
-    private void renderText(final PoseStack matrixStack, final MultiBufferSource buffer, final int combinedLight, String text, final int line, final float offset)
+    private void addText(final List<TextLine> lines, String text, final int line, final float offset)
     {
         final int maxSize = 20;
         if (text.length() > maxSize)
@@ -204,18 +221,12 @@ public class TileEntityColonySignRenderer implements BlockEntityRenderer<TileEnt
         }
 
         final FormattedCharSequence iReorderingProcessor = FormattedCharSequence.forward(text, Style.EMPTY);
-        if (iReorderingProcessor != null)
-        {
-            final Font fontRenderer = Minecraft.getInstance().font;
-
-            float x = (float) (-fontRenderer.width(iReorderingProcessor) / 2); //render width of text divided by 2
-            fontRenderer.drawInBatch(iReorderingProcessor, x, line * 8f + offset,
-                0xdcdcdc00, false, matrixStack.last().pose(), buffer, Font.DisplayMode.NORMAL, 0, combinedLight);
-        }
+        float x = (float) (-font.width(iReorderingProcessor) / 2); //render width of text divided by 2
+        lines.add(new TextLine(iReorderingProcessor, x, line * 8f + offset));
     }
 
     @Override
-    public boolean shouldRenderOffScreen(TileEntityColonySign tileEntityMBE21)
+    public boolean shouldRenderOffScreen()
     {
         return false;
     }
@@ -250,23 +261,23 @@ public class TileEntityColonySignRenderer implements BlockEntityRenderer<TileEnt
         context.pushPoseCameraToPos(pos);
         context.renderLineBoxWithShadow(BlockPos.ZERO, 0xffffffff, WorldEventContext.DEFAULT_LINE_WIDTH * 2);
         context.popPose();
-        renderDebugText(pos, text, context.poseStack, true, 3, 2.5f, context.bufferSource, context.cameraPosition);
+        renderDebugText(pos, text, context, true, 3, 2.5f);
     }
 
     public static void renderDebugText(final BlockPos renderPos,
         final List<String> text,
-        final PoseStack matrixStack,
+        final WorldEventContext context,
         final boolean forceWhite,
         final int mergeEveryXListElements,
-        final float scale,
-        final MultiBufferSource buffer, final Vec3 cameraPosition)
+        final float scale)
     {
         if (mergeEveryXListElements < 1)
         {
             throw new IllegalArgumentException("mergeEveryXListElements is less than 1");
         }
 
-        final EntityRenderDispatcher erm = Minecraft.getInstance().getEntityRenderDispatcher();
+        final PoseStack matrixStack = context.poseStack;
+        final Vec3 cameraPosition = context.cameraPosition;
         final int cap = text.size();
         if (cap > 0)
         {
@@ -274,14 +285,12 @@ public class TileEntityColonySignRenderer implements BlockEntityRenderer<TileEnt
 
             matrixStack.pushPose();
             matrixStack.translate(renderPos.getX() + 0.5d - cameraPosition.x(), renderPos.getY() + 0.6d - cameraPosition.y(), renderPos.getZ() + 0.5d - cameraPosition.z());
-            matrixStack.mulPose(erm.cameraOrientation());
+            matrixStack.rotate(context.cameraRenderState.orientation);
             matrixStack.scale(0.014f, -0.014f, 0.014f);
+            matrixStack.scale(scale, scale, scale);
 
             final float backgroundTextOpacity = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
             final int alphaMask = (int) (backgroundTextOpacity * 255.0F) << 24;
-
-            final Matrix4f rawPosMatrix = matrixStack.last().pose();
-            rawPosMatrix.scale(scale, scale, scale);
 
             for (int i = 0; i < cap; i += mergeEveryXListElements)
             {
@@ -289,19 +298,19 @@ public class TileEntityColonySignRenderer implements BlockEntityRenderer<TileEnt
                     mergeEveryXListElements == 1 ? text.get(i) : text.subList(i, Math.min(i + mergeEveryXListElements, cap)).toString());
                 final float textCenterShift = (float) (-fontrenderer.width(renderText) / 2);
 
-                fontrenderer.drawInBatch(renderText,
+                context.submitNodeCollector.submitText(matrixStack,
                     textCenterShift,
                     0,
-                    forceWhite ? 0xffffffff : 0x20ffffff,
+                    renderText.getVisualOrderText(),
                     false,
-                    rawPosMatrix,
-                    buffer,
                     Font.DisplayMode.SEE_THROUGH,
+                    0x00f000f0,
+                    forceWhite ? 0xffffffff : 0x20ffffff,
                     alphaMask,
-                    0x00f000f0);
+                    0);
                 if (!forceWhite)
                 {
-                    fontrenderer.drawInBatch(renderText, textCenterShift, 0, 0xffffffff, false, rawPosMatrix, buffer, Font.DisplayMode.NORMAL, 0, 0x00f000f0);
+                    context.submitNodeCollector.submitText(matrixStack, textCenterShift, 0, renderText.getVisualOrderText(), false, Font.DisplayMode.NORMAL, 0x00f000f0, 0xffffffff, 0, 0);
                 }
                 matrixStack.translate(0.0d, fontrenderer.lineHeight + 1, 0.0d);
             }

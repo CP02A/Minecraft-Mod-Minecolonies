@@ -123,8 +123,8 @@ public class EntityAIVisitor implements IState
 
         if (EntityNavigationUtils.walkToPos(citizen, target.blockPosition(), 2, false) && citizen.hasLineOfSight(target))
         {
-            citizen.swing(InteractionHand.MAIN_HAND);
-            target.hurt(target.level().damageSources().source(DamageSourceKeys.VISITOR), 10.0f);
+            citizen.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
+            target.hurtOrSimulate(target.level().damageSources().source(DamageSourceKeys.VISITOR), 10.0f);
         }
 
         return false;

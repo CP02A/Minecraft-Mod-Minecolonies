@@ -7,9 +7,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import static com.ldtteam.structurize.api.constants.Constants.GROUNDSTYLE_RELATIVE;
@@ -23,16 +23,16 @@ public class ItemBuildTool extends AbstractItemStructurize
     /**
      * Instantiates the buildTool on load.
      */
-    public ItemBuildTool()
+    public ItemBuildTool(final Properties properties)
     {
-        super("sceptergold", new Properties().stacksTo(1));
+        super("sceptergold", properties.stacksTo(1));
     }
 
     @Override
     @SuppressWarnings("resource")
     public InteractionResult useOn(final UseOnContext context)
     {
-        if (context.getLevel().isClientSide)
+        if (context.getLevel().isClientSide())
         {
             openBuildToolWindow(context.getClickedPos().relative(context.getClickedFace()), GROUNDSTYLE_RELATIVE, context.getLevel().registryAccess());
         }
@@ -40,21 +40,21 @@ public class ItemBuildTool extends AbstractItemStructurize
     }
 
         @Override
-    public InteractionResultHolder<ItemStack> use(final Level worldIn, final Player playerIn, final InteractionHand handIn)
+    public InteractionResult use(final Level worldIn, final Player playerIn, final InteractionHand handIn)
     {
         final ItemStack stack = playerIn.getItemInHand(handIn);
 
-        if (worldIn.isClientSide)
+        if (worldIn.isClientSide())
         {
             openBuildToolWindow(null, GROUNDSTYLE_RELATIVE, worldIn.registryAccess());
         }
 
-        return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
+        return InteractionResult.SUCCESS;
     }
 
     private static void openBuildToolWindow(final BlockPos pos, final int groundstyle, final HolderLookup.Provider provider)
     {
-        if (Minecraft.getInstance().screen != null)
+        if (Minecraft.getInstance().gui.screen() != null)
         {
             return;
         }
@@ -63,20 +63,13 @@ public class ItemBuildTool extends AbstractItemStructurize
     }
 
     @Override
-    public ItemStack getCraftingRemainingItem(final ItemStack itemStack)
+    public ItemStackTemplate getCraftingRemainder(final ItemStack itemStack)
     {
-        //we want to return the build tool when use for crafting
+        //we want to return the tool when used for crafting
         if (ItemStackUtils.isEmpty(itemStack))
         {
-            return ItemStack.EMPTY;
+            return null;
         }
-        return itemStack.copy();
-    }
-
-    @Override
-    public boolean hasCraftingRemainingItem(final ItemStack itemStack)
-    {
-        //we want to return the build tool when use for crafting
-        return !ItemStackUtils.isEmpty(itemStack);
+        return ItemStackTemplate.fromNonEmptyStack(itemStack);
     }
 }

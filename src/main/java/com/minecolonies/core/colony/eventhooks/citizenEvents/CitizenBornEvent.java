@@ -17,7 +17,7 @@ public class CitizenBornEvent extends AbstractCitizenEvent
     /**
      * This events id, registry entries use res locations as ids.
      */
-    public static final Identifier CITIZEN_BORN_EVENT_ID = new Identifier(Constants.MOD_ID, "citizen_born");
+    public static final Identifier CITIZEN_BORN_EVENT_ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "citizen_born");
 
     /**
      * Creates a new citizen born event.

@@ -51,7 +51,7 @@ public class WindowSuggestBuildTool extends AbstractWindowSkeleton
      */
     public WindowSuggestBuildTool(@NotNull final BlockPos pos, @NotNull final BlockState state, @NotNull final ItemStack stack)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/windowsuggestbuildtool.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowsuggestbuildtool.xml"));
         this.pos = pos;
         this.building = state;
         this.stack = stack;

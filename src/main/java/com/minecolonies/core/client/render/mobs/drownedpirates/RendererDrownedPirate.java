@@ -1,5 +1,7 @@
 package com.minecolonies.core.client.render.mobs.drownedpirates;
 
+import com.minecolonies.core.client.render.mobs.AbstractRaiderRenderer;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import com.minecolonies.api.entity.mobs.AbstractEntityMinecoloniesMonster;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -10,15 +12,15 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Renderer used for Barbarians And Archer Barbarians.
  */
-public class RendererDrownedPirate extends AbstractRendererDrownedPirate<AbstractEntityMinecoloniesMonster, HumanoidModel<AbstractEntityMinecoloniesMonster>>
+public class RendererDrownedPirate extends AbstractRendererDrownedPirate<AbstractEntityMinecoloniesMonster, HumanoidModel<HumanoidRenderState>>
 {
     /**
      * Texture of the entity.
      */
-    private static final Identifier TEXTURE1 = new Identifier("minecolonies", "textures/entity/raiders/drowned_pirate1.png");
-    private static final Identifier TEXTURE2 = new Identifier("minecolonies", "textures/entity/raiders/drowned_pirate2.png");
-    private static final Identifier TEXTURE3 = new Identifier("minecolonies", "textures/entity/raiders/drowned_pirate3.png");
-    private static final Identifier TEXTURE4 = new Identifier("minecolonies", "textures/entity/raiders/drowned_pirate4.png");
+    private static final Identifier TEXTURE1 = Identifier.fromNamespaceAndPath("minecolonies", "textures/entity/raiders/drowned_pirate1.png");
+    private static final Identifier TEXTURE2 = Identifier.fromNamespaceAndPath("minecolonies", "textures/entity/raiders/drowned_pirate2.png");
+    private static final Identifier TEXTURE3 = Identifier.fromNamespaceAndPath("minecolonies", "textures/entity/raiders/drowned_pirate3.png");
+    private static final Identifier TEXTURE4 = Identifier.fromNamespaceAndPath("minecolonies", "textures/entity/raiders/drowned_pirate4.png");
 
     /**
      * Constructor method for renderer
@@ -27,7 +29,7 @@ public class RendererDrownedPirate extends AbstractRendererDrownedPirate<Abstrac
      */
     public RendererDrownedPirate(final EntityRendererProvider.Context context)
     {
-        super(context, new HumanoidModel<>(context.bakeLayer(ModelLayers.PLAYER_OUTER_ARMOR)), 0.5F);
+        super(context, AbstractRaiderRenderer.outerArmorBodyModel(), 0.5F);
     }
 
     @NotNull

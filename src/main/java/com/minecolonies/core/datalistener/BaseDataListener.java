@@ -10,7 +10,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import com.minecolonies.core.datalistener.util.RegistryAwareJsonReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import com.ldtteam.shim.neoforge.common.conditions.ICondition;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +25,7 @@ import static com.ldtteam.shim.neoforge.common.conditions.ConditionalOps.DEFAULT
  *
  * @param <T> the type of entry.
  */
-public abstract class BaseDataListener<T> extends SimpleJsonResourceReloadListener
+public abstract class BaseDataListener<T> extends RegistryAwareJsonReloadListener
 {
     /**
      * JSON keys.
@@ -55,7 +55,7 @@ public abstract class BaseDataListener<T> extends SimpleJsonResourceReloadListen
      */
     protected BaseDataListener(final String directory)
     {
-        super(GSON, directory);
+        super(directory);
         this.name = StringUtils.capitalize(directory.replaceAll("_", " "));
     }
 
@@ -85,7 +85,7 @@ public abstract class BaseDataListener<T> extends SimpleJsonResourceReloadListen
                 toRemove.addAll(getRemovalOrders(key, value));
 
                 final List<ICondition> conditions = getConditions(value);
-                if (conditions.stream().allMatch(a -> a.test(getContext())))
+                if (conditions.stream().allMatch(a -> a.test(ICondition.IContext.EMPTY)))
                 {
                     final MappingResult<T> result = mapEntry(key, value);
                     if (result.success())

@@ -74,7 +74,7 @@ public class ColonyViewBuildingViewMessage extends AbstractClientPlayMessage
         buildingData.resetReaderIndex();
         buf.writeInt(colonyId);
         buf.writeBlockPos(buildingId);
-        buf.writeUtf(dimension.location().toString());
+        buf.writeUtf(dimension.identifier().toString());
 
         int len = buildingData.readableBytes();
         buf.writeVarInt(len);

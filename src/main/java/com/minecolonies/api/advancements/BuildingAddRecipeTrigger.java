@@ -3,12 +3,12 @@ package com.minecolonies.api.advancements;
 import com.minecolonies.api.crafting.IRecipeStorage;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.ContextAwarePredicate;
-import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
-import net.minecraft.advancements.critereon.SimpleCriterionTrigger.SimpleInstance;
+import net.minecraft.advancements.triggers.Criterion;
+import net.minecraft.core.Holder;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.advancements.predicates.ItemPredicate;
+import net.minecraft.advancements.triggers.SimpleCriterionTrigger;
+import net.minecraft.advancements.triggers.SimpleCriterionTrigger.SimpleInstance;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ExtraCodecs;
 
@@ -38,13 +38,13 @@ public class BuildingAddRecipeTrigger extends SimpleCriterionTrigger<BuildingAdd
         return BuildingAddRecipeTriggerInstance.CODEC;
     }
 
-    public static record BuildingAddRecipeTriggerInstance(Optional<ContextAwarePredicate> player, List<ItemPredicate> outputItemPredicates, int craftingSize) implements SimpleInstance
+    public static record BuildingAddRecipeTriggerInstance(Optional<Holder<LootItemCondition>> player, List<ItemPredicate> outputItemPredicates, int craftingSize) implements SimpleInstance
     {
         public static final int DEFAULT_CRAFTING_SIZE = -1;
         public static final List<ItemPredicate> DEFAULT_OUTPUT_ITEM_PREDICATES = Collections.emptyList();
 
         public static final Codec<BuildingAddRecipeTriggerInstance> CODEC = RecordCodecBuilder.create(builder -> builder
-            .group(EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(BuildingAddRecipeTriggerInstance::player),
+            .group(LootItemCondition.CODEC.optionalFieldOf("player").forGetter(BuildingAddRecipeTriggerInstance::player),
               ItemPredicate.CODEC.listOf().optionalFieldOf("items", DEFAULT_OUTPUT_ITEM_PREDICATES).forGetter(BuildingAddRecipeTriggerInstance::outputItemPredicates),
               ExtraCodecs.intRange(0, 10).optionalFieldOf("crafting_size", DEFAULT_CRAFTING_SIZE).forGetter(BuildingAddRecipeTriggerInstance::craftingSize))
             .apply(builder, BuildingAddRecipeTriggerInstance::new));

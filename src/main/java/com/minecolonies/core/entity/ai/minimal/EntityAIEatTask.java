@@ -196,8 +196,8 @@ public class EntityAIEatTask implements IStateAI
 
         citizen.setItemInHand(InteractionHand.MAIN_HAND, foodStack);
 
-        citizen.swing(InteractionHand.MAIN_HAND);
-        citizen.playSound(SoundEvents.GENERIC_EAT, (float) BASIC_VOLUME, (float) SoundUtils.getRandomPitch(citizen.getRandom()));
+        citizen.swing(InteractionHand.MAIN_HAND, net.minecraft.world.item.component.SwingAnimation.DEFAULT);
+        citizen.playSound(SoundEvents.GENERIC_EAT.value(), (float) BASIC_VOLUME, (float) SoundUtils.getRandomPitch(citizen.getRandom()));
         new ItemParticleEffectMessage(foodStack.copy(), citizen.getX(), citizen.getY(), citizen.getZ(), citizen.getXRot(), citizen.getYRot(), citizen.getEyeHeight()).sendToTrackingEntity(citizen);
 
         waitingTicks++;

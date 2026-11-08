@@ -1,5 +1,6 @@
 package com.minecolonies.core.client.model.raiders;
 
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import com.minecolonies.api.client.render.modeltype.EgyptianModel;
 import com.minecolonies.api.entity.mobs.AbstractEntityMinecoloniesMonster;
 import com.minecolonies.api.entity.mobs.egyptians.AbstractEntityEgyptianRaider;
@@ -107,9 +108,10 @@ public class ModelArcherMummy extends EgyptianModel<AbstractEntityEgyptianRaider
     }
 
     @Override
-    public void setupAnim(AbstractEntityMinecoloniesMonster entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch)
+    public void setupAnim(HumanoidRenderState entityIn)
     {
-        super.setupAnim(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+        final float ageInTicks = entityIn.ageInTicks;
+        super.setupAnim(entityIn);
         float f = 0.05F * Mth.sin((float) Math.PI * ageInTicks / 30.0F) % 2.0F;
         setRotateAngle(this.stripLeftA,
           -1.1F * this.leftArm.xRot + f,

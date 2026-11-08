@@ -1,7 +1,7 @@
 {
   "parent": "minecolonies:block/blockhutfield",
   "textures": {
-    "layer0": "minecolonies:item/scarecrow"
+    "layer0": "minecolonies:block/item_atlas_alias/minecolonies/scarecrow"
   },
   "display": {
     "thirdperson": {

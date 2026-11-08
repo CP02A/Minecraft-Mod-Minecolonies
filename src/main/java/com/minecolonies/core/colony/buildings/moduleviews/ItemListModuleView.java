@@ -141,12 +141,12 @@ public class ItemListModuleView extends AbstractBuildingModuleView implements II
     @OnlyIn(Dist.CLIENT)
     public BOWindow getWindow()
     {
-        return new ItemListModuleWindow(this, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutfilterablelist.xml"));
+        return new ItemListModuleWindow(this, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutfilterablelist.xml"));
     }
 
     @Override
     public Identifier getIconResourceLocation()
     {
-        return new Identifier(Constants.MOD_ID, "textures/gui/modules/" + this.getId() + ".png");
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, "textures/gui/modules/" + this.getId() + ".png");
     }
 }

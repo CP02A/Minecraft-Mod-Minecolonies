@@ -6,10 +6,10 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.ItemStack;
@@ -38,32 +38,21 @@ public class ItemPharaoScepter extends BowItem
 
     @NotNull
     @Override
-    public InteractionResultHolder<ItemStack> use(@NotNull final Level worldIn, Player playerIn, @NotNull final InteractionHand handIn)
+    public InteractionResult use(@NotNull final Level worldIn, Player playerIn, @NotNull final InteractionHand handIn)
     {
         ItemStack itemstack = playerIn.getItemInHand(handIn);
 
-        InteractionResultHolder<ItemStack> ret = com.ldtteam.shim.neoforge.event.EventHooks.onArrowNock(itemstack, worldIn, playerIn, handIn, true);
-        if (ret != null)
-        {
-            return ret;
-        }
-
         playerIn.startUsingItem(handIn);
-        return InteractionResultHolder.consume(itemstack);
+        return InteractionResult.CONSUME;
     }
 
     @Override
-    public void releaseUsing(@NotNull final ItemStack stack, @NotNull final Level worldIn, LivingEntity entityLiving, int timeLeft)
+    public boolean releaseUsing(@NotNull final ItemStack stack, @NotNull final Level worldIn, LivingEntity entityLiving, int timeLeft)
     {
         if (entityLiving instanceof Player)
         {
             Player playerentity = (Player) entityLiving;
             int useDuration = this.getUseDuration(stack, entityLiving) - timeLeft;
-            useDuration = com.ldtteam.shim.neoforge.event.EventHooks.onArrowLoose(stack, worldIn, playerentity, useDuration, true);
-            if (useDuration < 0)
-            {
-                return;
-            }
 
             ItemStack itemstack = playerentity.getProjectile(stack);
             if (!itemstack.isEmpty())
@@ -86,9 +75,11 @@ public class ItemPharaoScepter extends BowItem
                       1.0F,
                       1.0F / (entityLiving.getRandom().nextFloat() * 0.4F + 1.2F) + speed * 0.5F);
                     playerentity.awardStat(Stats.ITEM_USED.get(this));
+                    return true;
                 }
             }
         }
+        return false;
     }
 
     @NotNull
@@ -99,14 +90,21 @@ public class ItemPharaoScepter extends BowItem
     }
 
     @Override
-    public AbstractArrow customArrow(final AbstractArrow arrow, final ItemStack projectileStack, final ItemStack weaponStack)
+    protected net.minecraft.world.entity.projectile.Projectile createProjectile(final Level level, final LivingEntity shooter, final ItemStack weaponStack, final ItemStack projectileStack, final boolean isCrit)
     {
+        final net.minecraft.world.entity.projectile.Projectile projectile = super.createProjectile(level, shooter, weaponStack, projectileStack, isCrit);
+        if (!(projectile instanceof AbstractArrow arrow))
+        {
+            return projectile;
+        }
+
         if (arrow.getOwner() == null)
         {
             return arrow;
         }
 
         AbstractArrow entity = ((ArrowItem) ModItems.firearrow).createArrow(arrow.level(), new ItemStack(ModItems.firearrow, 1), (LivingEntity) arrow.getOwner(), weaponStack);
+        entity.setCritArrow(isCrit);
         entity.pickup = AbstractArrow.Pickup.DISALLOWED;
         entity.setRemainingFireTicks(3 * TICKS_PER_SECOND);
 

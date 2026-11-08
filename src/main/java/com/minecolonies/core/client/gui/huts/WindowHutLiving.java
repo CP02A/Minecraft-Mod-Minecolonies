@@ -56,7 +56,7 @@ public class WindowHutLiving extends AbstractBuildingMainWindow<LivingBuildingVi
      */
     public WindowHutLiving(final LivingBuildingView building)
     {
-        super(building, new Identifier(Constants.MOD_ID, "gui/windowhuthome.xml"));
+        super(building, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowhuthome.xml"));
 
         super.registerButton(BUTTON_ASSIGN, this::assignClicked);
         super.registerButton(BUTTON_RECALL, this::recallClicked);

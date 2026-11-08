@@ -148,7 +148,7 @@ public record ScanToolData(List<Slot> slots, int currentSlotId,
      */
     public static ScanToolData readFromItemStack(final ItemStack stack)
     {
-        return stack.getOrDefault(ModDataComponents.SCAN_TOOL, EMPTY);
+        return stack.getOrDefault(ModDataComponents.SCAN_TOOL.get(), EMPTY);
     }
 
     /**
@@ -157,7 +157,7 @@ public record ScanToolData(List<Slot> slots, int currentSlotId,
      */
     public void writeToItemStack(final ItemStack itemStack)
     {
-        itemStack.set(ModDataComponents.SCAN_TOOL, this);
+        itemStack.set(ModDataComponents.SCAN_TOOL.get(), this);
     }
 
     /**

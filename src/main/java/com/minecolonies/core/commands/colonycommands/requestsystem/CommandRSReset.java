@@ -24,7 +24,7 @@ public class CommandRSReset implements IMCCommand
     {
         final IColony colony = ColonyIdArgument.getColony(context, COLONYID_ARG);
 
-        if (!context.getSource().hasPermission(OP_PERM_LEVEL) && !MineColonies.getConfig().getServer().canPlayerUseResetCommand.get())
+        if (!IMCCommand.hasOpPermission(context.getSource()) && !MineColonies.getConfig().getServer().canPlayerUseResetCommand.get())
         {
             context.getSource().sendSuccess(() -> Component.translatableEscape(CommandTranslationConstants.COMMAND_DISABLED_IN_CONFIG), true);
             return 0;

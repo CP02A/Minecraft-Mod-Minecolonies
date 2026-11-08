@@ -41,7 +41,7 @@ public class BlockCompostedDirt extends AbstractBlockMinecolonies<BlockComposted
     @Override
     public Identifier getRegistryName()
     {
-        return new Identifier(Constants.MOD_ID, BLOCK_NAME);
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, BLOCK_NAME);
     }
 
     @Nullable

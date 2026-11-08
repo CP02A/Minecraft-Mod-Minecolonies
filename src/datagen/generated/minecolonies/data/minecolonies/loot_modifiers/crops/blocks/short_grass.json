@@ -1,14 +1,8 @@
 {
-  "neoforge:conditions": [
-    {
-      "type": "neoforge:mod_loaded",
-      "modid": "minecolonies"
-    }
-  ],
   "type": "neoforge:add_table",
   "conditions": [
     {
-      "condition": "neoforge:loot_table_id",
+      "type": "neoforge:loot_table_id",
       "loot_table_id": "minecraft:blocks/short_grass"
     }
   ],

@@ -12,9 +12,11 @@ public enum DataVersion
      * - successors match
      * - upcoming has data version = (latest data version + 1)
      */
-    UPCOMING(3955 + 1, null, null),
+    UPCOMING(5023 + 1, null, null),
 
-    v1_21_1(3955, "1.21.1", UPCOMING),
+    // FABRIC-PORT: intermediate versions between 1.21.1 and 26.3 omitted (only used for nearest-lower lookup)
+    v26_3(5023, "26.3", UPCOMING),
+    v1_21_1(3955, "1.21.1", v26_3),
     v1_21(3953, "1.21", v1_21_1),
     v1_20_6(3839, "1.20.6", v1_21),
     v1_20_5(3837, "1.20.5", v1_20_6),
@@ -69,7 +71,7 @@ public enum DataVersion
     v1_9(169, "1.9", v1_9_1),
     DEFAULT(0, null, v1_9);
 
-    public static final DataVersion CURRENT = findFromDataVersion(SharedConstants.getCurrentVersion().getDataVersion().getVersion());
+    public static final DataVersion CURRENT = findFromDataVersion(SharedConstants.getCurrentVersion().dataVersion().version());
     private final int dataVersion;
     private final String mcVersion;
     private final DataVersion successor;

@@ -49,7 +49,7 @@ public class WindowDecorationController extends AbstractWindowSkeleton
      */
     public WindowDecorationController(final BlockPos b)
     {
-        super(new Identifier(Constants.MOD_ID, "gui/windowdecorationcontroller.xml"));
+        super(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowdecorationcontroller.xml"));
         this.controller = (TileEntityDecorationController) world.getBlockEntity(b);
         registerButton(BUTTON_BUILD, this::buildClicked);
         registerButton(BUTTON_REPAIR, this::repairClicked);

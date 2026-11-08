@@ -83,7 +83,7 @@ public class WindowBarracksBuilding extends AbstractBuildingMainWindow<BuildingB
      */
     public WindowBarracksBuilding(final BuildingBarracks.View building)
     {
-        super(building, new Identifier(Constants.MOD_ID, "gui/windowhutbarracks.xml"));
+        super(building, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/windowhutbarracks.xml"));
         view = building.getColony();
         positionsList = findPaneOfTypeByID(LIST_POSITIONS, ScrollingList.class);
         findPaneOfTypeByID(SPIES_BUTTON_ICON, ItemIcon.class).setItem(Items.GOLD_INGOT.getDefaultInstance());

@@ -40,6 +40,18 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PathfindingUtils
 {
     /**
+     * Replacement for the removed vanilla BlockState#blocksMotion (1.21.1 semantics).
+     *
+     * @param state the state.
+     * @return true if it blocks motion.
+     */
+    public static boolean blocksMotion(final BlockState state)
+    {
+        final Block block = state.getBlock();
+        return block != Blocks.COBWEB && block != Blocks.BAMBOO_SAPLING && state.isSolid();
+    }
+
+    /**
      * Empty fluid comparison
      */
     private static Object empty = Fluids.EMPTY.defaultFluidState();
@@ -94,7 +106,7 @@ public class PathfindingUtils
 
         // Check if the entity is standing ontop of another block with part of its bb
         final BlockPos.MutableBlockPos below = new BlockPos.MutableBlockPos(pos.getX(), pos.getY() - 1, pos.getZ());
-        if (b instanceof CarpetBlock || b instanceof FloatingCarpetBlock || b instanceof WaterlilyBlock)
+        if (b instanceof CarpetBlock || b instanceof FloatingCarpetBlock || b instanceof LilyPadBlock)
         {
             return pos.above().immutable();
         }
@@ -129,7 +141,7 @@ public class PathfindingUtils
         // 1 Up when we're standing within this collision shape
         final VoxelShape collisionShape = bs.getCollisionShape(level, pos);
         final boolean isFineToStandIn = canStandInSolidBlock(bs);
-        if (bs.blocksMotion() && !isFineToStandIn && collisionShape.max(Direction.Axis.Y) > 0)
+        if (PathfindingUtils.blocksMotion(bs) && !isFineToStandIn && collisionShape.max(Direction.Axis.Y) > 0)
         {
             final double relPosX = Math.abs(entity.getX() % 1);
             final double relPosZ = Math.abs(entity.getZ() % 1);
@@ -148,13 +160,13 @@ public class PathfindingUtils
         }
 
         BlockState down = level.getBlockState(pos.below());
-        while (canStandInSolidBlock(bs) && canStandInSolidBlock(down) && !down.getBlock().isLadder(down, level, pos.below(), entity) && down.getFluidState().isEmpty())
+        while (canStandInSolidBlock(bs) && canStandInSolidBlock(down) && !down.is(BlockTags.CLIMBABLE) && down.getFluidState().isEmpty())
         {
             pos.move(Direction.DOWN, 1);
             bs = down;
             down = level.getBlockState(pos.below());
 
-            if (pos.getY() < entity.getCommandSenderWorld().getMinBuildHeight())
+            if (pos.getY() < entity.level().getMinY())
             {
                 return entity.blockPosition();
             }
@@ -168,7 +180,7 @@ public class PathfindingUtils
                 bs = level.getBlockState(pos);
             }
         }
-        else if (b instanceof FenceBlock || b instanceof WallBlock || b instanceof AbstractBlockMinecoloniesDefault || (bs.blocksMotion() && !canStandInSolidBlock(bs)))
+        else if (b instanceof FenceBlock || b instanceof WallBlock || b instanceof AbstractBlockMinecoloniesDefault || (PathfindingUtils.blocksMotion(bs) && !canStandInSolidBlock(bs)))
         {
             final VoxelShape shape = bs.getCollisionShape(level, pos);
             if (shape.isEmpty())
@@ -206,10 +218,10 @@ public class PathfindingUtils
         return state.getBlock() instanceof DoorBlock
             || state.getBlock() instanceof TrapDoorBlock
             || (state.getBlock() instanceof PanelBlock && state.getValue(PanelBlock.OPEN))
-            || !state.getBlock().hasCollision
+            || !((com.minecolonies.fabric.mixin.api.BlockBehaviourAccessor) state.getBlock()).minecolonies$hasCollision()
             || state.getBlock() instanceof CarpetBlock
             || state.getBlock() instanceof FloatingCarpetBlock
-            || state.getBlock() instanceof WaterlilyBlock;
+            || state.getBlock() instanceof LilyPadBlock;
     }
 
     /**
@@ -260,7 +272,7 @@ public class PathfindingUtils
      */
     public static boolean isLiquid(final BlockState state)
     {
-        return state.liquid() || (!state.blocksMotion() && !state.getFluidState().isEmpty());
+        return state.liquid() || (!PathfindingUtils.blocksMotion(state) && !state.getFluidState().isEmpty());
     }
 
     /**

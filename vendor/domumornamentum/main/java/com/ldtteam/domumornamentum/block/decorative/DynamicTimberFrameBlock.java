@@ -176,10 +176,10 @@ public class DynamicTimberFrameBlock extends AbstractBlock<DynamicTimberFrameBlo
      */
     public DynamicTimberFrameBlock(Properties properties)
     {
-        super(properties.mapColor(MapColor.WOOD).pushReaction(PushReaction.PUSH_ONLY).strength(BLOCK_HARDNESS, RESISTANCE).noOcclusion());
+        super(properties.mapColor(MapColor.WOOD).pushReaction(PushReaction.PUSH).strength(BLOCK_HARDNESS, RESISTANCE).noOcclusion());
     }
 
-    @Override
+    // FABRIC-PORT: NeoForge hook; applied on Fabric via FluidRenderingRegistry.setBlockTransparency (DomumOrnamentumFabricClient)
     public boolean shouldDisplayFluidOverlay(final @NonNull BlockState state, final @NonNull BlockAndLightGetter level, final @NonNull BlockPos pos, final @NonNull FluidState fluidState)
     {
         return true;
@@ -296,9 +296,9 @@ public class DynamicTimberFrameBlock extends AbstractBlock<DynamicTimberFrameBlo
         new ArchitectsCutterRecipeBuilder(this, RecipeCategory.BUILDING_BLOCKS).count(COMPONENTS.size()).save(recipeOutput);
     }
 
-    @Override
+    // FABRIC-PORT: NeoForge IBlockExtension overload, applied via domumornamentum.fabric.mixin
     public float getExplosionResistance(@NonNull BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos, @NonNull Explosion explosion) {
-        return getDOExplosionResistance(super::getExplosionResistance, state, level, pos, explosion);
+        return getDOExplosionResistance((s, l, p, e) -> super.getExplosionResistance(), state, level, pos, explosion);
     }
 
     @Override
@@ -306,9 +306,9 @@ public class DynamicTimberFrameBlock extends AbstractBlock<DynamicTimberFrameBlo
         return getDODestroyProgress(super::getDestroyProgress, state, player, level, pos);
     }
 
-    @Override
+    // FABRIC-PORT TODO: NeoForge positional getSoundType overload, not called on Fabric (vanilla sound type is used)
     public @NonNull SoundType getSoundType(@NonNull BlockState state, @NonNull LevelReader level, @NonNull BlockPos pos, @Nullable Entity entity) {
-        return getDOSoundType(super::getSoundType, state, level, pos, entity);
+        return getDOSoundType((s, l, p, e) -> super.getSoundType(s), state, level, pos, entity);
     }
 
     @Override
@@ -321,13 +321,13 @@ public class DynamicTimberFrameBlock extends AbstractBlock<DynamicTimberFrameBlo
         fillDOItemCategory(this, items, fillItemGroupCache);
     }
 
-    @Override
+    // FABRIC-PORT TODO: NeoForge level-aware rotate hook; call explicitly when rotating placed structures (e.g. Structurize)
     public @NonNull BlockState rotate(final @NonNull BlockState state, final LevelAccessor level, final @NonNull BlockPos pos, final @NonNull Rotation direction)
     {
         if (level.getBlockEntity(pos) instanceof DynamicTimberFrameBlockEntity dynamicTimberFrameBlockEntity) {
             dynamicTimberFrameBlockEntity.rotate(direction.ordinal());
         }
-        return super.rotate(state, level, pos, direction);
+        return rotate(state, direction);
     }
 
     @Override

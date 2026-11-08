@@ -64,7 +64,7 @@ public class ColonyViewWorkOrderMessage extends AbstractClientPlayMessage
     {
         workOrderBuffer.resetReaderIndex();
         buf.writeInt(colonyId);
-        buf.writeUtf(dimension.location().toString());
+        buf.writeUtf(dimension.identifier().toString());
 
         int len = workOrderBuffer.readableBytes();
         buf.writeVarInt(len);

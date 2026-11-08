@@ -59,7 +59,7 @@ public class WindowBuilderResModule extends AbstractModuleWindow<BuildingResourc
      */
     public WindowBuilderResModule(final BuildingResourcesModuleView moduleView)
     {
-        super(moduleView, new Identifier(Constants.MOD_ID, "gui/layouthuts/layoutbuilderres.xml"));
+        super(moduleView, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutbuilderres.xml"));
         findPaneOfTypeByID(DESC_LABEL, Text.class).setText(moduleView.getDesc());
 
         pullResourcesFromHut();

@@ -29,6 +29,7 @@ import mezz.jei.api.recipe.IFocusFactory;
 import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.registration.*;
 import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.client.Minecraft;
@@ -85,7 +86,7 @@ public class JEIPlugin implements IModPlugin
     @Override
     public Identifier getPluginUid()
     {
-        return new Identifier(Constants.MOD_ID, Constants.MOD_ID);
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, Constants.MOD_ID);
     }
 
     private final List<JobBasedRecipeCategory<?>> categories = new ArrayList<>();
@@ -198,7 +199,12 @@ public class JEIPlugin implements IModPlugin
             recipeManager.addRecipes(ModRecipeTypes.FISHING, FishermanRecipeCategory.findRecipes());
 
             final ClientLevel level = Objects.requireNonNull(Minecraft.getInstance().level);
-            final Map<CraftingType, List<IGenericRecipe>> vanilla = RecipeAnalyzer.buildVanillaRecipesMap(level.getRecipeManager(), level);
+            // 26.x clients no longer receive the full vanilla recipe set; use the integrated server's recipe manager when available.
+            // FABRIC-PORT TODO: on dedicated servers vanilla-derived crafter recipes are not shown in JEI (needs a recipe sync, e.g. Fabric RecipeSynchronization).
+            final net.minecraft.client.server.IntegratedServer server = Minecraft.getInstance().getSingleplayerServer();
+            final Map<CraftingType, List<IGenericRecipe>> vanilla = server == null
+                ? Map.of()
+                : RecipeAnalyzer.buildVanillaRecipesMap(server.getRecipeManager(), level);
             final List<Animal> animals = RecipeAnalyzer.createAnimals(level);
 
             for (final JobBasedRecipeCategory<?> category : this.categories)
@@ -211,7 +217,7 @@ public class JEIPlugin implements IModPlugin
     private <R> void addJobBasedRecipes(@NotNull final Map<CraftingType, List<IGenericRecipe>> vanilla,
                                         @NotNull final List<Animal> animals,
                                         @NotNull final JobBasedRecipeCategory<R> category,
-                                        @NotNull final BiConsumer<RecipeType<R>, List<R>> registrar,
+                                        @NotNull final BiConsumer<IRecipeType<R>, List<R>> registrar,
                                         @NotNull final Level world)
     {
         try

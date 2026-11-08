@@ -13,7 +13,7 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.Tuple;
+import com.minecolonies.api.util.Tuple;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import com.ldtteam.shim.neoforge.common.crafting.SizedIngredient;
@@ -138,11 +138,11 @@ public abstract class AbstractResearchProvider implements DataProvider
 
         for (Tuple<JsonObject, Tuple<String, String>> model : this.research)
         {
-            final Path target = researchesPath.json(new Identifier(model.getB().getA(), model.getB().getB()));
+            final Path target = researchesPath.json(Identifier.fromNamespaceAndPath(model.getB().getA(), model.getB().getB()));
             futures[i++] = DataProvider.saveStable(cache, model.getA(), target);
         }
 
-        futures[i] = DataProvider.saveStable(cache, langJson, langPath.json(new Identifier(Constants.MOD_ID, "default")));
+        futures[i] = DataProvider.saveStable(cache, langJson, langPath.json(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "default")));
 
         return CompletableFuture.allOf(futures);
     }
@@ -409,7 +409,7 @@ public abstract class AbstractResearchProvider implements DataProvider
         {
             final JsonArray reqArray = getRequirementsArray();
             final JsonObject req = new JsonObject();
-            req.addProperty("type", new Identifier(Constants.MOD_ID, "building").toString());
+            req.addProperty("type", Identifier.fromNamespaceAndPath(Constants.MOD_ID, "building").toString());
             req.addProperty("building", buildingName.toString());
             req.addProperty("level", level);
             reqArray.add(req);
@@ -432,7 +432,7 @@ public abstract class AbstractResearchProvider implements DataProvider
         {
             final JsonArray reqArray = getRequirementsArray();
             final JsonObject req = new JsonObject();
-            req.addProperty("type", new Identifier(Constants.MOD_ID, "single-building").toString());
+            req.addProperty("type", Identifier.fromNamespaceAndPath(Constants.MOD_ID, "single-building").toString());
             req.addProperty("building", buildingName.toString());
             req.addProperty("level", level);
             reqArray.add(req);
@@ -456,7 +456,7 @@ public abstract class AbstractResearchProvider implements DataProvider
         {
             final JsonArray reqArray = getRequirementsArray();
             final JsonObject req = new JsonObject();
-            req.addProperty("type", new Identifier(Constants.MOD_ID, "alternate-building").toString());
+            req.addProperty("type", Identifier.fromNamespaceAndPath(Constants.MOD_ID, "alternate-building").toString());
             final JsonArray buildingsArray = new JsonArray();
             for (final Identifier buildingName : buildingNames)
             {
@@ -758,7 +758,7 @@ public abstract class AbstractResearchProvider implements DataProvider
         public ResearchEffect(final AbstractColonyBlock<?> buildingBlock)
         {
             final Identifier registryName = BuiltInRegistries.BLOCK.getKey(buildingBlock);
-            this.id = new Identifier(registryName.getNamespace(), "effects/" + registryName.getPath());
+            this.id = Identifier.fromNamespaceAndPath(registryName.getNamespace(), "effects/" + registryName.getPath());
             this.json.addProperty("effect", true);
         }
 

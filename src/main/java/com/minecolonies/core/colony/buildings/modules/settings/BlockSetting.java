@@ -108,7 +108,7 @@ public class BlockSetting implements ISetting<BlockItem>
     @Override
     public Identifier getLayoutItem()
     {
-        return new Identifier("minecolonies", "gui/layouthuts/layoutblocksetting.xml");
+        return Identifier.fromNamespaceAndPath("minecolonies", "gui/layouthuts/layoutblocksetting.xml");
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -139,7 +139,7 @@ public class BlockSetting implements ISetting<BlockItem>
                         return false;
                     }
 
-                    return state.getShape(new SingleStateBlockGetter(state), BlockPos.ZERO, CollisionContext.empty()).equals(Shapes.block()) && state.blocksMotion();
+                    return state.getShape(new SingleStateBlockGetter(state), BlockPos.ZERO, CollisionContext.empty()).equals(Shapes.block()) && (state.isSolid() && !state.is(net.minecraft.world.level.block.Blocks.COBWEB) && !state.is(net.minecraft.world.level.block.Blocks.BAMBOO_SAPLING));
                 }),
                 (stack, qty) -> {
                     if (stack.isEmpty())
@@ -218,7 +218,7 @@ public class BlockSetting implements ISetting<BlockItem>
         }
 
         @Override
-        public int getMinBuildHeight()
+        public int getMinY()
         {
             return Integer.MIN_VALUE;
         }

@@ -18,6 +18,6 @@ public class WindowHutMinPlaceholder<B extends AbstractBuildingView> extends Abs
      */
     public WindowHutMinPlaceholder(final B building)
     {
-        super(building, new Identifier(Constants.MOD_ID, "gui/layouthuts/layouthutpageactionsmin.xml"));
+        super(building, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layouthutpageactionsmin.xml"));
     }
 }

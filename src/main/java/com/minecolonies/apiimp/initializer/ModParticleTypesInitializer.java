@@ -21,7 +21,7 @@ public class ModParticleTypesInitializer
      * Particle type
      */
     public static final SimpleParticleType SLEEPINGPARTICLE_TYPE = new SimpleParticleType(true);
-    public static final Identifier  SLEEPING_TEXTURE      = new Identifier(Constants.MOD_ID, "particle/sleeping");
+    public static final Identifier  SLEEPING_TEXTURE      = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "particle/sleeping");
 
     /**
      * Register the particle

@@ -11,7 +11,8 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import com.ldtteam.shim.neoforge.registries.DeferredBlock;
 import com.ldtteam.shim.neoforge.registries.DeferredRegister;
-import java.util.function.Supplier;
+import java.util.function.Function;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 
 /**
  * Class to register blocks to Structurize
@@ -22,7 +23,7 @@ public final class ModBlocks
 
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Constants.MOD_ID);
 
-    public static final TagKey<Block> NULL_PLACEMENT = BlockTags.create(Constants.resLocStruct("null_placement"));
+    public static final TagKey<Block> NULL_PLACEMENT = TagKey.create(net.minecraft.core.registries.Registries.BLOCK, Constants.resLocStruct("null_placement"));
 
     public static final DeferredBlock<BlockSubstitution>      blockSubstitution;
     public static final DeferredBlock<BlockSolidSubstitution> blockSolidSubstitution;
@@ -36,9 +37,9 @@ public final class ModBlocks
      * @param <B> the block subclass for the factory response
      * @return the block entry saved to the registry
      */
-    public static <B extends Block> DeferredBlock<B> registerWithBlockItem(String name, Supplier<B> block)
+    public static <B extends Block> DeferredBlock<B> registerWithBlockItem(String name, Function<BlockBehaviour.Properties, B> block)
     {
-        final DeferredBlock<B> registered = BLOCKS.register(name, block);
+        final DeferredBlock<B> registered = BLOCKS.registerBlock(name, block);
         ModItems.ITEMS.registerSimpleBlockItem(registered);
         return registered;
     }
@@ -52,6 +53,6 @@ public final class ModBlocks
         blockSubstitution       = registerWithBlockItem("blockSubstitution".toLowerCase(), BlockSubstitution::new);
         blockSolidSubstitution  = registerWithBlockItem("blockSolidSubstitution".toLowerCase(), BlockSolidSubstitution::new);
         blockFluidSubstitution  = registerWithBlockItem("blockFluidSubstitution".toLowerCase(), BlockFluidSubstitution::new);
-        blockTagSubstitution    = BLOCKS.register("blockTagSubstitution".toLowerCase(), BlockTagSubstitution::new);
+        blockTagSubstitution    = BLOCKS.registerBlock("blockTagSubstitution".toLowerCase(), BlockTagSubstitution::new);
     }
 }

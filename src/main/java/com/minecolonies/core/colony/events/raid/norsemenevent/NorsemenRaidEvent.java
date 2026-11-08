@@ -29,7 +29,7 @@ public class NorsemenRaidEvent extends HordeRaidEvent
     /**
      * This raids event id, registry entries use res locations as ids.
      */
-    public static final Identifier NORSEMEN_RAID_EVENT_TYPE_ID = new Identifier(Constants.MOD_ID, "norsemen_raid");
+    public static final Identifier NORSEMEN_RAID_EVENT_TYPE_ID = Identifier.fromNamespaceAndPath(Constants.MOD_ID, "norsemen_raid");
 
     public NorsemenRaidEvent(IColony colony)
     {

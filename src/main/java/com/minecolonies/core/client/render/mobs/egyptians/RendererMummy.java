@@ -14,7 +14,7 @@ public class RendererMummy extends AbstractRendererEgyptian<AbstractEntityMineco
     /**
      * Texture of the entity.
      */
-    private static final Identifier TEXTURE = new Identifier("minecolonies", "textures/entity/raiders/mummy.png");
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath("minecolonies", "textures/entity/raiders/mummy.png");
 
     /**
      * Constructor method for renderer

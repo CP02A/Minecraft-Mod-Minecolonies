@@ -113,7 +113,7 @@ public class ShapeUtil
      */
     public static boolean hasCollision(final BlockGetter world, final BlockPos pos, final BlockState state)
     {
-        if (!state.getBlock().hasCollision)
+        if (!((com.minecolonies.fabric.mixin.api.BlockBehaviourAccessor) state.getBlock()).minecolonies$hasCollision())
         {
             return false;
         }
@@ -131,7 +131,7 @@ public class ShapeUtil
      */
     public static boolean hasCollision(final BlockGetter world, final int x, final int y, final int z, final BlockState state)
     {
-        if (!state.getBlock().hasCollision)
+        if (!((com.minecolonies.fabric.mixin.api.BlockBehaviourAccessor) state.getBlock()).minecolonies$hasCollision())
         {
             return false;
         }
@@ -148,7 +148,7 @@ public class ShapeUtil
      */
     public static boolean hasCollision(final BlockState state, final VoxelShape collisionShape)
     {
-        if (!state.getBlock().hasCollision)
+        if (!((com.minecolonies.fabric.mixin.api.BlockBehaviourAccessor) state.getBlock()).minecolonies$hasCollision())
         {
             return false;
         }

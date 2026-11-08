@@ -1,5 +1,6 @@
 package com.minecolonies.core.client.model.raiders;
 
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import com.minecolonies.api.client.render.modeltype.EgyptianModel;
 import com.minecolonies.api.entity.mobs.AbstractEntityMinecoloniesMonster;
 import com.minecolonies.api.entity.mobs.egyptians.AbstractEntityEgyptianRaider;
@@ -157,9 +158,10 @@ public class ModelPharaoh extends EgyptianModel<AbstractEntityEgyptianRaider>
     }
 
     @Override
-    public void setupAnim(AbstractEntityMinecoloniesMonster entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch)
+    public void setupAnim(HumanoidRenderState entityIn)
     {
-        super.setupAnim(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+        final float ageInTicks = entityIn.ageInTicks;
+        super.setupAnim(entityIn);
         this.bodyGoldenStrip.xRot = -Math.max(this.rightLeg.xRot, this.leftLeg.xRot);
         this.jaw.xRot = 0.3F - 0.1F * sinPi(ageInTicks / 20.0F) % 2.0F;
         this.jaw.yRot = 0.05F * sinPi((ageInTicks + 10.0F) / 20.0F) % 2.0F;
