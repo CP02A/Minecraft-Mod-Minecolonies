@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "minecolonies",
+  "version": "${version}",
+  "name": "MineColonies (Fabric)",
+  "description": "Unofficial Fabric 26.3 port of MineColonies, bundling Structurize, BlockUI and Domum Ornamentum. Not supported by the MineColonies team.",
+  "authors": ["LDT Team"],
+  "contact": {
+    "homepage": "https://minecolonies.com",
+    "sources": "https://github.com/ldtteam/minecolonies"
+  },
+  "license": "GPL-3.0",
+  "icon": "minecolonies_logo.png",
+  "environment": "*",
+  "provides": ["structurize", "blockui", "domum_ornamentum"],
+  "entrypoints": {
+    "main": ["com.minecolonies.fabric.MineColoniesFabric"],
+    "client": ["com.minecolonies.fabric.MineColoniesFabricClient"]
+  },
+  "mixins": [
+    "minecolonies-shim.mixins.json",
+    "minecolonies.mixins.json",
+    "structurize.mixins.json",
+    "blockui.mixins.json",
+    "domumornamentum.mixins.json"
+  ],
+  "accessWidener": "minecolonies.classtweaker",
+  "depends": {
+    "fabricloader": ">=0.20.1",
+    "minecraft": "~26.3",
+    "java": ">=25",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "jei": "*",
+    "journeymap": "*"
+  }
+}
