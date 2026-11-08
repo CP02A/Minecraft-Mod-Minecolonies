@@ -65,6 +65,15 @@ dependencies {
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
+    // NeoForge-style TOML configs (ModConfigSpec) - bundled into the mod jar.
+    implementation "com.electronwill.night-config:core:${project.night_config_version}"
+    implementation "com.electronwill.night-config:toml:${project.night_config_version}"
+    include "com.electronwill.night-config:core:${project.night_config_version}"
+    include "com.electronwill.night-config:toml:${project.night_config_version}"
+
+    // @Nullable / @Nonnull annotations used throughout the codebase.
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+
     // Optional integrations - compiled against, but not required at runtime.
     compileOnly "mezz.jei:jei-${project.jei_mc_version}-fabric-api:${project.jei_version}"
     compileOnly "info.journeymap:journeymap-api-fabric:${project.journeymap_api_version}"
