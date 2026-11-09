@@ -6,11 +6,6 @@
       "prefix": ""
     },
     {
-      "type": "minecraft:single",
-      "resource": "minecolonies:gui/sprites/progress_block",
-      "sprite": "minecolonies:progress_block"
-    },
-    {
       "type": "unstitch",
       "resource": "minecolonies:gui/mcol_unstitch/building/scarecrow",
       "divisor_x": 128,

@@ -76,11 +76,11 @@ public class BuildingBarracksTower extends AbstractBuildingGuards
         {
             if (buildingLevel == 0)
             {
-                requestWorkOrder(WorkOrderType.BUILD, builder);
+                requestWorkOrder(WorkOrderType.BUILD, builder, player);
             }
             else
             {
-                requestWorkOrder(WorkOrderType.UPGRADE, builder);
+                requestWorkOrder(WorkOrderType.UPGRADE, builder, player);
             }
         }
         else

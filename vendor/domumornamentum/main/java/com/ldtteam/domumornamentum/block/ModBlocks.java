@@ -173,7 +173,8 @@ public final class ModBlocks implements IModBlocks {
         final DeferredBlock<B> registered = BLOCKS.registerBlock(name, block);
 
         // inline of ITEMS.registerSimpleBlockItem(registered);
-        ITEMS.registerItem(registered.unwrapKey().orElseThrow().identifier().getPath(), key -> item.apply(registered.value(), key));
+        // FABRIC-PORT: like registerSimpleBlockItem, use the block description id (lang keys and ShingleBlockItem#getName expect block.*)
+        ITEMS.registerItem(registered.unwrapKey().orElseThrow().identifier().getPath(), key -> item.apply(registered.value(), key.useBlockDescriptionPrefix()));
 
         return registered;
     }

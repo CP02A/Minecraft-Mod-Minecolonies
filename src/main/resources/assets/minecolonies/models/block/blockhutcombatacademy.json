@@ -4,7 +4,7 @@
   "textures": {
     "particle": "minecraft:block/oak_planks",
     "first_0": "minecraft:block/oak_planks",
-    "first_4": "minecraft:entity/chest/normal",
+    "first_4": "minecolonies:block/atlas_alias/minecraft/entity/chest/normal",
     "first_2_1": "minecraft:block/iron_block",
     "first_3": "minecraft:block/red_concrete",
     "first_3_3": "minecraft:block/polished_andesite",

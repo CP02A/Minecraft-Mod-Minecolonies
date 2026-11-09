@@ -9,7 +9,7 @@
     "first_7": "minecraft:block/stripped_dark_oak_log_top",
     "first_8": "minecraft:block/warped_planks",
     "first_10": "minecraft:block/obsidian",
-    "first_12": "minecraft:entity/chest/normal",
+    "first_12": "minecolonies:block/atlas_alias/minecraft/entity/chest/normal",
     "first_13": "minecraft:block/dark_oak_planks",
     "first_16": "minecraft:block/gold_block",
     "second_11": "minecolonies:block/item_atlas_alias/minecraft/iron_pickaxe",

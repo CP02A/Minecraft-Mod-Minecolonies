@@ -48,6 +48,18 @@ public class BOGuiGraphics extends GuiGraphicsExtractor
         super.itemDecorations(getFont(itemStack), itemStack, x, y, altStackSize);
     }
 
+    /**
+     * FABRIC-PORT: before 1.21.6 Font treated a color without alpha bits as opaque (Font#adjustColor). 26.x draws the value as-is,
+     * so RGB-only colors set from code (e.g. setColors(100)) became fully transparent. Restore the old behavior for text.
+     *
+     * @param color ARGB or RGB-only color.
+     * @return color with opaque alpha if none was given.
+     */
+    public static int textColor(final int color)
+    {
+        return (color & 0xFC000000) == 0 ? color | 0xFF000000 : color;
+    }
+
     public int drawString(final String text, final int x, final int y, final int color)
     {
         return drawString(text, x, y, color, false);
@@ -55,7 +67,7 @@ public class BOGuiGraphics extends GuiGraphicsExtractor
 
     public int drawString(final String text, final int x, final int y, final int color, final boolean shadow)
     {
-        super.text(Minecraft.getInstance().font, text, x, y, color, shadow);
+        super.text(Minecraft.getInstance().font, text, x, y, textColor(color), shadow);
         return x + Minecraft.getInstance().font.width(text); // should return end pos
     }
 

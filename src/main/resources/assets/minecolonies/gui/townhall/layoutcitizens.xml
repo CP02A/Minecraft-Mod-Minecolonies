@@ -4,7 +4,7 @@
     <text id="happinessTitle" size="120 11" color="black" pos="100 61" textalign="MIDDLE"/>
     <list id="happinessList" size="148 136" pos="100 83">
         <view size="100% 11">
-            <image id="icon" pos="0 0" size="11 11"/>
+            <image source="minecraft:missingno" id="icon" pos="0 0" size="11 11"/>
             <text id="name" pos="15 0" size="120 11" color="black"/>
         </view>
     </list>

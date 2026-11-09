@@ -26,7 +26,20 @@ public class FakeLevelEntityGetterAdapter extends LevelEntityGetterAdapter<Entit
     public static <T extends Entity> FakeLevelEntityGetterAdapter ofEntities(final Collection<T> entities)
     {
         final EntityLookup<Entity> entityLookup = new EntityLookup<>();
-        entities.forEach(entityLookup::add);
+        int fallbackId = Integer.MIN_VALUE;
+        for (final T entity : entities)
+        {
+            // FABRIC-PORT: entities created against a level without an id source have id 0, which Entity#getId rejects in 26.x
+            try
+            {
+                entity.getId();
+            }
+            catch (final IllegalStateException e)
+            {
+                entity.setId(fallbackId++);
+            }
+            entityLookup.add(entity);
+        }
         return new FakeLevelEntityGetterAdapter(entityLookup);
     }
 

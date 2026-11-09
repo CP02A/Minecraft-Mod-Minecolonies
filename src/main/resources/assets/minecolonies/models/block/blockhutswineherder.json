@@ -11,7 +11,7 @@
     "first_7": "minecolonies:block/item_atlas_alias/minecraft/beetroot",
     "first_8": "minecolonies:block/item_atlas_alias/minecraft/rotten_flesh",
     "first_9": "minecolonies:block/item_atlas_alias/minecraft/bread",
-    "first_10": "minecraft:entity/chest/normal",
+    "first_10": "minecolonies:block/atlas_alias/minecraft/entity/chest/normal",
     "first_11": "minecraft:block/cauldron_side",
     "second_6": "minecolonies:block/item_atlas_alias/minecraft/carrot",
     "second_7": "minecolonies:block/item_atlas_alias/minecraft/beetroot",

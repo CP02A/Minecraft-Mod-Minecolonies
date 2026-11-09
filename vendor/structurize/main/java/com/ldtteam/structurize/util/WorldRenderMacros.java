@@ -1377,7 +1377,13 @@ public abstract class WorldRenderMacros
                 oit.withoutDepthTest();
             }
 
-            final RenderSetup setup = RenderSetup.builder(pipelineBuilder.build()).setOitPipelines(oit.build()).sortOnUpload().createRenderSetup();
+            // FABRIC-PORT: 26.x can only sort QUADS draws (StagedVertexBuffer throws "Cannot sort draw with TRIANGLES"), so only sort quads.
+            final RenderSetup.RenderSetupBuilder setupBuilder = RenderSetup.builder(pipelineBuilder.build()).setOitPipelines(oit.build());
+            if (topology == PrimitiveTopology.QUADS)
+            {
+                setupBuilder.sortOnUpload();
+            }
+            final RenderSetup setup = setupBuilder.createRenderSetup();
             return RenderType.create(Constants.MOD_ID + "_" + name, setup);
         }
 

@@ -85,7 +85,7 @@ public class Image extends Pane
         {
             return;
         }
-        requireNonNull(resourceLocation, "Missing image texture");
+        requireNonNull(rl, "Missing image texture");
 
         this.resourceLocation = rl;
         this.u = u;

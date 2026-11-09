@@ -11,7 +11,7 @@
     "first_11": "minecraft:block/white_wool",
     "first_12": "minecraft:block/hay_block_side",
     "first_13": "minecraft:block/hay_block_top",
-    "first_14": "minecraft:entity/chest/normal",
+    "first_14": "minecolonies:block/atlas_alias/minecraft/entity/chest/normal",
     "first_15": "minecolonies:block/item_atlas_alias/minecraft/bucket",
     "first_16": "minecraft:block/oak_planks",
     "first_17": "minecolonies:block/liquid/liq1",

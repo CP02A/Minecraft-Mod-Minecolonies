@@ -440,6 +440,18 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
      */
     protected void requestWorkOrder(WorkOrderType type, final BlockPos builder)
     {
+        requestWorkOrder(type, builder, null);
+    }
+
+    /**
+     * Adds work orders to the {@link Colony#getWorkManager()}.
+     *
+     * @param type      what to do with the work order
+     * @param builder   the assigned builder.
+     * @param requester the player who requested it, always informed about the result (may be null).
+     */
+    protected void requestWorkOrder(WorkOrderType type, final BlockPos builder, @Nullable final Player requester)
+    {
         for (@NotNull final WorkOrderBuilding o : colony.getWorkManager().getWorkOrdersOfType(WorkOrderBuilding.class))
         {
             if (o.getLocation().equals(getID()))
@@ -451,7 +463,7 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
         WorkOrderBuilding workOrder = WorkOrderBuilding.create(type, this);
         if (type == WorkOrderType.REMOVE && !canDeconstruct())
         {
-            MessageUtils.format(BUILDER_CANNOT_DECONSTRUCT).sendTo(colony).forAllPlayers();
+            MessageUtils.format(BUILDER_CANNOT_DECONSTRUCT).sendTo(colony).forAllPlayersAnd(requester);
             return;
         }
 
@@ -460,14 +472,14 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
               !canBeBuiltByBuilder(workOrder.getTargetLevel()) &&
               !workOrder.canBeResolved(colony, workOrder.getTargetLevel()))
         {
-            MessageUtils.format(BUILDER_NECESSARY, Integer.toString(workOrder.getTargetLevel())).sendTo(colony).forAllPlayers();
+            MessageUtils.format(BUILDER_NECESSARY, Integer.toString(workOrder.getTargetLevel())).sendTo(colony).forAllPlayersAnd(requester);
             return;
         }
 
         if (workOrder.tooFarFromAnyBuilder(colony, workOrder.getTargetLevel()) &&
               builder.equals(BlockPos.ZERO))
         {
-            MessageUtils.format(BUILDER_TOO_FAR_AWAY).sendTo(colony).forAllPlayers();
+            MessageUtils.format(BUILDER_TOO_FAR_AWAY).sendTo(colony).forAllPlayersAnd(requester);
             return;
         }
 
@@ -475,12 +487,12 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
         final int max = colony.getWorld().getMaxY();
         if (getCorners().getA().getY() >= max || getCorners().getB().getY() >= max)
         {
-            MessageUtils.format(BUILDER_BUILDING_TOO_HIGH, max).sendTo(colony).forAllPlayers();
+            MessageUtils.format(BUILDER_BUILDING_TOO_HIGH, max).sendTo(colony).forAllPlayersAnd(requester);
             return;
         }
         else if (getPosition().getY() <= min)
         {
-            MessageUtils.format(BUILDER_BUILDING_TOO_LOW, min).sendTo(colony).forAllPlayers();
+            MessageUtils.format(BUILDER_BUILDING_TOO_LOW, min).sendTo(colony).forAllPlayersAnd(requester);
             return;
         }
 
@@ -494,7 +506,7 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
             }
             else
             {
-                MessageUtils.format(BUILDER_NECESSARY, Integer.toString(workOrder.getTargetLevel())).sendTo(colony).forAllPlayers();
+                MessageUtils.format(BUILDER_NECESSARY, Integer.toString(workOrder.getTargetLevel())).sendTo(colony).forAllPlayersAnd(requester);
                 return;
             }
         }
@@ -510,7 +522,7 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
                 workOrder.getLocation().getX(),
                 workOrder.getLocation().getY(),
                 workOrder.getLocation().getZ())
-              .sendTo(colony).forAllPlayers();
+              .sendTo(colony).forAllPlayersAnd(requester);
         }
         markDirty();
     }
@@ -809,11 +821,11 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
 
         if (getBuildingLevel() == 0 && (parentBuilding == null || parentBuilding.getBuildingLevel() > 0))
         {
-            requestWorkOrder(WorkOrderType.BUILD, builder);
+            requestWorkOrder(WorkOrderType.BUILD, builder, player);
         }
         else if (getBuildingLevel() < getMaxBuildingLevel() && (parentBuilding == null || getBuildingLevel() < parentBuilding.getBuildingLevel() || parentBuilding.getBuildingLevel() >= parentBuilding.getMaxBuildingLevel()))
         {
-            requestWorkOrder(WorkOrderType.UPGRADE, builder);
+            requestWorkOrder(WorkOrderType.UPGRADE, builder, player);
         }
         else
         {
@@ -830,7 +842,7 @@ public abstract class AbstractBuilding extends AbstractBuildingContainer
         }
         else
         {
-            requestWorkOrder(WorkOrderType.REMOVE, builder);
+            requestWorkOrder(WorkOrderType.REMOVE, builder, player);
         }
     }
 

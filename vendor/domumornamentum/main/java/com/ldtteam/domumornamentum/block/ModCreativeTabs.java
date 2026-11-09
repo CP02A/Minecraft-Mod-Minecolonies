@@ -93,7 +93,12 @@ public final class ModCreativeTabs {
 
                 if (itemLike instanceof ICachedItemGroupBlock cachedItemGroupBlock) {
                     final NonNullList<ItemStack> stacks = NonNullList.create();
-                    cachedItemGroupBlock.fillItemCategory(stacks);
+                    // FABRIC-PORT: in singleplayer the server and render threads build tab contents concurrently (MineColonies
+                    // compat discovery), and the blocks share a lazily filled cache list -> ConcurrentModificationException.
+                    synchronized (cachedItemGroupBlock)
+                    {
+                        cachedItemGroupBlock.fillItemCategory(stacks);
+                    }
                     stacks.forEach(delegate::accept);
                 }
                 else

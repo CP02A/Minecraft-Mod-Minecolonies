@@ -53,6 +53,9 @@ loom {
     runs {
         client {
             runDir 'run'
+            // Fixed dev name: the offline player UUID is derived from it. A random name each launch makes you a stranger
+            // in colonies founded earlier (no ownership, no colony messages). Player875 owns the current test colony.
+            programArgs '--username', 'Player875'
         }
         server {
             runDir 'run-server'

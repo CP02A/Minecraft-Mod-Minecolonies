@@ -835,6 +835,23 @@ public class FakeLevel<SOURCE extends IFakeLevelBlockGetter> extends Level
         // Noop
     }
 
+    /**
+     * FABRIC-PORT: since 26.x Level#getNextEntityId returns 0 (= unassigned) unless overridden, and Entity#getId throws for 0.
+     * Fake entities get negative ids so they can never collide with ids of the real level.
+     */
+    private static final java.util.concurrent.atomic.AtomicInteger FAKE_ENTITY_ID = new java.util.concurrent.atomic.AtomicInteger();
+
+    @Override
+    public int getNextEntityId()
+    {
+        final int id = FAKE_ENTITY_ID.decrementAndGet();
+        if (id == Integer.MIN_VALUE)
+        {
+            FAKE_ENTITY_ID.set(0);
+        }
+        return id;
+    }
+
     // ========================================
     // ======== SUPER IS FINE METHODS =========
     // ========================================
@@ -1078,6 +1095,7 @@ public class FakeLevel<SOURCE extends IFakeLevelBlockGetter> extends Level
     {
         return super.isClientSide();
     }
+
 
     @Override
     public boolean isFluidAtPosition(BlockPos p_151541_, Predicate<FluidState> p_151542_)

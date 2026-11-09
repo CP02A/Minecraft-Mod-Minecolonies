@@ -73,7 +73,7 @@ public class FemaleCourierModel extends CitizenModel<AbstractEntityCitizen>
     public void setupAnim(@NotNull final CitizenRenderState entity)
     {
         super.setupAnim(entity);
-        body.y += 12;
+        // FABRIC-PORT: 1.21.1 reset body.y to 0 before this; 26.x resets to the mesh pose, which already has body.y = 12.
 
         final boolean showBackPack = entity.getPose() != Pose.SLEEPING && entity.getRenderMetadata().contains(RENDER_META_BACKPACK);
         head.z = showBackPack ? -2.1f : 0;

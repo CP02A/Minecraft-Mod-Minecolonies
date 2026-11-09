@@ -72,10 +72,19 @@ public final class ShimNetworkingClient
         {
             if (context.client().isSameThread())
             {
-                task.run();
+                try
+                {
+                    task.run();
+                }
+                catch (final RuntimeException e)
+                {
+                    LOGGER.error("Exception while handling network message", e);
+                    return CompletableFuture.failedFuture(e);
+                }
                 return CompletableFuture.completedFuture(null);
             }
-            return context.client().submit(task);
+            // FABRIC-PORT: NeoForge logs handler exceptions; a bare submit() would keep them in the returned future, unseen.
+            return logFailures(context.client().submit(task));
         }
 
         @Override
@@ -85,7 +94,19 @@ public final class ShimNetworkingClient
             {
                 return CompletableFuture.completedFuture(task.get());
             }
-            return context.client().submit(task);
+            return logFailures(context.client().submit(task));
         }
+    }
+
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("shim-network");
+
+    private static <T> CompletableFuture<T> logFailures(final CompletableFuture<T> future)
+    {
+        return future.whenComplete((result, error) -> {
+            if (error != null)
+            {
+                LOGGER.error("Exception while handling network message", error);
+            }
+        });
     }
 }

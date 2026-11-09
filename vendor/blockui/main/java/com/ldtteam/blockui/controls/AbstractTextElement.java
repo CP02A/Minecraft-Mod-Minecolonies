@@ -339,7 +339,7 @@ public abstract class AbstractTextElement extends Pane
                 xOffset = 0;
             }
 
-            target.text(mc.font, row, xOffset, lineShift, color, textShadow);
+            target.text(mc.font, row, xOffset, lineShift, BOGuiGraphics.textColor(color), textShadow);
             lineShift += mc.font.lineHeight + textLinespace;
         }
 

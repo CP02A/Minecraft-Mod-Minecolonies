@@ -3,7 +3,7 @@
   "ambientocclusion": false,
   "textures": {
     "particle": "minecraft:block/oak_planks",
-    "first_14": "minecraft:entity/chest/normal",
+    "first_14": "minecolonies:block/atlas_alias/minecraft/entity/chest/normal",
     "first_15": "minecraft:block/cauldron_side",
     "first_16": "minecraft:block/oak_planks",
     "first_17": "minecolonies:block/liquid/liq1",

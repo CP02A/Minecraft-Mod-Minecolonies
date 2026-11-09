@@ -153,7 +153,18 @@ public final class ShimGameEvents
             final PlayerInteractEvent.RightClickBlock event = new PlayerInteractEvent.RightClickBlock(player, hand, hitResult.getBlockPos(), hitResult);
             NeoForge.EVENT_BUS.post(event);
             // FABRIC-PORT TODO: partial denial via setUseBlock/setUseItem is not supported (only full cancellation).
-            return event.isCanceled() ? cancelResult(event.getCancellationResult()) : InteractionResult.PASS;
+            if (!event.isCanceled())
+            {
+                return InteractionResult.PASS;
+            }
+            final InteractionResult result = cancelResult(event.getCancellationResult());
+            // NeoForge still sends the use packet to the server when the client cancels; Fabric only sends it for a result that consumes the action.
+            // Mods (e.g. MineColonies hut placement) cancel client-side and let the server react, so keep the packet flowing without a client swing.
+            if (level.isClientSide() && !result.consumesAction())
+            {
+                return InteractionResult.SUCCESS_SERVER;
+            }
+            return result;
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
             if (player.isSpectator())

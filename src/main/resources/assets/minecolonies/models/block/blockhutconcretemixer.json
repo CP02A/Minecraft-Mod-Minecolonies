@@ -3,7 +3,7 @@
   "parent": "block/block",
   "ambientocclusion": false,
   "textures": {
-    "0": "minecraft:entity/chest/normal",
+    "0": "minecolonies:block/atlas_alias/minecraft/entity/chest/normal",
     "1": "minecraft:block/gravel",
     "2": "minecraft:block/sand",
     "6": "minecolonies:block/liquid/liq4",

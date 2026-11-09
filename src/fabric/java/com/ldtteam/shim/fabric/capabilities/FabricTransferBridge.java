@@ -1,5 +1,8 @@
 package com.ldtteam.shim.fabric.capabilities;
 
+import java.util.List;
+import java.util.ArrayList;
+import net.minecraft.core.registries.BuiltInRegistries;
 import com.ldtteam.shim.neoforge.capabilities.Capabilities;
 import com.ldtteam.shim.neoforge.items.IItemHandler;
 import com.ldtteam.shim.neoforge.items.wrapper.InvWrapper;
@@ -96,7 +99,18 @@ public final class FabricTransferBridge
     {
         if (EXPOSED_TYPES.add(type))
         {
-            ItemStorage.SIDED.registerForBlockEntities((be, dir) -> exportFromCapability(be.getLevel(), be.getBlockPos(), be.getBlockState(), be, dir), type);
+            // Register per block: block entity types can share blocks (e.g. the generic colony building type and the warehouse type both
+            // list the warehouse hut), and Fabric warns about a second provider for the same block. The provider is generic anyway
+            // (it resolves the capability for the actual block entity), so one registration per block is enough.
+            final List<Block> blocks = new ArrayList<>();
+            for (final Block block : BuiltInRegistries.BLOCK)
+            {
+                if (type.isValid(block.defaultBlockState()))
+                {
+                    blocks.add(block);
+                }
+            }
+            exposeBlocks(blocks.toArray(new Block[0]));
         }
     }
 

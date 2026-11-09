@@ -20,10 +20,7 @@ public class AmazonModel<T extends AbstractEntityMinecoloniesMonster> extends Hu
     public void setupAnim(@NotNull final HumanoidRenderState entity)
     {
         super.setupAnim(entity);
-        head.y -= 3;
-        rightLeg.y -= 3.5;
-        leftLeg.y -= 3.5;
-        rightArm.y -= 2;
-        leftArm.y -= 2;
+        // FABRIC-PORT: 1.21.1 reset parts to fixed vanilla positions (head 0, arms 2, legs 12) before this, so the offsets were
+        // subtracted here. 26.x resets to the mesh pose, and the amazon meshes already contain the offsets (head -3, arms 0, legs 9).
     }
 }

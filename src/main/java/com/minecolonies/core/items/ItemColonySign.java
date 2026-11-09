@@ -206,9 +206,11 @@ public class ItemColonySign extends BlockItem
             tooltip.accept(colonyHint);
         }
 
-        final MutableComponent guiHint = Component.translatable(TranslationConstants.COM_MINECOLONIES_CORE_COLONY_SIGN_TOOLTIP);
-        guiHint.setStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GREEN));
-        tooltip.accept(guiHint);
+        // Tooltip lines do not wrap on "\n", so emit one line per translated segment.
+        for (final String line : Component.translatable(TranslationConstants.COM_MINECOLONIES_CORE_COLONY_SIGN_TOOLTIP).getString().split("\n"))
+        {
+            tooltip.accept(Component.literal(line).withStyle(ChatFormatting.DARK_GREEN));
+        }
 
         super.appendHoverText(stack, tooltipContext, tooltipDisplay, tooltip, flagIn);
     }

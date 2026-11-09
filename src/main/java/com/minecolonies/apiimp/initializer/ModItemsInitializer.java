@@ -130,7 +130,7 @@ public final class ModItemsInitializer
         ModItems.irongate = new ItemGate(IRON_GATE, ModBlocks.blockIronGate, props(IRON_GATE).useBlockDescriptionPrefix());
         ModItems.woodgate = new ItemGate(WOODEN_GATE, ModBlocks.blockWoodenGate, props(WOODEN_GATE).useBlockDescriptionPrefix());
 
-        ModItems.flagBanner = new ItemColonyFlagBanner("colony_banner", props("colony_banner"));
+        ModItems.flagBanner = new ItemColonyFlagBanner("colony_banner", props("colony_banner").useBlockDescriptionPrefix());
         ModItems.pirateHelmet_1 = new ItemPirateGear("pirate_hat", PIRATE_ARMOR_1, ArmorType.HELMET, props("pirate_hat").durability(350));
         ModItems.pirateChest_1 = new ItemPirateGear("pirate_top", PIRATE_ARMOR_1, ArmorType.CHESTPLATE, props("pirate_top").durability(550));
         ModItems.pirateLegs_1 = new ItemPirateGear("pirate_leggins", PIRATE_ARMOR_1, ArmorType.LEGGINGS, props("pirate_leggins").durability(500));

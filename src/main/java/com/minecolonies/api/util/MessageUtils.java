@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -376,6 +377,22 @@ public class MessageUtils
         public void forAllPlayers()
         {
             sendInternal(colony.getMessagePlayerEntities());
+        }
+
+        /**
+         * Sends the message to all players inside the colony, and to the given player if they would not receive it otherwise
+         * (e.g. the player who triggered the action has no message permission or is not subscribed to the colony).
+         *
+         * @param requester the player who caused the message, may be null.
+         */
+        public void forAllPlayersAnd(@Nullable final Player requester)
+        {
+            final List<Player> players = new ArrayList<>(colony.getMessagePlayerEntities());
+            if (requester != null && !players.contains(requester))
+            {
+                players.add(requester);
+            }
+            sendInternal(players);
         }
 
         /**

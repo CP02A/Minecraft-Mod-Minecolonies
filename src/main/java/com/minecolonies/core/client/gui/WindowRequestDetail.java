@@ -203,5 +203,10 @@ public class WindowRequestDetail extends AbstractWindowSkeleton implements Butto
             requestTreeWindowModule.cancel(request);
             this.window.close();
         }
+        else if (button.getID().equals(BUTTON_BACK))
+        {
+            // Closing returns to the parent window (AbstractWindowSkeleton#close).
+            this.window.close();
+        }
     }
 }

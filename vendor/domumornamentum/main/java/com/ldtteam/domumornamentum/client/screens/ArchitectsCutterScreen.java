@@ -186,7 +186,7 @@ public class ArchitectsCutterScreen extends AbstractContainerScreen<ArchitectsCu
                 int drawTop = this.topPos + CUTTER_INPUT_Y - 1 + i * CUTTER_INPUT_SPACING;
                 if (i < input.size())
                 {
-                    graphics.text(this.font, Component.translatable(input.get(i).getNamespace() + ".desc." + input.get(i).getPath(), Component.translatable(Constants.MOD_ID + ".desc.material", "")), drawLeft - 88, drawTop + 5, 4210752, false);
+                    graphics.text(this.font, Component.translatable(input.get(i).getNamespace() + ".desc." + input.get(i).getPath(), Component.translatable(Constants.MOD_ID + ".desc.material", "")), drawLeft - 88, drawTop + 5, 0xFF404040, false);
                 }
                 graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE1, drawLeft, drawTop, CUTTER_SLOT_U + (i >= numComponents ? CUTTER_SLOT_W : 0), CUTTER_SLOT_V, CUTTER_SLOT_W, CUTTER_SLOT_H, 256, 256);
             }

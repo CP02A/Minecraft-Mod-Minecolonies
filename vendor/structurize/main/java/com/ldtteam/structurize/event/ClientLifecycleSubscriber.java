@@ -94,6 +94,23 @@ public class ClientLifecycleSubscriber
         event.register(ItemStackTooltip.class, ClientItemStackTooltip::new);
     }
 
+    /**
+     * FABRIC-PORT: BlockUI (port/26) resolves every GUI texture through a per-namespace atlas and throws for unmapped namespaces.
+     * Structurize GUIs reference full texture paths, which fall back to a plain blit, so the atlas only needs to exist.
+     *
+     * @param event the atlas registration event.
+     */
+    @SubscribeEvent
+    public static void onRegisterTextureAtlases(final com.ldtteam.shim.neoforge.client.event.RegisterTextureAtlasesEvent event)
+    {
+        final net.minecraft.resources.Identifier atlasKey = Constants.resLocStruct("structurize_gui");
+        com.ldtteam.blockui.mod.BlockUI.NAMESPACE_TO_ATLAS_MAP.put(Constants.MOD_ID, atlasKey);
+        event.register(new net.minecraft.client.resources.model.sprite.AtlasManager.AtlasConfig(Constants.resLocStruct("textures/atlas/structurize_gui.png"),
+            atlasKey,
+            false,
+            java.util.Set.of(net.minecraft.client.resources.metadata.gui.GuiMetadataSection.TYPE)));
+    }
+
     @SubscribeEvent
     public static void registerKeys(final RegisterKeyMappingsEvent event)
     {

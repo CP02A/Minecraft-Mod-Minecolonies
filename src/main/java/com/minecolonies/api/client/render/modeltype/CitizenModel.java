@@ -33,12 +33,14 @@ public class CitizenModel<T extends AbstractEntityCitizen> extends HumanoidModel
     public void setupAnim(@NotNull final CitizenRenderState citizen)
     {
         super.setupAnim(citizen);
-        if (body.xRot == 0)
+        // FABRIC-PORT: 1.21.1 reset rotations to 0 before this; 26.x resets to the mesh pose (e.g. the courier body is tilted in its mesh).
+        // Only replace the rest pose, keep rotations applied by vanilla animations (crouching etc.).
+        if (body.xRot == body.getInitialPose().xRot())
         {
             body.xRot = getActualRotation(citizen);
         }
 
-        if (head.xRot == 0)
+        if (head.xRot == head.getInitialPose().xRot())
         {
             head.xRot = getActualRotation(citizen);
         }

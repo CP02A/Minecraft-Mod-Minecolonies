@@ -111,6 +111,11 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
     private static Future<List<StructurePacks.Category>> categoryFutures = null;
 
     /**
+     * Frame color (ARGB) around the currently selected category icon.
+     */
+    private static final int SELECTED_CATEGORY_FRAME_COLOR = 0xFFFFD700;
+
+    /**
      * Next level of depth categories.
      */
     private static final Map<String, Future<List<StructurePacks.Category>>> nextDepthMeta = new LinkedHashMap<>();
@@ -356,7 +361,18 @@ public final class WindowExtendedBuildTool extends AbstractBlueprintManipulation
                 int index = 0;
                 for (final StructurePacks.Category category : categoryFutures.get())
                 {
-                    final ButtonImage img = new ButtonImage();
+                    // The selected category is the disabled button. Its grey icon alone is hard to tell apart, so frame it.
+                    final ButtonImage img = new ButtonImage()
+                    {
+                        @Override
+                        public void postDrawBackground(final com.ldtteam.blockui.BOGuiGraphics target, final double mx, final double my)
+                        {
+                            if (!isEnabled())
+                            {
+                                com.ldtteam.blockui.UiRenderMacros.drawLineRect(target, x, y, width, height, SELECTED_CATEGORY_FRAME_COLOR, 1);
+                            }
+                        }
+                    };
                     if (category.hasIcon)
                     {
                         try
