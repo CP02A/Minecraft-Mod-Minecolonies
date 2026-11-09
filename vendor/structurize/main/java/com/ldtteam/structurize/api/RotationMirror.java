@@ -211,7 +211,7 @@ public enum RotationMirror
         {
             blockState = FacingFixer.fixMirroredFacing(blockState.mirror(mirror), blockState);
         }
-        return blockState.rotate(rotation);
+        return com.ldtteam.shim.neoforge.common.extensions.IBlockRotationExtension.rotateInLevel(blockState, level, pos, rotation);
     }
 
     /**

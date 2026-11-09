@@ -10,7 +10,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.minecraft.SharedConstants;
-import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
@@ -91,7 +90,8 @@ public class UpdateSchematicPackCommand extends AbstractCommand
                             final CompoundTag newNbt = BlueprintUtil.writeBlueprintToNBT(blueprint);
                             final Path schematicPath = file.subpath(2, file.getNameCount());
 
-                            var output = Minecraft.getInstance().gameDirectory.toPath()
+                            // FABRIC-PORT: Minecraft (client-only) broke the command on dedicated servers; the Fabric game dir is the same folder.
+                            var output = net.fabricmc.loader.api.FabricLoader.getInstance().getGameDir()
                                 .resolve("blueprints")
                                 .resolve(schematicPath.toString());
 

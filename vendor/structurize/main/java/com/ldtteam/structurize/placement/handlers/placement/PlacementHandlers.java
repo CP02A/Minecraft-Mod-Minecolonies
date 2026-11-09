@@ -1392,7 +1392,9 @@ public final class PlacementHandlers
                     world.setBlockEntity(newTile);
                 }
                 world.getBlockState(pos).mirror(settings.mirror());
-                world.getBlockState(pos).rotate(settings.rotation());
+                // FABRIC-PORT: was NeoForge's level-aware state.rotate(world, pos, rotation), which lets blocks rotate their block
+                // entity data (Domum Ornamentum dynamic timber frames).
+                com.ldtteam.shim.neoforge.common.extensions.IBlockRotationExtension.rotateInLevel(world.getBlockState(pos), world, pos, settings.rotation());
             }
         }
     }

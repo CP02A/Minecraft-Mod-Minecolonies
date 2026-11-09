@@ -151,6 +151,10 @@ public class BlueprintUtil
                 entityTag.put("TileX", IntTag.valueOf(entityPos.getX() - pos.getX()));
                 entityTag.put("TileY", IntTag.valueOf(entityPos.getY() - pos.getY()));
                 entityTag.put("TileZ", IntTag.valueOf(entityPos.getZ() - pos.getZ()));
+                // FABRIC-PORT: 26.x BlockAttachedEntity only reads "block_pos" (TileX/Y/Z are gone), so store the relative anchor
+                // there too; otherwise the absolute world position was kept and the entity was rejected or misplaced on paste.
+                entityTag.putIntArray(BlockAttachedEntity.TAG_BLOCK_POS,
+                    new int[] {entityPos.getX() - pos.getX(), entityPos.getY() - pos.getY(), entityPos.getZ() - pos.getZ()});
             }
             entityTag.put("Pos", posList);
             entitiesTag.add(entityTag);
@@ -361,6 +365,44 @@ public class BlueprintUtil
         }
     }
 
+    /**
+     * FABRIC-PORT: tag substitution blocks embed a captured block state, block entity and item stack that vanilla's data fixer
+     * never sees (it only fixes minecraft: block entities). Upgrade them in place, both in the 1.21.1 format ("replacement" with
+     * b/e/i) and the current one ("captured_block" with state/entity/item); a part that fails to upgrade is left unchanged.
+     */
+    private static void fixCapturedBlock(final CompoundTag tagSubstitution, final int oldDataVersion)
+    {
+        tagSubstitution.getCompound("replacement").ifPresent(old -> fixCapturedParts(old, "b", "e", "i", oldDataVersion));
+        tagSubstitution.getCompound("captured_block").ifPresent(captured -> fixCapturedParts(captured, "state", "entity", "item", oldDataVersion));
+    }
+
+    private static void fixCapturedParts(final CompoundTag captured, final String stateKey, final String entityKey, final String itemKey, final int oldDataVersion)
+    {
+        fixCapturedPart(captured, stateKey, References.BLOCK_STATE, oldDataVersion);
+        if (captured.getCompoundOrEmpty(entityKey).contains("id"))
+        {
+            fixCapturedPart(captured, entityKey, References.BLOCK_ENTITY, oldDataVersion);
+        }
+        fixCapturedPart(captured, itemKey, References.ITEM_STACK, oldDataVersion);
+    }
+
+    private static void fixCapturedPart(final CompoundTag captured, final String key, final com.mojang.datafixers.DSL.TypeReference type, final int oldDataVersion)
+    {
+        final CompoundTag part = captured.getCompoundOrEmpty(key);
+        if (part.isEmpty())
+        {
+            return;
+        }
+        try
+        {
+            captured.put(key, DataFixerUtils.runDataFixer(part, type, oldDataVersion));
+        }
+        catch (final RuntimeException e)
+        {
+            Log.getLogger().warn("Could not upgrade captured {} of a tag substitution block, keeping it as is", key, e);
+        }
+    }
+
     public static CompoundTag[] fixTileEntities(final int oldDataVersion, final ListTag tileEntitiesTag)
     {
         final CompoundTag[] tileEntities = new CompoundTag[tileEntitiesTag.size()];
@@ -393,6 +435,11 @@ public class BlueprintUtil
                 {
                     tileEntities[i] = null;
                     continue;
+                }
+
+                if (id.equals("structurize:tagsubstitution"))
+                {
+                    fixCapturedBlock(nbt, oldDataVersion);
                 }
 
                 tileEntities[i] = id.startsWith("minecraft:")

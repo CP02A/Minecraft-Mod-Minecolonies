@@ -60,7 +60,8 @@ public class BlockUtils
         final ItemStack result = new ItemStack(blockEntity.getBlockState().getBlock());
         final CompoundTag nbt = texturedBlockEntity.saveCustomOnly(provider);
 
-        final TypedEntityData<BlockEntityType<?>> typedEntityData = TypedEntityData.of(ModBlockEntityTypes.MATERIALLY_TEXTURED.get(), nbt);
+        // Use the block entity's real type: vanilla BlockItem ignores data typed for another block entity (dynamic timber frames).
+        final TypedEntityData<BlockEntityType<?>> typedEntityData = TypedEntityData.of(blockEntity.getType(), nbt);
         result.set(DataComponents.BLOCK_ENTITY_DATA, typedEntityData);
 
         if (blockStateProperties.length > 0)

@@ -191,8 +191,9 @@ public class DynamicTimberFrameBlockEntity extends AbstractMateriallyTexturedBlo
     {
         super.saveAdditional(output);
 
-        var blockRegistryCodec = getLevel().registryAccess().lookupOrThrow(Registries.BLOCK)
-                .byNameCodec();
+        // FABRIC-PORT: block entities created by structure placement (BlockEntity.loadStatic) have no level yet; the global block
+        // registry codec is equivalent and is what loadAdditional uses.
+        var blockRegistryCodec = BuiltInRegistries.BLOCK.byNameCodec();
 
         output.store(BLOCK_ENTITY_TEXTURE_DATA, MaterialTextureData.CODEC, originalTextureData);
         output.store(PRIMARY_BLOCK, blockRegistryCodec, centerBlock);

@@ -46,7 +46,7 @@ import java.util.function.Function;
 /**
  * Decorative block
  */
-public class DynamicTimberFrameBlock extends AbstractBlock<DynamicTimberFrameBlock> implements IMateriallyTexturedBlock, ICachedItemGroupBlock, EntityBlock
+public class DynamicTimberFrameBlock extends AbstractBlock<DynamicTimberFrameBlock> implements IMateriallyTexturedBlock, ICachedItemGroupBlock, EntityBlock, com.ldtteam.shim.neoforge.common.extensions.IBlockRotationExtension
 {
     public static final List<IMateriallyTexturedBlockComponent> COMPONENTS = ImmutableList.<IMateriallyTexturedBlockComponent>builder()
         .add(new SimpleRetexturableComponent(Identifier.withDefaultNamespace("block/oak_planks"), ModTags.TIMBERFRAMES_FRAME, Blocks.OAK_PLANKS))
@@ -321,7 +321,8 @@ public class DynamicTimberFrameBlock extends AbstractBlock<DynamicTimberFrameBlo
         fillDOItemCategory(this, items, fillItemGroupCache);
     }
 
-    // FABRIC-PORT TODO: NeoForge level-aware rotate hook; call explicitly when rotating placed structures (e.g. Structurize)
+    // FABRIC-PORT: NeoForge level-aware rotate hook, called through IBlockRotationExtension by structure placement (Structurize).
+    @Override
     public @NonNull BlockState rotate(final @NonNull BlockState state, final LevelAccessor level, final @NonNull BlockPos pos, final @NonNull Rotation direction)
     {
         if (level.getBlockEntity(pos) instanceof DynamicTimberFrameBlockEntity dynamicTimberFrameBlockEntity) {
