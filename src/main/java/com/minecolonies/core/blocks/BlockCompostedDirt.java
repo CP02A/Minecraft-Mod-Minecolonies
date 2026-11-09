@@ -58,7 +58,8 @@ public class BlockCompostedDirt extends AbstractBlockMinecolonies<BlockComposted
         return SHAPE;
     }
 
-    // FABRIC-PORT TODO: NeoForge IBlockExtension#canSustainPlant has no Fabric equivalent (plants use vanilla mayPlaceOn / dirt tags).
+    // FABRIC-PORT: NeoForge IBlockExtension#canSustainPlant has no Fabric equivalent; plants check the vanilla block tag instead,
+    // so composted dirt is in data/minecraft/tags/block/supports_vegetation.json.
     public TriState canSustainPlant(final BlockState state, final BlockGetter level, final BlockPos soilPosition, final Direction facing, final BlockState plant)
     {
         return TriState.TRUE;

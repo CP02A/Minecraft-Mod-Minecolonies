@@ -697,6 +697,22 @@ public class EventHandler
      *
      * @param event the event to handle
      */
+    /**
+     * Deactivate a rally banner when it is dropped.
+     * FABRIC-PORT: replaces NeoForge's IItemExtension#onDroppedByPlayer hook.
+     *
+     * @param event the toss event.
+     */
+    @SubscribeEvent
+    public static void onItemToss(final com.ldtteam.shim.neoforge.event.entity.item.ItemTossEvent event)
+    {
+        final ItemStack stack = event.getEntity().getItem();
+        if (stack.getItem() instanceof com.minecolonies.core.items.ItemBannerRallyGuards banner)
+        {
+            banner.onDroppedByPlayer(stack, event.getPlayer());
+        }
+    }
+
     @SubscribeEvent
     public static void onCropTrample(BlockEvent.FarmlandTrampleEvent event)
     {

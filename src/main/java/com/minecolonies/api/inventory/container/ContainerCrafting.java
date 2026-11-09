@@ -428,9 +428,13 @@ public class ContainerCrafting extends AbstractContainerMenu
         final Optional<RecipeHolder<CraftingRecipe>> iRecipe = this.world instanceof net.minecraft.server.level.ServerLevel serverLevel
             ? serverLevel.recipeAccess().getRecipeFor(RecipeType.CRAFTING, craftMatrix.asCraftInput(), world)
             : Optional.empty();
-        if (iRecipe.isPresent())
+        if (iRecipe.isPresent() || !(this.world instanceof net.minecraft.server.level.ServerLevel))
         {
-            List<ItemStack> ri = iRecipe.get().value().getRemainingItems(this.craftMatrix.asCraftInput());
+            // FABRIC-PORT: the client (where recipes are taught) has no recipe manager; use the vanilla default remainders
+            // (buckets, bottles, ...) instead of returning nothing, which disabled leftovers for taught recipes.
+            List<ItemStack> ri = iRecipe.isPresent()
+                ? iRecipe.get().value().getRemainingItems(this.craftMatrix.asCraftInput())
+                : CraftingRecipe.defaultCraftingReminder(this.craftMatrix.asCraftInput());
             remainingItems.clear();
             for(int i = 0; i< ri.size(); i++)
             {

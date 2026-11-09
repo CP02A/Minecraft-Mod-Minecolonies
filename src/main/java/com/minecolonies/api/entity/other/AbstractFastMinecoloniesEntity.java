@@ -186,7 +186,12 @@ public abstract class AbstractFastMinecoloniesEntity extends PathfinderMob imple
     @Override
     public Entity teleport(final TeleportTransition teleportTransition)
     {
-        return null;
+        // FABRIC-PORT: 26.x routes same-dimension teleports (/tp, teleportTo) through here too; only block dimension changes.
+        if (teleportTransition.newLevel().dimension() != level().dimension())
+        {
+            return null;
+        }
+        return super.teleport(teleportTransition);
     }
 
     @Override

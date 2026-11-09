@@ -24,4 +24,16 @@ public class ItemBlockHut extends BlockItem
         super(block, builder);
         this.block = block;
     }
+
+    /**
+     * FABRIC-PORT: Block#appendHoverText was removed in 26.x, so the hut tooltip (level, colony) is added from the item.
+     */
+    @Override
+    public void appendHoverText(final net.minecraft.world.item.ItemStack stack, final TooltipContext context,
+        final net.minecraft.world.item.component.TooltipDisplay display, final java.util.function.Consumer<net.minecraft.network.chat.Component> tooltip,
+        final net.minecraft.world.item.TooltipFlag flags)
+    {
+        super.appendHoverText(stack, context, display, tooltip, flags);
+        block.appendHoverText(stack, context, display, tooltip, flags);
+    }
 }

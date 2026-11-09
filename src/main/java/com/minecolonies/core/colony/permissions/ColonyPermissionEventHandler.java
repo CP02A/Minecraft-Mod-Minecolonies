@@ -193,7 +193,8 @@ public class ColonyPermissionEventHandler
         {
             if (colony.getServerBuildingManager().hasTownHall())
             {
-                colony.getServerBuildingManager().getTownHall().addPermissionEvent(new PermissionEvent(entity.getUUID(), entity.getName().getString(), action, pos));
+                // No entity (e.g. an explosion without a source): record the event without a player (was an NPE on entity.getUUID()).
+                colony.getServerBuildingManager().getTownHall().addPermissionEvent(new PermissionEvent(null, "-", action, pos));
             }
             return;
         }
