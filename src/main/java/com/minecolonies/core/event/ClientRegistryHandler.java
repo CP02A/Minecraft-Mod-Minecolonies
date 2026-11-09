@@ -354,10 +354,12 @@ public class ClientRegistryHandler
         // ItemBlockRenderTypes#setRenderLayer calls for huts, scarecrow, rack, placeholder, composted dirt, barrel, waypoint,
         // flooded farmland and crops are no longer needed.
 
-        // FABRIC-PORT TODO: ItemProperties were replaced by item model definitions (assets/minecolonies/items/*.json). The spear's
-        // "throwing" property maps to the vanilla "minecraft:using_item" condition; the build goggles' "disabled" property
-        // (ColonyBlueprintRenderer.willRenderBlueprints()) needs a ConditionalItemModelProperty registered in
-        // ConditionalItemModelProperties.ID_MAPPER plus the item model json (client assets).
+        // FABRIC-PORT: ItemProperties were replaced by item model definitions (assets/minecolonies/items/*.json). The spear's
+        // "throwing" property maps to the vanilla "minecraft:using_item" condition; the build goggles' "disabled" property is a
+        // custom condition used by assets/minecolonies/items/build_goggles.json.
+        net.minecraft.client.renderer.item.properties.conditional.ConditionalItemModelProperties.ID_MAPPER.put(
+          net.minecraft.resources.Identifier.fromNamespaceAndPath(com.minecolonies.api.util.constant.Constants.MOD_ID, "build_goggles_disabled"),
+          com.minecolonies.core.client.render.item.BuildGogglesDisabledProperty.MAP_CODEC);
 
         // Spear item renderer (special model renderer, referenced from the item model definition).
         SpearItemTileEntityRenderer.register();

@@ -61,7 +61,14 @@ public class ItemNbtListener extends RegistryAwareJsonReloadListener
                     final JsonArray jsonArray = jsonObj.getAsJsonArray("checkednbtkeys");
                     for (final JsonElement subElement : jsonArray)
                     {
-                        set.add(BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(Identifier.parse(subElement.getAsString())));
+                        final DataComponentType<?> type = BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(Identifier.parse(subElement.getAsString()));
+                        if (type == null)
+                        {
+                            // Unknown/removed component id (e.g. from an older data pack): a null key would break syncing to clients.
+                            Log.getLogger().warn("Unknown data component {} in item nbt matching for {}", subElement.getAsString(), itemLoc);
+                            continue;
+                        }
+                        set.add(type);
                     }
 
                     ItemStackUtils.CHECKED_NBT_KEYS.put(BuiltInRegistries.ITEM.getValue(itemLoc), set);

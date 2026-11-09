@@ -43,13 +43,23 @@ public class ClientLifecycleSubscriber
             WorldRenderMacros.renderAllRegistered(context);
         });
 
-        // was EntityRenderersEvent.RegisterRenderers
-        BlockEntityRendererRegistry.register(ModBlockEntities.TAG_SUBSTITUTION.get(), TagSubstitutionRenderer::new);
+        // block entity renderers are registered in onClientSetup, once the block entity types are registered.
 
         // was IClientItemExtensions#getCustomRenderer (BEWLR), now a special item model renderer used by assets/structurize/items/blocktagsubstitution.json
         SpecialModelRenderers.ID_MAPPER.put(Constants.resLocStruct("tag_substitution"), TagSubstitutionRenderer.ItemRenderer.Unbaked.MAP_CODEC);
 
         // FABRIC-PORT: ItemBlockRenderTypes#setRenderLayer(blockSubstitution, translucent) is gone in 26.x, chunk layers are derived from texture transparency
+    }
+
+    /**
+     * Was EntityRenderersEvent.RegisterRenderers. Runs after registration (the mod constructor runs before the block entity types exist).
+     *
+     * @param event the client setup event.
+     */
+    @SubscribeEvent
+    public static void onClientSetup(final com.ldtteam.shim.fml.event.lifecycle.FMLClientSetupEvent event)
+    {
+        BlockEntityRendererRegistry.register(ModBlockEntities.TAG_SUBSTITUTION.get(), TagSubstitutionRenderer::new);
     }
 
     @SubscribeEvent

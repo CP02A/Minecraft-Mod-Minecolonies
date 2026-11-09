@@ -35,6 +35,12 @@ Requirements: any JDK 17 or newer to start the Gradle wrapper, plus an internet 
 
 To test in a development client instead, run `./gradlew runClient`.
 
+### Status and known limitations
+
+- **Tested so far:** the jar builds; a dedicated server starts, generates a world and saves; every MineColonies entity can be summoned; the client loads into a world. Building a colony, the GUIs, citizen work and raids have **not** been play-tested yet. Expect bugs.
+- **Not available on Fabric:** Dynamic Trees and Tinkers' Construct integrations (those mods have no Fabric versions). JEI and Journeymap integrations are compiled in but untested.
+- Smaller gaps are marked `FABRIC-PORT TODO` in the code (`grep -rn "FABRIC-PORT TODO" src vendor`). Examples: the in-game config screen is info-only, and some Structurize placeholder blocks fall back to dirt.
+
 ## For Users
 
 You can find all our versions on Curseforge:

@@ -868,7 +868,8 @@ public class CavalryHorseEntity extends Horse implements IManagedAnimal<CavalryH
             damageAmount *= CAVALRY_RANGED_DAMAGE_VULNERABILITY;
         }
 
-        final float mountArmorBonus = (float) animalColonyHandler.getColony().getResearchManager()
+        // A cavalry horse without a colony (e.g. created with /summon) has no research bonuses.
+        final float mountArmorBonus = animalColonyHandler.getColony() == null ? 0.0f : (float) animalColonyHandler.getColony().getResearchManager()
             .getResearchEffects()
             .getEffectStrength(ResearchConstants.MOUNT_ARMOR);
 

@@ -66,10 +66,7 @@ public class MineColoniesFabric implements ModInitializer
         "com.minecolonies.core.event.ColonyStoryListener",
         "com.minecolonies.core.event.TextureReloadListener",
         "com.ldtteam.domumornamentum.client.event.handlers.ClientTickEventHandler",
-        "com.ldtteam.domumornamentum.client.event.handlers.MateriallyTexturedBlockPreviewRenderHandler",
-        "com.ldtteam.domumornamentum.client.event.handlers.MateriallyTexturedBlockTintProvider",
         "com.ldtteam.domumornamentum.client.event.handlers.ModBusEventHandler",
-        "com.ldtteam.domumornamentum.client.model.loader.MateriallyTexturedModelLoader",
     };
 
     @Override

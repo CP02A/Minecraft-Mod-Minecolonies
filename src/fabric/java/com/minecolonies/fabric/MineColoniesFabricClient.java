@@ -29,6 +29,21 @@ public class MineColoniesFabricClient implements ClientModInitializer
         ShimGameEventsClient.init();
         callHook("init");
 
+        // Development aid: log screen changes (a headless run can then tell which screen the client is sitting on).
+        if (net.fabricmc.loader.api.FabricLoader.getInstance().isDevelopmentEnvironment())
+        {
+            final String[] lastScreen = {""};
+            net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.END_CLIENT_TICK.register(mc -> {
+                final Object screen = mc.gui.screen();
+                final String name = screen == null ? "none" : screen.getClass().getName() + " " + ((net.minecraft.client.gui.screens.Screen) screen).getTitle().getString();
+                if (!name.equals(lastScreen[0]))
+                {
+                    lastScreen[0] = name;
+                    org.slf4j.LoggerFactory.getLogger("minecolonies-dev").info("Screen: {}", name);
+                }
+            });
+        }
+
         // FMLClientSetupEvent / FMLLoadCompleteEvent fire after the registries are frozen (see ShimSetupPhase).
         com.ldtteam.shim.fabric.ShimSetupPhase.addClientStep(() -> callHook("postClientSetup"));
     }
