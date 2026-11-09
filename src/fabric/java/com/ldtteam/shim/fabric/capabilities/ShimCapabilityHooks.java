@@ -30,6 +30,11 @@ public final class ShimCapabilityHooks
 
     private static volatile boolean initialized = false;
     private static boolean initializing = false;
+    /**
+     * Set when the registration event threw: registrations are then partial, and every later query should fail loudly instead
+     * of silently finding no capability (a retry would register providers twice).
+     */
+    private static volatile RuntimeException failure = null;
 
     private ShimCapabilityHooks() {}
 
@@ -40,6 +45,10 @@ public final class ShimCapabilityHooks
     {
         if (initialized)
         {
+            if (failure != null)
+            {
+                throw new IllegalStateException("Capability registration failed earlier, capabilities are incomplete", failure);
+            }
             return;
         }
         synchronized (ShimCapabilityHooks.class)
@@ -57,6 +66,7 @@ public final class ShimCapabilityHooks
             catch (final RuntimeException e)
             {
                 LOGGER.error("Failed to fire RegisterCapabilitiesEvent", e);
+                failure = e;
                 throw e;
             }
             finally

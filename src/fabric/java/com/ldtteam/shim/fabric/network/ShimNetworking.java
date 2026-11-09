@@ -29,7 +29,13 @@ public final class ShimNetworking
      * Max payload sizes for split (large) payloads. NeoForge splits big payloads transparently; colony views and blueprints can be several MB.
      */
     private static final int MAX_CLIENTBOUND_SIZE = 64 * 1024 * 1024;
-    private static final int MAX_SERVERBOUND_SIZE = 16 * 1024 * 1024;
+    private static final int MAX_SERVERBOUND_SIZE = 1024 * 1024;
+    /**
+     * Serverbound payloads that carry whole blueprints may be large; everything else is capped lower so a client cannot make the
+     * server buffer and decode many megabytes per packet.
+     */
+    private static final int MAX_SERVERBOUND_BLUEPRINT_SIZE = 16 * 1024 * 1024;
+    private static final Set<String> LARGE_SERVERBOUND_PAYLOADS = Set.of("structurize:blueprint_sync", "structurize:sync_preview_cache_to_server");
 
     public record ClientHandler<T extends CustomPacketPayload>(CustomPacketPayload.Type<T> type, IPayloadHandler<T> handler)
     {
@@ -72,7 +78,8 @@ public final class ShimNetworking
     {
         if (SERVERBOUND_TYPES.add(type))
         {
-            PayloadTypeRegistry.serverboundPlay().registerLarge(type, codec, MAX_SERVERBOUND_SIZE);
+            final int maxSize = LARGE_SERVERBOUND_PAYLOADS.contains(type.id().toString()) ? MAX_SERVERBOUND_BLUEPRINT_SIZE : MAX_SERVERBOUND_SIZE;
+            PayloadTypeRegistry.serverboundPlay().registerLarge(type, codec, maxSize);
         }
         ServerPlayNetworking.registerGlobalReceiver(type, (payload, context) -> handler.handle(payload, new ServerContext(context)));
     }

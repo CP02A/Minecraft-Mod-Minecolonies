@@ -34,6 +34,12 @@ public final class ComplexSpawnSync
 
     private static boolean initialized = false;
 
+    /*
+     * Ordering difference to NeoForge: NeoForge reads the spawn data before the entity is added to the client level; here it
+     * arrives in a separate payload right after the vanilla spawn packet. readSpawnData implementations must tolerate the
+     * entity existing (and possibly ticking or rendering once) with default values first. Today only NewBobberEntity uses
+     * this, with an empty readSpawnData.
+     */
     private ComplexSpawnSync() {}
 
     public static synchronized void init()

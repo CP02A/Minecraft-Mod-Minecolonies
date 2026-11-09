@@ -60,7 +60,8 @@ public class StorageItemHandler implements IItemHandler
         {
             return slot >= 0 && slot < slotted.getSlotCount() ? slotted.getSlot(slot) : null;
         }
-        final List<StorageView<ItemVariant>> list = views == null || slot >= views.size() ? views() : views;
+        // Non-slotted storages can change their view list at any time (slot indices are positional), so never use a stale list.
+        final List<StorageView<ItemVariant>> list = views();
         return slot >= 0 && slot < list.size() ? list.get(slot) : null;
     }
 
@@ -155,7 +156,8 @@ public class StorageItemHandler implements IItemHandler
         final long extracted;
         try (Transaction tx = open())
         {
-            extracted = view.extract(resource, Math.min(amount, resource.getItem().getDefaultMaxStackSize()), tx);
+            // Cap at the stack size of this exact item (components can change it), like a NeoForge slot would.
+            extracted = view.extract(resource, Math.min(amount, resource.toStack().getMaxStackSize()), tx);
             if (!simulate)
             {
                 tx.commit();

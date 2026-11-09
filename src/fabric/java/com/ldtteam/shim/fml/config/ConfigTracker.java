@@ -100,6 +100,18 @@ public final class ConfigTracker
     }
 
     /**
+     * Tells the server config listener (client resync) that a SERVER config was changed and saved from code.
+     */
+    void notifyServerConfigChanged(final ModConfig config)
+    {
+        final Consumer<ModConfig> listener = serverConfigReloadListener;
+        if (listener != null && config.getType() == ModConfig.Type.SERVER)
+        {
+            listener.accept(config);
+        }
+    }
+
+    /**
      * Load all configs of the type from the directory (creating/correcting files).
      */
     public void loadConfigs(final ModConfig.Type type, final Path configBasePath)

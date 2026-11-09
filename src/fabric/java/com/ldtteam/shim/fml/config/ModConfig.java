@@ -100,6 +100,8 @@ public final class ModConfig
             {
                 modConfig.lock.unlock();
             }
+            // The file watcher sees no difference to the (already changed) in-memory config and would skip the client resync.
+            ConfigTracker.INSTANCE.notifyServerConfigChanged(modConfig);
         }
     }
 
