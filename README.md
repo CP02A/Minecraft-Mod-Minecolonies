@@ -33,7 +33,7 @@ It is based on upstream MineColonies `version/1.21` (NeoForge 1.21.1). Structuri
 
 Requirements: any JDK 17 or newer to start the Gradle wrapper, plus an internet connection on the first run. Minecraft 26.3 needs Java 25, and Gradle downloads a Java 25 JDK automatically if you don't have one. The first build takes several minutes because it downloads and sets up Minecraft.
 
-To test in a development client instead, run `./gradlew runClient`.
+To test in a development client instead, run `./gradlew runClient --no-daemon`. The `--no-daemon` flag keeps the game alive if another project runs `gradlew --stop`, which shuts down every shared Gradle daemon on the machine.
 
 ### Status and known limitations
 
