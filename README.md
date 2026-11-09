@@ -19,9 +19,20 @@ https://www.minecolonies.com/
 
 ## Fabric 26.3 port (`fabric` branch)
 
-> **Unofficial and unsupported.** This branch is an automated, AI-generated port of MineColonies to Fabric for Minecraft 26.3. It is not made, endorsed or supported by the MineColonies team (see [AGENTS.md](AGENTS.md)). Please don't report its bugs to the MineColonies issue tracker.
+> **Unofficial and unsupported.** This branch is an AI-assisted port of MineColonies to Fabric for Minecraft 26.3. It is not made, endorsed or supported by the MineColonies team. Please don't report its bugs to the MineColonies issue tracker or Discord.
 
-It is based on upstream MineColonies `version/1.21` (NeoForge 1.21.1). Structurize, BlockUI and Domum Ornamentum are bundled into the same jar (their sources are in [`vendor/`](vendor/SOURCES.txt)), and NeoForge APIs are provided by a compatibility layer in `src/fabric/java/com/ldtteam/shim`.
+It is based on upstream MineColonies `version/1.21` (NeoForge 1.21.1). Structurize, BlockUI and Domum Ornamentum are bundled into the same jar (their sources are in [`vendor/`](vendor/SOURCES.txt)), and the NeoForge APIs MineColonies uses are re-implemented on Fabric by a compatibility layer in `src/fabric/java/com/ldtteam/shim`.
+
+### Fabric or NeoForge: which jar?
+
+This branch builds **one jar, for Fabric only**: `minecolonies-fabric-<version>.jar` for Minecraft 26.3. It does not run on NeoForge, and there is no combined Fabric + NeoForge jar. The two loaders also target different Minecraft versions here (26.3 vs. 1.21.1).
+
+| You play on | Use |
+|---|---|
+| Fabric, Minecraft 26.3 | this branch (`./gradlew build`) |
+| NeoForge, Minecraft 1.21.1 | the official MineColonies releases ([CurseForge](https://www.curseforge.com/minecraft/mc-mods/minecolonies/files/all)) together with Structurize, BlockUI and Domum Ornamentum |
+
+Only one jar is needed on Fabric: Structurize, BlockUI and Domum Ornamentum are inside it, so don't install them separately.
 
 ### Build it in one command
 
@@ -29,17 +40,27 @@ It is based on upstream MineColonies `version/1.21` (NeoForge 1.21.1). Structuri
 ./gradlew build
 ```
 
-(On Windows, `gradlew build` in cmd or PowerShell.) The mod jar ends up in `build/libs/minecolonies-fabric-<version>.jar`. Put it in your `mods` folder with [Fabric Loader](https://fabricmc.net/use/) 0.20.1+ and [Fabric API](https://modrinth.com/mod/fabric-api) for Minecraft 26.3. No other MineColonies library mods are needed.
+(On Windows, `gradlew build` in cmd or PowerShell.) The mod jar ends up in `build/libs/minecolonies-fabric-<version>.jar`. Put it in your `mods` folder with [Fabric Loader](https://fabricmc.net/use/) 0.20.1+ and [Fabric API](https://modrinth.com/mod/fabric-api) for Minecraft 26.3. The same jar works on clients and dedicated servers.
 
 Requirements: any JDK 17 or newer to start the Gradle wrapper, plus an internet connection on the first run. Minecraft 26.3 needs Java 25, and Gradle downloads a Java 25 JDK automatically if you don't have one. The first build takes several minutes because it downloads and sets up Minecraft.
 
-To test in a development client instead, run `./gradlew runClient --no-daemon`. The `--no-daemon` flag keeps the game alive if another project runs `gradlew --stop`, which shuts down every shared Gradle daemon on the machine.
+### Development and testing
+
+- `./gradlew runClient --no-daemon` starts a development client, `./gradlew runServer --no-daemon` a dedicated server (in `run-server/`). The `--no-daemon` flag keeps the game alive if another project runs `gradlew --stop`.
+- The dev client always logs in as **Player875** (set in `build.gradle`). Offline player IDs are derived from the name, so a changing name would make you a stranger in colonies you founded earlier: no ownership and no colony chat messages.
+- Don't run `gradlew build`/`compileJava` while the dev client is open: it rewrites the classes the running game loads from and crashes it with `ClassNotFoundException`.
+- [`FABRIC_TESTING.md`](FABRIC_TESTING.md) is a step-by-step manual test plan.
+
+### Upgrading a 1.21.1 (NeoForge) world
+
+Back up the world first. When the world is loaded, the port moves the old colony file (`minecolonies_colony_manager.dat`) to its 26.x location, and item stacks saved in the 1.21.1 format are upgraded when they are read. Vanilla Minecraft upgrades the rest of the world. This path has been implemented but not tested with real 1.21.1 worlds yet.
 
 ### Status and known limitations
 
-- **Tested so far:** the jar builds; a dedicated server starts, generates a world and saves; every MineColonies entity can be summoned; the client loads into a world. Building a colony, the GUIs, citizen work and raids have **not** been play-tested yet. Expect bugs.
-- **Not available on Fabric:** Dynamic Trees and Tinkers' Construct integrations (those mods have no Fabric versions). JEI and Journeymap integrations are compiled in but untested.
-- Smaller gaps are marked `FABRIC-PORT TODO` in the code (`grep -rn "FABRIC-PORT TODO" src vendor`). Examples: the in-game config screen is info-only, and some Structurize placeholder blocks fall back to dirt.
+- **Tested so far:** a dedicated server starts, generates a world and saves; in the client: founding a colony, placing and upgrading huts with the build tool, blueprint previews, citizen windows and requests, building windows, and citizens working. Raids, every job and long-running colonies are not play-tested yet. Expect bugs.
+- **Not available on Fabric:** Dynamic Trees and Tinkers' Construct integrations (those mods have no Fabric versions). JEI and Journeymap integrations are compiled in but untested; on dedicated servers JEI does not show crafter recipes derived from vanilla recipes.
+- **Other differences from NeoForge:** workers ignore the NeoForge "prevent remote movement" flag on dropped items (Fabric has no equivalent), citizen equipment changes are synced by vanilla immediately instead of at most once per second, the in-game config screen is info-only, and some Structurize placeholder blocks fall back to dirt.
+- Remaining smaller gaps are marked `FABRIC-PORT TODO` in the code (`grep -rn "FABRIC-PORT TODO" src vendor`).
 
 ## For Users
 
@@ -151,6 +172,9 @@ Developers remain free to create and distribute modifications in accordance with
 officially recommend, approve, and provide compatibility support for.
 
 ## For Developers
+
+> The instructions below are for the official NeoForge version of MineColonies. For the Fabric port on this branch, see [Build it in one command](#build-it-in-one-command) above.
+
 ### Compiling MineColonies
 
 IMPORTANT: Please report any issues you have, as there might be some problems with the documentation! Also make sure you know EXACTLY what you're doing! It's not our fault if your OS crashes, becomes corrupted, etc.
