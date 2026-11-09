@@ -50,7 +50,8 @@ public abstract class ReloadableServerResourcesMixin
             com.ldtteam.shim.fabric.events.ShimReloadContext.set(shim$registryAccess, shim$lookup);
             final AddReloadListenerEvent event = new AddReloadListenerEvent((ReloadableServerResources) (Object) this, shim$registryAccess, shim$lookup);
             NeoForge.EVENT_BUS.post(event);
-            shim$modListeners = event.getListeners();
+            com.ldtteam.shim.fabric.events.DeferredApplyReloadListener.startReload();
+            shim$modListeners = event.getListeners().stream().map(com.ldtteam.shim.fabric.events.DeferredApplyReloadListener::wrap).toList();
         }
         if (!shim$modListeners.isEmpty())
         {

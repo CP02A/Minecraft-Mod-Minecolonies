@@ -138,7 +138,7 @@ public class ItemListModuleView extends AbstractBuildingModuleView implements II
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     public BOWindow getWindow()
     {
         return new ItemListModuleWindow(this, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "gui/layouthuts/layoutfilterablelist.xml"));

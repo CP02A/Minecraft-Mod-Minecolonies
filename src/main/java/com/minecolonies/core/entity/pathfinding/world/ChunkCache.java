@@ -94,7 +94,7 @@ public class ChunkCache implements LevelReader
      *
      * @return if so.
      */
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     public boolean isEmpty()
     {
         return this.empty;

@@ -29,9 +29,8 @@ public class MineColoniesFabricClient implements ClientModInitializer
         ShimGameEventsClient.init();
         callHook("init");
 
-        ShimModBuses.postLifecycle(FMLClientSetupEvent::new);
-        callHook("postClientSetup");
-        ShimModBuses.postLifecycle(FMLLoadCompleteEvent::new);
+        // FMLClientSetupEvent / FMLLoadCompleteEvent fire after the registries are frozen (see ShimSetupPhase).
+        com.ldtteam.shim.fabric.ShimSetupPhase.addClientStep(() -> callHook("postClientSetup"));
     }
 
     private static void callHook(final String methodName)

@@ -4,6 +4,7 @@
   "package": "com.ldtteam.shim.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
+    "registries.BuiltInRegistriesMixin",
     "registries.BlockPropertiesMixin",
     "registries.ItemPropertiesMixin",
     "BlockEntityTypeAccessor",
@@ -22,7 +23,8 @@
     "ServerPlayerMixin",
     "items.AbstractHorseAccessor",
     "items.BlockEntityTypeAccessor",
-    "common.ShearableBlocksMixin"
+    "common.ShearableBlocksMixin",
+    "SimplePreparableReloadListenerInvoker"
   ],
   "client": [
     "client.MouseHandlerMixin",

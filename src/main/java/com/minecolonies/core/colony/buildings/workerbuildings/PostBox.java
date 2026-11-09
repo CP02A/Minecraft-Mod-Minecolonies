@@ -140,7 +140,7 @@ public class PostBox extends AbstractBuilding implements IRSComponent
     public static class PostBoxMinimumStockModuleView extends MinimumStockModuleView
     {
         @Override
-        @OnlyIn(Dist.CLIENT)
+        @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
         public BOWindow getWindow()
         {
             return new WindowPostBoxMinStock(this);

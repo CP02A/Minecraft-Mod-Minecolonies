@@ -121,7 +121,7 @@ public class BuildingResourcesModuleView extends AbstractBuildingModuleView
         return totalStages;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     @Override
     public BOWindow getWindow()
     {

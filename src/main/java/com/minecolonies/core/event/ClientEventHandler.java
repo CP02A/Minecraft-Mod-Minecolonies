@@ -78,7 +78,7 @@ import static com.minecolonies.core.colony.buildings.modules.BuildingModules.RES
 /**
  * Used to handle client events.
  */
-@OnlyIn(Dist.CLIENT)
+@net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
 public class ClientEventHandler
 {
     /**

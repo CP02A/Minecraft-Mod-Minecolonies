@@ -96,7 +96,7 @@ public class StringSetting implements IStringSetting<String>
         return Identifier.fromNamespaceAndPath("minecolonies", "gui/layouthuts/layoutstringsetting.xml");
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     @Override
     public void setupHandler(
       final ISettingKey<?> key,

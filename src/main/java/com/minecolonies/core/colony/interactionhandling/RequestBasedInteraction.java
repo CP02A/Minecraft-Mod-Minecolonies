@@ -131,7 +131,7 @@ public class RequestBasedInteraction extends ServerCitizenInteraction
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     public void onWindowOpened(final BOWindow window, final ICitizenDataView dataView)
     {
         final IColony colony = IColonyManager.getInstance().getColonyView(dataView.getColonyId(), Minecraft.getInstance().player.level().dimension());
@@ -151,7 +151,7 @@ public class RequestBasedInteraction extends ServerCitizenInteraction
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     public boolean onClientResponseTriggered(final int responseId, final Player player, final ICitizenDataView data, final BOWindow window)
     {
         if (((TranslatableContents) getPossibleResponses().get(responseId).getContents()).getKey().equals("com.minecolonies.coremod.gui.chat.fulfill"))

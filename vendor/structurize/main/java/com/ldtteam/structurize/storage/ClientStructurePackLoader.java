@@ -81,11 +81,15 @@ public class ClientStructurePackLoader
             // This loads from the jar
             for (final Path modPath : modPaths)
             {
+                if (modPath == null || !Files.isDirectory(modPath))
+                {
+                    continue;
+                }
                 try
                 {
                     try (final Stream<Path> paths = Files.list(modPath))
                     {
-                        paths.forEach(element -> StructurePacks.discoverPackAtPath(element, true, modList, false, modPath.toString().split("/")[1]));
+                        paths.forEach(element -> StructurePacks.discoverPackAtPath(element, true, modList, false, modPath.getFileName().toString().replace("/", "")));
                     }
                 }
                 catch (IOException e)

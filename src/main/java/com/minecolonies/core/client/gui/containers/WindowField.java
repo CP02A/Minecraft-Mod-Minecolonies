@@ -54,7 +54,7 @@ import static com.minecolonies.core.colony.buildingextensions.FarmField.MAX_RANG
 /**
  * Class which creates the GUI of our field inventory.
  */
-@OnlyIn(Dist.CLIENT)
+@net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
 public class WindowField extends AbstractWindowSkeleton
 {
     /**

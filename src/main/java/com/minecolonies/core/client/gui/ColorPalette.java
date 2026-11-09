@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * A custom "widget" of sorts that lays out minecraft's DyeColors as buttons to choose from.
  */
-@OnlyIn(Dist.CLIENT)
+@net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
 public class ColorPalette
 {
     public static final DyeColor[] DYES = DyeColor.values();
@@ -59,11 +59,11 @@ public class ColorPalette
     }
 
     /** Used as a function processor to add the widgets to the screen */
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     public interface IWidgetAdder { void onBuild(Button toAdd); }
 
     /** A custom function to call when the color has been changed. Edit via the onchange field. */
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     public interface ChangeEvent { void onChange(DyeColor now); }
 
     public DyeColor getSelected() { return selected; }

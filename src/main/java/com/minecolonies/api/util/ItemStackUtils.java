@@ -1082,7 +1082,7 @@ public final class ItemStackUtils
      * @param ingredient the ingredient to check.
      * @return the friendly name.
      */
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     public static Component getTranslatedName(@NotNull final SizedIngredient ingredient)
     {
         if (ingredient.ingredient().isEmpty())

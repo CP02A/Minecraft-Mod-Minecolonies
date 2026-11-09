@@ -93,7 +93,7 @@ public class SettingsModuleView extends AbstractBuildingModuleView implements IS
         return (T) settings.getOrDefault(key, null);
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     @Override
     public BOWindow getWindow()
     {

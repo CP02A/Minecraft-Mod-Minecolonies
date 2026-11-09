@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Model for the Spear. The model is a long wooden rod with an iron head and leather handle.
  */
-@OnlyIn(Dist.CLIENT)
+@net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
 public class SpearModel extends Model<Unit>
 {
     private final ModelPart handle;

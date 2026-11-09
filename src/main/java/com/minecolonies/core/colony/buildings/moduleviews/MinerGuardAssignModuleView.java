@@ -22,7 +22,7 @@ public class MinerGuardAssignModuleView extends AbstractBuildingModuleView
 
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     @Override
     public BOWindow getWindow()
     {

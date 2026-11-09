@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.minecolonies.api.util.constant.InventoryConstants.*;
 
-@OnlyIn(Dist.CLIENT)
+@net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
 public class WindowRack extends AbstractContainerScreen<ContainerRack>
 {
     /**

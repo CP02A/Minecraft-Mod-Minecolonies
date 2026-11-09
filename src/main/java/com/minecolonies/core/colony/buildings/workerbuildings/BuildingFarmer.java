@@ -313,7 +313,7 @@ public class BuildingFarmer extends AbstractBuilding
     public static class FarmerFieldsModuleView extends FieldsModuleView
     {
         @Override
-        @OnlyIn(Dist.CLIENT)
+        @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
         public BOWindow getWindow()
         {
             return new FarmFieldsModuleWindow(this);

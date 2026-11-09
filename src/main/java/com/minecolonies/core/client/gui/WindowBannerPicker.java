@@ -40,7 +40,7 @@ import static com.minecolonies.api.util.constant.translation.BaseGameTranslation
  * A custom rendered Screen (i.e. not blockui) that renders a picker for the banners,
  * similar to a loom. The resulting banner cannot be extracted.
  */
-@OnlyIn(Dist.CLIENT)
+@net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
 public class WindowBannerPicker extends Screen
 {
     /** The Y position of the layers */

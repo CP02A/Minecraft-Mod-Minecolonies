@@ -131,7 +131,7 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
                 {
                     for (int i = 0; i < accelerationTicks; i++)
                     {
-                        if (((com.minecolonies.fabric.mixin.entity.AbstractFurnaceBlockEntityInvoker) furnace).minecolonies$isLit())
+                        if ((((com.minecolonies.fabric.mixin.entity.AbstractFurnaceBlockEntityInvoker) furnace).minecolonies$getLitTimeRemaining() > 0))
                         {
                             FurnaceBlockEntity.serverTick((net.minecraft.server.level.ServerLevel) furnace.getLevel(), entity.getBlockPos(), entity.getBlockState(), furnace);
                         }
@@ -534,7 +534,7 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
         for (final BlockPos pos : building.getModule(FURNACE).getFurnaces())
         {
             final BlockEntity entity = world.getBlockEntity(pos);
-            if (entity instanceof FurnaceBlockEntity furnace && !((com.minecolonies.fabric.mixin.entity.AbstractFurnaceBlockEntityInvoker) furnace).minecolonies$isLit() && furnace.getItem(FUEL_SLOT).isEmpty())
+            if (entity instanceof FurnaceBlockEntity furnace && !(((com.minecolonies.fabric.mixin.entity.AbstractFurnaceBlockEntityInvoker) furnace).minecolonies$getLitTimeRemaining() > 0) && furnace.getItem(FUEL_SLOT).isEmpty())
             {
                 return pos;
             }
@@ -554,7 +554,7 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
         for (final BlockPos pos : building.getModule(FURNACE).getFurnaces())
         {
             final BlockEntity entity = world.getBlockEntity(pos);
-            if (entity instanceof FurnaceBlockEntity furnace && (!((com.minecolonies.fabric.mixin.entity.AbstractFurnaceBlockEntityInvoker) furnace).minecolonies$isLit() || furnace.getItem(SMELTABLE_SLOT).isEmpty()))
+            if (entity instanceof FurnaceBlockEntity furnace && (!(((com.minecolonies.fabric.mixin.entity.AbstractFurnaceBlockEntityInvoker) furnace).minecolonies$getLitTimeRemaining() > 0) || furnace.getItem(SMELTABLE_SLOT).isEmpty()))
             {
                 int countInResultSlot = 0;
                 if (!isEmpty(furnace.getItem(RESULT_SLOT)))
@@ -657,7 +657,7 @@ public abstract class AbstractEntityAIRequestSmelter<J extends AbstractJobCrafte
                 final BlockEntity entity = world.getBlockEntity(pos);
                 if (entity instanceof FurnaceBlockEntity furnace)
                 {
-                    if (((com.minecolonies.fabric.mixin.entity.AbstractFurnaceBlockEntityInvoker) furnace).minecolonies$isLit() && !furnace.getItem(SMELTABLE_SLOT).isEmpty())
+                    if ((((com.minecolonies.fabric.mixin.entity.AbstractFurnaceBlockEntityInvoker) furnace).minecolonies$getLitTimeRemaining() > 0) && !furnace.getItem(SMELTABLE_SLOT).isEmpty())
                     {
                         count += 1;
                     }

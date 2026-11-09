@@ -45,14 +45,14 @@ public class CompostRecipe implements Recipe<SingleRecipeInput>
     private static final int COMPOST_RESULT = 6;
 
     private final Ingredient input;
-    private final ItemStack output;
+    // FABRIC-PORT: created lazily - 26.x decodes recipes before item components are bound, so no ItemStack may be built in the codec.
+    private ItemStack output;
     private final int strength;
 
     public CompostRecipe(@NotNull final Ingredient ingredient, final int strength)
     {
         this.input = ingredient;
         this.strength = strength;
-        this.output = new ItemStack(ModItems.compost, COMPOST_RESULT);
     }
 
     @NotNull
@@ -65,6 +65,15 @@ public class CompostRecipe implements Recipe<SingleRecipeInput>
      *
      * @return The input.
      */
+    private ItemStack getOutput()
+    {
+        if (output == null)
+        {
+            output = new ItemStack(ModItems.compost, COMPOST_RESULT);
+        }
+        return output;
+    }
+
     public Ingredient getInput() { return this.input; }
 
     /**
@@ -93,13 +102,13 @@ public class CompostRecipe implements Recipe<SingleRecipeInput>
     @Override
     public ItemStack assemble(@NotNull final SingleRecipeInput input)
     {
-        return this.output.copy();
+        return getOutput().copy();
     }
 
     @NotNull
     public ItemStack getResultItem(@Nullable final HolderLookup.Provider provider)
     {
-        return this.output;
+        return getOutput();
     }
 
     @Override

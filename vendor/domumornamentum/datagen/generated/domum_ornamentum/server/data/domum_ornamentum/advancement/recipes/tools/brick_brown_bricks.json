@@ -23,7 +23,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "domum_ornamentum:brick_brown_bricks"
+        "recipes": "domum_ornamentum:brick_brown_bricks"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

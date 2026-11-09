@@ -46,7 +46,6 @@ public final class ModLootConditions
     public static final LootItemCondition.Builder HAS_DIAMOND_HOE   = MatchTool.toolMatches(ItemPredicate.Builder.item().of(BuiltInRegistries.ITEM, Items.DIAMOND_HOE));
     public static final LootItemCondition.Builder HAS_IRON_HOE      = MatchTool.toolMatches(ItemPredicate.Builder.item().of(BuiltInRegistries.ITEM, Items.IRON_HOE));
     public static final LootItemCondition.Builder HAS_GOLDEN_HOE    = MatchTool.toolMatches(ItemPredicate.Builder.item().of(BuiltInRegistries.ITEM, Items.GOLDEN_HOE));
-    public static final LootItemCondition.Builder HAS_HOE = MatchTool.toolMatches(ItemPredicate.Builder.item().of(BuiltInRegistries.ITEM, ItemTags.HOES));
 
     public static LootItemCondition.Builder hasShears()
     {
@@ -55,7 +54,8 @@ public final class ModLootConditions
 
     public static LootItemCondition.Builder hasHoe()
     {
-        return HAS_HOE;
+        // Built lazily: since 26.x, resolving a tag through a registry needs bound tags, which don't exist during mod init.
+        return MatchTool.toolMatches(ItemPredicate.Builder.item().of(BuiltInRegistries.ITEM, ItemTags.HOES));
     }
 
     public static LootItemCondition.Builder hasSilkTouch(@NotNull final HolderLookup.RegistryLookup<Enchantment> enchantments)

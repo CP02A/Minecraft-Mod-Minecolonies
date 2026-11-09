@@ -62,16 +62,16 @@ public class RecruitmentItemsListener extends RegistryAwareJsonReloadListener
     /**
      *  Map of recruitLevel to boot tier.
      */
-    private static final Map<Integer, ItemStack> RARITY_TO_BOOT_MAP = Map.ofEntries(
-        Map.entry(1, new ItemStack(Items.LEATHER_BOOTS)),
-        Map.entry(2, new ItemStack(Items.LEATHER_BOOTS)),
-        Map.entry(3, new ItemStack(Items.GOLDEN_BOOTS)),
-        Map.entry(4, new ItemStack(Items.GOLDEN_BOOTS)),
-        Map.entry(5, new ItemStack(Items.IRON_BOOTS)),
-        Map.entry(6, new ItemStack(Items.IRON_BOOTS)),
-        Map.entry(7, new ItemStack(Items.DIAMOND_BOOTS)),
-        Map.entry(8, new ItemStack(Items.DIAMOND_BOOTS)),
-        Map.entry(9, new ItemStack(Items.NETHERITE_BOOTS))
+    private static final Map<Integer, Item> RARITY_TO_BOOT_MAP = Map.ofEntries(
+        Map.entry(1, Items.LEATHER_BOOTS),
+        Map.entry(2, Items.LEATHER_BOOTS),
+        Map.entry(3, Items.GOLDEN_BOOTS),
+        Map.entry(4, Items.GOLDEN_BOOTS),
+        Map.entry(5, Items.IRON_BOOTS),
+        Map.entry(6, Items.IRON_BOOTS),
+        Map.entry(7, Items.DIAMOND_BOOTS),
+        Map.entry(8, Items.DIAMOND_BOOTS),
+        Map.entry(9, Items.NETHERITE_BOOTS)
     );
 
     /**
@@ -145,7 +145,7 @@ public class RecruitmentItemsListener extends RegistryAwareJsonReloadListener
             final int count = BASE_ITEM_COUNT * (MAX_RARITY + 1 - rarity);
             final int recruitLevel = BASE_RECRUIT_LEVEL + rarity * rarity / 2;
             recruitCosts.putIfAbsent(rarity, new ArrayList<>());
-            recruitCosts.get(rarity).add(new RecruitCost(new ItemStack(item, count), recruitLevel, RARITY_TO_BOOT_MAP.get(rarity)));
+            recruitCosts.get(rarity).add(new RecruitCost(new ItemStack(item, count), recruitLevel, new ItemStack(RARITY_TO_BOOT_MAP.get(rarity))));
         }
 
         for (int i = 1; i <= MAX_RARITY; i++)

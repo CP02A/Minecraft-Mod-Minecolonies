@@ -374,9 +374,18 @@ public final class ConfigTracker
             Files.createDirectories(path.getParent());
             TomlFormat.instance().createWriter().write(config, path, WritingMode.REPLACE_ATOMIC);
         }
-        catch (final Exception e)
+        catch (final Exception atomicFailure)
         {
-            LOGGER.error("Failed to write config {}", path, e);
+            // Windows refuses the atomic rename while another handle (indexer, antivirus, the config watcher) has the file open.
+            try
+            {
+                TomlFormat.instance().createWriter().write(config, path, WritingMode.REPLACE);
+            }
+            catch (final Exception e)
+            {
+                e.addSuppressed(atomicFailure);
+                LOGGER.error("Failed to write config {}", path, e);
+            }
         }
     }
 }

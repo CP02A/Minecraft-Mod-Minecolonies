@@ -156,7 +156,7 @@ public class ClientRegistryHandler
 
     public static final ModelLayerLocation CITIZEN = new ModelLayerLocation(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "citizen"), "citizen");
 
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     @SubscribeEvent
     public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event)
     {
@@ -262,7 +262,7 @@ public class ClientRegistryHandler
         event.registerLayerDefinition(CITIZEN, CitizenModel::createMesh);
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     @SubscribeEvent
     public static void onRegisterItemDecorations(final RegisterItemDecorationsEvent event)
     {
@@ -270,7 +270,7 @@ public class ClientRegistryHandler
         event.register(ModItems.clipboard, new ClipBoardDecorator());
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     @SubscribeEvent
     public static void doClientStuff(final EntityRenderersEvent.RegisterRenderers event)
     {
@@ -375,7 +375,7 @@ public class ClientRegistryHandler
     // FABRIC-PORT: recipe book categories are defined by the recipes themselves in 26.x (Recipe#recipeBookCategory), the old
     // RegisterRecipeBookCategoriesEvent registration for compost recipes is obsolete.
 
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     @SubscribeEvent
     public static void registerKeys(final RegisterKeyMappingsEvent event)
     {

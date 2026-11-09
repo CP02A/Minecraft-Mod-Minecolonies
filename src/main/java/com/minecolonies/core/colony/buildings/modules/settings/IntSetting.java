@@ -73,7 +73,7 @@ public class IntSetting implements ISetting<Integer>
         return Identifier.fromNamespaceAndPath("minecolonies", "gui/layouthuts/layoutintsetting.xml");
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     @Override
     public void setupHandler(
       final ISettingKey<?> key,

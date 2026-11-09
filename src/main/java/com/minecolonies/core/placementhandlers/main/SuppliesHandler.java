@@ -48,7 +48,7 @@ public class SuppliesHandler implements ISurvivalBlueprintHandler
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     public boolean canHandle(final Blueprint blueprint, final ClientLevel clientLevel, final Player player, final BlockPos blockPos, final RotationMirror rotMir)
     {
         return false;

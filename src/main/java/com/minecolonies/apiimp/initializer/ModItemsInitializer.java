@@ -257,6 +257,8 @@ public final class ModItemsInitializer
         ModItems.soysauce = new Item((props("soysauce")));
 
         ModItems.large_empty_bottle = new ItemLargeBottle((props("large_empty_bottle")));
+        // FABRIC-PORT: craftRemainder() needs a registered (bound) item in 26.x, so the empty bottle is registered before the full ones.
+        Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "large_empty_bottle"), ModItems.large_empty_bottle);
         ModItems.large_milk_bottle = new ItemLargeBottle((props("large_milk_bottle").craftRemainder(ModItems.large_empty_bottle)));
         ModItems.large_water_bottle = new ItemLargeBottle((props("large_water_bottle").craftRemainder(ModItems.large_empty_bottle)));
         ModItems.large_soy_milk_bottle = new ItemLargeBottle((props("large_soy_milk_bottle").craftRemainder(ModItems.large_empty_bottle)));
@@ -396,7 +398,6 @@ public final class ModItemsInitializer
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "mintchoco_cheesecake"), ModItems.mintchoco_cheesecake);
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "spicy_eggplant"), ModItems.spicy_eggplant);
 
-        Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "large_empty_bottle"), ModItems.large_empty_bottle);
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "large_water_bottle"), ModItems.large_water_bottle);
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "large_milk_bottle"), ModItems.large_milk_bottle);
         Registry.register(registry, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "large_soy_milk_bottle"), ModItems.large_soy_milk_bottle);

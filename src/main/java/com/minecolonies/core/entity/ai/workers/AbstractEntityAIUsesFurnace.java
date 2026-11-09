@@ -137,7 +137,7 @@ public abstract class AbstractEntityAIUsesFurnace<J extends AbstractJob<?, J>, B
                 final int countInResultSlot = ItemStackUtils.isEmpty(furnace.getItem(RESULT_SLOT)) ? 0 : furnace.getItem(RESULT_SLOT).getCount();
                 final int countInInputSlot = ItemStackUtils.isEmpty(furnace.getItem(SMELTABLE_SLOT)) ? 0 : furnace.getItem(SMELTABLE_SLOT).getCount();
 
-                if ((!((com.minecolonies.fabric.mixin.entity.AbstractFurnaceBlockEntityInvoker) furnace).minecolonies$isLit() && countInResultSlot > 0)
+                if ((!(((com.minecolonies.fabric.mixin.entity.AbstractFurnaceBlockEntityInvoker) furnace).minecolonies$getLitTimeRemaining() > 0) && countInResultSlot > 0)
                       || countInResultSlot > RETRIEVE_SMELTABLE_IF_MORE_THAN
                       || (countInResultSlot > 0 && countInInputSlot == 0))
                 {
@@ -294,7 +294,7 @@ public abstract class AbstractEntityAIUsesFurnace<J extends AbstractJob<?, J>, B
                     final FurnaceBlockEntity furnace = (FurnaceBlockEntity) entity;
                     for (int i = 0; i < accelerationTicks; i++)
                     {
-                        if (((com.minecolonies.fabric.mixin.entity.AbstractFurnaceBlockEntityInvoker) furnace).minecolonies$isLit())
+                        if ((((com.minecolonies.fabric.mixin.entity.AbstractFurnaceBlockEntityInvoker) furnace).minecolonies$getLitTimeRemaining() > 0))
                         {
                             furnace.serverTick((net.minecraft.server.level.ServerLevel) world, pos, world.getBlockState(pos), furnace);
                         }

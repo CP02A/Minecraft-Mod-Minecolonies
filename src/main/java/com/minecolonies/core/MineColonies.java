@@ -222,7 +222,9 @@ public class MineColonies
 
         event.enqueueWork(ModLootConditions::init);
         event.enqueueWork(ModTags::init);
-        event.enqueueWork(ModEquipmentTypes::initRegisterEquipmentTiers);
+        // FABRIC-PORT: item durabilities/components are data driven in 26.x and only bound once data is loaded, so equipment tiers
+        // are (re)computed after every data load on both sides instead of once during setup. Registration is idempotent.
+        net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents.TAGS_LOADED.register((registries, client) -> ModEquipmentTypes.initRegisterEquipmentTiers());
 
         // FABRIC-PORT: 26.x does not sync recipes to the client anymore. The vanilla crafting/smelting and the Domum cutter serializers are
         // synced by the Fabric entrypoint; additionally sync brewing (brewing teaching / crafting GUIs) and our own recipe types.

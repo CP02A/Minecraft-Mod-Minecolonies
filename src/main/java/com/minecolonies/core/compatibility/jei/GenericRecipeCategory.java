@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 /**
  * The main JEI recipe category GUI implementation for IGenericRecipe.
  */
-@OnlyIn(Dist.CLIENT)
+@net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
 public class GenericRecipeCategory extends JobBasedRecipeCategory<IGenericRecipe>
 {
     public GenericRecipeCategory(@NotNull final BuildingEntry building,

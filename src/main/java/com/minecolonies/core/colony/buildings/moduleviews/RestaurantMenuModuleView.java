@@ -42,7 +42,7 @@ public class RestaurantMenuModuleView extends AbstractBuildingModuleView
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     public BOWindow getWindow()
     {
         return new RestaurantMenuModuleWindow(this);

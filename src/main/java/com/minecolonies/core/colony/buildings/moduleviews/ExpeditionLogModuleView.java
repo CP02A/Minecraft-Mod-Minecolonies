@@ -50,7 +50,7 @@ public class ExpeditionLogModuleView extends AbstractBuildingModuleView
         return this.unlocked;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     @Override
     public BOWindow getWindow()
     {

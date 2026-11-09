@@ -43,7 +43,7 @@ public interface IBuildingModuleView
      * Get the matching window for the module.
      * @return the window.
      */
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     BOWindow getWindow();
 
     /**

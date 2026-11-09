@@ -27,7 +27,7 @@ import static com.minecolonies.api.util.constant.TranslationConstants.PARTIAL_JE
 /**
  * The JEI recipe category for the fisherman.
  */
-@OnlyIn(Dist.CLIENT)
+@net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
 public class FishermanRecipeCategory extends JobBasedRecipeCategory<FishermanRecipeCategory.FishingRecipe>
 {
     public FishermanRecipeCategory(@NotNull final IGuiHelper guiHelper)

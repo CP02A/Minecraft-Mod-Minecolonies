@@ -572,7 +572,10 @@ public class MinecoloniesAdvancedPathNavigate extends AbstractAdvancedPathNaviga
     @Override
     protected PathFinder createPathFinder(final int p_179679_1_)
     {
-        return null;
+        // FABRIC-PORT: 26.x PathNavigation's constructor configures the returned finder, so it must not be null. MineColonies never
+        // paths through it (all paths come from its own PathJobs); this is the vanilla ground finder, replaced by the constructor's own
+        // WalkNodeEvaluator setup afterwards.
+        return super.createPathFinder(p_179679_1_);
     }
 
     @Override

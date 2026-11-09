@@ -66,7 +66,7 @@ public class EnchanterStationsModuleView extends AbstractBuildingModuleView
         new EnchanterWorkerSetMessage(buildingView, blockPos, false).sendToServer();
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     @Override
     public BOWindow getWindow()
     {

@@ -221,7 +221,7 @@ public class CompatibilityManager implements ICompatibilityManager
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     public void deserialize(@NotNull final RegistryFriendlyByteBuf buf, final ClientLevel level)
     {
         clear();

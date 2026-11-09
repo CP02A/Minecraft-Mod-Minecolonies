@@ -656,7 +656,7 @@ public final class ColonyView implements IColonyView
      * @param isNewSubscription Whether this is a new subscription of not.
      * @return null == no response.
      */
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     @Override
     public void handleColonyViewMessage(@NotNull final RegistryFriendlyByteBuf buf, final boolean isNewSubscription)
     {
@@ -1051,7 +1051,7 @@ public final class ColonyView implements IColonyView
         return lastContactInHours;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     @Override
     public Level getWorld()
     {

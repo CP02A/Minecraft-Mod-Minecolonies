@@ -101,7 +101,7 @@ public interface IInteractionResponseHandler extends INBTSerializable<CompoundTa
      * @param window   the window it was triggered in.
      * @return if wishing to continue interacting.
      */
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     boolean onClientResponseTriggered(final int responseId, final Player player, final ICitizenDataView data, final BOWindow window);
 
     /**

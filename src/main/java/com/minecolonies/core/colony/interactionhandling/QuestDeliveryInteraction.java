@@ -85,7 +85,7 @@ public class QuestDeliveryInteraction extends QuestDialogueInteraction
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     public boolean onClientResponseTriggered(final int responseId, final Player player, final ICitizenDataView data, final BOWindow window)
     {
         if (colonyQuest == null)
@@ -113,7 +113,7 @@ public class QuestDeliveryInteraction extends QuestDialogueInteraction
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     public void onOpened(final Player player)
     {
         final IQuestObjectiveTemplate objective = IQuestManager.GLOBAL_SERVER_QUESTS.get(questId).getObjective(index);

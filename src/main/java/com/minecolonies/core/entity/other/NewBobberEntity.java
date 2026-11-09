@@ -132,13 +132,13 @@ public class NewBobberEntity extends Projectile implements IEntityWithComplexSpa
     /**
      * Checks if the entity is in range to render.
      */
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     public boolean shouldRenderAtSqrDistance(final double distance)
     {
         return distance < 4096.0D;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     public void lerpTo(
       final double x,
       final double y,

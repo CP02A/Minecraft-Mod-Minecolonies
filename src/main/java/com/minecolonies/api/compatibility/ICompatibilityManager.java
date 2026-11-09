@@ -50,6 +50,7 @@ public interface ICompatibilityManager
      *
      * @param buf deserialization buffer
      */
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     void deserialize(@NotNull final RegistryFriendlyByteBuf buf, final ClientLevel level);
 
     /**

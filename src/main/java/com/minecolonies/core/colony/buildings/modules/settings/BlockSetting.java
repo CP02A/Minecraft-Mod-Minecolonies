@@ -111,7 +111,7 @@ public class BlockSetting implements ISetting<BlockItem>
         return Identifier.fromNamespaceAndPath("minecolonies", "gui/layouthuts/layoutblocksetting.xml");
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     @Override
     public void setupHandler(
       final ISettingKey<?> key,

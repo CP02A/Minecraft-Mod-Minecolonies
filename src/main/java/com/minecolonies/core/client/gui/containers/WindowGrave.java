@@ -13,7 +13,7 @@ import com.ldtteam.shim.api.distmarker.OnlyIn;
 import com.ldtteam.shim.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 
-@OnlyIn(Dist.CLIENT)
+@net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
 public class WindowGrave extends AbstractContainerScreen<ContainerGrave>
 {
     /**

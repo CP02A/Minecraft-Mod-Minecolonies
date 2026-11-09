@@ -93,7 +93,7 @@ public class RecruitmentInteraction extends ServerCitizenInteraction
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     public void onWindowOpened(final BOWindow window, final ICitizenDataView dataView)
     {
         final ButtonImage recruitButton = window.findPaneOfTypeByID(BUTTON_RESPONSE_ID + 2, ButtonImage.class);
@@ -128,7 +128,7 @@ public class RecruitmentInteraction extends ServerCitizenInteraction
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     public boolean onClientResponseTriggered(final int responseId, final Player player, final ICitizenDataView data, final BOWindow window)
     {
         final Component response = getPossibleResponses().get(responseId);

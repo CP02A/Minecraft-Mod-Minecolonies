@@ -6,27 +6,25 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "functions": [
+          "modifier": [
             {
-              "function": "minecraft:copy_components",
+              "type": "minecraft:copy_components",
               "include": [
                 "domum_ornamentum:texture_data"
               ],
               "source": "block_entity"
             },
             {
-              "add": false,
-              "conditions": [
-                {
-                  "block": "domum_ornamentum:vanilla_slab_compat",
-                  "condition": "minecraft:block_state_property",
-                  "properties": {
-                    "type": "double"
-                  }
+              "type": "minecraft:set_count",
+              "condition": {
+                "type": "minecraft:match_block",
+                "blocks": "domum_ornamentum:vanilla_slab_compat",
+                "state": {
+                  "type": "double"
                 }
-              ],
-              "count": 2.0,
-              "function": "minecraft:set_count"
+              },
+              "add": false,
+              "count": 2.0
             }
           ],
           "name": "domum_ornamentum:vanilla_slab_compat"

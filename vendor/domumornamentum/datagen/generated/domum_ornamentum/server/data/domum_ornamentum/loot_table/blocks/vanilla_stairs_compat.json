@@ -6,15 +6,13 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "functions": [
-            {
-              "function": "minecraft:copy_components",
-              "include": [
-                "domum_ornamentum:texture_data"
-              ],
-              "source": "block_entity"
-            }
-          ],
+          "modifier": {
+            "type": "minecraft:copy_components",
+            "include": [
+              "domum_ornamentum:texture_data"
+            ],
+            "source": "block_entity"
+          },
           "name": "domum_ornamentum:vanilla_stairs_compat"
         }
       ],

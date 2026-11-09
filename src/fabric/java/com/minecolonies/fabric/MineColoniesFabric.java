@@ -123,14 +123,9 @@ public class MineColoniesFabric implements ModInitializer
         RecipeSynchronization.synchronizeRecipeSerializer(SmeltingRecipe.SERIALIZER);
         RecipeSynchronization.synchronizeRecipeSerializer(ModRecipeSerializers.ARCHITECTS_CUTTER.get());
 
-        // 7. Setup lifecycle.
-        ShimModBuses.postLifecycle(FMLCommonSetupEvent::new);
-        if (dist.isDedicatedServer())
-        {
-            ShimModBuses.postLifecycle(FMLDedicatedServerSetupEvent::new);
-            ShimModBuses.postLifecycle(FMLLoadCompleteEvent::new);
-        }
-        // On the physical client, FMLClientSetupEvent and FMLLoadCompleteEvent are fired by MineColoniesFabricClient.
+        // 7. Setup lifecycle: FMLCommonSetupEvent and the client/server setup events fire once the registries are frozen
+        // (BuiltInRegistriesMixin -> ShimSetupPhase), matching NeoForge where setup runs after registration.
+        com.ldtteam.shim.fabric.ShimSetupPhase.commonInitialized(dist.isDedicatedServer());
     }
 
     private static void registerSubscribers(final String[] classNames)

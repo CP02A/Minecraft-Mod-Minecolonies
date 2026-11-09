@@ -51,7 +51,7 @@ public class MinimumStockModuleView extends AbstractBuildingModuleView implement
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     public BOWindow getWindow()
     {
         return new MinimumStockModuleWindow(this);

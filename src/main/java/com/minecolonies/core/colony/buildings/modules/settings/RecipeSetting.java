@@ -122,7 +122,7 @@ public class RecipeSetting implements ICraftingSetting
         return Identifier.fromNamespaceAndPath("minecolonies", "gui/layouthuts/layoutcraftingsetting.xml");
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     @Override
     public void setupHandler(
       final ISettingKey<?> key,

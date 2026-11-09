@@ -261,7 +261,8 @@ public class CommonMinecoloniesAPIImpl implements IMinecoloniesAPI
 
     private static <T> RegistryBuilder<T> syncedRegistry(final ResourceKey<Registry<T>> registryKey)
     {
-        return syncedRegistry(registryKey, Identifier.fromNamespaceAndPath(Constants.MOD_ID, "null"));
+        // FABRIC-PORT: no "minecolonies:null" default - 26.x validates that a defaulted registry contains its default entry.
+        return new RegistryBuilder<T>(registryKey).sync(true);
     }
 
     private static <T> RegistryBuilder<T> syncedRegistry(final ResourceKey<Registry<T>> registryKey, final Identifier defaultKey)

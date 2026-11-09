@@ -81,7 +81,7 @@ public class BoolSetting implements ISetting<Boolean>
         return Identifier.fromNamespaceAndPath("minecolonies", "gui/layouthuts/layoutboolsetting.xml");
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     @Override
     public void setupHandler(
       final ISettingKey<?> key,

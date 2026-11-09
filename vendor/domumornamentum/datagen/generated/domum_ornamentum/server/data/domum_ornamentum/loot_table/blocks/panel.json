@@ -6,17 +6,17 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "functions": [
+          "modifier": [
             {
-              "function": "minecraft:copy_components",
+              "type": "minecraft:copy_components",
               "include": [
                 "domum_ornamentum:texture_data"
               ],
               "source": "block_entity"
             },
             {
+              "type": "minecraft:copy_state",
               "block": "domum_ornamentum:panel",
-              "function": "minecraft:copy_state",
               "properties": [
                 "type"
               ]

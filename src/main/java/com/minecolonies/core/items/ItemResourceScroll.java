@@ -273,7 +273,7 @@ public class ItemResourceScroll extends AbstractItemMinecolonies
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     public void appendHoverText(ItemStack stack, @Nullable TooltipContext ctx, final net.minecraft.world.item.component.TooltipDisplay tooltipDisplay, java.util.function.Consumer<Component> tooltip, TooltipFlag flagIn)
     {
         super.appendHoverText(stack, ctx, tooltipDisplay, tooltip, flagIn);

@@ -199,7 +199,7 @@ public class SpearEntity extends ThrownTrident implements ICustomAttackSound
         return 0.9F;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     public boolean shouldRender(double x, double y, double z)
     {
         return true;

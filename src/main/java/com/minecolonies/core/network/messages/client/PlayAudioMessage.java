@@ -70,7 +70,7 @@ public class PlayAudioMessage extends AbstractClientPlayMessage
         this.soundEvent = buf.readIdentifier();
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
     @Override
     protected void onExecute(final IPayloadContext ctxIn, final Player player)
     {
