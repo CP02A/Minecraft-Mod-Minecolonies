@@ -387,6 +387,14 @@ public class BlueprintUtil
                     continue;
                 }
 
+                // FABRIC-PORT: beds have no block entity since data version 4885 (26.x); vanilla drops them from chunks
+                // (RemoveBlockEntityTagFix), but a standalone bed entry cannot be upgraded by the data fixer ("Unsupported key").
+                if (id.equals("minecraft:bed"))
+                {
+                    tileEntities[i] = null;
+                    continue;
+                }
+
                 tileEntities[i] = id.startsWith("minecraft:")
                                     ? DataFixerUtils.runDataFixer(nbt, References.BLOCK_ENTITY, oldDataVersion)
                                     : nbt;
