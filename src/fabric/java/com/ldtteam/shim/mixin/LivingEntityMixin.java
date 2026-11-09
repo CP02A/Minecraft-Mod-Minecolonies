@@ -42,14 +42,23 @@ public abstract class LivingEntityMixin implements DamageContainerHolder
     }
 
     /**
-     * LivingIncomingDamageEvent: pushes the damage container for this hurtServer call; cancelling aborts the damage.
+     * Pushes the damage container for this hurtServer call (popped at RETURN, also for vanilla's early returns).
      */
-    @Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "hurtServer", at = @At("HEAD"))
+    private void shim$pushDamageContainer(final ServerLevel level, final DamageSource source, final float damage, final CallbackInfoReturnable<Boolean> cir)
+    {
+        shim$damageContainers.push(new DamageContainer(source, damage));
+    }
+
+    /**
+     * LivingIncomingDamageEvent, fired after vanilla's invulnerable / dead / fire resistance early returns like NeoForge;
+     * cancelling aborts the damage.
+     */
+    @Inject(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;isSleeping()Z", ordinal = 0), cancellable = true)
     private void shim$incomingDamage(final ServerLevel level, final DamageSource source, final float damage, final CallbackInfoReturnable<Boolean> cir)
     {
-        final DamageContainer container = new DamageContainer(source, damage);
-        shim$damageContainers.push(container);
-        if (NeoForge.EVENT_BUS.post(new LivingIncomingDamageEvent((LivingEntity) (Object) this, container)).isCanceled())
+        final DamageContainer container = shim$damageContainers.peek();
+        if (container != null && NeoForge.EVENT_BUS.post(new LivingIncomingDamageEvent((LivingEntity) (Object) this, container)).isCanceled())
         {
             shim$damageContainers.pop();
             cir.setReturnValue(false);
@@ -79,7 +88,9 @@ public abstract class LivingEntityMixin implements DamageContainerHolder
         }
     }
 
-    @ModifyVariable(method = "actuallyHurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getCombatTracker()Lnet/minecraft/world/damagesource/CombatTracker;"), argsOnly = true)
+    // Right before vanilla's `if (dmg != 0.0F)` (7th load of dmg, checked with javap on 26.3): NeoForge fires Pre also for 0 damage,
+    // and a listener raising it must still apply.
+    @ModifyVariable(method = "actuallyHurt", at = @At(value = "LOAD", ordinal = 6), argsOnly = true)
     private float shim$livingDamagePre(final float dmg)
     {
         return ShimDamageHooks.fireDamagePre((LivingEntity) (Object) this, dmg);

@@ -28,7 +28,8 @@ public abstract class PlayerMixin
         NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post((Player) (Object) this));
     }
 
-    @ModifyVariable(method = "actuallyHurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;getCombatTracker()Lnet/minecraft/world/damagesource/CombatTracker;"), argsOnly = true)
+    // Right before vanilla's `if (dmg != 0.0F)` (7th load of dmg, checked with javap on 26.3), so Pre also fires for 0 damage.
+    @ModifyVariable(method = "actuallyHurt", at = @At(value = "LOAD", ordinal = 6), argsOnly = true)
     private float shim$livingDamagePre(final float dmg)
     {
         return ShimDamageHooks.fireDamagePre((Player) (Object) this, dmg);

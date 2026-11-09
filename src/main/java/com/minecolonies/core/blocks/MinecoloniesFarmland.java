@@ -168,12 +168,13 @@ public class MinecoloniesFarmland extends AbstractBlockMinecolonies<Minecolonies
     @Override
     public void fallOn(Level level, @NotNull BlockState state, @NotNull BlockPos pos, @NotNull Entity entity, double light)
     {
-        // Vanilla FarmlandBlock trample check (was NeoForge CommonHooks.onFarmlandTrample).
+        // Vanilla FarmlandBlock trample check plus the trample event (NeoForge CommonHooks.onFarmlandTrample).
         if (level instanceof net.minecraft.server.level.ServerLevel serverLevel && level.getRandom().nextFloat() < light - 0.5 && entity instanceof net.minecraft.world.entity.LivingEntity
               && (entity instanceof net.minecraft.world.entity.player.Player player
                     ? !level.getServer().isUnderSpawnProtection(serverLevel, pos, player)
                     : serverLevel.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING))
-              && entity.getBbWidth() * entity.getBbWidth() * entity.getBbHeight() > 0.512F)
+              && entity.getBbWidth() * entity.getBbWidth() * entity.getBbHeight() > 0.512F
+              && com.ldtteam.shim.neoforge.common.CommonHooks.onFarmlandTrample(level, pos, state, light, entity))
         {
             turnToDirt(entity, state, level, pos);
         }

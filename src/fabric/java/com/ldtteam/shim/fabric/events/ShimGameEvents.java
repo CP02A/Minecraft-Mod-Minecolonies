@@ -118,8 +118,20 @@ public final class ShimGameEvents
             NeoForge.EVENT_BUS.post(new ServerStoppedEvent(server));
             ServerLifecycleHooks.setCurrentServer(null);
         });
-        ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) ->
-            NeoForge.EVENT_BUS.post(new OnDatapackSyncEvent(player.level().getServer().getPlayerList(), player)));
+        // NeoForge posts OnDatapackSyncEvent per player on join, and once with a null player after a datapack reload
+        // (MineColonies rebuilds its compat data and re-syncs all clients only in the null case).
+        ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) -> {
+            if (joined)
+            {
+                NeoForge.EVENT_BUS.post(new OnDatapackSyncEvent(player.level().getServer().getPlayerList(), player));
+            }
+        });
+        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resourceManager, success) -> {
+            if (success)
+            {
+                NeoForge.EVENT_BUS.post(new OnDatapackSyncEvent(server.getPlayerList(), null));
+            }
+        });
 
         // Ticks
         ServerTickEvents.START_SERVER_TICK.register(server -> NeoForge.EVENT_BUS.post(new ServerTickEvent.Pre(ALWAYS, server)));
@@ -173,29 +185,40 @@ public final class ShimGameEvents
             }
             final PlayerInteractEvent.RightClickItem event = new PlayerInteractEvent.RightClickItem(player, hand);
             NeoForge.EVENT_BUS.post(event);
-            return event.isCanceled() ? cancelResult(event.getCancellationResult()) : InteractionResult.PASS;
+            if (!event.isCanceled())
+            {
+                return InteractionResult.PASS;
+            }
+            final InteractionResult result = cancelResult(event.getCancellationResult());
+            // Fabric only sends the use-item packet for exactly SUCCESS on the client; NeoForge sends it even when cancelled client-side.
+            return level.isClientSide() && !result.consumesAction() ? InteractionResult.SUCCESS : result;
         });
         UseEntityCallback.EVENT.register((player, level, hand, entity, hitResult) -> {
             if (player.isSpectator())
             {
                 return InteractionResult.PASS;
             }
+            // 26.x Fabric fires this once per interaction, always with a hit result. NeoForge fires EntityInteractSpecific first
+            // and, unless that handled it, EntityInteract; post both so subscribers of either event are reached.
             if (hitResult != null)
             {
                 final Vec3 local = hitResult.getLocation().subtract(entity.position());
-                final PlayerInteractEvent.EntityInteractSpecific event = new PlayerInteractEvent.EntityInteractSpecific(player, hand, entity, local);
-                NeoForge.EVENT_BUS.post(event);
-                return event.isCanceled() ? cancelResult(event.getCancellationResult()) : InteractionResult.PASS;
+                final PlayerInteractEvent.EntityInteractSpecific specific = new PlayerInteractEvent.EntityInteractSpecific(player, hand, entity, local);
+                NeoForge.EVENT_BUS.post(specific);
+                if (specific.isCanceled())
+                {
+                    return clientKeepsPacket(level, cancelResult(specific.getCancellationResult()));
+                }
             }
             final PlayerInteractEvent.EntityInteract event = new PlayerInteractEvent.EntityInteract(player, hand, entity);
             NeoForge.EVENT_BUS.post(event);
-            return event.isCanceled() ? cancelResult(event.getCancellationResult()) : InteractionResult.PASS;
+            return event.isCanceled() ? clientKeepsPacket(level, cancelResult(event.getCancellationResult())) : InteractionResult.PASS;
         });
         AttackBlockCallback.EVENT.register((player, level, hand, pos, direction) -> {
             final PlayerInteractEvent.LeftClickBlock event =
               new PlayerInteractEvent.LeftClickBlock(player, pos, direction, PlayerInteractEvent.LeftClickBlock.Action.START);
             NeoForge.EVENT_BUS.post(event);
-            return event.isCanceled() ? InteractionResult.FAIL : InteractionResult.PASS;
+            return event.isCanceled() ? clientKeepsPacket(level, InteractionResult.FAIL) : InteractionResult.PASS;
         });
         AttackEntityCallback.EVENT.register((player, level, hand, entity, hitResult) ->
             NeoForge.EVENT_BUS.post(new AttackEntityEvent(player, entity)).isCanceled() ? InteractionResult.FAIL : InteractionResult.PASS);
@@ -221,6 +244,15 @@ public final class ShimGameEvents
      * NeoForge stops vanilla handling when an interaction event is canceled; on Fabric a PASS result would continue,
      * so a canceled event with PASS maps to FAIL.
      */
+    /**
+     * NeoForge still sends interaction packets to the server when a client-side listener cancels; Fabric only sends them for a
+     * result that consumes the action. Keep the packet flowing (the server fires the event again and decides) without a client swing.
+     */
+    private static InteractionResult clientKeepsPacket(final net.minecraft.world.level.Level level, final InteractionResult result)
+    {
+        return level.isClientSide() && !result.consumesAction() ? InteractionResult.SUCCESS_SERVER : result;
+    }
+
     private static InteractionResult cancelResult(final InteractionResult result)
     {
         return result == InteractionResult.PASS ? InteractionResult.FAIL : result;
