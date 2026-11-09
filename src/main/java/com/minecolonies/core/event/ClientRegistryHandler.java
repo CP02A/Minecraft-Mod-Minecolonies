@@ -274,6 +274,9 @@ public class ClientRegistryHandler
     @SubscribeEvent
     public static void doClientStuff(final EntityRenderersEvent.RegisterRenderers event)
     {
+        // FABRIC-PORT: the world overlay context registers itself with Structurize on class init; force that during client
+        // setup instead of on the first randomly-timed world tick (colony borders/blueprints appeared up to a second late).
+        com.minecolonies.core.client.render.worldevent.WorldEventContext.INSTANCE.getClass();
         event.registerEntityRenderer(ModEntities.CITIZEN, RenderBipedCitizen::new);
         event.registerEntityRenderer(ModEntities.VISITOR, RenderBipedCitizen::new);
         event.registerEntityRenderer(ModEntities.FISHHOOK, RenderFishHook::new);

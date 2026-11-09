@@ -50,6 +50,9 @@ public class RenderMercenary extends MobRenderer<PathfinderMob, HumanoidRenderSt
     {
         super.extractRenderState(entity, state, partialTicks);
         HumanoidMobRenderer.extractHumanoidRenderState(entity, state, partialTicks, this.itemModelResolver);
+        // FABRIC-PORT: like citizens and raiders, so held items (e.g. spears) use their arm pose.
+        state.rightArmPose = com.minecolonies.core.client.render.RenderUtils.getArmPose(entity, net.minecraft.world.InteractionHand.MAIN_HAND);
+        state.leftArmPose = com.minecolonies.core.client.render.RenderUtils.getArmPose(entity, net.minecraft.world.InteractionHand.OFF_HAND);
     }
 
     @Override

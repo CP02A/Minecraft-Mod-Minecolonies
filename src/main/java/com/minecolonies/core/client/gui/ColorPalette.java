@@ -84,7 +84,8 @@ public class ColorPalette
         protected void extractContents(final GuiGraphicsExtractor stack, int mouseX, int mouseY, float partialTicks)
         {
             this.active = selected != this.color;
-            int color = this.color.getTextColor();
+            // FABRIC-PORT: 26.x DyeColor#getTextColor is opaque ARGB; brighten()/fillButton() expect plain RGB.
+            int color = this.color.getTextColor() & 0xFFFFFF;
             boolean pressed = selected == this.color;
 
             this.fillButton(stack, 0, 0, 0, 0, isHovered ? 0xFFFFFF : pressed ? brighten(color, 0.5F) : 0x0);

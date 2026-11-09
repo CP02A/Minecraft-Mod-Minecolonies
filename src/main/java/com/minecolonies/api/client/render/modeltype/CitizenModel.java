@@ -33,14 +33,20 @@ public class CitizenModel<T extends AbstractEntityCitizen> extends HumanoidModel
     public void setupAnim(@NotNull final CitizenRenderState citizen)
     {
         super.setupAnim(citizen);
-        // FABRIC-PORT: 1.21.1 reset rotations to 0 before this; 26.x resets to the mesh pose (e.g. the courier body is tilted in its mesh).
+        // FABRIC-PORT: 1.21.1 HumanoidModel set arm zRot to 0 every frame, so the arm zRots in the Blockbench meshes never showed.
+        // 26.x keeps the mesh value (resetPose) and adds the idle bob on top; remove the mesh part to keep the old look.
+        rightArm.zRot -= rightArm.getInitialPose().zRot();
+        leftArm.zRot -= leftArm.getInitialPose().zRot();
+
+        // FABRIC-PORT: 1.21.1 reset body.xRot to 0 before this; 26.x resets to the mesh pose (e.g. the courier body is tilted in its mesh).
         // Only replace the rest pose, keep rotations applied by vanilla animations (crouching etc.).
         if (body.xRot == body.getInitialPose().xRot())
         {
             body.xRot = getActualRotation(citizen);
         }
 
-        if (head.xRot == head.getInitialPose().xRot())
+        // The head pitch is always set from the look direction (both versions), so 0 still means "looking straight ahead".
+        if (head.xRot == 0)
         {
             head.xRot = getActualRotation(citizen);
         }
