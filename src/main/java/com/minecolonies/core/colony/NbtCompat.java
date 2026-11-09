@@ -44,6 +44,7 @@ public final class NbtCompat
         {
             return ItemStack.EMPTY;
         }
-        return ItemStack.CODEC.parse(provider.createSerializationContext(NbtOps.INSTANCE), tag).result().orElse(ItemStack.EMPTY);
+        // Same parsing (incl. the 1.21.1 data fixer fallback) as ItemStackUtils.
+        return com.minecolonies.api.util.ItemStackUtils.parseOptional(provider, tag);
     }
 }

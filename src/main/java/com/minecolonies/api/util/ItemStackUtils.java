@@ -773,10 +773,40 @@ public final class ItemStackUtils
         {
             return ItemStack.EMPTY;
         }
-        return ItemStack.OPTIONAL_CODEC.parse(provider.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), tag)
-                 .resultOrPartial(e -> Log.getLogger().error("Tried to load invalid item: '{}'", e))
-                 .orElse(ItemStack.EMPTY);
+        final var ops = provider.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE);
+        final var result = ItemStack.OPTIONAL_CODEC.parse(ops, tag);
+        if (result.result().isPresent())
+        {
+            return result.result().get();
+        }
+
+        // FABRIC-PORT: MineColonies data (colonies, citizens, racks, requests, recipes) is not run through vanilla's data fixer.
+        // Stacks saved by 1.21.1 whose component formats changed since then fail to parse; upgrade them and try again.
+        if (tag instanceof CompoundTag compound)
+        {
+            try
+            {
+                final CompoundTag fixed = com.ldtteam.structurize.blueprints.v1.DataFixerUtils.runDataFixer(compound.copy(),
+                    net.minecraft.util.datafix.fixes.References.ITEM_STACK, LEGACY_1_21_1_DATA_VERSION);
+                final var fixedResult = ItemStack.OPTIONAL_CODEC.parse(ops, fixed).result();
+                if (fixedResult.isPresent())
+                {
+                    return fixedResult.get();
+                }
+            }
+            catch (final RuntimeException e)
+            {
+                Log.getLogger().debug("Data fixing item {} failed", tag, e);
+            }
+        }
+        Log.getLogger().error("Tried to load invalid item: '{}'", result.error().map(Object::toString).orElse(String.valueOf(tag)));
+        return ItemStack.EMPTY;
     }
+
+    /**
+     * Data version of Minecraft 1.21.1, the version MineColonies data is migrated from.
+     */
+    private static final int LEGACY_1_21_1_DATA_VERSION = 3955;
 
     /**
      * Replacement for the removed 1.21.1 {@code ItemStack#saveOptional}: writes an item stack to NBT (empty compound for EMPTY).

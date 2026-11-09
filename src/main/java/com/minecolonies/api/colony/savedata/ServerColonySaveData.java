@@ -60,6 +60,72 @@ public class ServerColonySaveData extends SavedData implements IServerColonySave
     }
 
     /**
+     * Levels whose legacy colony file was already looked for (per level instance, so a new server/world checks again).
+     */
+    private static final java.util.Set<ServerLevel> LEGACY_CHECKED = java.util.Collections.newSetFromMap(new java.util.WeakHashMap<>());
+
+    /**
+     * FABRIC-PORT: 1.21.1 stored the colonies in {@code <dimension data>/minecolonies_colony_manager.dat} (overworld: {@code data/},
+     * nether: {@code DIM-1/data/}, end: {@code DIM1/data/}). 26.x resolves the same id to
+     * {@code dimensions/<ns>/<dim>/data/minecolonies/colony_manager.dat}, and vanilla's world upgrade only moves its own files, so
+     * colonies of migrated worlds were not found. Move the legacy file into place before the data is loaded for the first time.
+     *
+     * @param level the level about to load its colony data.
+     */
+    public static void migrateLegacyFile(final ServerLevel level)
+    {
+        synchronized (LEGACY_CHECKED)
+        {
+            if (!LEGACY_CHECKED.add(level))
+            {
+                return;
+            }
+        }
+
+        final java.nio.file.Path root = level.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
+        final java.nio.file.Path dataFolder = net.minecraft.world.level.dimension.DimensionType.getStorageFolder(level.dimension(), root).resolve("data");
+        final java.nio.file.Path target = ID.withSuffix(".dat").resolveAgainst(dataFolder);
+        if (java.nio.file.Files.exists(target))
+        {
+            return;
+        }
+
+        final String legacyName = NAME + ".dat";
+        final java.util.List<java.nio.file.Path> candidates = new java.util.ArrayList<>();
+        candidates.add(dataFolder.resolve(legacyName));
+        if (level.dimension() == net.minecraft.world.level.Level.OVERWORLD)
+        {
+            candidates.add(root.resolve("data").resolve(legacyName));
+        }
+        else if (level.dimension() == net.minecraft.world.level.Level.NETHER)
+        {
+            candidates.add(root.resolve("DIM-1").resolve("data").resolve(legacyName));
+        }
+        else if (level.dimension() == net.minecraft.world.level.Level.END)
+        {
+            candidates.add(root.resolve("DIM1").resolve("data").resolve(legacyName));
+        }
+
+        for (final java.nio.file.Path legacy : candidates)
+        {
+            if (java.nio.file.Files.isRegularFile(legacy))
+            {
+                try
+                {
+                    java.nio.file.Files.createDirectories(target.getParent());
+                    java.nio.file.Files.move(legacy, target);
+                    Log.getLogger().info("Migrated 1.21.1 colony data {} to {}", legacy, target);
+                }
+                catch (final java.io.IOException e)
+                {
+                    Log.getLogger().error("Could not migrate 1.21.1 colony data {} to {}", legacy, target, e);
+                }
+                return;
+            }
+        }
+    }
+
+    /**
      * The list of all colonies.
      */
     @NotNull

@@ -1472,8 +1472,10 @@ public abstract class AbstractPathJob implements Callable<Path>, IPathJob
                 if (ShapeUtil.isEmpty(shape) || ShapeUtil.max(shape, Direction.Axis.Y) <= 0.1
                     && !PathfindingUtils.isLiquid((block)) && (block.getBlock() != Blocks.SNOW || block.getValue(SnowLayerBlock.LAYERS) == 1))
                 {
-                    // NeoForge IBlockStateExtension#getBlockPathType default: lava -> LAVA, burning -> DAMAGE_FIRE (non-negative malus), else null
-                    final PathType pathType = block.getBlock() == Blocks.LAVA ? PathType.LAVA : null;
+                    // NeoForge IBlockStateExtension#getBlockPathType default: lava -> LAVA, burning (fire, lit campfire) -> fire (non-negative malus), else null
+                    final PathType pathType = block.getBlock() == Blocks.LAVA ? PathType.LAVA
+                        : block.is(net.minecraft.tags.BlockTags.FIRE) || net.minecraft.world.level.block.CampfireBlock.isLitCampfire(block) ? PathType.FIRE
+                        : null;
                     if (pathType == null || pathType.getMalus() < 0)
                     {
                         return true;

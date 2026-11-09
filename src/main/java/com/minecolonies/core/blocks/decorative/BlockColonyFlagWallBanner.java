@@ -49,7 +49,9 @@ public class BlockColonyFlagWallBanner extends AbstractColonyFlagBanner<BlockCol
               .sound(SoundType.WOOD)
                 .noCollision()
                 .strength(1F)
-                .sound(SoundType.WOOD));
+                .sound(SoundType.WOOD)
+                // Was a getDescriptionId override (final in 26.x): the wall banner shares the colony banner's name.
+                .overrideDescription("block.minecolonies.colony_banner"));
     }
 
     public BlockColonyFlagWallBanner(final DyeColor dyeColor, final Properties properties)
@@ -57,8 +59,6 @@ public class BlockColonyFlagWallBanner extends AbstractColonyFlagBanner<BlockCol
         super(dyeColor, properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(HORIZONTAL_FACING, Direction.NORTH));
     }
-
-    // FABRIC-PORT: Block#getDescriptionId is final in 26.x; the registration should use Properties#overrideDescription(<banner item description id>).
 
     @Override
     public boolean canSurvive(BlockState state, LevelReader worldIn, BlockPos pos)
