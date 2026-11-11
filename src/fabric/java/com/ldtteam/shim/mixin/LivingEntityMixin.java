@@ -34,20 +34,20 @@ import java.util.Deque;
 public abstract class LivingEntityMixin implements DamageContainerHolder
 {
     @Unique
-    private final Deque<DamageContainer> shim$damageContainers = new ArrayDeque<>();
+    private final Deque<DamageContainer> minecolonies$damageContainers = new ArrayDeque<>();
     @Override
-    public Deque<DamageContainer> shim$getDamageContainers()
+    public Deque<DamageContainer> minecolonies$getDamageContainers()
     {
-        return shim$damageContainers;
+        return minecolonies$damageContainers;
     }
 
     /**
      * Pushes the damage container for this hurtServer call (popped at RETURN, also for vanilla's early returns).
      */
     @Inject(method = "hurtServer", at = @At("HEAD"))
-    private void shim$pushDamageContainer(final ServerLevel level, final DamageSource source, final float damage, final CallbackInfoReturnable<Boolean> cir)
+    private void minecolonies$pushDamageContainer(final ServerLevel level, final DamageSource source, final float damage, final CallbackInfoReturnable<Boolean> cir)
     {
-        shim$damageContainers.push(new DamageContainer(source, damage));
+        minecolonies$damageContainers.push(new DamageContainer(source, damage));
     }
 
     /**
@@ -55,12 +55,12 @@ public abstract class LivingEntityMixin implements DamageContainerHolder
      * cancelling aborts the damage.
      */
     @Inject(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;isSleeping()Z", ordinal = 0), cancellable = true)
-    private void shim$incomingDamage(final ServerLevel level, final DamageSource source, final float damage, final CallbackInfoReturnable<Boolean> cir)
+    private void minecolonies$incomingDamage(final ServerLevel level, final DamageSource source, final float damage, final CallbackInfoReturnable<Boolean> cir)
     {
-        final DamageContainer container = shim$damageContainers.peek();
+        final DamageContainer container = minecolonies$damageContainers.peek();
         if (container != null && NeoForge.EVENT_BUS.post(new LivingIncomingDamageEvent((LivingEntity) (Object) this, container)).isCanceled())
         {
-            shim$damageContainers.pop();
+            minecolonies$damageContainers.pop();
             cir.setReturnValue(false);
         }
     }
@@ -69,9 +69,9 @@ public abstract class LivingEntityMixin implements DamageContainerHolder
      * Applies the amount set by LivingIncomingDamageEvent listeners (right after the vanilla invulnerability checks).
      */
     @ModifyVariable(method = "hurtServer", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/LivingEntity;noActionTime:I", opcode = org.objectweb.asm.Opcodes.PUTFIELD), argsOnly = true)
-    private float shim$applyIncomingDamage(final float damage)
+    private float minecolonies$applyIncomingDamage(final float damage)
     {
-        final DamageContainer container = shim$damageContainers.peek();
+        final DamageContainer container = minecolonies$damageContainers.peek();
         return container == null ? damage : container.getNewDamage();
     }
 
@@ -79,9 +79,9 @@ public abstract class LivingEntityMixin implements DamageContainerHolder
      * Pops the damage container and fires LivingDamageEvent.Post when damage was dealt.
      */
     @Inject(method = "hurtServer", at = @At("RETURN"))
-    private void shim$damagePost(final ServerLevel level, final DamageSource source, final float damage, final CallbackInfoReturnable<Boolean> cir)
+    private void minecolonies$damagePost(final ServerLevel level, final DamageSource source, final float damage, final CallbackInfoReturnable<Boolean> cir)
     {
-        final DamageContainer container = shim$damageContainers.poll();
+        final DamageContainer container = minecolonies$damageContainers.poll();
         if (container != null && cir.getReturnValueZ())
         {
             NeoForge.EVENT_BUS.post(new LivingDamageEvent.Post((LivingEntity) (Object) this, container));
@@ -91,13 +91,13 @@ public abstract class LivingEntityMixin implements DamageContainerHolder
     // Right before vanilla's `if (dmg != 0.0F)` (7th load of dmg, checked with javap on 26.3): NeoForge fires Pre also for 0 damage,
     // and a listener raising it must still apply.
     @ModifyVariable(method = "actuallyHurt", at = @At(value = "LOAD", ordinal = 6), argsOnly = true)
-    private float shim$livingDamagePre(final float dmg)
+    private float minecolonies$livingDamagePre(final float dmg)
     {
         return ShimDamageHooks.fireDamagePre((LivingEntity) (Object) this, dmg);
     }
 
     @Inject(method = "die", at = @At("HEAD"), cancellable = true)
-    private void shim$onDeath(final DamageSource source, final CallbackInfo ci)
+    private void minecolonies$onDeath(final DamageSource source, final CallbackInfo ci)
     {
         if ((Object) this instanceof ServerPlayer)
         {
@@ -110,7 +110,7 @@ public abstract class LivingEntityMixin implements DamageContainerHolder
     }
 
     @Inject(method = "drop", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z"), cancellable = true)
-    private void shim$onToss(final ItemStack itemStack, final boolean thrownFromHand, final Prediction prediction, final CallbackInfoReturnable<ItemEntity> cir,
+    private void minecolonies$onToss(final ItemStack itemStack, final boolean thrownFromHand, final Prediction prediction, final CallbackInfoReturnable<ItemEntity> cir,
         @Local final ItemEntity entity)
     {
         if ((Object) this instanceof ServerPlayer player && !player.isDeadOrDying())

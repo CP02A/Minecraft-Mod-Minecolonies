@@ -23,7 +23,7 @@ public abstract class ItemPropertiesMixin
     private ResourceKey<Item> id;
 
     @Inject(method = "itemIdOrThrow", at = @At("HEAD"))
-    private void shim$assignRegistrationId(final CallbackInfoReturnable<ResourceKey<Item>> cir)
+    private void minecolonies$assignRegistrationId(final CallbackInfoReturnable<ResourceKey<Item>> cir)
     {
         if (this.id == null)
         {

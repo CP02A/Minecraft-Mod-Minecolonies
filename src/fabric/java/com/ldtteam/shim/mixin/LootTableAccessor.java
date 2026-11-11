@@ -15,9 +15,9 @@ import java.util.List;
 public interface LootTableAccessor
 {
     @Accessor("pools")
-    List<LootPool> shim$getPools();
+    List<LootPool> minecolonies$getPools();
 
     @Mutable
     @Accessor("pools")
-    void shim$setPools(List<LootPool> pools);
+    void minecolonies$setPools(List<LootPool> pools);
 }

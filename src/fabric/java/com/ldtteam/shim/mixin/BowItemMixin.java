@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class BowItemMixin
 {
     @Inject(method = "use", at = @At("HEAD"), cancellable = true)
-    private void shim$arrowNock(final Level level, final Player player, final InteractionHand hand, final CallbackInfoReturnable<InteractionResult> cir)
+    private void minecolonies$arrowNock(final Level level, final Player player, final InteractionHand hand, final CallbackInfoReturnable<InteractionResult> cir)
     {
         final ItemStack stack = player.getItemInHand(hand);
         final InteractionResult result = EventHooks.onArrowNock(stack, level, player, hand, !player.getProjectile(stack).isEmpty());
@@ -32,7 +32,7 @@ public abstract class BowItemMixin
     }
 
     @Inject(method = "releaseUsing", at = @At("HEAD"), cancellable = true)
-    private void shim$arrowLoose(final ItemStack itemStack, final Level level, final LivingEntity entity, final int remainingTime, final CallbackInfoReturnable<Boolean> cir)
+    private void minecolonies$arrowLoose(final ItemStack itemStack, final Level level, final LivingEntity entity, final int remainingTime, final CallbackInfoReturnable<Boolean> cir)
     {
         if (entity instanceof Player player)
         {

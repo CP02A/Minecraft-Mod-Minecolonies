@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ServerLevelMixin
 {
     @Inject(method = "gameEvent(Lnet/minecraft/core/Holder;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/level/gameevent/GameEvent$Context;)V", at = @At("HEAD"), cancellable = true)
-    private void shim$vanillaGameEvent(final Holder<GameEvent> gameEvent, final Vec3 position, final GameEvent.Context context, final CallbackInfo ci)
+    private void minecolonies$vanillaGameEvent(final Holder<GameEvent> gameEvent, final Vec3 position, final GameEvent.Context context, final CallbackInfo ci)
     {
         if (NeoForge.EVENT_BUS.post(new VanillaGameEvent((ServerLevel) (Object) this, gameEvent, position, context)).isCanceled())
         {
@@ -30,7 +30,7 @@ public abstract class ServerLevelMixin
     }
 
     @Inject(method = "explode", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/ServerExplosion;explode()I"), cancellable = true)
-    private void shim$explosionStart(final CallbackInfo ci, @Local final ServerExplosion explosion)
+    private void minecolonies$explosionStart(final CallbackInfo ci, @Local final ServerExplosion explosion)
     {
         if (NeoForge.EVENT_BUS.post(new ExplosionEvent.Start((ServerLevel) (Object) this, explosion)).isCanceled())
         {

@@ -83,8 +83,8 @@ public class LootTableLoadEvent extends Event implements ICancellableEvent
     public static void addPool(final LootTable table, final LootPool pool)
     {
         final LootTableAccessor accessor = (LootTableAccessor) table;
-        final List<LootPool> pools = new ArrayList<>(accessor.shim$getPools());
+        final List<LootPool> pools = new ArrayList<>(accessor.minecolonies$getPools());
         pools.add(pool);
-        accessor.shim$setPools(List.copyOf(pools));
+        accessor.minecolonies$setPools(List.copyOf(pools));
     }
 }

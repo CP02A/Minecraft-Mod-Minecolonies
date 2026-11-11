@@ -1,5 +1,5 @@
 {
-  "type": "neoforge:add_table",
+  "type": "minecolonies_shim:add_table",
   "conditions": [
     {
       "type": "minecolonies:generate_supply_loot"
@@ -8,39 +8,39 @@
       "type": "minecraft:any_of",
       "terms": [
         {
-          "type": "neoforge:loot_table_id",
+          "type": "minecolonies_shim:loot_table_id",
           "loot_table_id": "minecraft:chests/underwater_ruin_small"
         },
         {
-          "type": "neoforge:loot_table_id",
+          "type": "minecolonies_shim:loot_table_id",
           "loot_table_id": "minecraft:chests/underwater_ruin_big"
         },
         {
-          "type": "neoforge:loot_table_id",
+          "type": "minecolonies_shim:loot_table_id",
           "loot_table_id": "minecraft:chests/buried_treasure"
         },
         {
-          "type": "neoforge:loot_table_id",
+          "type": "minecolonies_shim:loot_table_id",
           "loot_table_id": "minecraft:chests/shipwreck_map"
         },
         {
-          "type": "neoforge:loot_table_id",
+          "type": "minecolonies_shim:loot_table_id",
           "loot_table_id": "minecraft:chests/shipwreck_supply"
         },
         {
-          "type": "neoforge:loot_table_id",
+          "type": "minecolonies_shim:loot_table_id",
           "loot_table_id": "minecraft:chests/shipwreck_treasure"
         },
         {
-          "type": "neoforge:loot_table_id",
+          "type": "minecolonies_shim:loot_table_id",
           "loot_table_id": "minecraft:chests/village/village_fisher"
         },
         {
-          "type": "neoforge:loot_table_id",
+          "type": "minecolonies_shim:loot_table_id",
           "loot_table_id": "minecraft:chests/village/village_armorer"
         },
         {
-          "type": "neoforge:loot_table_id",
+          "type": "minecolonies_shim:loot_table_id",
           "loot_table_id": "minecraft:chests/village/village_temple"
         }
       ]

@@ -61,7 +61,7 @@ public class RegisterCapabilitiesEvent extends Event implements IModBusEvent
             return provider.getCapability((BE) blockEntity, context);
         };
 
-        for (final Block block : ((BlockEntityTypeAccessor) blockEntityType).shim$getValidBlocks())
+        for (final Block block : ((BlockEntityTypeAccessor) blockEntityType).minecolonies$getValidBlocks())
         {
             capability.addProvider(Objects.requireNonNull(block), adaptedProvider);
         }

@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.At;
 public abstract class FarmlandBlockMixin
 {
     @WrapWithCondition(method = "fallOn", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/FarmlandBlock;turnToBaseBlock(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)V"))
-    private boolean shim$fireTrampleEvent(final FarmlandBlock self, final Entity entity, final BlockState state, final Level level, final BlockPos pos,
+    private boolean minecolonies$fireTrampleEvent(final FarmlandBlock self, final Entity entity, final BlockState state, final Level level, final BlockPos pos,
         final Level fallLevel, final BlockState fallState, final BlockPos fallPos, final Entity fallEntity, final double fallDistance)
     {
         return CommonHooks.onFarmlandTrample(level, pos, state, fallDistance, entity);

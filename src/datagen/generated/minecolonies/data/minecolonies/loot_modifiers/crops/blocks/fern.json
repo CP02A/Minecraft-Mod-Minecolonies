@@ -1,8 +1,8 @@
 {
-  "type": "neoforge:add_table",
+  "type": "minecolonies_shim:add_table",
   "conditions": [
     {
-      "type": "neoforge:loot_table_id",
+      "type": "minecolonies_shim:loot_table_id",
       "loot_table_id": "minecraft:blocks/fern"
     }
   ],

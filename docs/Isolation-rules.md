@@ -1,0 +1,12 @@
+## Isolation rules for the Fabric port (follow from the start)
+
+The goal: this mod must never collide with another mod, including other mods that ship their own NeoForge/Forge shims.
+
+1. **Shim packages are mod-specific.** Never ship classes in `net.neoforged.*`, `net.minecraftforge.*` or any other package another mod could also use. The shim lives in `<modpackage>.shim.*` (e.g. `mymod.shim.neoforged.neoforge...`). The shared (NeoForge) source keeps the real imports; the Fabric build rewrites them when it copies the sources, so the NeoForge build is unaffected.
+2. **Relocate every bundled third-party library** that other mods might also bundle (e.g. `net.neoforged:bus`), using the same mod-specific prefix, so no other mod's copy can replace it.
+3. **No shared registry names.** Everything the shim registers (static registries, datapack/dynamic registries, network payload ids, attachment types, argument types and so on) uses a mod-specific namespace such as `mymod_shim:`, never `neoforge:`, `forge:`, `c:`, `fabric:` or `minecraft:`. Data folders that depend on those names move too (`data/<ns>/mymod_shim/biome_modifier/`). The mod's own content keeps its normal `mymod:` ids.
+4. **Don't clash on injected interfaces or added members.** Methods that interface injection or mixins add to vanilla classes either keep the exact NeoForge signature, with a conflict check against Fabric API and common mods, or get a mod-specific prefix. Add the conflict check (like `checkInjectedInterfaces`) to `check` on day one. Mixin-added fields and helpers use `@Unique`.
+5. **Mixins as unobtrusive as possible:** no `@Overwrite`, avoid `@Redirect` (prefer `@Inject`/`@ModifyExpressionValue` from MixinExtras), make mixin configs, refmaps, access wideners and nested jar mod ids mod-specific, and keep access wideners minimal.
+6. **Use standard Fabric APIs for cross-mod interop.** Energy goes through Team Reborn Energy, items and fluids through the Fabric Transfer API, and tags through the shared `c:` convention, so the port works with other mods instead of beside them. Write game tests for these bridges in both directions.
+7. **Declare real incompatibilities** (e.g. Sinytra Connector) in `fabric.mod.json` `breaks` instead of letting them crash.
+8. **Verify:** add a build check that fails if the Fabric jar contains classes outside the mod's own packages (except libraries that are bundled as nested jars on purpose).

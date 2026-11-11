@@ -50,6 +50,8 @@ Requirements: any JDK 17 or newer to start the Gradle wrapper, plus an internet 
 - The dev client always logs in as **Player875** (set in `build.gradle`). Offline player IDs are derived from the name, so a changing name would make you a stranger in colonies you founded earlier: no ownership and no colony chat messages.
 - Don't run `gradlew build`/`compileJava` while the dev client is open: it rewrites the classes the running game loads from and crashes it with `ClassNotFoundException`.
 - [`FABRIC_TESTING.md`](FABRIC_TESTING.md) is a step-by-step manual test plan.
+- `./gradlew runGameTest` runs the automated server game tests in `src/gametest` (a separate test mod, not part of the jar). The report goes to `build/gametest-report.xml`.
+- `./gradlew build` also runs the isolation checks from [`docs/Isolation-rules.md`](docs/Isolation-rules.md): `checkJarIsolation` (packages and mixin config names in the jar) and `checkInjectedMembers` (members mixins add to vanilla classes).
 
 ### Upgrading a 1.21.1 (NeoForge) world
 

@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ItemEntityMixin
 {
     @Inject(method = "playerTouch", at = @At("HEAD"), cancellable = true)
-    private void shim$pickupPre(final Player player, final CallbackInfo ci)
+    private void minecolonies$pickupPre(final Player player, final CallbackInfo ci)
     {
         final ItemEntity self = (ItemEntity) (Object) this;
         if (self.level().isClientSide())

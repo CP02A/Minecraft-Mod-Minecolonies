@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class ServerPlayerMixin
 {
     @Inject(method = "teleport(Lnet/minecraft/world/level/portal/TeleportTransition;)Lnet/minecraft/server/level/ServerPlayer;", at = @At("HEAD"), cancellable = true)
-    private void shim$onTravelToDimension(final TeleportTransition transition, final CallbackInfoReturnable<ServerPlayer> cir)
+    private void minecolonies$onTravelToDimension(final TeleportTransition transition, final CallbackInfoReturnable<ServerPlayer> cir)
     {
         final ServerPlayer self = (ServerPlayer) (Object) this;
         if (!self.isRemoved() && transition.newLevel().dimension() != self.level().dimension())
@@ -32,7 +32,7 @@ public abstract class ServerPlayerMixin
     }
 
     @Inject(method = "die", at = @At("HEAD"), cancellable = true)
-    private void shim$onDeath(final DamageSource source, final CallbackInfo ci)
+    private void minecolonies$onDeath(final DamageSource source, final CallbackInfo ci)
     {
         if (NeoForge.EVENT_BUS.post(new LivingDeathEvent((ServerPlayer) (Object) this, source)).isCanceled())
         {

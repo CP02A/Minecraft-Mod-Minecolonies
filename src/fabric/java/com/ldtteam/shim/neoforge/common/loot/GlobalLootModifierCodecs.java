@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Shim replacement for NeoForge's global loot modifier codec registry. {@code neoforge:add_table} is built in;
+ * Shim replacement for NeoForge's global loot modifier codec registry. {@code minecolonies_shim:add_table} is built in;
  * more can be added with {@link #register(Identifier, MapCodec)}.
  */
 public final class GlobalLootModifierCodecs
@@ -51,7 +51,7 @@ public final class GlobalLootModifierCodecs
             if (!builtinsRegistered)
             {
                 builtinsRegistered = true;
-                register(Identifier.fromNamespaceAndPath("neoforge", "add_table"), AddTableLootModifier.CODEC);
+                register(Identifier.fromNamespaceAndPath("minecolonies_shim", "add_table"), AddTableLootModifier.CODEC);
             }
         }
     }

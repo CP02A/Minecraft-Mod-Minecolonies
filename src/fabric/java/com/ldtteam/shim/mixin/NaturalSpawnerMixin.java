@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class NaturalSpawnerMixin
 {
     @Inject(method = "isValidPositionForMob", at = @At("RETURN"), cancellable = true)
-    private static void shim$positionCheck(final ServerLevel level, final Mob mob, final double nearestPlayerDistanceSqr, final CallbackInfoReturnable<Boolean> cir)
+    private static void minecolonies$positionCheck(final ServerLevel level, final Mob mob, final double nearestPlayerDistanceSqr, final CallbackInfoReturnable<Boolean> cir)
     {
         // The despawn-distance part of the vanilla check is kept: only fire when the mob would not immediately despawn.
         final double despawn = mob.getType().getCategory().getDespawnDistance();

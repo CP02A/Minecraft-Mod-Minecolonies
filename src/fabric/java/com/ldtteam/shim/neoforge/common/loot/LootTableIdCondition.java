@@ -13,7 +13,7 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 /**
- * {@code neoforge:loot_table_id} loot condition (NeoForge shim).
+ * {@code minecolonies_shim:loot_table_id} loot condition (NeoForge shim).
  */
 public class LootTableIdCondition implements LootItemCondition
 {
@@ -21,7 +21,7 @@ public class LootTableIdCondition implements LootItemCondition
         builder -> builder.group(Identifier.CODEC.fieldOf("loot_table_id").forGetter(idCondition -> idCondition.targetLootTableId))
             .apply(builder, LootTableIdCondition::new));
 
-    public static final Identifier UNKNOWN_LOOT_TABLE = Identifier.fromNamespaceAndPath("neoforge", "unknown_loot_table");
+    public static final Identifier UNKNOWN_LOOT_TABLE = Identifier.fromNamespaceAndPath("minecolonies_shim", "unknown_loot_table");
 
     private final Identifier targetLootTableId;
 

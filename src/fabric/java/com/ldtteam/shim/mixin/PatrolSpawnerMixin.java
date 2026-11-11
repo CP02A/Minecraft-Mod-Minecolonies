@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class PatrolSpawnerMixin
 {
     @Inject(method = "spawnPatrolMember", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/monster/PatrollingMonster;finalizeSpawn(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/world/DifficultyInstance;Lnet/minecraft/world/entity/EntitySpawnReason;Lnet/minecraft/world/entity/SpawnGroupData;)Lnet/minecraft/world/entity/SpawnGroupData;"), cancellable = true)
-    private void shim$positionCheck(final ServerLevel level, final BlockPos pos, final RandomSource random, final boolean isLeader, final CallbackInfoReturnable<Boolean> cir,
+    private void minecolonies$positionCheck(final ServerLevel level, final BlockPos pos, final RandomSource random, final boolean isLeader, final CallbackInfoReturnable<Boolean> cir,
         @Local final PatrollingMonster mob)
     {
         if (EventHooks.checkSpawnPositionResult(mob, level, EntitySpawnReason.PATROL, null) == MobSpawnEvent.PositionCheck.Result.FAIL)

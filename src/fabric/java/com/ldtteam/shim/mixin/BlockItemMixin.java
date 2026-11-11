@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.At;
 public abstract class BlockItemMixin
 {
     @WrapOperation(method = "place", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/BlockItem;placeBlock(Lnet/minecraft/world/item/context/BlockPlaceContext;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
-    private boolean shim$firePlaceEvent(final BlockItem self, final BlockPlaceContext context, final BlockState state, final Operation<Boolean> original)
+    private boolean minecolonies$firePlaceEvent(final BlockItem self, final BlockPlaceContext context, final BlockState state, final Operation<Boolean> original)
     {
         final Level level = context.getLevel();
         if (level.isClientSide())

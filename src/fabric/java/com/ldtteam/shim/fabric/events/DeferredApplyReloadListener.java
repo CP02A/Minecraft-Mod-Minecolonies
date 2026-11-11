@@ -79,9 +79,9 @@ public final class DeferredApplyReloadListener implements PreparableReloadListen
     {
         final ResourceManager manager = currentReload.resourceManager();
         final SimplePreparableReloadListenerInvoker invoker = (SimplePreparableReloadListenerInvoker) delegate;
-        return CompletableFuture.supplyAsync(() -> invoker.shim$prepare(manager, Profiler.get()), taskExecutor)
+        return CompletableFuture.supplyAsync(() -> invoker.minecolonies$prepare(manager, Profiler.get()), taskExecutor)
                  .thenCompose(preparationBarrier::wait)
-                 .thenAcceptAsync(prepared -> PENDING.add(() -> invoker.shim$apply(prepared, manager, Profiler.get())), reloadExecutor);
+                 .thenAcceptAsync(prepared -> PENDING.add(() -> invoker.minecolonies$apply(prepared, manager, Profiler.get())), reloadExecutor);
     }
 
     @Override

@@ -30,26 +30,26 @@ public abstract class ServerExplosionMixin
     private ServerLevel level;
 
     @Unique
-    private List<BlockPos> shim$toBlow;
+    private List<BlockPos> minecolonies$toBlow;
 
     @ModifyReturnValue(method = "calculateExplodedPositions", at = @At("RETURN"))
-    private List<BlockPos> shim$captureBlocks(final List<BlockPos> original)
+    private List<BlockPos> minecolonies$captureBlocks(final List<BlockPos> original)
     {
-        shim$toBlow = new ArrayList<>(original);
-        return shim$toBlow;
+        minecolonies$toBlow = new ArrayList<>(original);
+        return minecolonies$toBlow;
     }
 
     @WrapOperation(method = "hurtEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;getEntities(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;)Ljava/util/List;"))
-    private List<Entity> shim$detonate(final ServerLevel instance, final Entity except, final AABB box, final Operation<List<Entity>> original)
+    private List<Entity> minecolonies$detonate(final ServerLevel instance, final Entity except, final AABB box, final Operation<List<Entity>> original)
     {
         final List<Entity> entities = new ArrayList<>(original.call(instance, except, box));
-        shim$fireDetonate(entities);
+        minecolonies$fireDetonate(entities);
         return entities;
     }
 
     @Unique
-    private void shim$fireDetonate(final List<Entity> entities)
+    private void minecolonies$fireDetonate(final List<Entity> entities)
     {
-        NeoForge.EVENT_BUS.post(new ExplosionEvent.Detonate(level, (ServerExplosion) (Object) this, entities, shim$toBlow == null ? new ArrayList<>() : shim$toBlow));
+        NeoForge.EVENT_BUS.post(new ExplosionEvent.Detonate(level, (ServerExplosion) (Object) this, entities, minecolonies$toBlow == null ? new ArrayList<>() : minecolonies$toBlow));
     }
 }

@@ -18,15 +18,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class SoundEngineMixin
 {
     @Unique
-    private boolean shim$replaying = false;
+    private boolean minecolonies$replaying = false;
 
     @Shadow
     public abstract SoundEngine.PlayResult play(SoundInstance instance);
 
     @Inject(method = "play", at = @At("HEAD"), cancellable = true)
-    private void shim$onPlay(final SoundInstance instance, final CallbackInfoReturnable<SoundEngine.PlayResult> cir)
+    private void minecolonies$onPlay(final SoundInstance instance, final CallbackInfoReturnable<SoundEngine.PlayResult> cir)
     {
-        if (shim$replaying || instance == null)
+        if (minecolonies$replaying || instance == null)
         {
             return;
         }
@@ -39,14 +39,14 @@ public abstract class SoundEngineMixin
         }
         else if (result != instance)
         {
-            shim$replaying = true;
+            minecolonies$replaying = true;
             try
             {
                 cir.setReturnValue(play(result));
             }
             finally
             {
-                shim$replaying = false;
+                minecolonies$replaying = false;
             }
         }
     }

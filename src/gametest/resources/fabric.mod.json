@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "minecolonies-gametest",
+  "version": "1.0.0",
+  "name": "MineColonies Game Tests",
+  "description": "Server game tests for the MineColonies Fabric port. Development only, not shipped.",
+  "license": "GPL-3.0",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": [
+      "com.minecolonies.gametest.TransferBridgeGameTests"
+    ]
+  },
+  "depends": {
+    "minecolonies": "*",
+    "fabric-gametest-api-v1": "*",
+    "fabric-transfer-api-v1": "*"
+  }
+}

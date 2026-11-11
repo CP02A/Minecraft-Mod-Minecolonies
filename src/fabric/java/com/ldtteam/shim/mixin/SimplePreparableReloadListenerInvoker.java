@@ -13,8 +13,8 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface SimplePreparableReloadListenerInvoker
 {
     @Invoker("prepare")
-    Object shim$prepare(ResourceManager manager, ProfilerFiller profiler);
+    Object minecolonies$prepare(ResourceManager manager, ProfilerFiller profiler);
 
     @Invoker("apply")
-    void shim$apply(Object preparations, ResourceManager manager, ProfilerFiller profiler);
+    void minecolonies$apply(Object preparations, ResourceManager manager, ProfilerFiller profiler);
 }

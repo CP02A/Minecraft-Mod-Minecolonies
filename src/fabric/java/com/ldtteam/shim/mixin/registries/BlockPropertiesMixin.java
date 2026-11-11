@@ -24,7 +24,7 @@ public abstract class BlockPropertiesMixin
     private ResourceKey<Block> id;
 
     @Inject(method = {"effectiveDescriptionId", "effectiveDrops"}, at = @At("HEAD"))
-    private void shim$assignRegistrationId(final CallbackInfoReturnable<?> cir)
+    private void minecolonies$assignRegistrationId(final CallbackInfoReturnable<?> cir)
     {
         if (this.id == null)
         {

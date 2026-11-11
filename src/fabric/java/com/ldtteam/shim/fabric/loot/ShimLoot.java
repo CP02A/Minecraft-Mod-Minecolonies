@@ -36,14 +36,17 @@ import java.util.*;
 
 /**
  * NeoForge global loot modifier compatibility on Fabric: loads {@code data/<ns>/loot_modifiers/*.json} listed in the layered
- * {@code data/neoforge/loot_modifiers/global_loot_modifiers.json} files (NeoForge format, incl. {@code neoforge:conditions}),
- * and applies them on Fabric's {@link LootTableEvents#MODIFY_DROPS}. Registers the {@code neoforge:loot_table_id} loot condition.
+ * {@code data/minecolonies_shim/loot_modifiers/global_loot_modifiers.json} files (NeoForge format, incl. {@code neoforge:conditions}),
+ * and applies them on Fabric's {@link LootTableEvents#MODIFY_DROPS}. Registers the {@code minecolonies_shim:loot_table_id} loot condition.
+ * <p>
+ * The index and the condition use the shim namespace, not {@code neoforge}: other mods ship NeoForge shims too, and a second
+ * {@code neoforge:loot_table_id} registration crashes, while a shared index would make each shim load the other's modifiers.
  */
 public final class ShimLoot
 {
     private static final Logger            LOGGER       = LoggerFactory.getLogger("ShimLoot");
     private static final String            FOLDER       = "loot_modifiers";
-    private static final Identifier        GLOBAL_INDEX = Identifier.fromNamespaceAndPath("neoforge", FOLDER + "/global_loot_modifiers.json");
+    private static final Identifier        GLOBAL_INDEX = Identifier.fromNamespaceAndPath("minecolonies_shim", FOLDER + "/global_loot_modifiers.json");
     private static final ThreadLocal<Identifier> QUERIED_TABLE = new ThreadLocal<>();
 
     private static volatile List<IGlobalLootModifier> modifiers = List.of();
@@ -64,7 +67,7 @@ public final class ShimLoot
         }
         initialized = true;
 
-        Registry.register(BuiltInRegistries.LOOT_CONDITION_TYPE, Identifier.fromNamespaceAndPath("neoforge", "loot_table_id"), LootTableIdCondition.CODEC);
+        Registry.register(BuiltInRegistries.LOOT_CONDITION_TYPE, Identifier.fromNamespaceAndPath("minecolonies_shim", "loot_table_id"), LootTableIdCondition.CODEC);
 
         ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(Identifier.fromNamespaceAndPath("minecolonies", "shim_loot_modifiers"), new Listener());
 

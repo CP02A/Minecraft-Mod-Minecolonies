@@ -10,5 +10,5 @@ import java.util.Deque;
  */
 public interface DamageContainerHolder
 {
-    Deque<DamageContainer> shim$getDamageContainers();
+    Deque<DamageContainer> minecolonies$getDamageContainers();
 }

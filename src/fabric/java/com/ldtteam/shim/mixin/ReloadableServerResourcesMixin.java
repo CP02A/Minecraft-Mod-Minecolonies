@@ -23,14 +23,14 @@ import java.util.List;
 public abstract class ReloadableServerResourcesMixin
 {
     @Unique
-    private RegistryAccess shim$registryAccess;
+    private RegistryAccess minecolonies$registryAccess;
     @Unique
-    private HolderLookup.Provider shim$lookup;
+    private HolderLookup.Provider minecolonies$lookup;
     @Unique
-    private List<PreparableReloadListener> shim$modListeners;
+    private List<PreparableReloadListener> minecolonies$modListeners;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void shim$captureRegistries(final net.minecraft.server.ReloadableServerRegistries.LoadResult loadingContext,
+    private void minecolonies$captureRegistries(final net.minecraft.server.ReloadableServerRegistries.LoadResult loadingContext,
         final net.minecraft.world.flag.FeatureFlagSet enabledFeatures,
         final net.minecraft.commands.Commands.CommandSelection commandSelection,
         final List<?> postponedTags,
@@ -38,25 +38,25 @@ public abstract class ReloadableServerResourcesMixin
         final List<?> newComponents,
         final CallbackInfo ci)
     {
-        shim$registryAccess = loadingContext.layers().compositeAccess();
-        shim$lookup = loadingContext.lookupWithUpdatedTags();
+        minecolonies$registryAccess = loadingContext.layers().compositeAccess();
+        minecolonies$lookup = loadingContext.lookupWithUpdatedTags();
     }
 
     @Inject(method = "listeners", at = @At("RETURN"), cancellable = true)
-    private void shim$addModListeners(final CallbackInfoReturnable<List<PreparableReloadListener>> cir)
+    private void minecolonies$addModListeners(final CallbackInfoReturnable<List<PreparableReloadListener>> cir)
     {
-        if (shim$modListeners == null)
+        if (minecolonies$modListeners == null)
         {
-            com.ldtteam.shim.fabric.events.ShimReloadContext.set(shim$registryAccess, shim$lookup);
-            final AddReloadListenerEvent event = new AddReloadListenerEvent((ReloadableServerResources) (Object) this, shim$registryAccess, shim$lookup);
+            com.ldtteam.shim.fabric.events.ShimReloadContext.set(minecolonies$registryAccess, minecolonies$lookup);
+            final AddReloadListenerEvent event = new AddReloadListenerEvent((ReloadableServerResources) (Object) this, minecolonies$registryAccess, minecolonies$lookup);
             NeoForge.EVENT_BUS.post(event);
             com.ldtteam.shim.fabric.events.DeferredApplyReloadListener.startReload();
-            shim$modListeners = event.getListeners().stream().map(com.ldtteam.shim.fabric.events.DeferredApplyReloadListener::wrap).toList();
+            minecolonies$modListeners = event.getListeners().stream().map(com.ldtteam.shim.fabric.events.DeferredApplyReloadListener::wrap).toList();
         }
-        if (!shim$modListeners.isEmpty())
+        if (!minecolonies$modListeners.isEmpty())
         {
             final List<PreparableReloadListener> list = new ArrayList<>(cir.getReturnValue());
-            list.addAll(shim$modListeners);
+            list.addAll(minecolonies$modListeners);
             cir.setReturnValue(list);
         }
     }

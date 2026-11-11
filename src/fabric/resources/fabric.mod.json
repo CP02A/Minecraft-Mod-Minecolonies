@@ -22,9 +22,9 @@
   "mixins": [
     "minecolonies-shim.mixins.json",
     "minecolonies.mixins.json",
-    "structurize.mixins.json",
-    "blockui.mixins.json",
-    "domumornamentum.mixins.json"
+    "minecolonies-structurize.mixins.json",
+    "minecolonies-blockui.mixins.json",
+    "minecolonies-domumornamentum.mixins.json"
   ],
   "accessWidener": "minecolonies.classtweaker",
   "depends": {
@@ -32,6 +32,9 @@
     "minecraft": "~26.3",
     "java": ">=25",
     "fabric-api": "*"
+  },
+  "breaks": {
+    "connector": "*"
   },
   "suggests": {
     "jei": "*",

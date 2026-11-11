@@ -21,7 +21,7 @@ public final class ShimDamageHooks
      */
     public static float fireDamagePre(final LivingEntity entity, final float dmg)
     {
-        final DamageContainer container = ((DamageContainerHolder) entity).shim$getDamageContainers().peek();
+        final DamageContainer container = ((DamageContainerHolder) entity).minecolonies$getDamageContainers().peek();
         if (container == null)
         {
             return dmg;

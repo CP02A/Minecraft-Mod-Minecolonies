@@ -9,5 +9,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface AbstractHorseAccessor
 {
     @Accessor("inventory")
-    SimpleContainer shim$getInventory();
+    SimpleContainer minecolonies$getInventory();
 }

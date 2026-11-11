@@ -92,7 +92,7 @@ public final class ShimCapabilityHooks
             }
             if (entity instanceof AbstractHorse horse)
             {
-                return new InvWrapper(((AbstractHorseAccessor) horse).shim$getInventory());
+                return new InvWrapper(((AbstractHorseAccessor) horse).minecolonies$getInventory());
             }
             if (entity instanceof LivingEntity living)
             {

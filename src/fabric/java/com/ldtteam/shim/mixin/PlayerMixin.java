@@ -17,20 +17,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class PlayerMixin
 {
     @Inject(method = "tick", at = @At("HEAD"))
-    private void shim$preTick(final CallbackInfo ci)
+    private void minecolonies$preTick(final CallbackInfo ci)
     {
         NeoForge.EVENT_BUS.post(new PlayerTickEvent.Pre((Player) (Object) this));
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
-    private void shim$postTick(final CallbackInfo ci)
+    private void minecolonies$postTick(final CallbackInfo ci)
     {
         NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post((Player) (Object) this));
     }
 
     // Right before vanilla's `if (dmg != 0.0F)` (7th load of dmg, checked with javap on 26.3), so Pre also fires for 0 damage.
     @ModifyVariable(method = "actuallyHurt", at = @At(value = "LOAD", ordinal = 6), argsOnly = true)
-    private float shim$livingDamagePre(final float dmg)
+    private float minecolonies$livingDamagePre(final float dmg)
     {
         return ShimDamageHooks.fireDamagePre((Player) (Object) this, dmg);
     }

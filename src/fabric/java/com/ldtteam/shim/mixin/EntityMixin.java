@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class EntityMixin
 {
     @Inject(method = "teleport(Lnet/minecraft/world/level/portal/TeleportTransition;)Lnet/minecraft/world/entity/Entity;", at = @At("HEAD"), cancellable = true)
-    private void shim$onTravelToDimension(final TeleportTransition transition, final CallbackInfoReturnable<Entity> cir)
+    private void minecolonies$onTravelToDimension(final TeleportTransition transition, final CallbackInfoReturnable<Entity> cir)
     {
         final Entity self = (Entity) (Object) this;
         if (self.level() instanceof ServerLevel serverLevel && !self.isRemoved() && transition.newLevel().dimension() != serverLevel.dimension())

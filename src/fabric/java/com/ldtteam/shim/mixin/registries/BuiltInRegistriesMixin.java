@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class BuiltInRegistriesMixin
 {
     @Inject(method = "bootStrap", at = @At("RETURN"))
-    private static void shim$afterFreeze(final CallbackInfo ci)
+    private static void minecolonies$afterFreeze(final CallbackInfo ci)
     {
         ShimSetupPhase.onRegistriesFrozen();
     }

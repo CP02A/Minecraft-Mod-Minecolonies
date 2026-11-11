@@ -15,7 +15,7 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 /**
- * {@code neoforge:add_table}: rolls another loot table and adds its drops (NeoForge shim).
+ * {@code minecolonies_shim:add_table}: rolls another loot table and adds its drops (NeoForge shim).
  */
 public class AddTableLootModifier extends LootModifier
 {

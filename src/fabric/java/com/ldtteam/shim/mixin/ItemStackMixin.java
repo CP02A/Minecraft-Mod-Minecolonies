@@ -28,7 +28,7 @@ import org.spongepowered.asm.mixin.injection.At;
 public abstract class ItemStackMixin
 {
     @WrapOperation(method = "useOn", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/Item;useOn(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;"))
-    private InteractionResult shim$firePlaceEventForItems(final Item item, final UseOnContext context, final Operation<InteractionResult> original)
+    private InteractionResult minecolonies$firePlaceEventForItems(final Item item, final UseOnContext context, final Operation<InteractionResult> original)
     {
         final Level level = context.getLevel();
         if (level.isClientSide() || item instanceof BlockItem || item instanceof BucketItem)

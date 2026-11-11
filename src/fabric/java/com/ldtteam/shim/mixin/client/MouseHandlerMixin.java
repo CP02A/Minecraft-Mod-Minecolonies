@@ -37,7 +37,7 @@ public abstract class MouseHandlerMixin
     public abstract boolean isRightPressed();
 
     @Inject(method = "onScroll", at = @At("HEAD"), cancellable = true)
-    private void shim$onScroll(final long handle, final double xoffset, final double yoffset, final CallbackInfo ci)
+    private void minecolonies$onScroll(final long handle, final double xoffset, final double yoffset, final CallbackInfo ci)
     {
         if (handle == 0L || handle != minecraft.getWindow().handle() || minecraft.gui.overlay() != null || minecraft.gui.screen() != null || minecraft.player == null)
         {

@@ -63,10 +63,31 @@ loom {
     }
 }
 
+// Server game tests in their own source set and test mod (src/gametest, mod id minecolonies-gametest); not part of the mod jar.
+// Run with ./gradlew runGameTest.
+fabricApi {
+    configureTests {
+        createSourceSet = true
+        modId = 'minecolonies-gametest'
+        enableGameTests = true
+        enableClientGameTests = false
+        eula = true
+    }
+}
+
+loom.runs.matching { it.name == 'gameTest' }.configureEach {
+    // JUnit-style report listing every test that ran.
+    vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('gametest-report.xml').get().asFile.absolutePath}"
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+    // The two libraries below are bundled as nested jars on purpose (docs/Isolation-rules.md, rule 8) and not relocated: they are
+    // pure libraries without game state, and Fabric Loader picks one copy (the newest) when other mods nest them too. Both keep
+    // their API stable within a major version, so sharing a copy is safe.
 
     // NeoForge-style TOML configs (ModConfigSpec) - bundled into the mod jar.
     implementation "com.electronwill.night-config:core:${project.night_config_version}"
@@ -115,4 +136,257 @@ jar {
     from('LICENSE') {
         rename { "${it}_minecolonies" }
     }
+}
+
+// Isolation check (docs/Isolation-rules.md, rules 5 and 8): the jar may only contain classes in the packages listed here, and its mixin
+// configs must have mod-specific names. Libraries bundled on purpose go in as nested jars (META-INF/jars) and are not affected.
+def checkJarIsolation = tasks.register('checkJarIsolation') {
+    group = 'verification'
+    description = 'Fails if the mod jar contains classes outside the allowed packages or mixin configs without a mod-specific name.'
+    def jarFile = tasks.named('jar').flatMap { it.archiveFile }
+    inputs.file(jarFile)
+    doLast {
+        def allowedPackages = [
+            'com/minecolonies/',
+            'com/ldtteam/shim/',
+            // Vendored LDT Team libraries, compiled into this jar on purpose (see vendor/SOURCES.txt). Not relocated: com.ldtteam is LDT's own
+            // prefix, not a generic one (same reasoning as com.ldtteam.shim). fabric.mod.json "provides" their mod ids, so Fabric Loader
+            // treats a separate Structurize/BlockUI/Domum Ornamentum jar as a duplicate mod instead of loading two copies of the classes.
+            'com/ldtteam/structurize/',
+            'com/ldtteam/blockui/',
+            'com/ldtteam/common/',
+            'com/ldtteam/domumornamentum/',
+        ]
+        def strayClasses = []
+        def badMixinConfigs = []
+        new java.util.zip.ZipFile(jarFile.get().asFile).withCloseable { zip ->
+            zip.entries().each { entry ->
+                def name = entry.name
+                if (name.endsWith('.class') && !allowedPackages.any { name.startsWith(it) }) {
+                    strayClasses << name
+                }
+                if (!name.contains('/') && name.endsWith('.mixins.json') && !name.startsWith('minecolonies')) {
+                    badMixinConfigs << name
+                }
+            }
+        }
+        def problems = []
+        if (strayClasses) {
+            problems << "${strayClasses.size()} class(es) outside the allowed packages, e.g.:\n  " + strayClasses.take(20).join('\n  ')
+        }
+        if (badMixinConfigs) {
+            problems << "Mixin config(s) without the 'minecolonies' prefix:\n  " + badMixinConfigs.join('\n  ')
+        }
+        if (problems) {
+            throw new GradleException("Jar isolation check failed (docs/Isolation-rules.md):\n" + problems.join('\n'))
+        }
+    }
+}
+
+// Isolation check (docs/Isolation-rules.md, rule 4): every member our mixins add to a vanilla class (methods declared in the mixin,
+// methods of interfaces the mixin implements, accessors/invokers, fields) must either carry a mod-specific prefix or come from an
+// interface listed in neoForgeNamedInterfaces (kept under the exact NeoForge signature on purpose). All of them must not clash with
+// a method of the target class hierarchy or of an interface another mod on the compile classpath (Fabric API, JEI, JourneyMap)
+// injects into it. Added fields must be @Unique.
+def checkInjectedMembers = tasks.register('checkInjectedMembers') {
+    group = 'verification'
+    description = 'Fails if mixins add unprefixed or clashing members to vanilla classes.'
+    def jarFile = tasks.named('jar').flatMap { it.archiveFile }
+    def classpath = sourceSets.main.compileClasspath
+    inputs.file(jarFile)
+    inputs.files(classpath)
+    doLast {
+        def prefixes = ['minecolonies$', 'structurize$', 'blockui$', 'domum$']
+        def neoForgeNamedInterfaces = [
+            'com/ldtteam/shim/neoforge/common/IShearable',
+        ]
+        def mixinPkg = 'Lorg/spongepowered/asm/mixin/'
+        def shadowLike = [mixinPkg + 'Shadow;', mixinPkg + 'Overwrite;'] as Set
+        def accessorLike = [mixinPkg + 'gen/Accessor;', mixinPkg + 'gen/Invoker;'] as Set
+
+        def openZips = []
+        try {
+            def modJar = new java.util.zip.ZipFile(jarFile.get().asFile)
+            openZips << modJar
+            // class name -> zip, for the mod jar and every jar on the compile classpath
+            def classIndex = [:]
+            // target class -> [[iface, modId]] from loom:injected_interfaces of other mods on the classpath
+            def injected = [:].withDefault { [] }
+            classpath.files.findAll { it.name.endsWith('.jar') && it.isFile() }.each { file ->
+                def zip = new java.util.zip.ZipFile(file)
+                openZips << zip
+                zip.entries().each { e ->
+                    if (e.name.endsWith('.class')) {
+                        classIndex.putIfAbsent(e.name[0..-7], zip)
+                    }
+                }
+                def modJson = zip.getEntry('fabric.mod.json')
+                if (modJson) {
+                    def json = new groovy.json.JsonSlurper().parse(zip.getInputStream(modJson))
+                    // Older format: custom.loom:injected_interfaces in fabric.mod.json.
+                    def ifaces = json?.custom?.get('loom:injected_interfaces')
+                    ifaces?.each { target, list -> list.each { injected[target] << [it, json.id] } }
+                    // 26.x format: (transitive-)inject-interface lines in the mod's class tweaker / access widener.
+                    def tweaker = json?.accessWidener ? zip.getEntry(json.accessWidener) : null
+                    if (tweaker) {
+                        zip.getInputStream(tweaker).withReader('UTF-8') { reader ->
+                            reader.eachLine { line ->
+                                def parts = line.trim().split(/\s+/)
+                                if (parts.length >= 3 && (parts[0] == 'inject-interface' || parts[0] == 'transitive-inject-interface')) {
+                                    injected[parts[1]] << [parts[2].replaceAll(/<.*$/, ''), json.id]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            modJar.entries().each { e ->
+                if (e.name.endsWith('.class')) {
+                    classIndex[e.name[0..-7]] = modJar
+                }
+            }
+
+            def nodeCache = [:]
+            def readClass = { String name ->
+                if (nodeCache.containsKey(name)) {
+                    return nodeCache[name]
+                }
+                def stream = classIndex[name] ? classIndex[name].getInputStream(classIndex[name].getEntry(name + '.class'))
+                    : ClassLoader.getSystemResourceAsStream(name + '.class')
+                def node = null
+                if (stream) {
+                    stream.withCloseable {
+                        node = new org.objectweb.asm.tree.ClassNode()
+                        new org.objectweb.asm.ClassReader(it).accept(node, org.objectweb.asm.ClassReader.SKIP_CODE)
+                    }
+                }
+                nodeCache[name] = node
+                return node
+            }
+            def annotationsOf = { node -> ((node.visibleAnnotations ?: []) + (node.invisibleAnnotations ?: [])) }
+            def hasAnnotation = { node, Set descs -> annotationsOf(node).any { descs.contains(it.desc) } }
+            def isPrivate = { access -> (access & org.objectweb.asm.Opcodes.ACC_PRIVATE) != 0 }
+            def isStatic = { access -> (access & org.objectweb.asm.Opcodes.ACC_STATIC) != 0 }
+            def isSyntheticOrBridge = { access -> (access & (org.objectweb.asm.Opcodes.ACC_SYNTHETIC | org.objectweb.asm.Opcodes.ACC_BRIDGE)) != 0 }
+
+            // All instance methods (name + desc) of an interface and its super-interfaces.
+            def interfaceMethods
+            interfaceMethods = { String name ->
+                def node = readClass(name)
+                if (node == null) {
+                    return [] as Set
+                }
+                def result = node.methods.findAll { !isStatic(it.access) && !isPrivate(it.access) && !it.name.startsWith('<') }
+                    .collect { it.name + it.desc } as Set
+                node.interfaces.each { result.addAll(interfaceMethods(it)) }
+                return result
+            }
+            // name+desc -> owner for every method visible on the class: own, superclasses, interfaces, and injected interfaces.
+            def hierarchyMethods
+            hierarchyMethods = { String name, Map into, Set seen ->
+                if (name == null || !seen.add(name)) {
+                    return into
+                }
+                def node = readClass(name)
+                if (node != null) {
+                    node.methods.findAll { !it.name.startsWith('<') }.each { into.putIfAbsent(it.name + it.desc, name) }
+                    hierarchyMethods(node.superName, into, seen)
+                    node.interfaces.each { hierarchyMethods(it, into, seen) }
+                }
+                injected[name].each { pair ->
+                    interfaceMethods(pair[0]).each { into.putIfAbsent(it, "${pair[0]} (injected by ${pair[1]})") }
+                }
+                return into
+            }
+
+            def mixinClasses = []
+            modJar.entries().findAll { !it.name.contains('/') && it.name.endsWith('.mixins.json') }.each { entry ->
+                def json = new groovy.json.JsonSlurper().parse(modJar.getInputStream(entry))
+                def pkg = json.package.replace('.', '/')
+                ((json.mixins ?: []) + (json.client ?: []) + (json.server ?: [])).each { mixinClasses << pkg + '/' + it.replace('.', '/') }
+            }
+
+            def problems = []
+            mixinClasses.each { mixinName ->
+                def mixin = readClass(mixinName)
+                if (mixin == null) {
+                    problems << "Mixin class $mixinName listed in a mixin config but missing from the jar"
+                    return
+                }
+                def mixinAnn = annotationsOf(mixin).find { it.desc == mixinPkg + 'Mixin;' }
+                def targets = []
+                if (mixinAnn?.values) {
+                    for (int i = 0; i < mixinAnn.values.size(); i += 2) {
+                        def key = mixinAnn.values[i]
+                        def value = mixinAnn.values[i + 1]
+                        if (key == 'value') {
+                            value.each { targets << it.internalName }
+                        } else if (key == 'targets') {
+                            value.each { targets << it.replace('.', '/') }
+                        }
+                    }
+                }
+
+                // name+desc -> where it comes from
+                def added = [:]
+                def addedViaInterface = [:]
+                mixin.interfaces.each { iface ->
+                    interfaceMethods(iface).each { addedViaInterface[it] = iface }
+                }
+                mixin.methods.each { m ->
+                    if (m.name.startsWith('<') || isPrivate(m.access) || isSyntheticOrBridge(m.access) || hasAnnotation(m, shadowLike)) {
+                        return
+                    }
+                    if (addedViaInterface.containsKey(m.name + m.desc)) {
+                        return
+                    }
+                    added[m.name + m.desc] = [name: m.name, source: mixinName, accessor: hasAnnotation(m, accessorLike)]
+                }
+
+                mixin.fields.each { f ->
+                    if (!hasAnnotation(f, shadowLike) && !hasAnnotation(f, [mixinPkg + 'Unique;'] as Set)) {
+                        problems << "$mixinName: field ${f.name} is added to ${targets.join(', ')} without @Unique"
+                    }
+                }
+
+                targets.each { target ->
+                    def existing = hierarchyMethods(target, [:], [] as Set)
+                    added.each { key, info ->
+                        if (!info.accessor && existing.containsKey(key)) {
+                            return // overrides a method the target already has (intended)
+                        }
+                        if (!prefixes.any { info.name.startsWith(it) }) {
+                            problems << "$mixinName adds ${info.name} to $target without a mod-specific prefix (${prefixes.join(', ')})"
+                        } else if (existing.containsKey(key)) {
+                            problems << "$mixinName adds ${info.name} to $target, which already gets it from ${existing[key]}"
+                        }
+                    }
+                    addedViaInterface.each { key, iface ->
+                        if (existing[key] == iface) {
+                            return // the target already implements this interface
+                        }
+                        def name = key.substring(0, key.indexOf('('))
+                        if (!neoForgeNamedInterfaces.contains(iface) && !prefixes.any { name.startsWith(it) }) {
+                            problems << "$mixinName makes $target implement $iface, whose method $name has no mod-specific prefix"
+                        }
+                        if (existing.containsKey(key)) {
+                            problems << "$mixinName makes $target implement $iface, but $key clashes with ${existing[key]}"
+                        }
+                    }
+                }
+            }
+
+            if (problems) {
+                throw new GradleException("Injected member check failed (docs/Isolation-rules.md, rule 4):\n  " + problems.unique().join('\n  '))
+            }
+            logger.lifecycle("checkInjectedMembers: ${mixinClasses.size()} mixins checked, no unprefixed or clashing members")
+        } finally {
+            openZips.each { it.close() }
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn checkJarIsolation
+    dependsOn checkInjectedMembers
 }

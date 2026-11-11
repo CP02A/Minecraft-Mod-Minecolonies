@@ -14,5 +14,5 @@ import java.util.Set;
 public interface BlockEntityTypeAccessor
 {
     @Accessor("validBlocks")
-    Set<Block> shim$getValidBlocks();
+    Set<Block> minecolonies$getValidBlocks();
 }

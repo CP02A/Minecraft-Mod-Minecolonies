@@ -39,7 +39,7 @@ import org.jspecify.annotations.Nullable;
  * }
  */
 public class BlockEntityTypeAddBlocksEvent extends Event implements IModBusEvent {
-    private final Function<BlockEntityType<?>, ? extends Class<?>> memoizedCommonSuperClass = Util.memoize((BlockEntityType<?> blockEntityType) -> getCommonSuperClassForExistingValidBlocks(((BlockEntityTypeAccessor) blockEntityType).shim$getValidBlocks()));
+    private final Function<BlockEntityType<?>, ? extends Class<?>> memoizedCommonSuperClass = Util.memoize((BlockEntityType<?> blockEntityType) -> getCommonSuperClassForExistingValidBlocks(((BlockEntityTypeAccessor) blockEntityType).minecolonies$getValidBlocks()));
 
     public BlockEntityTypeAddBlocksEvent() {}
 
@@ -51,14 +51,14 @@ public class BlockEntityTypeAddBlocksEvent extends Event implements IModBusEvent
             return;
         }
 
-        Set<Block> currentValidBlocks = new HashSet<>(((BlockEntityTypeAccessor) blockEntityType).shim$getValidBlocks());
+        Set<Block> currentValidBlocks = new HashSet<>(((BlockEntityTypeAccessor) blockEntityType).minecolonies$getValidBlocks());
 
         for (Block block : blocksToAdd) {
             addValidBlock(block, memoizedCommonSuperClass.apply(blockEntityType), currentValidBlocks);
         }
 
         // Fabric API allows adding valid blocks (it makes the set mutable as needed).
-        final Set<Block> existing = ((BlockEntityTypeAccessor) blockEntityType).shim$getValidBlocks();
+        final Set<Block> existing = ((BlockEntityTypeAccessor) blockEntityType).minecolonies$getValidBlocks();
         for (Block block : currentValidBlocks) {
             if (!existing.contains(block)) {
                 ((FabricBlockEntityType) blockEntityType).addValidBlock(block);

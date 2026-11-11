@@ -46,7 +46,7 @@ public final class CommonHooks
      */
     public static Deque<DamageContainer> getDamageContainers(final LivingEntity entity)
     {
-        return ((DamageContainerHolder) entity).shim$getDamageContainers();
+        return ((DamageContainerHolder) entity).minecolonies$getDamageContainers();
     }
 
     /**
