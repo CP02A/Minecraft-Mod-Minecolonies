@@ -113,6 +113,7 @@ public class MineColoniesFabric implements ModInitializer
         ShimGameEvents.init();
         ShimLoot.init();
         com.ldtteam.shim.fabric.ShimItemHooks.init();
+        MineColoniesCompostables.init();
 
         // 26.x no longer syncs recipes to clients: request the ones the client UIs look up.
         RecipeSynchronization.synchronizeRecipeSerializer(ShapedRecipe.SERIALIZER);

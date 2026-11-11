@@ -10,15 +10,25 @@ import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.Compostable;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ComposterBlock;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProvider;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ResolvableInt;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * Game tests for the item transfer bridge between the shim's {@code IItemHandler} capability and the Fabric Transfer API
+ * Game tests for composting and for the item transfer bridge between the shim's {@code IItemHandler} capability and the Fabric Transfer API
  * (docs/Isolation-rules.md, rule 6), in both directions. Run with {@code ./gradlew runGameTest}.
  */
 public class TransferBridgeGameTests
@@ -114,6 +124,46 @@ public class TransferBridgeGameTests
         helper.assertValueEqual(helper.getBlockState(POS).getValue(ComposterBlock.LEVEL), 1, "composter level");
 
         helper.succeed();
+    }
+
+    /**
+     * MineColonies food and crops carry the vanilla compostable component with the vanilla chance tiers.
+     */
+    @GameTest
+    public void minecoloniesFoodIsCompostable(final GameTestHelper helper)
+    {
+        helper.assertValueEqual(tierOf("cabbage"), ContextIntProviders.COMPOSTABLE_LOW_MEDIUM, "cabbage compost tier");
+        helper.assertValueEqual(tierOf("golden_bread"), ContextIntProviders.COMPOSTABLE_MEDIUM_HIGH, "golden bread compost tier");
+        helper.assertValueEqual(tierOf("apple_pie"), ContextIntProviders.COMPOSTABLE_ALWAYS_ADD_ONE, "apple pie compost tier");
+
+        // always_add_one is deterministic: one apple pie raises an empty composter to level 1.
+        helper.setBlock(POS, Blocks.COMPOSTER);
+        final Storage<ItemVariant> composter = ItemStorage.SIDED.find(helper.getLevel(), helper.absolutePos(POS), Direction.UP);
+        helper.assertTrue(composter != null, "Composter has no Fabric item storage");
+        try (Transaction tx = Transaction.openOuter())
+        {
+            helper.assertValueEqual(composter.insert(ItemVariant.of(item("apple_pie")), 1, tx), 1L, "apple pies accepted by the composter");
+            tx.commit();
+        }
+        helper.assertValueEqual(helper.getBlockState(POS).getValue(ComposterBlock.LEVEL), 1, "composter level after an apple pie");
+
+        helper.succeed();
+    }
+
+    private static Item item(final String name)
+    {
+        return BuiltInRegistries.ITEM.getValue(Identifier.fromNamespaceAndPath("minecolonies", name));
+    }
+
+    @Nullable
+    private static ResourceKey<ContextIntProvider> tierOf(final String name)
+    {
+        final Compostable compostable = new ItemStack(item(name)).get(DataComponents.COMPOSTABLE);
+        if (compostable == null || !(compostable.layers() instanceof ResolvableInt.Reference reference))
+        {
+            return null;
+        }
+        return reference.key();
     }
 
     private static ItemStack insert(final IItemHandler handler, ItemStack stack)
