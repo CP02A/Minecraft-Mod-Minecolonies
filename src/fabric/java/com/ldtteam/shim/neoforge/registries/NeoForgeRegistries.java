@@ -43,9 +43,15 @@ public final class NeoForgeRegistries
         {
         }
 
+        /**
+         * The registries live under the shim's own namespace instead of {@code neoforge}: other mods ship their own NeoForge shims (for example
+         * Mekanism's Fabric port) that register registries like {@code neoforge:ingredient_serializer} as well, and vanilla rejects a second registry
+         * with the same key, crashing whichever mod initializes later. Registry names are only used for registry sync between two sides that both run
+         * this shim, so a unique namespace is safe.
+         */
         private static <T> ResourceKey<Registry<T>> key(final String name)
         {
-            return ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("neoforge", name));
+            return ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath("minecolonies_shim", name));
         }
     }
 }
