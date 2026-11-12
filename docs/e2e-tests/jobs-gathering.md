@@ -23,6 +23,8 @@ Workers who collect raw materials from the world: wood, stone, ores and nether r
 
 **Time budget:** 10 minutes.
 
+**As implemented** (`FarmingGatheringTests`): one oak and one birch grown from saplings with the vanilla tree grower, within 50 blocks of the hut (the search range). Defoliation is on (random ticks are 0, leaves would never decay); leaves are cut with a hoe, so the hut holds wooden hoes (and wooden axes: a level 1 hut allows no better tools) and saplings.
+
 ---
 
 ## GAT-02 Lumberjack follows its settings
@@ -41,6 +43,8 @@ Workers who collect raw materials from the world: wood, stone, ores and nether r
 - The other trees are untouched.
 
 **Time budget:** 10 minutes.
+
+**As implemented** (`FarmingGatheringTests`): every sapling except oak is on the "don't cut" list (it is a blacklist), maxTreeSize is set to 10, the work area is restricted to a box with an oak, a spruce and a hand-built oak with a 12 log trunk; another oak stands outside the box. After the small oak is cut and replanted, the test waits 2400 more ticks and checks the other trees still have all logs.
 
 ---
 
@@ -61,6 +65,8 @@ Workers who collect raw materials from the world: wood, stone, ores and nether r
 
 **Time budget:** 15 minutes.
 
+**As implemented** (`FarmingGatheringTests`): not implementable in the arena: mining levels are absolute heights (y 48, 16, -16, -100; `BuildingMiner.MINING_LEVELS`). The arena floor is at about y 6-10 on top of a barrier floor, so the first level (y -16) is below the unbreakable barrier.
+
 ---
 
 ## GAT-04 Miner mines a level
@@ -79,6 +85,8 @@ Workers who collect raw materials from the world: wood, stone, ores and nether r
 - Holes to caves or lava are sealed off.
 
 **Time budget:** 15 minutes.
+
+**As implemented** (`FarmingGatheringTests`): not implementable, same reason as GAT-03.
 
 ---
 
@@ -99,6 +107,8 @@ Workers who collect raw materials from the world: wood, stone, ores and nether r
 
 **Time budget:** 15 minutes.
 
+**As implemented** (`FarmingGatheringTests`): not done (time box).
+
 ---
 
 ## GAT-06 Nether expedition
@@ -118,3 +128,6 @@ Workers who collect raw materials from the world: wood, stone, ores and nether r
 - The expedition log module has a new entry for the trip.
 
 **Time budget:** 15 minutes.
+
+**As implemented** (`FarmingGatheringTests`): not done (time box).
+
