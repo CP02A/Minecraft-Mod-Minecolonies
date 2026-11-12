@@ -42,6 +42,16 @@ import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.api.items.ModItems;
 import com.minecolonies.core.client.render.CitizenArmorModel;
 import com.minecolonies.core.colony.crafting.RecipeAnalyzer;
+import com.minecolonies.core.colony.buildings.workerbuildings.BuildingSawmill;
+import com.minecolonies.api.colony.jobs.ModJobs;
+import com.minecolonies.fabric.CrafterRecipeSync;
+import com.minecolonies.gametest.framework.TestShapedRecipe;
+import net.fabricmc.fabric.api.entity.FakePlayer;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
@@ -49,6 +59,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
+import net.fabricmc.fabric.api.client.gametest.v1.context.TestDedicatedServerConnection;
+import net.fabricmc.fabric.api.client.gametest.v1.context.TestDedicatedServerContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 import net.minecraft.client.Minecraft;
@@ -143,7 +155,6 @@ public class UiClientGameTest implements FabricClientGameTest
             final UiBridge.Colony colony = UiBridge.colony;
             runCase("UI-09", "Brewing teaching computes the potion", true, shots -> brewingOutput(context));
             runCase("UI-12", "JEI draws blocks in 3D", true, shots -> jeiBlocks(context, shots));
-            runCase("UI-13", "JEI crafter recipes from synced recipes", true, shots -> jeiSyncedRecipes(context, server));
             runCase("UI-15", "Config screen: server settings", true, shots -> ConfigScreenUiTests.serverSettings(context, server, shots));
             runCase("UI-16", "Structurize highlight tips", true, shots -> highlightTips(context, server, shots));
             if (ready && colony != null)
@@ -175,6 +186,16 @@ public class UiClientGameTest implements FabricClientGameTest
             UiBridge.clientDone = true;
             server.waitFor(s -> run.isDone(), 400);
             server.runOnServer(s -> run.report());
+        }
+
+        // UI-13 needs a dedicated server: recipes really go over the network (encoded), and JEI has no integrated server to read them from.
+        if (E2EMode.uiTestSelected("UI-13"))
+        {
+            try (TestDedicatedServerContext dedicated = context.worldBuilder().createServer();
+                 TestDedicatedServerConnection connection = dedicated.connect())
+            {
+                runCase("UI-13", "JEI crafter recipes from synced recipes", true, shots -> jeiSyncedRecipes(context, dedicated, connection));
+            }
         }
 
         reportAndFail();
@@ -695,22 +716,72 @@ public class UiClientGameTest implements FabricClientGameTest
     }
 
     /**
-     * UI-13: on a dedicated server JEI's crafter categories get their vanilla-derived recipes from the recipes the server synchronizes to the
-     * client (there is no integrated server). Builds the recipe map from the client's synchronized recipes like JEIPlugin does without an
-     * integrated server and compares it with the map built from the server's recipe manager (the singleplayer path): the same number of
-     * recipes for every crafting type.
+     * UI-13: on a dedicated server JEI's crafter categories get their vanilla-derived recipes from the recipes the server sends to the client
+     * (there is no integrated server): the Fabric recipe sync (vanilla and MineColonies serializers) plus MineColonies' own crafter recipe
+     * payload for other mods' serializers ({@code CrafterRecipeSync}). Runs against a real dedicated server. Builds the recipe map from the
+     * client's recipes like JEIPlugin does without an integrated server and compares it with the map built from the server's recipe manager
+     * (the singleplayer path): the same number of recipes for every crafting type. The test mod's recipe with its own serializer
+     * ({@link TestShapedRecipe}, not in the Fabric recipe sync) must be among them and be a sawmill recipe. Clients without MineColonies'
+     * payload channel (a fake player here, like a vanilla client) are not sent the payload.
      */
-    private static void jeiSyncedRecipes(final ClientGameTestContext context, final TestServerContext server)
+    private static void jeiSyncedRecipes(final ClientGameTestContext context, final TestDedicatedServerContext server,
+                                         final TestDedicatedServerConnection connection)
     {
+        connection.waitForChunksDownload();
+        final ResourceKey<Recipe<?>> testId = ResourceKey.create(Registries.RECIPE, TestShapedRecipe.RECIPE_ID);
+        // The payload is sent on login, before MineColonies' custom recipe packets; wait until the test recipe arrived.
+        context.waitFor(mc -> CrafterRecipeSync.withReceivedRecipes(List.of()).stream().anyMatch(h -> h.id().equals(testId)), 600);
+
         final Map<String, Integer> onServer = server.computeOnServer(s -> recipeCounts(RecipeAnalyzer.buildVanillaRecipesMap(s.getRecipeManager(), s.overworld())));
-        final Map<String, Integer> onClient = context.computeOnClient(mc -> recipeCounts(RecipeAnalyzer.buildVanillaRecipesMap(
-          RecipeAnalyzer.createRecipeManager(mc.level.recipeAccess().getSynchronizedRecipes().recipes(), mc.level.registryAccess()), mc.level)));
-        LOGGER.info("UI-13 vanilla crafter recipes per crafting type: server {}, client (synced) {}", onServer, onClient);
+        final Map<String, Integer> onClient = context.computeOnClient(mc -> recipeCounts(RecipeAnalyzer.buildVanillaRecipesMap(clientRecipeManager(mc), mc.level)));
+        final int fabricSynced = context.computeOnClient(mc -> mc.level.recipeAccess().getSynchronizedRecipes().recipes().size());
+        final int received = context.computeOnClient(mc -> CrafterRecipeSync.receivedCount());
+        LOGGER.info("UI-13 vanilla crafter recipes per crafting type: server {}, client {} (Fabric-synced recipes {}, MineColonies payload {})",
+          onServer, onClient, fabricSynced, received);
+
+        final boolean integrated = context.computeOnClient(mc -> mc.getSingleplayerServer() != null);
+        assertThat(!integrated, "UI-13 must run against a dedicated server");
         for (final String type : List.of("minecolonies:smallcrafting", "minecolonies:largecrafting", "minecolonies:smelting"))
         {
             assertThat(onServer.getOrDefault(type, 0) > 0, "The server should have recipes for " + type + ": " + onServer);
         }
-        assertThat(onServer.equals(onClient), "Recipes from the synchronized client recipes differ from the server's: server " + onServer + ", client " + onClient);
+        assertThat(onServer.equals(onClient), "Recipes from the client's recipes differ from the server's: server " + onServer + ", client " + onClient);
+
+        // The test mod's recipe: not in the Fabric recipe sync, only in MineColonies' payload; decoded as the test mod's recipe class.
+        final boolean inFabricSync = context.computeOnClient(mc -> mc.level.recipeAccess().getSynchronizedRecipes().recipes().stream().anyMatch(h -> h.id().equals(testId)));
+        assertThat(!inFabricSync, "The test recipe should not come through the Fabric recipe sync");
+        final String receivedClass = context.computeOnClient(mc -> CrafterRecipeSync.withReceivedRecipes(List.of()).stream().filter(h -> h.id().equals(testId))
+          .map(h -> h.value().getClass().getSimpleName()).findFirst().orElse("none"));
+        assertThat(receivedClass.equals(TestShapedRecipe.class.getSimpleName()), "The test recipe should be decoded as TestShapedRecipe, is " + receivedClass);
+        final boolean noResend = context.computeOnClient(mc -> CrafterRecipeSync.withReceivedRecipes(List.of()).stream().noneMatch(h -> h.value().getSerializer() == ShapedRecipe.SERIALIZER));
+        assertThat(noResend, "Recipes of the Fabric-synced serializers should not be sent again in MineColonies' payload");
+
+        // The sawmill (a MineColonies crafter) accepts it, on the client as on the server.
+        final boolean serverSawmill = server.computeOnServer(s -> sawmillHasTestRecipe(s.getRecipeManager(), s.overworld()));
+        final boolean clientSawmill = context.computeOnClient(mc -> sawmillHasTestRecipe(clientRecipeManager(mc), mc.level));
+        assertThat(serverSawmill, "The server's sawmill recipes should contain the test recipe (7 spruce planks)");
+        assertThat(clientSawmill, "The sawmill recipes built on the client should contain the test recipe (7 spruce planks)");
+
+        // Isolation: only clients with MineColonies' payload channel get it. The real client has it; a fake player (no channels, like a
+        // vanilla client) gets nothing.
+        final boolean realPlayer = server.computeOnServer(s -> CrafterRecipeSync.shouldSend(s.getPlayerList().getPlayers().getFirst()));
+        final boolean fakeCanSend = server.computeOnServer(s -> ServerPlayNetworking.canSend(FakePlayer.get(s.overworld()), CrafterRecipeSync.Payload.TYPE));
+        final int toFake = server.computeOnServer(s -> CrafterRecipeSync.sendTo(FakePlayer.get(s.overworld())));
+        assertThat(realPlayer, "The MineColonies client should get the crafter recipe payload");
+        assertThat(!fakeCanSend && toFake == 0, "A client without MineColonies' payload channel must not be sent the payload (canSend " + fakeCanSend + ", sent " + toFake + ")");
+    }
+
+    private static net.minecraft.world.item.crafting.RecipeManager clientRecipeManager(final Minecraft mc)
+    {
+        return RecipeAnalyzer.createRecipeManager(CrafterRecipeSync.withReceivedRecipes(mc.level.recipeAccess().getSynchronizedRecipes().recipes()),
+          mc.level.registryAccess());
+    }
+
+    private static boolean sawmillHasTestRecipe(final net.minecraft.world.item.crafting.RecipeManager manager, final Level level)
+    {
+        final Map<CraftingType, List<IGenericRecipe>> vanilla = RecipeAnalyzer.buildVanillaRecipesMap(manager, level);
+        return RecipeAnalyzer.findRecipes(vanilla, new BuildingSawmill.CraftingModule(ModJobs.sawmill.get()), level).stream()
+                 .anyMatch(r -> r.getPrimaryOutput().is(Items.SPRUCE_PLANKS) && r.getPrimaryOutput().getCount() == 7);
     }
 
     private static Map<String, Integer> recipeCounts(final Map<CraftingType, List<IGenericRecipe>> recipes)

@@ -19,7 +19,6 @@ import com.ldtteam.shim.neoforge.registries.RegisterEvent;
 import com.ldtteam.structurize.Structurize;
 import com.minecolonies.core.MineColonies;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -119,14 +118,16 @@ public class MineColoniesFabric implements ModInitializer
         MineColoniesCompostables.init();
 
         // 26.x no longer syncs recipes to clients: request the ones the client UIs look up. The crafting ones (all non-special crafting
-        // serializers) also feed JEI's crafter recipe categories on dedicated servers (JEIPlugin#onRecipesLoaded).
-        RecipeSynchronization.synchronizeRecipeSerializer(ShapedRecipe.SERIALIZER);
-        RecipeSynchronization.synchronizeRecipeSerializer(ShapelessRecipe.SERIALIZER);
-        RecipeSynchronization.synchronizeRecipeSerializer(TransmuteRecipe.SERIALIZER);
-        RecipeSynchronization.synchronizeRecipeSerializer(DyeRecipe.SERIALIZER);
-        RecipeSynchronization.synchronizeRecipeSerializer(ImbueRecipe.SERIALIZER);
-        RecipeSynchronization.synchronizeRecipeSerializer(SmeltingRecipe.SERIALIZER);
-        RecipeSynchronization.synchronizeRecipeSerializer(ModRecipeSerializers.ARCHITECTS_CUTTER.get());
+        // serializers) also feed JEI's crafter recipe categories on dedicated servers (JEIPlugin#onRecipesLoaded). Crafter recipes of other
+        // mods' serializers reach MineColonies clients through MineColonies' own payload (CrafterRecipeSync).
+        CrafterRecipeSync.register();
+        CrafterRecipeSync.synchronizeSerializer(ShapedRecipe.SERIALIZER);
+        CrafterRecipeSync.synchronizeSerializer(ShapelessRecipe.SERIALIZER);
+        CrafterRecipeSync.synchronizeSerializer(TransmuteRecipe.SERIALIZER);
+        CrafterRecipeSync.synchronizeSerializer(DyeRecipe.SERIALIZER);
+        CrafterRecipeSync.synchronizeSerializer(ImbueRecipe.SERIALIZER);
+        CrafterRecipeSync.synchronizeSerializer(SmeltingRecipe.SERIALIZER);
+        CrafterRecipeSync.synchronizeSerializer(ModRecipeSerializers.ARCHITECTS_CUTTER.get());
 
         // 7. Setup lifecycle: FMLCommonSetupEvent and the client/server setup events fire once the registries are frozen
         // (BuiltInRegistriesMixin -> ShimSetupPhase), matching NeoForge where setup runs after registration.

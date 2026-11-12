@@ -152,8 +152,14 @@ None of them is marked `FABRIC-PORT TODO` (a grep of `src/` and `vendor/` finds 
 
 - **JEI on dedicated servers, other mods' recipe types:** the client builds MineColonies' crafter recipes from the recipes the server
   synchronizes. MineColonies synchronizes the vanilla serializers its crafters need and the architect's cutter; recipes of other mods'
-  custom serializers reach the client only if that mod synchronizes them (Fabric `RecipeSynchronization`). In singleplayer all recipes
-  are there.
+  custom serializers reached the client only if that mod synchronized them (Fabric `RecipeSynchronization`). Fixed: MineColonies sends
+  them in its own payload `minecolonies:crafter_recipes` (`CrafterRecipeSync`), only to clients that have MineColonies (Fabric `canSend`),
+  so other mods' serializers are not forced into the Fabric recipe sync (vanilla clients and clients without those mods are unaffected).
+  Content: the server's recipes of the recipe types MineColonies' crafting types read (`CraftingType#getRecipeTypes`: crafting, smelting,
+  brewing, architect's cutter) whose serializer MineColonies doesn't synchronize itself, each encoded by its serializer's stream codec with
+  a length prefix (a client that can't decode one skips it), 256 per payload (Fabric splits large payloads). Sent on login and after
+  `/reload`, before the custom recipe packets that make JEI rebuild; the client drops recipes it already has from the Fabric sync (same
+  id). Test UI-13, now on a real dedicated server with a test-mod serializer.
 - **Dynamic Trees:** no compatibility (decision above): there is no Fabric release for 26.x yet.
 - **`enablecitizenvoices` had no translation** (the language file only has the old key `disablecitizenvoices`, also upstream), so the
   config screen had no proper name for it. Fixed: added to `manual_en_us.json` in round 3 ("Citizen Voices"), visible in the UI-14 screenshots.
@@ -170,7 +176,7 @@ The [remaining known gaps](#remaining-known-gaps) are listed in the round-3 sect
 | **DONE:** the spear's custom item renderer. It already was a `SpecialModelRenderer` registered in `ClientRegistryHandler#doClientStuff` and used by `items/spear.json` (the TODO was stale); item frames now use the 3D model like 1.21.1 (they showed the flat sprite). Test UI-10. | `SpearItemTileEntityRenderer.java`, `items/spear.json` |
 | **DONE:** child citizens are drawn with child proportions again: `CitizenModel#applyChildProportions` applies 1.21.1's `young` scaling (head 0.75, body 0.5) to the posed parts, also on the armor model (`CitizenArmorModel`); held items follow the arm. Test UI-11. | `CitizenModel.java`, `RenderBipedCitizen.java` |
 | **DONE.** Structurize's solid placeholder blocks ignore worldgen surface rules (26.x replaced `SurfaceRules`); they fall back to the dimension's default block or dirt. Now the noise generator's material rule (`NoiseGeneratorSettings#materialRule`) is evaluated at the position with a `MaterialRuleContext` built like `MaterialSystem#buildSurface` does (package-private constructor and `updateXZ`/`updateY` through the invoker mixin `MaterialRuleContextInvoker`). Test: [PRT-01](fabric-port.md#prt-01-solid-placeholders-follow-the-worldgen-surface-rules). | `BlockUtils#getMaterialRuleBlock` |
-| **DONE:** JEI crafter recipes derived from vanilla recipes on dedicated servers: built from the recipes the server synchronizes (Fabric `RecipeSynchronization`, now also transmute/dye/imbue crafting) via `RecipeAnalyzer#createRecipeManager`. Test UI-13 (JEI itself is not in the test runtime). | `JEIPlugin.java`, `MineColoniesFabric.java` |
+| **DONE:** JEI crafter recipes derived from vanilla recipes on dedicated servers: built from the recipes the server synchronizes (Fabric `RecipeSynchronization`, now also transmute/dye/imbue crafting) via `RecipeAnalyzer#createRecipeManager`; other mods' crafter recipe serializers through MineColonies' own payload (`CrafterRecipeSync`, see the known gaps). Test UI-13 (JEI itself is not in the test runtime). | `JEIPlugin.java`, `MineColoniesFabric.java`, `CrafterRecipeSync.java` |
 | **DONE:** JEI categories draw blocks as turned 3D block models of the exact state again, through a picture-in-picture renderer (`GuiBlockRenderer`). Test UI-12. | `compatibility/jei/RenderHelper.java`, `GuiBlockRenderer.java` |
 | **DECISION: stays removed.** Dynamic Trees compatibility removed (no Fabric 26.x release); the no-op proxy stays. Checked 2026-11-12 on Modrinth (official DynamicTreesTeam project): Fabric/Quilt builds exist only for 1.21.1 (1.7.x-BETA); the only 26.x build is NeoForge 26.1.2 (1.8.0-BETA04). Re-add the compat when a Fabric 26.3 release exists. | `CompatibilityManager.java:838` (`FABRIC-PORT DECISION`) |
 | **DONE:** in-game config screen. Mod Menu (optional) opens the settings of MineColonies and Structurize, built from vanilla widgets: client, common and server settings, saved to the files the shim loads; server settings editable only in a singleplayer world, read-only otherwise (as on NeoForge). Tests UI-14, UI-15. | `ConfigurationScreen.java`, `ConfigurationSectionScreen.java`, `ShimModMenuIntegration.java` |

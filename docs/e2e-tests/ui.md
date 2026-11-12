@@ -308,27 +308,40 @@ below is wheat seeds).
 
 ## UI-13 JEI crafter recipes from synced recipes
 
-**Tests:** on a dedicated server, the vanilla recipes that MineColonies' JEI crafter categories show (crafting, smelting, brewing,
-architect's cutter) come from the recipes the server synchronizes to the client (Fabric `RecipeSynchronization`); the client builds a
-recipe manager from them (`RecipeAnalyzer#createRecipeManager`). In singleplayer JEI uses the integrated server's recipe manager.
+**Tests:** on a dedicated server, the recipes that MineColonies' JEI crafter categories show (crafting, smelting, brewing, architect's
+cutter) come from the recipes the server sends to the client: the Fabric recipe sync (`RecipeSynchronization`, vanilla and MineColonies
+serializers) plus MineColonies' own payload `minecolonies:crafter_recipes` (`CrafterRecipeSync`) with the recipes of other mods'
+serializers of those recipe types. The client builds a recipe manager from both (`RecipeAnalyzer#createRecipeManager`). In singleplayer JEI
+uses the integrated server's recipe manager.
 
 **Setup**
-- The test world (no colony needed).
+- A real dedicated server in the test JVM (`TestWorldBuilder#createServer`), after the singleplayer UI tests; the client connects to it.
+- The test mod registers a recipe serializer `minecolonies-gametest:test_shaped` (`TestShapedRecipe`, a shaped crafting recipe with its own
+  serializer, not in the Fabric recipe sync) and ships one such recipe, `minecolonies-gametest:crafter_sync_test` (spruce logs and sticks to
+  7 spruce planks, a sawmill recipe).
 
 **What happens**
-1. On the server, builds the crafter recipe map from the server's recipe manager (`RecipeAnalyzer#buildVanillaRecipesMap`, the
+1. Waits until the client has received the test recipe through MineColonies' payload.
+2. On the server, builds the crafter recipe map from the server's recipe manager (`RecipeAnalyzer#buildVanillaRecipesMap`, the
    singleplayer path).
-2. On the client, builds the same map from the client's synchronized recipes, exactly like `JEIPlugin` does without an integrated server.
+3. On the client, builds the same map from the Fabric-synced recipes plus the received ones, exactly like `JEIPlugin` does without an
+   integrated server.
+4. Checks the sawmill's recipe list (`RecipeAnalyzer#findRecipes` with the sawmill's crafting module) on both sides.
+5. Checks who gets the payload: the connected client (has MineColonies' channel) and a fake player (no channels, like a vanilla client).
 
 **Passes when**
-- The server has small crafting, large crafting and smelting recipes, and both maps have the same number of recipes for every crafting
-  type (so every serializer the crafters need is synchronized).
+- The client is not on an integrated server, the server has small crafting, large crafting and smelting recipes, and both maps have the
+  same number of recipes for every crafting type.
+- The test recipe is not among the Fabric-synced recipes, arrived through the payload decoded as `TestShapedRecipe`, and is in the
+  sawmill's recipes on server and client. The payload holds no vanilla shaped recipes (no duplicates of the Fabric sync).
+- `CrafterRecipeSync#shouldSend` is true for the connected client; for the fake player `ServerPlayNetworking#canSend` is false and
+  `CrafterRecipeSync#sendTo` sends nothing.
 
-**Not covered:** JEI itself (not in the test runtime) and a real dedicated server (the integrated server synchronizes the same way).
+**Not covered:** JEI itself (not in the test runtime) and a real vanilla client (the fake player has the same empty channel set).
 
 **Screenshots:** none.
 
-**Time budget:** instant.
+**Time budget:** about 10 seconds (starting the dedicated server and connecting).
 
 ---
 

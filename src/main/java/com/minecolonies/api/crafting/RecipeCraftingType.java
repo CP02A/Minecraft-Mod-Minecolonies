@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -36,6 +37,13 @@ public class RecipeCraftingType<C extends RecipeInput, T extends Recipe<C>> exte
         super(id);
         this.recipeType = recipeType;
         this.predicate = predicate;
+    }
+
+    @Override
+    @NotNull
+    public Set<RecipeType<?>> getRecipeTypes()
+    {
+        return Set.of(recipeType);
     }
 
     @Override

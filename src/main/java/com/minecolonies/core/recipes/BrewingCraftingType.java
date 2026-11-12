@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A crafting type for brewing recipes
@@ -29,6 +30,13 @@ public class BrewingCraftingType extends CraftingType
     public BrewingCraftingType()
     {
         super(ModCraftingTypes.BREWING_ID);
+    }
+
+    @Override
+    @NotNull
+    public Set<RecipeType<?>> getRecipeTypes()
+    {
+        return Set.of(RecipeType.BREWING);
     }
 
     @Override
