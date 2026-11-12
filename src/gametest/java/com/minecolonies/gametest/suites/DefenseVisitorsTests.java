@@ -285,7 +285,11 @@ public class DefenseVisitorsTests
      * DEF-03 Patrol, guard and follow modes: the guard patrols between points inside its range, then stays near a fixed guard spot, then
      * follows the owner around.
      */
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 30000, skyAccess = true)
+    // Guards nap: every 200 ticks without a target a 1 in 35 chance (adaptability 30) to sleep for 2500-3000 ticks where they stand
+    // (AbstractEntityAIGuard.shouldSleep, by design). A guarding guard also walks to his tower to dump (INVENTORY_FULL), idles there and
+    // walks back lazily (1 in 10 every 100 ticks). The budgets are large: with 6000 the guard once slept 7.9 blocks from the guard spot
+    // until the wait ran out; with 12000 one of 51 repeated runs failed (dump trip, 3,300 ticks idle at the tower, two naps).
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 100000, skyAccess = true)
     public void def03_patrolGuardFollow(final GameTestHelper helper)
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
@@ -306,7 +310,7 @@ public class DefenseVisitorsTests
           })
           .awaitUntil("guard entity exists", 200, () -> guard[0].getEntity().isPresent(), () -> ColonyFixture.describe(guard[0]))
           .check("default task is patrol", () -> ((IGuardBuilding) hut[0]).getTask().equals(GuardTaskSetting.PATROL), () -> ((IGuardBuilding) hut[0]).getTask())
-          .awaitUntil("patrol: guard visits at least 3 different patrol points", 6000,
+          .awaitUntil("patrol: guard visits at least 3 different patrol points", 20000,
             () -> {
                 final BlockPos point = ((IGuardBuilding) hut[0]).getNextPatrolTarget(false);
                 if (point != null)
@@ -324,26 +328,26 @@ public class DefenseVisitorsTests
               ((IGuardBuilding) hut[0]).setGuardPos(fixture.abs(guardSpot));
               setGuardTask(fixture, hut[0], GuardTaskSetting.GUARD);
           })
-          .awaitUntil("guard: guard walks to within 6 blocks of the guard spot and stops there", 6000,
+          .awaitUntil("guard: guard walks to within 6 blocks of the guard spot and stops there", 30000,
             () -> distance(guard[0], fixture.abs(guardSpot)) <= 6 && guard[0].getEntity().map(e -> e.getNavigation().isDone()).orElse(false),
-            () -> ColonyFixture.describe(guard[0]) + ", distance " + String.format("%.1f", distance(guard[0], fixture.abs(guardSpot))))
+            () -> guardDetails(guard[0]) + ", distance " + String.format("%.1f", distance(guard[0], fixture.abs(guardSpot))))
           .idle(1500)
-          .awaitUntil("guard: after 1500 more ticks the guard is (back) within 6 blocks of the spot", 4000,
+          .awaitUntil("guard: after 1500 more ticks the guard is (back) within 6 blocks of the spot", 20000,
             () -> distance(guard[0], fixture.abs(guardSpot)) <= 6,
-            () -> ColonyFixture.describe(guard[0]) + ", distance " + String.format("%.1f", distance(guard[0], fixture.abs(guardSpot))))
+            () -> guardDetails(guard[0]) + ", distance " + String.format("%.1f", distance(guard[0], fixture.abs(guardSpot))))
           .run("owner joins the world's player list (needed for follow), set task to follow the owner", () -> {
               fixture.addOwnerToPlayerLists();
               setGuardTask(fixture, hut[0], GuardTaskSetting.FOLLOW);
               moveOwner(fixture, new BlockPos(48, ColonyFixture.GROUND_Y, 20));
           })
-          .awaitUntil("follow: guard comes within 6 blocks of the owner", 6000,
+          .awaitUntil("follow: guard comes within 6 blocks of the owner", 12000,
             () -> distance(guard[0], fixture.owner().blockPosition()) <= 6,
             () -> ColonyFixture.describe(guard[0]) + ", owner at " + fixture.owner().blockPosition().toShortString() + ", distance "
                     + String.format("%.1f", distance(guard[0], fixture.owner().blockPosition())) + ", task " + ((IGuardBuilding) hut[0]).getTask()
                     + ", position to follow " + ((IGuardBuilding) hut[0]).getPositionToFollow() + ", player to follow " + ((IGuardBuilding) hut[0]).getPlayerToFollowOrRally()
                     + ", owner in level players " + fixture.level().players().contains(fixture.owner()))
           .run("owner moves to the other side", () -> moveOwner(fixture, new BlockPos(20, ColonyFixture.GROUND_Y, 50)))
-          .awaitUntil("follow: guard follows to within 6 blocks of the owner's new place", 6000,
+          .awaitUntil("follow: guard follows to within 6 blocks of the owner's new place", 12000,
             () -> distance(guard[0], fixture.owner().blockPosition()) <= 6,
             () -> ColonyFixture.describe(guard[0]) + ", owner at " + fixture.owner().blockPosition().toShortString() + ", distance "
                     + String.format("%.1f", distance(guard[0], fixture.owner().blockPosition())))
@@ -814,6 +818,11 @@ public class DefenseVisitorsTests
               fixture.setConfig(MineColonies.getConfig().getServer().averageNumberOfNightsBetweenRaids, 3);
               // Natural raids spawn 40+ blocks from the buildings, outside the arena: give them ground there (removed when the test ends).
               layGroundAroundArena(fixture, 40);
+              // The raid's spawn search walks outwards in 48-block steps while the chunks there are loaded, so how far out it ends depends
+              // on which chunks other tests left loaded; past the ground ring it finds no floor and the raid fails with NO_SPAWN_POINT
+              // (once in a full run: "next=true" on nine nights, no raid). Sky raiders may spawn in the air, so a spawn point is always found.
+              // The test checks the timing of raids, not where they spawn.
+              fixture.setConfig(MineColonies.getConfig().getServer().skyRaiders, true);
               for (int i = 0; i < 8; i++)
               {
                   fixture.spawnCitizen(80, null, null);
@@ -1237,6 +1246,29 @@ public class DefenseVisitorsTests
     private static double distance(final ICitizenData citizen, final BlockPos target)
     {
         return citizen.getEntity().map(e -> Math.sqrt(e.blockPosition().distSqr(target))).orElse(Double.MAX_VALUE);
+    }
+
+    /**
+     * Guard details for DEF-03 failure messages: inventory, where it is walking to and whether it sleeps.
+     */
+    private static String guardDetails(final ICitizenData guard)
+    {
+        final StringBuilder sb = new StringBuilder(ColonyFixture.describe(guard)).append(", inventory [");
+        for (int i = 0; i < guard.getInventory().getSlots(); i++)
+        {
+            final ItemStack stack = guard.getInventory().getStackInSlot(i);
+            if (!stack.isEmpty())
+            {
+                sb.append(stack.getCount()).append(' ').append(net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem())).append(", ");
+            }
+        }
+        sb.append("]");
+        guard.getEntity().ifPresent(e -> {
+            final net.minecraft.world.level.pathfinder.Path path = e.getNavigation().getPath();
+            sb.append(", path target ").append(path == null ? "-" : path.getTarget().toShortString()).append(", sleeping ")
+              .append(((com.minecolonies.core.colony.jobs.AbstractJobGuard<?>) guard.getJob()).isAsleep());
+        });
+        return sb.toString();
     }
 
     private static double horizontalDistance(final BlockPos a, final BlockPos b)

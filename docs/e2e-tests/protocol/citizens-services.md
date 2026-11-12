@@ -27,8 +27,8 @@ Suite class: `src/gametest/java/com/minecolonies/gametest/suites/CitizensService
 | SRV-01 | ✅ passing | ~960–1490 | Pupils sit, gain Intelligence, paper used up, teacher requests paper, adult removed from pupil place. |
 | SRV-02 | ✅ passing | ~1410–1450 | Students gain Intelligence, paper used up. |
 | SRV-02b | ❌ fails due to mod bug | 0 | E2E-SRV02-1: study items lower the chance of an Intelligence gain. `required = false`. |
-| SRV-03 | ✅ passing | ~2120–2165 | Influenza cured, measles items requested, injured healed, distinct hospital beds. |
-| SRV-04 | ✅ passing | ~1080 | Grave dug up, citizen buried (resting list), items in the graveyard. |
+| SRV-03 | ✅ passing | ~2120–2165 | Influenza cured, measles items requested, injured healed, distinct hospital beds. Final step: budget 8,500 → 13,000 (room for a random 3-minute leisure break). |
+| SRV-04 | ✅ passing | ~1080 | Grave dug up, citizen buried (resting list), items in the graveyard. Final step: the resurrection roll is forced to miss; without research it still hits about 3% of the time (the citizen then lives and is never buried, seen once in a full run). |
 | SRV-04b | ✅ passing | ~6080 | Resurrection with forced roll. |
 | SRV-05 | ✅ passing | 0 | Factor 1.0 / 1.0 / 1.5 / 2.5 for no site / level 1 / 3 / 5. |
 

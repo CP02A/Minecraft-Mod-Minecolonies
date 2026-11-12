@@ -3,28 +3,29 @@
 # Protocol: farming and gathering tests
 
 Suite: `src/gametest/java/com/minecolonies/gametest/suites/FarmingGatheringTests.java`, run with
-`./gradlew --no-daemon runGameTest -Pe2eFilter=farming_gathering_tests`. Last two runs: all 21 required tests passed; optional: the two bug tests fail, the flaky swine breeding test passed in one of the two. GAT-03..06 added later (4 required, 3 optional bug tests): passed in 5 GAT runs and the full run, the 3 bug tests failed every time. In that full run `frm06_chickenHerderBreeds` timed out once (no baby in 6000 ticks); it passed on its own twice right after (454 / 374 ticks), so it is flaky (not investigated). Runtimes are the game tick of each test's last step in that run. They vary between runs because the AI uses
+`./gradlew --no-daemon runGameTest -Pe2eFilter=farming_gathering_tests`. Last two runs: all 21 required tests passed; optional: the two bug tests fail, the flaky swine breeding test passed in one of the two. GAT-03..06 added later (4 required, 3 optional bug tests): passed in 5 GAT runs and the full run, the 3 bug tests failed every time. In that full run `frm06_chickenHerderBreeds` timed out once (no baby in 6000 ticks). Cause found later: bug E2E-FRM-06-1 plus the test's slowed animals (see below); fixed on the test side, and `frm06_swineHerderBreeds` is required again. Repeated runs after the fix: chicken 200 of 200 (at most 699 ticks, before: up to 5,148), swine 100 of 100 (at most 1,194). Runtimes are the game tick of each test's last step in that run. They vary between runs because the AI uses
 random numbers.
 
 | ID | Test method(s) | Status | Runtime (ticks) | Notes |
 |---|---|---|---|---|
 | FRM-01 | `frm01_farmerFieldCycle` | ✅ | 12010 | Field on dirt. The farmer works a field once per colony day, so the test lets nights pass while he idles. |
 | FRM-01 | `frm01_farmerTillsGrass` (optional) | ❌ mod bug | 8000 (timeout) | E2E-FRM-01-1: grass is never tilled. |
-| FRM-02 | `frm02_planterSugarCane`, `frm02_planterCactus`, `frm02_planterBamboo` | ✅ | 6135 / 6145 / 12190 | One test per field type (level 1 owns one field). Bamboo is slow and leaves one position very long; the test accepts all but one position. |
+| FRM-02 | `frm02_planterSugarCane`, `frm02_planterCactus`, `frm02_planterBamboo` | ✅ | 6135 / 6145 / 12190 | One test per field type (level 1 owns one field). Bamboo is slow and leaves one position very long; the test accepts all but one position. Final step: wait budget 20,000 → 40,000 (bamboo took 11,200-19,700 ticks and once ran out). |
 | FRM-03 | `frm03_florist` | ✅ | 10620 | Level 2 shop, "don't grow" list, compost at 3 per bed, double-speed beds. Observation E2E-FRM-03-1. |
 | FRM-04 | `frm04_composter` | ✅ | 370 | Exact seed use checked; apples (not allowed) untouched. |
 | FRM-05 | `frm05_beekeeper` | ✅ | 740 | Honeycomb, then honey (the "both" mode needs research). Dexterity 99. |
 | FRM-06 | `frm06_*Breeds*` (chicken, cow, sheep, rabbit) | ✅ | 349 / 1014 / 660 / 479 | Baby born + egg picked up from the ground (the item entity is gone; in one run it was afterwards in neither the hut nor the herder, not investigated) / milk (large bottle) / wool. |
-| FRM-06 | `frm06_swineHerderBreeds` (optional) | ⚠️ flaky (optional) | 479 when it passes | Fails in most runs (pigs drift apart, the herder waits 60 s between tries). Not classified as a mod bug. |
+| FRM-06 | `frm06_swineHerderBreeds` | ✅ | 459 (median of 100) | Was optional and flaky: the pigs drifted apart and the herder fed them anyway (E2E-FRM-06-1). Required again since the test keeps the pair within 6 blocks. |
+| FRM-06 | `frm06_herderFeedsPairOutOfMateRange` (optional) | ❌ mod bug | ~400 | E2E-FRM-06-1: two chickens that can't move, 9 blocks apart; the herder puts both in love ("both in love 9.3 blocks apart"). Failed 22 of 22 runs. |
 | FRM-06 | `frm06_*ButchersAboveLimit` (chicken, cow, sheep, pig, rabbit) | ✅ | 955 / 1405 / 840 / 1005 / 1265 | 6 adults → at most 3 adults, drops in hut, outsider alive. Limit is soft by design. |
 | FRM-07 | `frm07_fisherman` (optional) | ❌ mod bug | 8000 (timeout) | E2E-FRM-07-1: every catch throws, no loot ever. Rod/request part never reached. |
 | GAT-01 | `gat01_lumberjackFellsAndReplants` | ✅ | 8440 | One oak + one birch, defoliation on. |
 | GAT-02 | `gat02_lumberjackFollowsSettings` | ✅ | ~5650 | 3245 until the oak is replanted, then a fixed 2400-tick wait (it checks that something does *not* happen). |
 | GAT-03 | `gat03_minerDigsShaft` | ✅ | 18630 / 18795 | Deep arena, level 1 mine; the first level is built right under the hut (y 6), not at y -16. Owner fulfils the main shaft's framed blocks etc. (`OwnerFulfils`). |
-| GAT-03 | `gat03_minerDigsShaftSafely` (optional) | ❌ mod bug | fails at about 7500-10200 | E2E-GAT-03-1: the miner falls off the shaft ladder (3.3-4 blocks, 1 damage). |
+| GAT-03 | `gat03_minerDigsShaftSafely` (optional) | ❌ mod bug | fails at about 7500-10200 | E2E-GAT-03-1: the miner falls off the shaft ladder (3.3-4 blocks, 1 damage). Intermittent: passed in some of the final-step full runs. |
 | GAT-04 | `gat04_minerMinesNodes` | ✅ | 31310 / 31885 | First level as in GAT-03 (~18000), then max depth = that level; two tunnel nodes built (~13500), supports, cave hole closed, iron ores in the hut. |
 | GAT-04 | `gat04_minerSealsWater` (optional) | ❌ mod bug | 24975 / 28625 (check fails) | E2E-GAT-04-1: the water source next to the first node is never removed. |
-| GAT-05 | `gat05_quarrierDigsLayers` | ✅ | 28990 / 24910 | Simple quarry on stone; top layer is open from the hut paste, the quarrier digs the next two (~235 blocks each), top down, nothing outside. |
+| GAT-05 | `gat05_quarrierDigsLayers` | ✅ | 28990 / 24910 (budget raised to 60,000 after a run that needed more than 34,000) | Simple quarry on stone; top layer is open from the hut paste, the quarrier digs the next two (~235 blocks each), top down, nothing outside. |
 | GAT-06 | `gat06_netherExpedition` | ✅ | 7280 | Simulated trip (no real nether): leaves after ~1250, travel skipped, respawn after ~4900 (colony's 5-minute citizen check), four `onWakeUp` calls (E2E-GAT-06-1), 3 fights, 10 loot types, loot in the hut. |
 | GAT-06 | `gat06_netherWorkerReturnsAfterTravel` (optional) | ❌ mod bug | 10083 (timeout) | E2E-GAT-06-1: the returned worker idles until the next trip is allowed. |
 
@@ -93,6 +94,23 @@ random numbers.
   wears (damage 60/64) but nothing is caught.
 - **Reproduce:** `-Pe2eFilter=minecolonies-gametest:farming_gathering_tests_frm07_fisherman`.
 
+### E2E-FRM-06-1 Herder feeds animals that are too far apart to mate
+
+- **Severity:** low: the breeding food is wasted and the herder waits 60 s (`breedTimeOut`) before the next try. Animals in a normal pen
+  wander, so a later try usually works.
+- **Likely upstream too** (code unchanged by the port). `AbstractEntityAIHerder.breedAnimals` pairs animals up to `DISTANCE_TO_BREED` = 10
+  blocks apart (`AbstractEntityAIHerder.java:78`, used at line 454). Vanilla's `BreedGoal` looks for a partner only within 8 blocks
+  (`PARTNER_TARGETING` range 8, box inflated by 8). A pair 8-10 blocks apart is put in love, never meets, and the love runs out after
+  600 ticks.
+- **Evidence:** the full-run timeout of `frm06_chickenHerderBreeds`. A traced repeat (200 runs, state every 200 ticks) had one run of
+  5,148 ticks: both chickens in love (love 540 / 420), 8.09 blocks apart, not moving, no chick; the herder fed them again 2,200 ticks
+  later with the same result; the third try worked after one chicken had moved. The optional test
+  `frm06_herderFeedsPairOutOfMateRange` (two chickens that can't move, 9 blocks apart) failed 22 of 22 runs with "both in love 9.3
+  blocks apart on tick ~395".
+- **Test side:** the breeding tests slow the animals, so a pair that drifted apart stayed apart for thousands of ticks.
+  `keepWithinMateRange` puts the second animal back next to the first while neither is in love and they are more than 6 blocks apart.
+- **Reproduce:** `-Pe2eFilter=minecolonies-gametest:farming_gathering_tests_frm06_herder_feeds_pair_out_of_mate_range`.
+
 ### E2E-FRM-03-1 Composted bed expires at once after it sat idle (minor, observation)
 
 - **Severity:** low (each bed needs two composts after idling; the first is wasted).
@@ -134,10 +152,10 @@ All changes are written into the test sections of `jobs-farming.md` / `jobs-gath
 
 ## Framework issues
 
-- **`ColonyFixture.rel()` is not the inverse of `abs()`:** `rel(abs(new BlockPos(44, 5, 44)))` returned `(-44, 5, -44)` in every run.
+- **`ColonyFixture.rel()` is not the inverse of `abs()` (fixed later, commit 396b6db):** `rel(abs(new BlockPos(44, 5, 44)))` returned `(-44, 5, -44)` in every run.
   `helper.spawn(type, fixture.rel(absPos))` therefore spawns in the wrong place. Worked around with absolute positions everywhere (own
   `spawnAnimal`).
-- **Re-runs of colony tests don't run:** with `maxAttempts = 3, requiredSuccesses = 1` the log shows "Starting re-run of tests: ..." and
+- **Re-runs of colony tests don't run (fixed later, commit 396b6db):** with `maxAttempts = 3, requiredSuccesses = 1` the log shows "Starting re-run of tests: ..." and
   the run ends within the same second with the first failure. Chance-based colony tests can't use `maxAttempts`.
 - **Herder huts at `(12, 5, 12)` reach over the arena wall:** several herder blueprints extend up to 19 blocks to one side of the hut
   block, so the pen hangs outside the arena and animals fall off. The suite uses `(44, 5, 48)` for herder huts and checks the hut area

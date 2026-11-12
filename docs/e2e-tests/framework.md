@@ -61,6 +61,11 @@ The test server starts with a test config so results don't depend on chance or o
 | `diseaseModifier` | 100 | Almost no random diseases. The config's minimum is 1, so 0 is impossible; higher means rarer, and 100 (the maximum) means about one disease per 1,000,000 checks. Disease tests infect a citizen on purpose. |
 | `minDistanceFromWorldSpawn` | 0 | Test areas are near the world spawn. |
 
+Besides the config, `ColonyFixture.create` sets the time to morning and clears the weather, and the test mod **ends citizens' leisure
+breaks** on every server tick (`E2EBootstrap`, `ColonyFixture.endLeisureBreaks`): each
+citizen takes a random 3-minute break now and then (`CitizenData.update`, about once per 144,000 ticks in a level 1 home). No test
+checks leisure, and a break hit one or two tests per full run at random (a courier, healer or student off work while the test waited).
+
 The values are set in memory when the test server has started (`E2EBootstrap`), before the first test. A test can change a value for
 its own run with `fixture.setConfig(...)`; it is restored when the test ends.
 

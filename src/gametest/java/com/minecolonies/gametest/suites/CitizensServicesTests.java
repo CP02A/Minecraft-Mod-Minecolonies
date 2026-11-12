@@ -1033,7 +1033,7 @@ public class CitizensServicesTests
     /**
      * SRV-03 Hospital: a healer with two sick patients (cure items for only one disease) and one injured citizen.
      */
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 9000, skyAccess = true)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 14000, skyAccess = true)
     public void srv03_hospital(final GameTestHelper helper)
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
@@ -1064,7 +1064,8 @@ public class CitizensServicesTests
               p[1].setSaturation(20);
               fixture.setCitizenNeeds(p[2], 20, 4);
           })
-          .awaitUntil("influenza cured, measles cure requested, injured healed, both sick patients were in hospital beds", 8500, () -> {
+          // 13000: room for a random 3-minute leisure break of the healer (CitizenData.update); once 8500 were not enough.
+          .awaitUntil("influenza cured, measles cure requested, injured healed, both sick patients were in hospital beds", 13000, () -> {
               for (int i = 0; i < 2; i++)
               {
                   if (p[i].isAsleep() && hospital[0].getBedList().contains(p[i].getBedPos()))
@@ -1108,10 +1109,20 @@ public class CitizensServicesTests
               victim[0] = fixture.spawnCitizen(Map.of(), null, null, new BlockPos(44, ColonyFixture.GROUND_Y, 50));
           })
           .awaitUntil("citizens have entities", 100, () -> allEntities(undertaker[0], victim[0]), () -> describeAll(undertaker[0], victim[0]))
-          .run("give tools and items", () -> {
+          .run("give tools and items, force the resurrection roll to miss", () -> {
               give(undertaker[0], new ItemStack(Items.WOODEN_SHOVEL));
               give(victim[0], new ItemStack(Items.OAK_LOG, 7));
               name[0] = victim[0].getName();
+              // Without research the undertaker still resurrects with about 3% (building level 1 x 0.005 + mana 20 x 0.00125); then the
+              // citizen lives and is never buried (seen once in a full run). The roll is forced to miss; SRV-04b covers resurrection.
+              setField(undertaker[0].getJob().getWorkerAI(), "random", new java.util.Random()
+              {
+                  @Override
+                  public double nextDouble()
+                  {
+                      return 1.0;
+                  }
+              });
           })
           .awaitUntil("victim died and left a grave", 600, () -> {
               killStep(fixture, victim[0]);

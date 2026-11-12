@@ -18,7 +18,7 @@ budgets in the code).
 | DEF-02 | `def02_marksmanShootsCrossbow` | ✅ passing | 410 | Research `combat/thathitthemark`, crossbow. |
 | DEF-02 | `def02_druidThrowsPotions` | ✅ passing | 146 | Design changed: druid slows the mob, doesn't kill it. |
 | DEF-02 | cavalry | ⛔ not implementable | - | See DEF-10. |
-| DEF-03 | `def03_patrolGuardFollow` | ✅ passing | 5336 | Guard mode checks "returns to the spot"; follow needs the owner in the player lists (test adds him). |
+| DEF-03 | `def03_patrolGuardFollow` | ✅ passing | 5336 | Guard mode checks "returns to the spot"; follow needs the owner in the player lists (test adds him). Final step: wait budgets raised (up to 30,000 ticks) after timeouts: the guard napped 7.9 blocks from the spot, and once a dump trip, 3,300 ticks idle at the tower and two naps took longer than 12,000. Guards nap 2500-3000 ticks and walk back lazily by design. |
 | DEF-04 | `def04_guardGetsGearByLevel` | ✅ passing | 2475 | Level 1 gear via warehouse + courier; after an upgrade to level 3 (blueprint pasted, no builder) iron is taken/requested, diamond refused. |
 | DEF-05 | `def05_injuredGuardRetreats` | ✅ passing | 2180 | Flee → regen at tower → back on duty. |
 | DEF-06 | `def06_barbarianRaid` | ✅ passing | 3586 | Also TOO_SMALL and maxRaiders checks. |
@@ -32,7 +32,7 @@ budgets in the code).
 | DEF-08 | `def08_citizensFleeFromDanger` | ✅ passing | 775 | Design changed: flee when hurt, not on sight. |
 | DEF-09 | `def09_trainingRaisesSkills` | ✅ passing | 2140 | Checks XP gain (levels need far more time). |
 | DEF-10 | - | ⛔ not implementable | - | See below. |
-| DEF-11 | `def11_raidTimingFollowsConfig` | ✅ passing | 1840 | Raids at nights 3, 6, 9 (min 2 / avg 3); none with raids off. |
+| DEF-11 | `def11_raidTimingFollowsConfig` | ✅ passing | 1840 | Raids at nights 3, 6, 9 (min 2 / avg 3); none with raids off. Final step: sky raiders on. Once no raid started in ten nights ("next=true" every night): the spawn search goes outwards while chunks are loaded and ended past the ground ring (NO_SPAWN_POINT), depending on which chunks other tests left loaded. |
 | VIS-01 | `vis01_visitorsComeToTavern` | ✅ passing | 12280 | First visitor after ~9700 ticks; capacity 3 never exceeded. |
 | VIS-02 | `vis02_recruitVisitor` | ✅ passing | ~1 | `maxAttempts = 4` because 3% of recruits run off (mod design). |
 | VIS-02 | `vis02_tavernRemovedAfterRecruiting` | ❌ fails due to mod bug | ~1 | E2E-VIS02-1 (optional test). |

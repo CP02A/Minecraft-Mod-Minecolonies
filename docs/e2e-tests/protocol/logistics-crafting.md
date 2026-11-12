@@ -18,12 +18,12 @@ Runtime = game ticks of the main wait in the final run (ticks vary from run to r
 | LOG-06 Tools by hut level | ❌ | (timeout 3,500) | BUG E2E-LOG06-1: orphaned delivery, miner never gets a pickaxe. `required = false`. |
 | LOG-07 Several couriers share the work | ✅ | 900 | 5 postboxes x 2 requests, 3 couriers (each in its own courier's hut), level 2 warehouse. |
 | LOG-08 Requests cancelled when a hut is removed | ✅ | 515 | Hut broken while the courier carries items; requests gone, items back in the warehouse, no references left. |
-| LOG-09 Full warehouse | ✅ | 745 | Courier keeps the items, `lastNotification` set; after a rack is added the items are stored. |
+| LOG-09 Full warehouse | ✅ | 745 | Courier keeps the items, `lastNotification` set; after a rack is added the items are stored. Final step: budget 3,000 → 8,000 (the courier once went on a random 3-minute leisure break). |
 | LOG-10 Stash | ✅ | 450 | |
 | CRF-01 Sawmill (oak log → planks) | ✅ | 1,395 | |
 | CRF-01 Stonemason (stone → stone bricks) | ✅ | 1,480 | |
 | CRF-01 Blacksmith (iron pickaxe) | ✅ | 5,090 | Slowest crafter (1,630 in an earlier run). |
-| CRF-01 Fletcher (arrows) | ✅ | 1,365 | |
+| CRF-01 Fletcher (arrows) | ✅ | 1,365 | Once still not delivered after 5,500 ticks (courier still on his way); all crafter budgets raised to 11,000. |
 | CRF-01 Baker (wheat → dough → bread) | ✅ | 1,955 | Built-in recipe chain, coal fuel. |
 | CRF-01 Kitchen (chef) | ✅ | 1,200-1,620 | Stew trencher (built-in, needs a level 4 kitchen); kitchen from the "Dark Oak Treehouse" pack (none in the default pack); MineColonies crop items put straight into the warehouse. |
 | CRF-01 Glassblower (glass → panes) | ✅ | 1,445 | |
@@ -34,12 +34,12 @@ Runtime = game ticks of the main wait in the final run (ticks vary from run to r
 | CRF-01 Smeltery (raw iron → ingot) | ✅ | – | Not a request crafter (refuses taught recipes, requests ores itself); covered by CRF-03. |
 | CRF-01 Stone smeltery (cobblestone → stone) | ✅ | 2,235 | Furnace recipe, coal fuel. |
 | CRF-01 Concrete mixer (powder → concrete) | ✅ | 2,850 | Needs a pickaxe/shovel (it requests one; first version timed out without it). |
-| CRF-01 Alchemist (water bottle + nether wart → awkward) | ✅ | 3,190 | Taught through the server side; the Fabric port's teaching window can't do it (E2E-CRF01-2). |
+| CRF-01 Alchemist (water bottle + nether wart → awkward) | ✅ | 3,190 | Taught through the server side; the Fabric port's teaching window can't do it (E2E-CRF01-2). Final step: shears in the warehouse (the alchemist once went for mistletoe without shears and waited on a tool request), budget 14,000. |
 | CRF-02 Learning recipes and their limits | ✅ | 0 | Limit 2^level x 5 = 10 at level 1; 11th refused; accepted after the upgrade to level 2. |
 | CRF-03 Furnaces and fuel | ✅ | 9,330 | 80 raw iron + 128 coal; second furnace placed in the level 1 hut; fuel requested only from the fuel list. |
-| CRF-04 Concrete mixer and water | ✅ | 5,230 | Water compared as source blocks. |
+| CRF-04 Concrete mixer and water | ✅ | 5,230 | Water compared as source blocks. Budget raised from 7,000 to 14,000 after one slow run. |
 | CRF-05 Sifter meshes | ✅ | 455 (+1,200 idle) | Mesh with 3 uses left; drops only iron nugget/flint/coal; nothing sifted without mesh. |
-| CRF-06 Alchemist (brew + harvest) | ✅ | 21,120 | Brewing covered by CRF-01 alchemist. Grown wart harvested and replanted, mistletoe gathered with shears from the warehouse. Random job choice (seen 21,120 / 29,110 / 57,145 ticks, one miss at 13,000): budget 43,000 per attempt, `maxAttempts = 3, requiredSuccesses = 1`. |
+| CRF-06 Alchemist (brew + harvest) | ✅ | 21,120 | Brewing covered by CRF-01 alchemist. Grown wart harvested and replanted, mistletoe gathered with shears from the warehouse. Random job choice (seen 21,120 / 29,110 / 57,145 ticks, one miss at 13,000): budget 43,000 per attempt, `maxAttempts = 5, requiredSuccesses = 1` (was 3; in one full run all three attempts missed the mistletoe). |
 | CRF-07 Enchanter | ✅ | 1,195 + 6,615 | `crf07_enchanter`: book used, mana up, ancient tome → enchanted book in the hut, station worker keeps XP. Drain takes no XP (design change). |
 | CRF-07 Enchanter, drain target | ❌ | 1,115 | BUG E2E-CRF07-1: the enchanter drains himself. `crf07_enchanterDrainsStationWorker`, `required = false`. |
 | CRF-08 Cook keeps the restaurant stocked | ✅ | 5,335 | Menu foods made, no cooked chicken; citizens eating not checked (CIT-02). |

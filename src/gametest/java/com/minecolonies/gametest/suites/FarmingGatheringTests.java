@@ -269,7 +269,7 @@ public class FarmingGatheringTests
     /**
      * FRM-02a Planter, sugar cane field.
      */
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 16000, skyAccess = true)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 45000, skyAccess = true)
     public void frm02_planterSugarCane(final GameTestHelper helper)
     {
         plantationField(helper, "sugar", Blocks.SUGAR_CANE, Items.SUGAR_CANE, 3, null);
@@ -278,7 +278,7 @@ public class FarmingGatheringTests
     /**
      * FRM-02b Planter, cactus field.
      */
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 16000, skyAccess = true)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 45000, skyAccess = true)
     public void frm02_planterCactus(final GameTestHelper helper)
     {
         plantationField(helper, "cactus", Blocks.CACTUS, Items.CACTUS, 3, null);
@@ -287,7 +287,8 @@ public class FarmingGatheringTests
     /**
      * FRM-02c Planter, bamboo field (needs the research "jungle master"; the planter harvests bamboo of at least 6 blocks).
      */
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 24000, skyAccess = true)
+    // Budget 40,000 (shared wait): bamboo took 11,200-19,700 ticks and once ran past the old 20,000.
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 45000, skyAccess = true)
     public void frm02_planterBamboo(final GameTestHelper helper)
     {
         plantationField(helper, "bamboo", Blocks.BAMBOO, Items.BAMBOO, 8, net.minecraft.resources.Identifier.parse("minecolonies:technology/junglemaster"));
@@ -382,7 +383,7 @@ public class FarmingGatheringTests
           })
           .check("the plantation owns the field", () -> hut[0].getID().equals(field[0].getBuildingId()), () -> "field owner " + field[0].getBuildingId())
           .run("hire the planter", () -> worker[0] = fixture.spawnCitizen(30, hut[0], null))
-          .awaitUntil("all but at most one grown plant are cut above the base (no base is lost) and all but one empty position replanted", 20000,
+          .awaitUntil("all but at most one grown plant are cut above the base (no base is lost) and all but one empty position replanted", 40000,
             () -> days.pump() && grown.stream().filter(wp -> is(fixture, wp.above(), plant) && !is(fixture, wp.above(2), plant)).count() >= grown.size() - 1
                     && empty.stream().filter(wp -> is(fixture, wp.above(), plant)).count() >= empty.size() - 1
                     && grown.stream().allMatch(wp -> is(fixture, wp.above(), plant)),
@@ -548,10 +549,9 @@ public class FarmingGatheringTests
     /**
      * FRM-06 below the limit, swine herder: two pigs, the herder breeds them.
      */
-    // FLAKY (optional): the herder puts both pigs in love even when they have drifted apart (pigs drift out of the pen corner even when
-    // slowed), then waits 60 s before the next try; most runs time out without a piglet. maxAttempts doesn't help: the framework announces
-    // the re-run of colony tests but doesn't execute it (see protocol, framework issues). Not classified as a mod bug.
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 8000, skyAccess = true, required = false)
+    // Was optional (FLAKY): the pigs drifted more than 8 blocks apart and the herder fed them anyway (E2E-FRM-06-1), then waited 60 s.
+    // keepWithinMateRange fixes this on the test side: 100 of 100 repeated runs passed (at most 1,194 ticks).
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 8000, skyAccess = true)
     public void frm06_swineHerderBreeds(final GameTestHelper helper)
     {
         herderBreeds(helper, ModBuildings.swineHerder.get(), EntityTypes.PIG, new ItemStack[] {new ItemStack(Items.CARROT, 64)}, null, null);
@@ -629,6 +629,7 @@ public class FarmingGatheringTests
         final IBuilding[] hut = new IBuilding[1];
         final ICitizenData[] worker = new ICitizenData[1];
         final ItemEntity[] lying = new ItemEntity[1];
+        final BlockPos[] penSpot = new BlockPos[1];
 
         com.minecolonies.gametest.framework.TestFlow flow = fixture.flow()
           .run("set up colony, herder's hut and two animals", () -> {
@@ -642,6 +643,7 @@ public class FarmingGatheringTests
               {
                   throw new IllegalStateException("no pen inside the hut area " + describeArea(fixture, hut[0]));
               }
+              penSpot[0] = pen.get(0);
               spawnAnimal(fixture, type, pen.get(0));
               spawnAnimal(fixture, type, pen.get(0));
               if (lyingItem != null)
@@ -655,7 +657,10 @@ public class FarmingGatheringTests
               worker[0] = fixture.spawnCitizen(30, hut[0], null);
           })
           .awaitUntil("a baby is born in the pen", 6000,
-            () -> animalsIn(fixture, hut[0], type).stream().anyMatch(Animal::isBaby),
+            () -> {
+                keepWithinMateRange(fixture, hut[0], type, penSpot[0]);
+                return animalsIn(fixture, hut[0], type).stream().anyMatch(Animal::isBaby);
+            },
             () -> describeAnimals(fixture, hut[0], type) + " / " + describeWork(hut[0], worker[0]));
         if (special != null)
         {
@@ -665,6 +670,118 @@ public class FarmingGatheringTests
                       + describeWork(hut[0], worker[0]));
         }
         flow.succeed();
+    }
+
+    /**
+     * Vanilla's mate search ({@code BreedGoal}) only looks 8 blocks around an animal in love. The test animals are slowed so they stay in the
+     * pen, which also means two animals that have wandered more than 8 blocks apart stay apart for a long time. The herder still feeds such
+     * a pair (bug E2E-FRM-06-1), so they never meet, and he waits 60 s before the next try; with bad luck the budget runs out
+     * (seen once in a full run, 5,148 ticks in 1 of 200 repeated runs). While neither animal is in love and they are more than 6 blocks
+     * apart, the second one is put back next to the first. An animal that got out of the hut area anyway (pigs once slipped past the
+     * fence gates; the herder only sees animals inside the area) is put back on {@code penSpot}. Doesn't change what the herder does;
+     * {@link #frm06_herderFeedsPairOutOfMateRange} covers the bug itself.
+     */
+    private static void keepWithinMateRange(final ColonyFixture fixture, final IBuilding hut, final EntityType<? extends Animal> type, final BlockPos penSpot)
+    {
+        final Tuple<BlockPos, BlockPos> c = hut.getCorners();
+        final AABB area = new AABB(c.getA().getX(), c.getA().getY(), c.getA().getZ(), c.getB().getX(), c.getB().getY(), c.getB().getZ());
+        for (final Animal outside : fixture.level().getEntitiesOfClass(Animal.class, area.inflate(16),
+          a -> a.getType() == type && a.isAlive() && !area.intersects(a.getBoundingBox())))
+        {
+            outside.teleportTo(penSpot.getX() + 0.5, penSpot.getY(), penSpot.getZ() + 0.5);
+        }
+        final List<? extends Animal> adults = animalsIn(fixture, hut, type).stream().filter(a -> !a.isBaby()).toList();
+        if (adults.size() == 2 && !adults.get(0).isInLove() && !adults.get(1).isInLove() && adults.get(0).distanceTo(adults.get(1)) > 6)
+        {
+            final Animal first = adults.get(0);
+            adults.get(1).teleportTo(first.getX(), first.getY(), first.getZ());
+        }
+    }
+
+    /**
+     * FRM-06 below the limit, the mate range: two chickens 9 blocks apart in the hut area, slowed to a standstill so they stay there. The
+     * herder pairs animals up to 10 blocks apart (AbstractEntityAIHerder.DISTANCE_TO_BREED), vanilla's BreedGoal finds a partner only within
+     * 8 blocks. Expected: in 3000 ticks the herder never puts both in love while they can't find each other.
+     */
+    // BUG E2E-FRM-06-1: the herder feeds both chickens although they are 8-10 blocks apart. They are in love but never look for each other
+    // (vanilla mate search: 8 blocks), the food is wasted and the herder waits 60 s (breedTimeOut) before he tries again. Upstream code
+    // (AbstractEntityAIHerder.java:78 DISTANCE_TO_BREED = 10, used at :454), not Fabric-specific. In a normal pen the animals wander and
+    // a later try usually works, so the impact is small.
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 6000, skyAccess = true, required = false)
+    public void frm06_herderFeedsPairOutOfMateRange(final GameTestHelper helper)
+    {
+        final ColonyFixture fixture = ColonyFixture.create(helper);
+        final IBuilding[] hut = new IBuilding[1];
+        final ICitizenData[] worker = new ICitizenData[1];
+        final String[] fedOutOfRange = new String[1];
+
+        fixture.flow()
+          .run("set up colony, chicken farmer's hut and two chickens 9 blocks apart", () -> {
+              fixture.createColony();
+              fixture.setMoveIn(false);
+              hut[0] = fixture.placeBuilding(ModBuildings.chickenHerder.get(), 1, HERD_POS);
+              checkInsideArena(fixture, hut[0]);
+              fenceArea(fixture, hut[0]);
+              // Every open ground position of the (fenced) hut area, not only the largest enclosed pen, so two positions 9 blocks apart exist.
+              final List<BlockPos> pen = new ArrayList<>();
+              final Tuple<BlockPos, BlockPos> c = hut[0].getCorners();
+              for (int x = c.getA().getX() + 2; x < c.getB().getX() - 1; x++)
+              {
+                  for (int z = c.getA().getZ() + 2; z < c.getB().getZ() - 1; z++)
+                  {
+                      for (int y = hut[0].getPosition().getY() - 2; y <= hut[0].getPosition().getY() + 1; y++)
+                      {
+                          final BlockPos p = new BlockPos(x, y, z);
+                          if (fixture.level().getBlockState(p).isAir() && fixture.level().getBlockState(p.above()).isAir()
+                                && fixture.level().getBlockState(p.below()).isSolidRender())
+                          {
+                              pen.add(p);
+                              break;
+                          }
+                      }
+                  }
+              }
+              BlockPos a = null;
+              BlockPos b = null;
+              for (final BlockPos p : pen)
+              {
+                  for (final BlockPos q : pen)
+                  {
+                      final double d = Math.sqrt(p.distSqr(q));
+                      if (a == null && p.getY() == q.getY() && d >= 8.6 && d <= 9.6)
+                      {
+                          a = p;
+                          b = q;
+                      }
+                  }
+              }
+              if (a == null)
+              {
+                  throw new IllegalStateException("no two pen positions 9 blocks apart " + describeArea(fixture, hut[0]) + " open ground " + pen.stream().map(fixture::rel).toList());
+              }
+              for (final BlockPos p : List.of(a, b))
+              {
+                  // Can't walk at all (speed 0): the two stay 9 blocks apart. Breeding needs no walking from the herder's side.
+                  spawnAnimal(fixture, EntityTypes.CHICKEN, p)
+                    .addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.SLOWNESS, 1_000_000, 100, false, false));
+              }
+              fixture.fillBuilding(hut[0], new ItemStack(Items.WOODEN_AXE), new ItemStack(Items.WHEAT_SEEDS, 64));
+              worker[0] = fixture.spawnCitizen(30, hut[0], null);
+          })
+          .awaitUntil("3000 ticks pass, or the herder puts both chickens in love while they are out of mate range", 3100,
+            () -> {
+                final List<? extends Animal> adults = animalsIn(fixture, hut[0], EntityTypes.CHICKEN).stream().filter(c -> !c.isBaby()).toList();
+                if (fedOutOfRange[0] == null && adults.size() == 2 && adults.get(0).isInLove() && adults.get(1).isInLove()
+                      && adults.get(0).distanceTo(adults.get(1)) > 8.0)
+                {
+                    fedOutOfRange[0] = String.format("both in love %.1f blocks apart on tick %d", adults.get(0).distanceTo(adults.get(1)), helper.getTick());
+                }
+                return fedOutOfRange[0] != null || helper.getTick() >= 3000;
+            },
+            () -> describeAnimals(fixture, hut[0], EntityTypes.CHICKEN) + " / " + describeWork(hut[0], worker[0]))
+          .check("the herder only fed chickens that can find each other (vanilla mate search: 8 blocks)", () -> fedOutOfRange[0] == null,
+            () -> fedOutOfRange[0] + ", " + describeAnimals(fixture, hut[0], EntityTypes.CHICKEN))
+          .succeed();
     }
 
     /**
@@ -872,7 +989,7 @@ public class FarmingGatheringTests
         final StringBuilder sb = new StringBuilder("hut area " + building.getCorners().getA() + ".." + building.getCorners().getB() + ", " + type + " near:");
         for (final Animal a : fixture.level().getEntitiesOfClass(Animal.class, new AABB(building.getPosition()).inflate(80), a -> a.getType() == type))
         {
-            sb.append(" ").append(a.blockPosition().toShortString()).append(" hp").append((int) a.getHealth()).append(a.isBaby() ? " baby" : "").append(a.isAlive() ? "" : " dead");
+            sb.append(" ").append(a.blockPosition().toShortString()).append(" hp").append((int) a.getHealth()).append(a.isBaby() ? " baby" : "").append(a.isInLove() ? " in love" : "").append(a.isAlive() ? "" : " dead");
         }
         return sb.toString();
     }
@@ -1747,7 +1864,9 @@ public class FarmingGatheringTests
      * is done, the stone right outside the shaft's footprint is untouched, and the dug blocks end up in the quarry (where the quarrier dumps).
      * Materials the colony can't supply (framed blocks of the shaft, more tools) are handed over by the creative owner ({@link OwnerFulfils}).
      */
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 40000, skyAccess = true)
+    // Budget: 23,700-28,300 ticks in most runs; once 34,000 were not enough (a 6,000-tick stall fetching tools and dumping, then 17
+    // blocks left), so 60,000.
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 70000, skyAccess = true)
     public void gat05_quarrierDigsLayers(final GameTestHelper helper)
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
@@ -1757,7 +1876,7 @@ public class FarmingGatheringTests
           .run("set up stone ground, colony, mine and simple quarry", quarry::setUp)
           .awaitUntil("the quarrier loads the shaft blueprint", 4000, () -> quarry.tick() && quarry.blueprintLoaded(), quarry::describe)
           .run("record the shaft's layers and the stone around it", quarry::recordLayers)
-          .awaitUntil("the top " + QUARRY_LAYERS + " layers are dug out", 34000, () -> quarry.tick() && quarry.layersDone() >= QUARRY_LAYERS, quarry::describe)
+          .awaitUntil("the top " + QUARRY_LAYERS + " layers are dug out", 60000, () -> quarry.tick() && quarry.layersDone() >= QUARRY_LAYERS, quarry::describe)
           .check("layers were dug top down", () -> quarry.orderProblems.isEmpty(), () -> quarry.orderProblems + " / " + quarry.describe())
           .check("nothing outside the quarry area was dug", () -> quarry.changedOutside().isEmpty(), () -> quarry.changedOutside() + " / " + quarry.describe())
           .awaitUntil("the dug blocks reach the quarry", 4000, () -> quarry.tick() && quarry.dugInQuarry() >= 64, quarry::describe)

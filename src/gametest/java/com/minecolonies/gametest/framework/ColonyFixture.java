@@ -226,6 +226,49 @@ public final class ColonyFixture
         return fixture;
     }
 
+    /**
+     * Citizens take random 3-minute leisure breaks (CitizenData.update: about once per 144,000 ticks per citizen in a level 1 home, then
+     * 3,600 ticks off work). Over a full run that hit one or two tests per run at random (a courier, a healer or a student off work while
+     * the test waited). No test checks leisure, so every break is ended on the tick it starts, like time and weather are fixed. Called
+     * at the end of every server tick of a test server ({@link E2EBootstrap}); all colonies there are test colonies. (Not with
+     * {@code helper.onEachTick}: that puts one entry per tick of the budget into a map the test scans every tick, which doubled the run time.)
+     */
+    static void endLeisureBreaks()
+    {
+        for (final IColony c : IColonyManager.getInstance().getAllColonies())
+        {
+            for (final ICitizenData citizen : c.getCitizenManager().getCitizens())
+            {
+                if (citizen.getLeisureTime() > 0)
+                {
+                    try
+                    {
+                        LEISURE_TIME.setInt(citizen, 0);
+                    }
+                    catch (final IllegalAccessException e)
+                    {
+                        throw new IllegalStateException(e);
+                    }
+                }
+            }
+        }
+    }
+
+    private static final java.lang.reflect.Field LEISURE_TIME;
+
+    static
+    {
+        try
+        {
+            LEISURE_TIME = com.minecolonies.core.colony.CitizenData.class.getDeclaredField("leisureTime");
+            LEISURE_TIME.setAccessible(true);
+        }
+        catch (final NoSuchFieldException e)
+        {
+            throw new IllegalStateException(e);
+        }
+    }
+
     // ------------------------------------------------------------------------------------------------------------------------------------
     // Basics
     // ------------------------------------------------------------------------------------------------------------------------------------

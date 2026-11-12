@@ -4,7 +4,8 @@ Automated tests that check MineColonies behaves as intended, without anyone play
 it needs (a colony, huts, citizens, items, time of day), lets the colony run on its own, then checks the result, including internal
 state a player can't see.
 
-- **Progress:** 104 of 109 tests implemented: 102 ✅ passing (13 of them with an optional part that fails because of a mod bug), 2 ❌ failing because of a mod bug, 5 ⛔ not implementable. A headless run has 148 game tests (14 optional ones fail on known mod bugs, see the protocols in [e2e-tests/protocol](e2e-tests/protocol/)); the 8 UI tests run with `runClientGameTest`.
+- **Test protocol** (results, all bugs found, how the tests were made): [e2e-tests/PROTOCOL.md](e2e-tests/PROTOCOL.md)
+- **Progress:** 104 of 109 tests implemented: 102 ✅ passing (14 of them with an optional part that fails because of a mod bug), 2 ❌ failing because of a mod bug, 5 ⛔ not implementable. A headless run has 149 game tests: 133 required, 16 optional (14 fail on known mod bugs every time, `crf01_crusher` and `gat03_minerDigsShaftSafely` fail in some runs; see the [protocol](e2e-tests/PROTOCOL.md)); the 8 UI tests run with `runClientGameTest`.
 - **How the tests work** (setup helpers, test areas, config, time budgets): [e2e-tests/framework.md](e2e-tests/framework.md)
 - **Run them:** `./gradlew runGameTest` (report in `build/gametest-report.xml`); only some: `./gradlew runGameTest -Pe2eFilter=<prefix>`
 - **Watch them in a game window:** `./gradlew runGameTest -Pe2eWatch` (combine with `-Pe2eFilter`); **UI tests** with screenshots: `./gradlew runClientGameTest`
@@ -98,7 +99,7 @@ Details: [e2e-tests/jobs-farming.md](e2e-tests/jobs-farming.md)
 | [FRM-03](e2e-tests/jobs-farming.md#frm-03-florist) | Florist | The florist grows the chosen flowers with compost. | ✅ Passing |
 | [FRM-04](e2e-tests/jobs-farming.md#frm-04-composter) | Composter | The composter turns allowed items into compost. | ✅ Passing |
 | [FRM-05](e2e-tests/jobs-farming.md#frm-05-beekeeper) | Beekeeper | The beekeeper harvests full hives without harming the bees. | ✅ Passing |
-| [FRM-06](e2e-tests/jobs-farming.md#frm-06-animal-herders) | Animal herders | Each herder keeps its animal count at the limit and uses its special action. | ✅ Passing |
+| [FRM-06](e2e-tests/jobs-farming.md#frm-06-animal-herders) | Animal herders | Each herder keeps its animal count at the limit and uses its special action. | ✅ Passing; optional part ❌ (E2E-FRM-06-1) |
 | [FRM-07](e2e-tests/jobs-farming.md#frm-07-fisherman) | Fisherman | The fisherman finds water and fishes. | ❌ Fails (mod bug) (E2E-FRM-07-1) |
 
 ## Jobs: gathering resources

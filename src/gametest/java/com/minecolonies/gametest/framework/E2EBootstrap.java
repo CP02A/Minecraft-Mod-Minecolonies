@@ -5,6 +5,7 @@ import com.minecolonies.api.configuration.ServerConfiguration;
 import com.minecolonies.core.MineColonies;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.gametest.framework.GameTestServer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.gamerules.GameRules;
@@ -26,6 +27,12 @@ public class E2EBootstrap implements ModInitializer
     public void onInitialize()
     {
         ServerLifecycleEvents.SERVER_STARTED.register(E2EBootstrap::onServerStarted);
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            if (isTestServer(server))
+            {
+                ColonyFixture.endLeisureBreaks();
+            }
+        });
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
             if (isTestServer(server))
             {

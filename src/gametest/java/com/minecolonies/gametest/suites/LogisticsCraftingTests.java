@@ -128,7 +128,7 @@ public class LogisticsCraftingTests
      * keeps its axe and saplings. The pickup is started the way the hut's "force pickup" button does (a worker without trees never dumps
      * on its own).
      */
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 6000, skyAccess = true)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 12000, skyAccess = true)
     public void log02_couriersCollectProducts(final GameTestHelper helper)
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
@@ -425,7 +425,7 @@ public class LogisticsCraftingTests
      * LOG-09 Full warehouse: with every warehouse slot full, a courier who picked up surplus keeps it (nothing is lost) and the warehouse
      * notes that it is full; after a rack is added, the items are stored.
      */
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 6000, skyAccess = true)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 12000, skyAccess = true)
     public void log09_fullWarehouse(final GameTestHelper helper)
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
@@ -442,7 +442,8 @@ public class LogisticsCraftingTests
           })
           .awaitUntil("courier entity exists", 200, lg::courierReady, () -> "no entity yet")
           .run("request a pickup (force pickup button)", () -> hut[0].createPickupRequest(64, true))
-          .awaitUntil("courier picked up cobblestone and the warehouse noted it is full", 3000,
+          // 8000: citizens take random 3-minute leisure breaks (CitizenData.update); once the courier went on one and 3000 ran out.
+          .awaitUntil("courier picked up cobblestone and the warehouse noted it is full", 8000,
             () -> courierHolds(lg.couriers.get(0), Items.COBBLESTONE) > 0 && warehouseFullNotified(lg.warehouse),
             () -> "courier cobblestone " + courierHolds(lg.couriers.get(0), Items.COBBLESTONE) + ", full noted " + warehouseFullNotified(lg.warehouse)
                     + "; " + ColonyFixture.describe(lg.couriers.get(0)))
@@ -524,7 +525,7 @@ public class LogisticsCraftingTests
     }
 
     /** CRF-01 Sawmill: oak log to oak planks. */
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 6000, skyAccess = true)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 12000, skyAccess = true)
     public void crf01_sawmill(final GameTestHelper helper)
     {
         crafterTest(helper, new Craft(ModBuildings.sawmill.get(), 1,
@@ -533,7 +534,7 @@ public class LogisticsCraftingTests
     }
 
     /** CRF-01 Stonemason: stone to stone bricks. */
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 6000, skyAccess = true)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 12000, skyAccess = true)
     public void crf01_stonemason(final GameTestHelper helper)
     {
         crafterTest(helper, new Craft(ModBuildings.stoneMason.get(), 1,
@@ -542,7 +543,7 @@ public class LogisticsCraftingTests
     }
 
     /** CRF-01 Blacksmith: iron ingots and sticks to an iron pickaxe. */
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 6000, skyAccess = true)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 12000, skyAccess = true)
     public void crf01_blacksmith(final GameTestHelper helper)
     {
         crafterTest(helper, new Craft(ModBuildings.blacksmith.get(), 1,
@@ -552,7 +553,7 @@ public class LogisticsCraftingTests
     }
 
     /** CRF-01 Fletcher: flint, stick and feather to arrows. */
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 6000, skyAccess = true)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 12000, skyAccess = true)
     public void crf01_fletcher(final GameTestHelper helper)
     {
         crafterTest(helper, new Craft(ModBuildings.fletcher.get(), 1,
@@ -562,7 +563,7 @@ public class LogisticsCraftingTests
     }
 
     /** CRF-01 Glassblower: glass to glass panes. */
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 6000, skyAccess = true)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 12000, skyAccess = true)
     public void crf01_glassblower(final GameTestHelper helper)
     {
         crafterTest(helper, new Craft(ModBuildings.glassblower.get(), 1,
@@ -572,7 +573,7 @@ public class LogisticsCraftingTests
     }
 
     /** CRF-01 Dyer: white wool and red dye to red wool. */
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 6000, skyAccess = true)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 12000, skyAccess = true)
     public void crf01_dyer(final GameTestHelper helper)
     {
         crafterTest(helper, new Craft(ModBuildings.dyer.get(), 1,
@@ -581,7 +582,7 @@ public class LogisticsCraftingTests
     }
 
     /** CRF-01 Mechanic: a piston. */
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 6000, skyAccess = true)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 12000, skyAccess = true)
     public void crf01_mechanic(final GameTestHelper helper)
     {
         crafterTest(helper, new Craft(ModBuildings.mechanic.get(), 1,
@@ -595,7 +596,7 @@ public class LogisticsCraftingTests
     // BUG E2E-CRF01-1: the crusher over-crafts a request: after reaching the request's crafting count, EntityAIWorkCrusher.craft() only
     // resets its counters (resetValues) and keeps calling crush(), which falls back to the crusher-mode recipe and crafts again until the
     // worker dumps. Request for 2 gravel uses 8 cobblestone instead of 4; the extra gravel stays in the crusher's inventory.
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 6000, skyAccess = true, required = false)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 12000, skyAccess = true, required = false)
     public void crf01_crusher(final GameTestHelper helper)
     {
         // The crusher also crushes on its own up to its daily limit (setting); set to 0 so only the request is crafted.
@@ -623,7 +624,7 @@ public class LogisticsCraftingTests
     }
 
     /** CRF-01 Concrete mixer: white concrete powder to white concrete (built-in recipe). */
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 6000, skyAccess = true)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 12000, skyAccess = true)
     public void crf01_concreteMixer(final GameTestHelper helper)
     {
         crafterTest(helper, new Craft(ModBuildings.concreteMixer.get(), 1, hut -> {}, List.of(new ItemStack(Items.CONCRETE_POWDER.white(), 8), new ItemStack(Items.STONE_PICKAXE), new ItemStack(Items.STONE_SHOVEL)),
@@ -733,7 +734,8 @@ public class LogisticsCraftingTests
      * CRF-04 Concrete mixer and water: 16 white concrete powder in the hut become 16 white concrete (requested by another hut); the hut's
      * water is still in place afterwards.
      */
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 8000, skyAccess = true)
+    // Budget: 3,950-5,400 ticks in earlier runs; once not done after 7,000 (the mixer still harvesting), so 14,000.
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 15000, skyAccess = true)
     public void crf04_concreteMixerWater(final GameTestHelper helper)
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
@@ -757,7 +759,7 @@ public class LogisticsCraftingTests
           .awaitUntil("entities exist", 200, () -> lg.courierReady() && worker[0].getEntity().isPresent(), () -> "no entity yet")
           .run("the lumberjack's hut requests 16 white concrete",
             () -> watch.token = huts[1].createRequest(new Stack(new ItemStack(Items.CONCRETE.white(), 16), 16, 16), false))
-          .awaitUntil("request completed", 7000, watch::isGone,
+          .awaitUntil("request completed", 14000, watch::isGone,
             () -> watch.describe() + "; concrete " + whereIs(fixture, Items.CONCRETE.white()) + ", powder " + whereIs(fixture, Items.CONCRETE_POWDER.white())
                     + "; " + ColonyFixture.describe(worker[0]))
           .check("16 white concrete arrived, the powder is used up",
@@ -809,7 +811,9 @@ public class LogisticsCraftingTests
      * taught through the server side of the teaching message (the Fabric port's brewing teaching window can't compute the output, see the
      * protocol).
      */
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 8000, skyAccess = true)
+    // Shears in the warehouse: between brews the alchemist may go harvesting mistletoe (random), which needs shears; without them he
+    // waited in NEEDS_ITEM on a tool request only the retrying resolver handles, and the brewed potions were never delivered (once).
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 15000, skyAccess = true)
     public void crf01_alchemist(final GameTestHelper helper)
     {
         final ItemStack water = PotionContents.createItemStack(Items.POTION, Potions.WATER);
@@ -817,8 +821,8 @@ public class LogisticsCraftingTests
         crafterTest(helper, new Craft(ModBuildings.alchemist.get(), 1,
           hut -> requireTaught(teachBrewing(hut, awkward.copyWithCount(3), water, Items.NETHER_WART), "awkward potion"),
           List.of(water.copyWithCount(1), water.copyWithCount(1), water.copyWithCount(1), water.copyWithCount(1), water.copyWithCount(1), water.copyWithCount(1),
-            new ItemStack(Items.NETHER_WART, 2), new ItemStack(Items.BLAZE_POWDER, 4)),
-          awkward.copyWithCount(3), Map.of(Items.NETHER_WART, 1)), 7500);
+            new ItemStack(Items.NETHER_WART, 2), new ItemStack(Items.BLAZE_POWDER, 4), new ItemStack(Items.SHEARS)),
+          awkward.copyWithCount(3), Map.of(Items.NETHER_WART, 1)), 14000);
     }
 
     /**
@@ -874,7 +878,7 @@ public class LogisticsCraftingTests
      * CRF-06 Alchemist harvesting: grown nether wart on the hut's soul sand is harvested and replanted, and mistletoe is gathered from the
      * hut's leaves (with shears from the warehouse). Brewing in the brewing stands is covered by {@link #crf01_alchemist}.
      */
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 45000, skyAccess = true, maxAttempts = 3, requiredSuccesses = 1)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 45000, skyAccess = true, maxAttempts = 5, requiredSuccesses = 1)
     public void crf06_alchemistHarvests(final GameTestHelper helper)
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
@@ -1022,7 +1026,9 @@ public class LogisticsCraftingTests
 
     private static void crafterTest(final GameTestHelper helper, final Craft craft)
     {
-        crafterTest(helper, craft, 5500);
+        // Usually 1,300-5,100 ticks; once (crf01_fletcher, full run) the courier was still delivering after 5,500. A courier stuck on
+        // his path is teleported by the stuck handler after about 2,500 ticks (CIT-13), so the budget leaves room for that.
+        crafterTest(helper, craft, 11000);
     }
 
     private static void crafterTest(final GameTestHelper helper, final Craft craft, final int budget)
