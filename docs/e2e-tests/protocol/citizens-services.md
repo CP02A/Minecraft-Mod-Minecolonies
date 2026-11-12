@@ -22,12 +22,12 @@ Suite class: `src/gametest/java/com/minecolonies/gametest/suites/CitizensService
 | CIT-10 | ✅ passing | ~580 | Birth via timer (reflection), growth via child AI active time (reflection), then hired. |
 | CIT-11 | ✅ passing | ~1630–1805 | Lumberjack needs axe + hoe; complementary/adverse skills also change. |
 | CIT-12 | ✅ passing | ~1060–1115 | Door, stairs, ladder, bridge, ford; door closed again; no damage. |
-| CIT-13 | ✅ passing | ~2340–2740 | Gets out by the stuck handler's teleport (log: "Entity complete stuck action ... teleport:true"); then at its hut. Slower than the 2 minute design budget. |
+| CIT-13 | ✅ passing | ~2340–2740 | Gets out by the stuck handler's teleport (log: "Entity complete stuck action ... teleport:true"); then at its hut. Slower than the 2 minute design budget. Round 2: 17 logged runs took 1,920-4,260 ticks; the 5,000 budget timed out in full runs, now 12,000. |
 | CIT-14 | ✅ passing | ~90 | "Cancel" answer on a request interaction cancels the request; interaction closes. |
 | SRV-01 | ✅ passing | ~960–1490 | Pupils sit, gain Intelligence, paper used up, teacher requests paper, adult removed from pupil place. |
 | SRV-02 | ✅ passing | ~1410–1450 | Students gain Intelligence, paper used up. |
 | SRV-02b | ✅ passing | 0 | Was E2E-SRV02-1 (study items lowered the chance of an Intelligence gain); FIXED, now required. |
-| SRV-03 | ✅ passing | ~2120–2165 | Influenza cured, measles items requested, injured healed, distinct hospital beds. Final step: budget 8,500 → 13,000 (room for a random 3-minute leisure break). |
+| SRV-03 | ✅ passing | ~2120–2165 | Influenza cured, measles items requested, injured healed, distinct hospital beds. Final step: budget 8,500 → 13,000 (room for a random 3-minute leisure break). Round 2: a patient in a hospital bed also recovers by himself (1 in 7,200 every 20 ticks, `EntityAISickTask.waitForCure`); when that hit the measles patient the wait never ended. Conditions are latched; the measles patient may end healthy only while no measles cure item is in the hospital, with the healer or with him. |
 | SRV-04 | ✅ passing | ~1080 | Grave dug up, citizen buried (resting list), items in the graveyard. Final step: the resurrection roll is forced to miss; without research it still hits about 3% of the time (the citizen then lives and is never buried, seen once in a full run). |
 | SRV-04b | ✅ passing | ~6080 | Resurrection with forced roll. Later replaced by SRV-06 `srv06_revival` (no research, also checks name, gender, skills and that no grave is left). |
 | SRV-05 | ✅ passing | 0 | Factor 1.0 / 1.0 / 1.5 / 2.5 for no site / level 1 / 3 / 5. |
@@ -40,7 +40,7 @@ Totals: 23 ✅ passing (19 designed tests, some split into a and b parts; CIT-06
 
 **FIXED:** `getHappiness` averages over all factors again (the `factor == 1.0` skip is removed), so a below-neutral factor always
 lowers the total and a citizen whose factors are all neutral no longer gets `0 / 0`. Typical values rise (neutral factors count as
-1.0). `cit06b_negativeFactorsLowerHappiness` is required and passes. Upstream issue: [docs/upstream-bugs/citizens-colony.md](../../upstream-bugs/citizens-colony.md#e2e-cit06-1-unemployed-or-sick-citizens-can-be-happier-than-healthy-employed-ones).
+1.0). `cit06b_negativeFactorsLowerHappiness` is required and passes. Upstream issue: [docs/Upstream-bugs.md](../../Upstream-bugs.md#e2e-cit06-1-unemployed-or-sick-citizens-can-be-happier-than-healthy-employed-ones).
 
 - **Severity:** medium (happiness drives skill caps, e.g. `tryLevelUpIntelligence` caps at happiness × 9, and citizens leaving).
 - **Port-specific or upstream:** upstream. The code is shared MineColonies code (`src/main`), unchanged by the Fabric port; it dates
@@ -55,7 +55,7 @@ lowers the total and a citizen whose factors are all neutral no longer gets `0 /
 
 **FIXED:** the check in `tryLevelUpIntelligence` is `random * customChance >= 1` (fail), so the success chance is `1 / customChance` as
 `ONE_IN_X_CHANCE` says: 12.5% without items, 50% with paper, 75% with a book. `srv02b_studyItemsHelp` is required and passes. Upstream
-issue: [docs/upstream-bugs/citizens-colony.md](../../upstream-bugs/citizens-colony.md#e2e-srv02-1-library-study-items-make-studying-less-successful).
+issue: [docs/Upstream-bugs.md](../../Upstream-bugs.md#e2e-srv02-1-library-study-items-make-studying-less-successful).
 
 - **Severity:** medium (the library's study items have the opposite effect of their configuration; book (60% "skill increase
   chance") is the worst option, studying with nothing the best).

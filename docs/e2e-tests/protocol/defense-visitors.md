@@ -20,7 +20,7 @@ budgets in the code).
 | DEF-02 | cavalry | ⛔ not implementable | - | See DEF-10. |
 | DEF-03 | `def03_patrolGuardFollow` | ✅ passing | 5336 | Guard mode checks "returns to the spot"; follow needs the owner in the player lists (test adds him). Final step: wait budgets raised (up to 30,000 ticks) after timeouts: the guard napped 7.9 blocks from the spot, and once a dump trip, 3,300 ticks idle at the tower and two naps took longer than 12,000. Guards nap 2500-3000 ticks and walk back lazily by design. |
 | DEF-04 | `def04_guardGetsGearByLevel` | ✅ passing | 2475 | Level 1 gear via warehouse + courier; after an upgrade to level 3 (blueprint pasted, no builder) iron is taken/requested, diamond refused. |
-| DEF-05 | `def05_injuredGuardRetreats` | ✅ passing | 2180 | Flee → regen at tower → back on duty. |
+| DEF-05 | `def05_injuredGuardRetreats` | ✅ passing | 2180 | Flee → regen at tower → back on duty. Round 2: once the guard fell asleep at random (`AbstractEntityAIGuard.shouldSleep`) and the weakened husk couldn't hurt him awake; a sleeping guard is now woken as by a hit (`setLastHurtByMob`). |
 | DEF-06 | `def06_barbarianRaid` | ✅ passing | 3586 | Also TOO_SMALL and maxRaiders checks. |
 | DEF-06 | `def06_amazonRaid` | ✅ passing | 2594 | |
 | DEF-06 | `def06_egyptianRaid` | ✅ passing | 3552 | |
@@ -55,7 +55,7 @@ stablemaster accepts); stopped after a reasonable effort. Not evidence of a bug.
 
 - **FIXED:** `QuestDeliveryInteraction.onServerResponseTriggered` applies a non-positive final answer other than "close" to the quest
   (`applyToQuest`, as `QuestDialogueInteraction` does), so cancel deletes the quest. `vis04_cancelAcceptedQuestAtDelivery` is required
-  and passes. Upstream issue: [docs/upstream-bugs/citizens-colony.md](../../upstream-bugs/citizens-colony.md#e2e-vis04-1-cancelling-an-accepted-quest-at-a-delivery-step-does-nothing).
+  and passes. Upstream issue: [docs/Upstream-bugs.md](../../Upstream-bugs.md#e2e-vis04-1-cancelling-an-accepted-quest-at-a-delivery-step-does-nothing).
 
 - **Severity:** medium (a player can't cancel an accepted delivery quest; the "cancel" button only closes the dialogue, the quest stays
   in progress until it times out).
@@ -71,7 +71,7 @@ stablemaster accepts); stopped after a reasonable effort. Not evidence of a bug.
 ### E2E-VIS02-1 Removing a tavern right after a recruit throws and leaves visitors behind
 
 - **FIXED:** `TavernBuildingModule.onDestroyed` skips ids the visitor manager no longer knows. `vis02_tavernRemovedAfterRecruiting` is
-  required and passes. Upstream issue: [docs/upstream-bugs/citizens-colony.md](../../upstream-bugs/citizens-colony.md#e2e-vis02-1-removing-a-tavern-right-after-recruiting-a-visitor-throws-and-leaves-visitors-behind).
+  required and passes. Upstream issue: [docs/Upstream-bugs.md](../../Upstream-bugs.md#e2e-vis02-1-removing-a-tavern-right-after-recruiting-a-visitor-throws-and-leaves-visitors-behind).
 
 - **Severity:** low (needs the tavern to be removed within ~500 ticks of a recruit; then the remaining visitors are not removed).
 - **Port-specific or upstream:** upstream (shared code).
@@ -89,7 +89,7 @@ stablemaster accepts); stopped after a reasonable effort. Not evidence of a bug.
 
 **E2E-DEF-S1, FIXED:** confirmed by `defs1_raidEndUsesLastRaid` (two raid histories, first with heavy losses, last without: the mercy
 delay was applied before the fix). `onRaidEventFinished` now uses `getLastRaid()` for the mercy check and the victory sound. Upstream
-issue: [docs/upstream-bugs/citizens-colony.md](../../upstream-bugs/citizens-colony.md#e2e-def-s1-raid-end-uses-the-colonys-first-raid-instead-of-the-one-that-just-ended).
+issue: [docs/Upstream-bugs.md](../../Upstream-bugs.md#e2e-def-s1-raid-end-uses-the-colonys-first-raid-instead-of-the-one-that-just-ended).
 
 - `RaidManager.onRaidEventFinished` (`core/colony/events/raid/RaidManager.java`, the mercy check and the victory sound) reads
   `raidHistories.get(0)`, the colony's *first* raid, instead of the last one (`getLastRaid()`); after more than one raid the mercy

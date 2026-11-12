@@ -39,7 +39,7 @@ No test fails because of a mod bug. One low-severity problem, confirmed and fixe
   collects the items of all entities of the position. The list is now `4 item_frame, 7 torch`. Confirmed by the new required test
   `bld07_decorationWithEntitiesMaterialList` (failed before the fix with `still needed: 1xminecraft:torch, 1xminecraft:item_frame`).
   The same count feeds `WindowBuildBuilding`/`WindowBuildDecoration#updateResources` and the builder's `ENTITIES` request stage. The
-  analysis below is the original suspicion. Upstream: Structurize; [upstream issue](../../upstream-bugs/jobs.md).
+  analysis below is the original suspicion. Upstream: Structurize; [upstream issue](../../Upstream-bugs.md#e2e-bld-07-1-material-list-and-builders-request-list-misses-blueprint-entities-that-share-a-block-structurize).
 
 - **Severity:** low (only the hut/decoration window's material list; the builder itself computes his needs correctly and requests the
   missing items).

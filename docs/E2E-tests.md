@@ -5,7 +5,7 @@ it needs (a colony, huts, citizens, items, time of day), lets the colony run on 
 state a player can't see.
 
 - **Test protocol** (results, all bugs found, how the tests were made): [e2e-tests/PROTOCOL.md](e2e-tests/PROTOCOL.md)
-- **Progress:** 106 of 111 tests implemented: 104 ✅ passing (14 of them with an optional part that fails because of a mod bug), 2 ❌ failing because of a mod bug, 5 ⛔ not implementable. A headless run has 150 game tests: 134 required, 16 optional (14 fail on known mod bugs every time, `crf01_crusher` and `gat03_minerDigsShaftSafely` fail in some runs; see the [protocol](e2e-tests/PROTOCOL.md)); the 8 UI tests run with `runClientGameTest`.
+- **Progress:** 107 of 112 tests implemented, all ✅ passing; 5 ⛔ not implementable (plus the cavalry part of DEF-02 and the ship raids of DEF-06). A headless run has 154 game tests, all required; the 9 UI tests run with `runClientGameTest`. Every mod bug the tests found is fixed (see the [protocol](e2e-tests/PROTOCOL.md)); the ones in the original MineColonies and Structurize code are written up for reporting in [Upstream-bugs.md](Upstream-bugs.md).
 - **How the tests work** (setup helpers, test areas, config, time budgets): [e2e-tests/framework.md](e2e-tests/framework.md)
 - **Run them:** `./gradlew runGameTest` (report in `build/gametest-report.xml`); only some: `./gradlew runGameTest -Pe2eFilter=<prefix>`. `./gradlew build` doesn't run them.
 - **Watch them in a game window:** `./gradlew runGameTest -Pe2eWatch` (combine with `-Pe2eFilter`); **UI tests** with screenshots: `./gradlew runClientGameTest`
@@ -46,7 +46,7 @@ Details: [e2e-tests/construction.md](e2e-tests/construction.md)
 | [BLD-04](e2e-tests/construction.md#bld-04-repair-a-damaged-hut) | Repair a damaged hut | A repair restores only the missing or wrong blocks. | ✅ Passing |
 | [BLD-05](e2e-tests/construction.md#bld-05-remove-a-hut) | Remove a hut | Removing a hut takes it down and returns the materials. | ✅ Passing |
 | [BLD-06](e2e-tests/construction.md#bld-06-builder-level-limits) | Builder level limits | A builder doesn't take orders above its hut level. | ✅ Passing |
-| [BLD-07](e2e-tests/construction.md#bld-07-decorations-from-the-build-tool) | Decorations from the build tool | Decorations placed with the build tool get built. | ✅ Passing |
+| [BLD-07](e2e-tests/construction.md#bld-07-decorations-from-the-build-tool) | Decorations from the build tool | Decorations placed with the build tool get built. | ✅ Passing (E2E-BLD-07-1 fixed) |
 | [BLD-08](e2e-tests/construction.md#bld-08-work-orders-are-shared-between-builders) | Work orders are shared between builders | Two builders split two work orders. | ✅ Passing |
 | [BLD-09](e2e-tests/construction.md#bld-09-clearing-the-site) | Clearing the site | The builder clears terrain, plants and water from the site. | ✅ Passing |
 
@@ -95,13 +95,13 @@ Details: [e2e-tests/jobs-farming.md](e2e-tests/jobs-farming.md)
 
 | ID | Test | What it checks | Status |
 |---|---|---|---|
-| [FRM-01](e2e-tests/jobs-farming.md#frm-01-farmer-field-cycle) | Farmer: field cycle | The farmer tills, plants, harvests and replants a field. | ✅ Passing |
+| [FRM-01](e2e-tests/jobs-farming.md#frm-01-farmer-field-cycle) | Farmer: field cycle | The farmer tills, plants, harvests and replants a field. | ✅ Passing (E2E-FRM-01-1 fixed) |
 | [FRM-02](e2e-tests/jobs-farming.md#frm-02-planter-plantation) | Planter: plantation | The planter harvests plantation crops and leaves the base plants. | ✅ Passing |
-| [FRM-03](e2e-tests/jobs-farming.md#frm-03-florist) | Florist | The florist grows the chosen flowers with compost. | ✅ Passing |
+| [FRM-03](e2e-tests/jobs-farming.md#frm-03-florist) | Florist | The florist grows the chosen flowers with compost. | ✅ Passing (E2E-FRM-03-1 fixed) |
 | [FRM-04](e2e-tests/jobs-farming.md#frm-04-composter) | Composter | The composter turns allowed items into compost. | ✅ Passing |
 | [FRM-05](e2e-tests/jobs-farming.md#frm-05-beekeeper) | Beekeeper | The beekeeper harvests full hives without harming the bees. | ✅ Passing |
-| [FRM-06](e2e-tests/jobs-farming.md#frm-06-animal-herders) | Animal herders | Each herder keeps its animal count at the limit and uses its special action. | ✅ Passing; optional part ❌ (E2E-FRM-06-1) |
-| [FRM-07](e2e-tests/jobs-farming.md#frm-07-fisherman) | Fisherman | The fisherman finds water and fishes. | ✅ Passing |
+| [FRM-06](e2e-tests/jobs-farming.md#frm-06-animal-herders) | Animal herders | Each herder keeps its animal count at the limit and uses its special action. | ✅ Passing (E2E-FRM-06-1 fixed) |
+| [FRM-07](e2e-tests/jobs-farming.md#frm-07-fisherman) | Fisherman | The fisherman finds water and fishes. | ✅ Passing (E2E-FRM-07-1 fixed) |
 
 ## Jobs: gathering resources
 
@@ -112,9 +112,9 @@ Details: [e2e-tests/jobs-gathering.md](e2e-tests/jobs-gathering.md)
 | [GAT-01](e2e-tests/jobs-gathering.md#gat-01-lumberjack-fells-and-replants) | Lumberjack fells and replants | The lumberjack cuts whole trees and replants them. | ✅ Passing |
 | [GAT-02](e2e-tests/jobs-gathering.md#gat-02-lumberjack-follows-its-settings) | Lumberjack follows its settings | The lumberjack only cuts allowed trees in its area. | ✅ Passing |
 | [GAT-03](e2e-tests/jobs-gathering.md#gat-03-miner-digs-the-shaft) | Miner digs the shaft | The miner digs the shaft safely with ladders. | ✅ Passing (E2E-GAT-03-1 fixed) |
-| [GAT-04](e2e-tests/jobs-gathering.md#gat-04-miner-mines-a-level) | Miner mines a level | The miner digs out nodes and collects ores. | ✅ Passing; optional part ❌ (E2E-GAT-04-1) |
+| [GAT-04](e2e-tests/jobs-gathering.md#gat-04-miner-mines-a-level) | Miner mines a level | The miner digs out nodes and collects ores. | ✅ Passing (E2E-GAT-04-1 fixed) |
 | [GAT-05](e2e-tests/jobs-gathering.md#gat-05-quarrier) | Quarrier | The quarrier digs its quarry layer by layer. | ✅ Passing |
-| [GAT-06](e2e-tests/jobs-gathering.md#gat-06-nether-expedition) | Nether expedition | The nether worker returns from an expedition with loot and a log entry. | ✅ Passing; optional part ❌ (E2E-GAT-06-1) |
+| [GAT-06](e2e-tests/jobs-gathering.md#gat-06-nether-expedition) | Nether expedition | The nether worker returns from an expedition with loot and a log entry. | ✅ Passing (E2E-GAT-06-1 fixed) |
 
 ## Jobs: crafting and processing
 
@@ -122,13 +122,13 @@ Details: [e2e-tests/jobs-crafting.md](e2e-tests/jobs-crafting.md)
 
 | ID | Test | What it checks | Status |
 |---|---|---|---|
-| [CRF-01](e2e-tests/jobs-crafting.md#crf-01-every-crafter-crafts-its-recipes) | Every crafter crafts its recipes | Each crafting hut makes a typical recipe on request (15 huts). | ✅ Passing; optional part ❌ (E2E-CRF01-1) |
+| [CRF-01](e2e-tests/jobs-crafting.md#crf-01-every-crafter-crafts-its-recipes) | Every crafter crafts its recipes | Each crafting hut makes a typical recipe on request (15 huts). | ✅ Passing (E2E-CRF01-1 and E2E-CRF01-2 fixed) |
 | [CRF-02](e2e-tests/jobs-crafting.md#crf-02-learning-recipes-and-their-limits) | Learning recipes and their limits | Huts accept only fitting recipes, up to their level's limit. | ✅ Passing |
 | [CRF-03](e2e-tests/jobs-crafting.md#crf-03-furnaces-and-fuel) | Furnaces and fuel | Furnace workers keep furnaces fueled and filled. | ✅ Passing |
 | [CRF-04](e2e-tests/jobs-crafting.md#crf-04-concrete-mixer-and-water) | Concrete mixer and water | The concrete mixer hardens powder with water. | ✅ Passing |
 | [CRF-05](e2e-tests/jobs-crafting.md#crf-05-sifter-meshes) | Sifter meshes | The sifter needs a mesh and drops only that mesh's loot. | ✅ Passing |
 | [CRF-06](e2e-tests/jobs-crafting.md#crf-06-alchemist) | Alchemist | The alchemist brews potions and harvests its ingredients. | ✅ Passing |
-| [CRF-07](e2e-tests/jobs-crafting.md#crf-07-enchanter) | Enchanter | The enchanter draws XP from assigned citizens and enchants. | ✅ Passing; optional part ❌ (E2E-CRF07-1) |
+| [CRF-07](e2e-tests/jobs-crafting.md#crf-07-enchanter) | Enchanter | The enchanter draws XP from assigned citizens and enchants. | ✅ Passing (E2E-CRF07-1 fixed) |
 | [CRF-08](e2e-tests/jobs-crafting.md#crf-08-cook-keeps-the-restaurant-stocked) | Cook keeps the restaurant stocked | The cook makes only the dishes on the menu. | ✅ Passing |
 
 ## Jobs: education, care and the dead

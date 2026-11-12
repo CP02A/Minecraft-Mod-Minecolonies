@@ -36,7 +36,7 @@ Counts: ✅ 18 (plus the existing framework test `workerWalksToHut`), ❌ 0, ⛔
 ### E2E-COL-05-1 Friends can't open hut menus
 - **FIXED:** the generic `OPEN_CONTAINER` check skips hut blocks (`!(block instanceof AbstractBlockHut)`); huts are governed by
   `ACCESS_HUTS`, checked just before. `col05b_friendOpensHut` is required and passes. Upstream issue:
-  [docs/upstream-bugs/citizens-colony.md](../../upstream-bugs/citizens-colony.md#e2e-col-05-1-friends-cant-open-hut-menus).
+  [docs/Upstream-bugs.md](../../Upstream-bugs.md#e2e-col-05-1-friends-cant-open-hut-menus).
 - **Severity:** minor (a default rank can't use a permission it has).
 - **Upstream or port:** upstream (same code in NeoForge MineColonies; not in the Fabric shim).
 - **Evidence:** `ColonyPermissionEventHandler.onPlayerInteract` (src/main/java/com/minecolonies/core/colony/permissions/ColonyPermissionEventHandler.java:372)
@@ -49,7 +49,7 @@ Counts: ✅ 18 (plus the existing framework test `workerWalksToHut`), ❌ 0, ⛔
 ### E2E-CON-01-1 A removed connection sign leaves a stale link in the other colony
 - **FIXED:** `removeConnectionNode` also unlinks the partner sign in the connected colony (node's `targetColonyId`) when its next node
   is the removed sign. `con01b_reconnectAfterSignRemoved` is required and passes. Upstream issue:
-  [docs/upstream-bugs/citizens-colony.md](../../upstream-bugs/citizens-colony.md#e2e-con-01-1-a-removed-connection-sign-leaves-a-stale-link-in-the-other-colony).
+  [docs/Upstream-bugs.md](../../Upstream-bugs.md#e2e-con-01-1-a-removed-connection-sign-leaves-a-stale-link-in-the-other-colony).
 - **Severity:** minor (the sign chain between two colonies can't be repaired after a sign of the connecting pair is broken).
 - **Upstream or port:** upstream (pure MineColonies logic).
 - **Evidence:** `ColonyConnectionManager.removeConnectionNode` (src/main/java/com/minecolonies/core/colony/managers/ColonyConnectionManager.java:169)
@@ -62,7 +62,7 @@ Counts: ✅ 18 (plus the existing framework test `workerWalksToHut`), ❌ 0, ⛔
 - **FIXED:** the range check of #11888 now measures to the gate houses of the origin colony (where the window is opened) instead of
   the target gate; a player away from all his colony's gate houses is still refused. CON-02, CON-03 and CON-04 now send the message
   from A's gate house; `con02b_allyTeleportFromOwnGate` (also checks the refusal) is required and passes. Upstream issue:
-  [docs/upstream-bugs/citizens-colony.md](../../upstream-bugs/citizens-colony.md#e2e-con-02-1-ally-teleport-only-works-when-the-player-is-within-15-blocks-of-the-target-gate).
+  [docs/Upstream-bugs.md](../../Upstream-bugs.md#e2e-con-02-1-ally-teleport-only-works-when-the-player-is-within-15-blocks-of-the-target-gate).
 - **Severity:** major for the feature (the gate house "teleport to ally" button practically never works).
 - **Upstream or port:** upstream, recent: introduced by "Packet range (#11888)" (commit d66bdaae3a), which added `IRangeRestrictedPacket`
   to `TeleportToColonyMessage`.

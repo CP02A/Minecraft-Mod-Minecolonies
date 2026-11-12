@@ -52,7 +52,7 @@ Counts by row: ✅ 30, ❌ 3, ⛔ 0, 📝 0 (34 test methods: 31 required, all p
 - **FIXED:** `EntityAIWorkCrusher.craft()` now returns `finalizeCraftingTask()` (→ `INVENTORY_FULL`) after the last craft, like
   `AbstractEntityAICrafting`; `afterDump()` then finishes the request, so the worker no longer stays in `CRAFT` with the request open. The
   description below is the original analysis (the re-craft actually goes through `decide()` → `GET_RECIPE` → `CRAFT`, where `crush()` crafts
-  whenever its progress is full). `crf01_crusher` is required again. Present on upstream `version/1.21` (and `version/main`); [upstream issue](../../upstream-bugs/jobs.md).
+  whenever its progress is full). `crf01_crusher` is required again. Present on upstream `version/1.21` (and `version/main`); [upstream issue](../../Upstream-bugs.md#e2e-crf01-1-crusher-crafts-a-request-again-before-it-is-closed-wastes-ingredients).
 - **Severity:** medium (ingredients wasted, extra output stays in the crusher; intermittent).
 - **Upstream or port:** most likely upstream. The code is shared MineColonies code with no port changes
   (`src/main/java/com/minecolonies/core/entity/ai/workers/crafting/EntityAIWorkCrusher.java`).
@@ -93,7 +93,7 @@ Counts by row: ✅ 30, ❌ 3, ⛔ 0, 📝 0 (34 test methods: 31 required, all p
 
 ### E2E-CRF07-1 Enchanter drains himself instead of the station's workers
 - **FIXED:** `gatherAndDrain()` now picks the citizen from the job modules (`IAssignsJob`) of the station building it walked to.
-  `crf07_enchanterDrainsStationWorker` is required again. Present on upstream `version/1.21` (and `version/main`); [upstream issue](../../upstream-bugs/jobs.md).
+  `crf07_enchanterDrainsStationWorker` is required again. Present on upstream `version/1.21` (and `version/main`); [upstream issue](../../Upstream-bugs.md#e2e-crf07-1-enchanter-drains-himself-instead-of-the-workers-of-his-stations).
 - **Severity:** medium (the enchanter still gains mana, but the station mechanic is meaningless; the "random enchant" lands in the
   enchanter's own inventory instead of the visited worker's).
 - **Upstream or port:** most likely upstream (shared code, no port changes in

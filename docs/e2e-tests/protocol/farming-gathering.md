@@ -12,11 +12,11 @@ random numbers.
 | FRM-01 | `frm01_farmerTillsGrass` | ✅ | 5440 | Was optional (E2E-FRM-01-1, grass never tilled); bug FIXED, test required. |
 | FRM-01 | `frm01_farmerTillsOtherSoils` | ✅ | 5765 | Field of coarse dirt, rooted dirt, podzol, mycelium (in turn); all tilled and planted, as on 1.21.1 (added with the E2E-FRM-01-1 fix). |
 | FRM-02 | `frm02_planterSugarCane`, `frm02_planterCactus`, `frm02_planterBamboo` | ✅ | 6135 / 6145 / 12190 | One test per field type (level 1 owns one field). Bamboo is slow and leaves one position very long; the test accepts all but one position. Final step: wait budget 20,000 → 40,000 (bamboo took 11,200-19,700 ticks and once ran out). |
-| FRM-03 | `frm03_florist` | ✅ | 10620 | Level 2 shop, "don't grow" list, compost at 3 per bed, double-speed beds. Observation E2E-FRM-03-1 (fixed). |
+| FRM-03 | `frm03_florist` | ✅ | 10620 | Level 2 shop, "don't grow" list, compost at 3 per bed, double-speed beds. Observation E2E-FRM-03-1 (fixed). Round 2: since that fix each compost lasts its full time, so "compost used up" ends at about test tick 11,000-12,000; the step's 10,000-tick budget timed out once in a full run, now 20,000 (test 34,000). |
 | FRM-03 | `frm03_compostLastsOnIdleBed` | ✅ | 100 | E2E-FRM-03-1 (**FIXED**): a bed idle for 301 s (block entity ticked directly) keeps new compost. Failed before the fix. |
 | FRM-04 | `frm04_composter` | ✅ | 370 | Exact seed use checked; apples (not allowed) untouched. |
 | FRM-05 | `frm05_beekeeper` | ✅ | 740 | Honeycomb, then honey (the "both" mode needs research). Dexterity 99. |
-| FRM-06 | `frm06_*Breeds*` (chicken, cow, sheep, rabbit) | ✅ | 349 / 1014 / 660 / 479 | Baby born + egg picked up from the ground (the item entity is gone; in one run it was afterwards in neither the hut nor the herder, not investigated) / milk (large bottle) / wool. |
+| FRM-06 | `frm06_*Breeds*` (chicken, cow, sheep, rabbit) | ✅ | 349 / 1014 / 660 / 479 | Baby born + egg picked up from the ground (the item entity is gone; in one run it was afterwards in neither the hut nor the herder, not investigated) / milk (large bottle) / wool. Round 2: the chicken setup sometimes failed with "no pen inside the hut area": the pen search used `Level.canSeeSky` (sky light, updated asynchronously after the hut paste); now without it. |
 | FRM-06 | `frm06_swineHerderBreeds` | ✅ | 459 (median of 100) | Was optional and flaky: the pigs drifted apart and the herder fed them anyway (E2E-FRM-06-1). Required again since the test keeps the pair within 6 blocks. |
 | FRM-06 | `frm06_herderFeedsPairOutOfMateRange` | ✅ (was ❌ mod bug) | 3000 | **FIXED** E2E-FRM-06-1; required now, the herder no longer feeds the pair. Before the fix: E2E-FRM-06-1: two chickens that can't move, 9 blocks apart; the herder puts both in love ("both in love 9.3 blocks apart"). Failed 22 of 22 runs. |
 | FRM-06 | `frm06_*ButchersAboveLimit` (chicken, cow, sheep, pig, rabbit) | ✅ | 955 / 1405 / 840 / 1005 / 1265 | 6 adults → at most 3 adults, drops in hut, outsider alive. Limit is soft by design. |
@@ -35,7 +35,8 @@ random numbers.
 
 ### E2E-GAT-03-1 Miner falls off the shaft ladder (FIXED)
 
-- **Status:** FIXED in `MovementHandler.tick` (`core/entity/pathfinding/navigation/MovementHandler.java`, JUMPING branch).
+- **Status:** FIXED in `MovementHandler.tick` (`core/entity/pathfinding/navigation/MovementHandler.java`, JUMPING branch). Upstream
+  issue: [Upstream-bugs.md](../../Upstream-bugs.md#e2e-gat-03-1-miner-falls-off-the-shaft-ladder-when-he-stops-on-it).
 - **Severity:** medium: fall damage (1 heart at 4 blocks) every time the miner climbs out of the shaft at the wrong moment; deeper shafts
   could hurt more.
 - **Origin: upstream.** Not caused by the port. The code involved is the same in `upstream/version/1.21` (the port's base) apart from
@@ -61,7 +62,7 @@ random numbers.
 ### E2E-GAT-04-1 Miner never removes liquids around a node
 
 - **FIXED:** `executeStructurePlacement` now runs the liquid check before it starts loading the node's blueprint. `gat04_minerSealsWater`
-  is required. Present on upstream `version/1.21` (and `version/main`); [upstream issue](../../upstream-bugs/jobs.md).
+  is required. Present on upstream `version/1.21` (and `version/main`); [upstream issue](../../Upstream-bugs.md#e2e-gat-04-1-miner-never-seals-water-or-lava-next-to-a-mine-node).
 
 - **Severity:** medium: water or lava next to a node is not sealed and flows into the tunnels (lava: the miner can burn).
 - **Likely upstream too** (code unchanged by the port). `EntityAIStructureMiner.executeStructurePlacement`
@@ -76,7 +77,7 @@ random numbers.
 ### E2E-GAT-06-1 Nether worker idles after returning until the next trip is allowed
 
 - **FIXED:** `EntityAIWorkNether.hasWorkToDo()` is also true while `job.isInNether()` (trip results still to work off), so the AI leaves
-  IDLE and `decide()` goes to NETHER_AWAY. `gat06_netherWorkerReturnsAfterTravel` is required. Present on upstream `version/1.21` (and `version/main`); [upstream issue](../../upstream-bugs/jobs.md).
+  IDLE and `decide()` goes to NETHER_AWAY. `gat06_netherWorkerReturnsAfterTravel` is required. Present on upstream `version/1.21` (and `version/main`); [upstream issue](../../Upstream-bugs.md#e2e-gat-06-1-nether-worker-stands-at-the-portal-for-up-to-3-days-after-an-expedition).
 
 - **Severity:** medium: an expedition takes up to 3 colony days instead of the travel time; the worker stands at the portal, the log
   says IN_PROGRESS and the loot stays in the job meanwhile.
@@ -131,7 +132,7 @@ random numbers.
 
 - **FIXED:** `DISTANCE_TO_BREED` is 8 (vanilla's mate search range) in `AbstractEntityAIHerder` and, same constant, `EntityAIWorkBeekeeper`.
   `frm06_herderFeedsPairOutOfMateRange` is required. The test-side `keepWithinMateRange` stays (slowed animals). Present on upstream
-  `version/1.21` (and `version/main`); [upstream issue](../../upstream-bugs/jobs.md).
+  `version/1.21` (and `version/main`); [upstream issue](../../Upstream-bugs.md#e2e-frm-06-1-herder-and-beekeeper-feeds-animals-that-are-too-far-apart-to-mate).
 
 - **Severity:** low: the breeding food is wasted and the herder waits 60 s (`breedTimeOut`) before the next try. Animals in a normal pen
   wander, so a later try usually works.
@@ -151,7 +152,7 @@ random numbers.
 ### E2E-FRM-03-1 Composted bed expires at once after it sat idle (minor, observation)
 
 - **FIXED:** `TileEntityCompostedDirt.compost()` resets the timer. New required test `frm03_compostLastsOnIdleBed` (failed before the
-  fix). Present on upstream `version/1.21` (and `version/main`); [upstream issue](../../upstream-bugs/jobs.md).
+  fix). Present on upstream `version/1.21` (and `version/main`); [upstream issue](../../Upstream-bugs.md#e2e-frm-03-1-florist-compost-on-a-bed-that-sat-idle-expires-at-once).
 
 - **Severity:** low (each bed needs two composts after idling; the first is wasted).
 - **Likely upstream too** (plain MineColonies logic, nothing port-specific). `TileEntityCompostedDirt.tick()` increments `ticker` on every
