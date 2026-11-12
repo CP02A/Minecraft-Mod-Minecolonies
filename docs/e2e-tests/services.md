@@ -45,7 +45,7 @@ Buildings that look after citizens rather than producing goods.
 
 **Time budget:** 10 minutes.
 
-**As tested (`srv02_library`, `srv02b_studyItemsHelp`):** paper (break chance 100%) is used, so its use is visible. A student studies once per 1200 ticks. Whether studying without items is slower is checked in `srv02b` with the exact chances `EntityAIStudy` passes to `CitizenSkillHandler.tryLevelUpIntelligence` (4000 rolls each); it fails because of bug E2E-SRV02-1: items make studying *less* likely to succeed.
+**As tested (`srv02_library`, `srv02b_studyItemsHelp`):** paper (break chance 100%) is used, so its use is visible. A student studies once per 1200 ticks. Whether studying without items is slower is checked in `srv02b` with the exact chances `EntityAIStudy` passes to `CitizenSkillHandler.tryLevelUpIntelligence` (4000 rolls each); before the fix of bug E2E-SRV02-1 items made studying *less* likely to succeed.
 
 ---
 

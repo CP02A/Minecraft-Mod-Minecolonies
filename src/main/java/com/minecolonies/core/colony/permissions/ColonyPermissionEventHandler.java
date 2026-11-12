@@ -409,7 +409,7 @@ public class ColonyPermissionEventHandler
                     }
                 }
 
-                if (isContainer && !perms.hasPermission(event.getEntity(), Action.OPEN_CONTAINER))
+                if (isContainer && !(block instanceof AbstractBlockHut) && !perms.hasPermission(event.getEntity(), Action.OPEN_CONTAINER))
                 {
                     cancelEvent(event, event.getEntity(), colony, Action.OPEN_CONTAINER, event.getPos());
                     return;

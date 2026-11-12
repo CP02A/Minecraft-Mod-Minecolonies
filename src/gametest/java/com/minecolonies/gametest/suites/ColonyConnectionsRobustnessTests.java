@@ -348,10 +348,7 @@ public class ColonyConnectionsRobustnessTests
     /**
      * COL-05b A friend opens a hut: the friend rank has ACCESS_HUTS by default, so right-clicking a hut must open its menu.
      */
-    // BUG E2E-COL-05-1: ColonyPermissionEventHandler.onPlayerInteract checks ACCESS_HUTS for huts, then falls through to the generic container
-    // check; hut block entities expose an item handler (MineColonies.java:248), so a rank without OPEN_CONTAINER (friend) is denied with
-    // OPEN_CONTAINER and can never open a hut menu.
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 100, skyAccess = true, required = false)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 100, skyAccess = true)
     public void col05b_friendOpensHut(final GameTestHelper helper)
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
@@ -599,9 +596,7 @@ public class ColonyConnectionsRobustnessTests
     /**
      * CON-01b Re-placing a removed sign: after colony A's sign in the middle is broken and placed again, the colonies can be linked again.
      */
-    // BUG E2E-CON-01-1: ColonyConnectionManager.removeConnectionNode only resets neighbour nodes of the same colony; colony B's sign keeps
-    // nextNode = the removed sign of A, so connectToColony refuses it ("hasNextNode") and the sign chain can't be repaired.
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 2400, skyAccess = true, required = false)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 2400, skyAccess = true)
     public void con01b_reconnectAfterSignRemoved(final GameTestHelper helper)
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
@@ -644,8 +639,8 @@ public class ColonyConnectionsRobustnessTests
                     && t.b.getConnectionManager().getColonyDiplomacyStatus(t.a.getID()) == DiplomacyStatus.ALLIES
                     && hasEvent(t.a, t.b, ConnectionEventType.ALLY_CONFIRMED),
             () -> "A: " + connections(t.a) + " events " + t.a.getConnectionManager().getConnectionEvents() + ", B: " + connections(t.b))
-          .run("a friend of A, standing within 15 blocks of B's gate, asks to teleport to the ally gate", () -> {
-              t.traveller = traveller(fixture, t.a, t.gateB.getPosition().offset(-10, 0, -8));
+          .run("a friend of A at A's gate house asks to teleport to the ally gate", () -> {
+              t.traveller = traveller(fixture, t.a, t.gateA.getPosition().offset(0, 0, -6));
               start[0] = t.traveller.position();
               teleportToAlly(t, t.traveller);
           })
@@ -656,11 +651,10 @@ public class ColonyConnectionsRobustnessTests
     }
 
     /**
-     * CON-02b Ally teleport from the own gate house, the way the gate house window sends it. Separate, because it fails (see BUG E2E-CON-02-1).
+     * CON-02b Ally teleport range: the message is refused away from the player's own gate houses and works from the own gate house (gates
+     * 28 blocks apart), the way the gate house window sends it (was bug E2E-CON-02-1).
      */
-    // BUG E2E-CON-02-1: TeleportToColonyMessage.onExecute checks isInRange(player, target gate) (15 blocks, added by "Packet range" #11888),
-    // but the client sends it from the player's own gate house window, so an ally teleport only works when the gates are <= 15 blocks apart.
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 2400, skyAccess = true, required = false)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 2400, skyAccess = true)
     public void con02b_allyTeleportFromOwnGate(final GameTestHelper helper)
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
@@ -673,8 +667,16 @@ public class ColonyConnectionsRobustnessTests
               sendEvent(t.b, t.ownerB, ConnectionEventType.ALLY_CONFIRMED, t.a);
           })
           .check("allies", () -> t.a.getConnectionManager().getColonyDiplomacyStatus(t.b.getID()) == DiplomacyStatus.ALLIES, () -> connections(t.a))
-          .run("a friend of A at A's gate house uses the teleport button for B", () -> {
-              t.traveller = traveller(fixture, t.a, t.gateA.getPosition().offset(0, 0, -6));
+          .run("a friend of A 20 blocks away from A's gate house (not near any gate house) sends the teleport message", () -> {
+              t.traveller = traveller(fixture, t.a, t.gateA.getPosition().offset(-20, 0, 0));
+              start[0] = t.traveller.position();
+              teleportToAlly(t, t.traveller);
+          })
+          .check("refused away from the own gate house (range restriction of #11888)", () -> t.traveller.position().equals(start[0]),
+            () -> "moved from " + start[0] + " to " + t.traveller.position())
+          .run("the friend walks to A's gate house and uses the teleport button for B", () -> {
+              final BlockPos atGate = t.gateA.getPosition().offset(0, 0, -6);
+              t.traveller.teleportTo(atGate.getX() + 0.25, atGate.getY(), atGate.getZ() + 0.25);
               start[0] = t.traveller.position();
               teleportToAlly(t, t.traveller);
           })
@@ -706,8 +708,8 @@ public class ColonyConnectionsRobustnessTests
                     && t.b.getConnectionManager().getColonyDiplomacyStatus(t.a.getID()) == DiplomacyStatus.HOSTILE
                     && hasEvent(t.b, t.a, ConnectionEventType.FEUD_STARTED),
             () -> "A: " + connections(t.a) + ", B: " + connections(t.b) + " events " + t.b.getConnectionManager().getConnectionEvents())
-          .run("a friend of A near B's gate asks to teleport there", () -> {
-              t.traveller = traveller(fixture, t.a, t.gateB.getPosition().offset(-10, 0, -8));
+          .run("a friend of A at A's gate house asks to teleport to B", () -> {
+              t.traveller = traveller(fixture, t.a, t.gateA.getPosition().offset(0, 0, -6));
               start[0] = t.traveller.position();
               teleportToAlly(t, t.traveller);
           })
@@ -738,8 +740,8 @@ public class ColonyConnectionsRobustnessTests
                     && t.b.getConnectionManager().getColonyDiplomacyStatus(t.a.getID()) == DiplomacyStatus.NEUTRAL
                     && hasEvent(t.b, t.a, ConnectionEventType.NEUTRAL_SET) && !hasEvent(t.b, t.a, ConnectionEventType.ALLY_REQUEST),
             () -> "A: " + connections(t.a) + ", B: " + connections(t.b) + " events " + t.b.getConnectionManager().getConnectionEvents())
-          .run("a friend of A near B's gate asks to teleport there", () -> {
-              t.traveller = traveller(fixture, t.a, t.gateB.getPosition().offset(-10, 0, -8));
+          .run("a friend of A at A's gate house asks to teleport to B", () -> {
+              t.traveller = traveller(fixture, t.a, t.gateA.getPosition().offset(0, 0, -6));
               start[0] = t.traveller.position();
               teleportToAlly(t, t.traveller);
           })

@@ -560,10 +560,7 @@ public class CitizensServicesTests
      * CIT-06b Negative factors lower the total: an unemployed or a sick citizen must not be happier than an otherwise identical
      * employed, healthy one.
      */
-    // BUG E2E-CIT06-1: CitizenHappinessHandler.getHappiness averages only the factors that are not exactly 1.0. A below-neutral factor
-    // (unemployment 0.5, health 0.5) that is still above the current average raises the total: the unemployed and the sick citizen
-    // end up happier than the baseline.
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 1000, skyAccess = true, required = false)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 1000, skyAccess = true)
     public void cit06b_negativeFactorsLowerHappiness(final GameTestHelper helper)
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
@@ -993,9 +990,7 @@ public class CitizensServicesTests
      * SRV-02b Library study items help: the chance of an Intelligence gain per study session must be higher with a study item than
      * without. Uses the same chances {@code EntityAIStudy.study} passes to {@code tryLevelUpIntelligence}.
      */
-    // BUG E2E-SRV02-1: CitizenSkillHandler.tryLevelUpIntelligence fails when random * customChance < 1, so the success chance is
-    // 1 - 1/customChance: 87.5% without items, 50% with paper, 25% with a book. Study items make studying worse.
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 200, skyAccess = true, required = false)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 200, skyAccess = true)
     public void srv02b_studyItemsHelp(final GameTestHelper helper)
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);

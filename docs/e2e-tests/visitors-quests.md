@@ -45,7 +45,7 @@ The tavern, visitors who can be recruited, and the quest system.
 
 **Time budget:** 1 minute.
 
-**As implemented (e2e run):** As implemented: the visitor is spawned with the tavern's own `spawnVisitor()` plus the recruitment interaction the tavern adds. The fake owner is put in survival mode (in creative, recruiting is free). The GUI's answer is replayed on the server (`onResponseTriggered` with response 1 = recruit). 3% of recruits run off with the payment (mod design); the test is retried then (`maxAttempts = 4`). Follow-up test `vis02_tavernRemovedAfterRecruiting` (optional, documents a bug): the tavern removed right after a recruit.
+**As implemented (e2e run):** As implemented: the visitor is spawned with the tavern's own `spawnVisitor()` plus the recruitment interaction the tavern adds. The fake owner is put in survival mode (in creative, recruiting is free). The GUI's answer is replayed on the server (`onResponseTriggered` with response 1 = recruit). 3% of recruits run off with the payment (mod design); the test is retried then (`maxAttempts = 4`). Follow-up test `vis02_tavernRemovedAfterRecruiting` (was bug E2E-VIS02-1, fixed): the tavern removed right after a recruit.
 
 ---
 
@@ -90,5 +90,5 @@ The tavern, visitors who can be recruited, and the quest system.
 
 **Time budget:** 2 minutes.
 
-**As implemented (e2e run):** As implemented (`vis04_declineAndCancelQuests`): the owner declines the welcome quest (go-to -1: finished at once, no reward, follow-up quest not unlocked), then cancels the injected hungry courier quest in its first dialogue (cancel answer: removed, not finished, no reward); after another colony tick nothing is active. A quest can only be cancelled from its dialogues; `vis04_cancelAcceptedQuestAtDelivery` (optional, documents a bug) cancels an accepted quest at its delivery step.
+**As implemented (e2e run):** As implemented (`vis04_declineAndCancelQuests`): the owner declines the welcome quest (go-to -1: finished at once, no reward, follow-up quest not unlocked), then cancels the injected hungry courier quest in its first dialogue (cancel answer: removed, not finished, no reward); after another colony tick nothing is active. A quest can only be cancelled from its dialogues; `vis04_cancelAcceptedQuestAtDelivery` (was bug E2E-VIS04-1, fixed) cancels an accepted quest at its delivery step.
 

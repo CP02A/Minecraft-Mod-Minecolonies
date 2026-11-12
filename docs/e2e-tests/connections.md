@@ -25,7 +25,7 @@ Gate houses and the relationships between colonies (ally, feud, neutral).
 **Time budget:** 2 minutes.
 
 **Implemented:** `ColonyConnectionsRobustnessTests.con01_connectTwoColonies` and `ColonyConnectionsRobustnessTests.con01b_reconnectAfterSignRemoved`
-(optional, fails: bug E2E-CON-01-1).
+(was bug E2E-CON-01-1, fixed; now required).
 
 **As implemented:** two colonies don't fit into the arena at the normal distance. The test uses `initialColonySize` 1 and creates colony B
 like the server side of the create-colony message but without its distance check (B's center is at least 2 chunks from A's, so the static
@@ -34,7 +34,7 @@ node -> path -> node), then owner A sneak-uses his item on B's sign (`attemptEst
 lies in its own colony's static claim (otherwise the other colony's protection refuses the sign).
 
 **Design corrected:** removing a sign does not remove the connection: the colonies stay listed as connected (the relation is independent
-of the sign chain); only the node disappears. Re-placing the sign and re-linking does not work (bug E2E-CON-01-1).
+of the sign chain); only the node disappears. Re-placing the sign and re-linking works since the fix of bug E2E-CON-01-1 (CON-01b).
 
 ---
 
@@ -57,11 +57,12 @@ of the sign chain); only the node disappears. Re-placing the sign and re-linking
 **Time budget:** 1 minute.
 
 **Implemented:** `ColonyConnectionsRobustnessTests.con02_becomingAllies` and `ColonyConnectionsRobustnessTests.con02b_allyTeleportFromOwnGate`
-(optional, fails: bug E2E-CON-02-1).
+(was bug E2E-CON-02-1, fixed; now required).
 
 **As implemented:** events are sent with `TriggerConnectionEventMessage` (server side, as the alliance page sends them). The allied feature
-checked is `TeleportToColonyMessage` for a friend of A: it works when the player stands within 15 blocks of B's gate (CON-02), but not from
-A's own gate house window, which is how the client sends it (CON-02b).
+checked is `TeleportToColonyMessage` for a friend of A standing at A's own gate house, which is how the client sends it (gates 28 blocks
+apart). Before the fix of bug E2E-CON-02-1 it only worked within 15 blocks of B's gate. CON-02b also checks that the message is refused
+20 blocks away from A's gate house (the range restriction of #11888).
 
 ---
 

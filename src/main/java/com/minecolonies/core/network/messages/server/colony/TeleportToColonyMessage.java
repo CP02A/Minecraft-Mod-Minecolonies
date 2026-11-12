@@ -86,13 +86,20 @@ public class TeleportToColonyMessage extends AbstractColonyServerMessage impleme
     @Override
     protected void onExecute(final IPayloadContext ctxIn, final ServerPlayer player, final IColony colony)
     {
-        if (player == null || !isInRange(player.blockPosition(), pos))
+        if (player == null)
         {
             return;
         }
 
         final IColony originColony = IColonyManager.getInstance().getColonyByDimension(originColonyId, player.level().dimension());
         if (originColony == null)
+        {
+            return;
+        }
+
+        // The teleport is started from a gate house window of the origin colony, so the player has to be near one of its gate houses.
+        if (originColony.getServerBuildingManager().getBuildings().values().stream()
+              .noneMatch(building -> building instanceof BuildingGateHouse && isInRange(player.blockPosition(), building.getPosition())))
         {
             return;
         }

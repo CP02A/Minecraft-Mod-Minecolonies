@@ -183,6 +183,20 @@ public class ColonyConnectionManager implements IColonyConnectionManager
                 nextNode.alterPreviousNode(BlockPos.ZERO);
                 MessageUtils.format(Component.translatable(COM_MINECOLONIES_SIGN_DISRUPTED, nextNode.getPosition().toShortString())).sendTo(this.colony).forManagers();
             }
+            else if (colonyConnectionNode.getTargetColonyId() != -1)
+            {
+                // The next node may be the linked sign of the connected colony, unlink it there too.
+                final IColony targetColony = IColonyManager.getInstance().getColonyByDimension(colonyConnectionNode.getTargetColonyId(), colony.getDimension());
+                if (targetColony != null)
+                {
+                    final ColonyConnectionNode targetNode = targetColony.getConnectionManager().getNode(colonyConnectionNode.getNextNode());
+                    if (targetNode != null && targetNode.getNextNode().equals(connectionPoint))
+                    {
+                        targetNode.alterNextNode(BlockPos.ZERO);
+                        targetColony.markDirty();
+                    }
+                }
+            }
         }
         pendingColonyConnections.remove(connectionPoint);
     }

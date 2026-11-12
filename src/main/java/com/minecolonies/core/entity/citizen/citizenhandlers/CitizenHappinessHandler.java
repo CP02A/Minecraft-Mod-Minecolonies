@@ -145,8 +145,6 @@ public class CitizenHappinessHandler implements ICitizenHappinessHandler
             for (final IHappinessModifier happinessModifier : happinessFactors.values())
             {
                 final double factor = happinessModifier.getFactor(citizenData);
-                if (factor == 1.0)
-                    continue;
                 total += factor * happinessModifier.getWeight();
                 totalWeight += happinessModifier.getWeight();
             }

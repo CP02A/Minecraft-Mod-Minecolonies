@@ -1058,7 +1058,8 @@ public class RaidManager implements IRaiderManager
             }
         }
 
-        if (((double) raidHistories.get(0).lostCitizens / colony.getCitizenManager().getMaxCitizens()) > 0.5)
+        final RaidHistory lastRaid = getLastRaid();
+        if (lastRaid != null && ((double) lastRaid.lostCitizens / colony.getCitizenManager().getMaxCitizens()) > 0.5)
         {
             MessageUtils.format(RAID_END_MERCY, colony.getName()).sendTo(colony).forManagers();
             extraDaysToNextRaid = MineColonies.getConfig().getServer().averageNumberOfNightsBetweenRaids.get() * 2;
@@ -1075,7 +1076,7 @@ public class RaidManager implements IRaiderManager
             MessageUtils.format(msgID, colony.getName()).sendTo(colony).forManagers();
         }
 
-        PlayAudioMessage audio = new PlayAudioMessage(raidHistories.get(0).raiderAmount <= SMALL_HORDE_SIZE ? RaidSounds.VICTORY_EARLY : RaidSounds.VICTORY, SoundSource.HOSTILE);
+        PlayAudioMessage audio = new PlayAudioMessage(lastRaid != null && lastRaid.raiderAmount <= SMALL_HORDE_SIZE ? RaidSounds.VICTORY_EARLY : RaidSounds.VICTORY, SoundSource.HOSTILE);
         PlayAudioMessage.sendToAll(colony, false, true, audio);
 
         if (colony.getRaiderManager().getLostCitizen() == 0)

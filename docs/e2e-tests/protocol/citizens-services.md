@@ -14,7 +14,7 @@ Suite class: `src/gametest/java/com/minecolonies/gametest/suites/CitizensService
 | CIT-04 | ✅ passing | ~360 | Sleep in own beds, distinct beds, "slept tonight" counter reset, wake up in the morning. |
 | CIT-05 | ✅ passing | ~470 | Lumberjack + teacher (rain-capable hut) instead of lumberjack + farmer. |
 | CIT-06 | ✅ passing | ~1 | Per-citizen factors and totals for homeless / well fed. |
-| CIT-06b | ❌ fails due to mod bug | ~1 | E2E-CIT06-1: unemployed and sick citizens are *happier* than the baseline. `required = false`. |
+| CIT-06b | ✅ passing | ~1 | Was E2E-CIT06-1 (unemployed and sick citizens *happier* than the baseline); FIXED, now required. |
 | CIT-07 | ✅ passing | ~1030–1130 | Sequential: natural healing (~765 ticks) vs. with hospital (~265–365). |
 | CIT-08 | ✅ passing | ~2120 | Hospital bed, cure items used, disease removed. |
 | CIT-08b | ✅ passing | ~380–475 | Without items the healer requests exactly carrot + potato. |
@@ -26,17 +26,21 @@ Suite class: `src/gametest/java/com/minecolonies/gametest/suites/CitizensService
 | CIT-14 | ✅ passing | ~90 | "Cancel" answer on a request interaction cancels the request; interaction closes. |
 | SRV-01 | ✅ passing | ~960–1490 | Pupils sit, gain Intelligence, paper used up, teacher requests paper, adult removed from pupil place. |
 | SRV-02 | ✅ passing | ~1410–1450 | Students gain Intelligence, paper used up. |
-| SRV-02b | ❌ fails due to mod bug | 0 | E2E-SRV02-1: study items lower the chance of an Intelligence gain. `required = false`. |
+| SRV-02b | ✅ passing | 0 | Was E2E-SRV02-1 (study items lowered the chance of an Intelligence gain); FIXED, now required. |
 | SRV-03 | ✅ passing | ~2120–2165 | Influenza cured, measles items requested, injured healed, distinct hospital beds. Final step: budget 8,500 → 13,000 (room for a random 3-minute leisure break). |
 | SRV-04 | ✅ passing | ~1080 | Grave dug up, citizen buried (resting list), items in the graveyard. Final step: the resurrection roll is forced to miss; without research it still hits about 3% of the time (the citizen then lives and is never buried, seen once in a full run). |
 | SRV-04b | ✅ passing | ~6080 | Resurrection with forced roll. |
 | SRV-05 | ✅ passing | 0 | Factor 1.0 / 1.0 / 1.5 / 2.5 for no site / level 1 / 3 / 5. |
 
-Totals: 21 ✅ passing (19 designed tests, some split into a and b parts), 2 ❌ fail due to mod bugs, 0 ⛔, 0 📝.
+Totals: 23 ✅ passing (19 designed tests, some split into a and b parts; CIT-06b and SRV-02b pass since their bugs were fixed), 0 ❌, 0 ⛔, 0 📝.
 
 ## Bugs found
 
 ### E2E-CIT06-1 Negative happiness factors can raise total happiness
+
+**FIXED:** `getHappiness` averages over all factors again (the `factor == 1.0` skip is removed), so a below-neutral factor always
+lowers the total and a citizen whose factors are all neutral no longer gets `0 / 0`. Typical values rise (neutral factors count as
+1.0). `cit06b_negativeFactorsLowerHappiness` is required and passes. Upstream issue: [docs/upstream-bugs/citizens-colony.md](../../upstream-bugs/citizens-colony.md#e2e-cit06-1-unemployed-or-sick-citizens-can-be-happier-than-healthy-employed-ones).
 
 - **Severity:** medium (happiness drives skill caps, e.g. `tryLevelUpIntelligence` caps at happiness × 9, and citizens leaving).
 - **Port-specific or upstream:** upstream. The code is shared MineColonies code (`src/main`), unchanged by the Fabric port; it dates
@@ -48,6 +52,10 @@ Totals: 21 ✅ passing (19 designed tests, some split into a and b parts), 2 ❌
 - **Reproduction:** `cit06b_negativeFactorsLowerHappiness`.
 
 ### E2E-SRV02-1 Study items make studying less successful
+
+**FIXED:** the check in `tryLevelUpIntelligence` is `random * customChance >= 1` (fail), so the success chance is `1 / customChance` as
+`ONE_IN_X_CHANCE` says: 12.5% without items, 50% with paper, 75% with a book. `srv02b_studyItemsHelp` is required and passes. Upstream
+issue: [docs/upstream-bugs/citizens-colony.md](../../upstream-bugs/citizens-colony.md#e2e-srv02-1-library-study-items-make-studying-less-successful).
 
 - **Severity:** medium (the library's study items have the opposite effect of their configuration; book (60% "skill increase
   chance") is the worst option, studying with nothing the best).

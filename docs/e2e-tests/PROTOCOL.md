@@ -106,22 +106,22 @@ code reading, or seen once without a test that reproduces it.
 | [E2E-FRM-07-1](#e2e-frm-07-1-fisherman-throws-on-every-catch) | Fisherman throws on every catch, never gets loot | High | Fabric port (26.3 loot params) | `NewBobberEntity.java:519-525` | ✅ `frm07_fisherman` |
 | [E2E-CRF01-2](#e2e-crf01-2-brewing-recipes-cant-be-taught-in-the-gui) | Brewing recipes can't be taught in the GUI | High | Fabric port | `WindowBrewingstandCrafting.java:122-127` | ❔ code reading (known port TODO) |
 | [E2E-LOG06-1](#e2e-log06-1-orphaned-delivery-a-tool-request-is-never-delivered) | Orphaned delivery: a tool request is never delivered | High | Unclear (probably upstream) | request system / courier, no single line found | ✅ `log06_toolsByHutLevel` |
-| [E2E-CON-02-1](#e2e-con-02-1-ally-teleport-only-works-within-15-blocks-of-the-target-gate) | Ally teleport only works within 15 blocks of the target gate | High (for the feature) | Upstream (#11888) | `TeleportToColonyMessage.java:89` | ✅ `con02b_allyTeleportFromOwnGate` |
-| [E2E-CIT06-1](#e2e-cit06-1-negative-happiness-factors-can-raise-total-happiness) | Negative happiness factors can raise total happiness | Medium | Upstream | `CitizenHappinessHandler.java:148` | ✅ `cit06b_negativeFactorsLowerHappiness` |
-| [E2E-SRV02-1](#e2e-srv02-1-study-items-make-studying-less-successful) | Study items make studying less successful | Medium | Upstream (#7349) | `CitizenSkillHandler.java:152` | ✅ `srv02b_studyItemsHelp` |
-| [E2E-VIS04-1](#e2e-vis04-1-cancelling-an-accepted-quest-at-a-delivery-step-does-nothing) | Cancelling an accepted quest at a delivery step does nothing | Medium | Upstream | `QuestDeliveryInteraction.java:55-73` | ✅ `vis04_cancelAcceptedQuestAtDelivery` |
+| [E2E-CON-02-1](#e2e-con-02-1-ally-teleport-only-works-within-15-blocks-of-the-target-gate) | Ally teleport only works within 15 blocks of the target gate | High (for the feature) | Upstream (#11888) | `TeleportToColonyMessage.java:89` | ✅ `con02b_allyTeleportFromOwnGate`; **FIXED** (test now required) |
+| [E2E-CIT06-1](#e2e-cit06-1-negative-happiness-factors-can-raise-total-happiness) | Negative happiness factors can raise total happiness | Medium | Upstream | `CitizenHappinessHandler.java:148` | ✅ `cit06b_negativeFactorsLowerHappiness`; **FIXED** (test now required) |
+| [E2E-SRV02-1](#e2e-srv02-1-study-items-make-studying-less-successful) | Study items make studying less successful | Medium | Upstream (#7349) | `CitizenSkillHandler.java:152` | ✅ `srv02b_studyItemsHelp`; **FIXED** (test now required) |
+| [E2E-VIS04-1](#e2e-vis04-1-cancelling-an-accepted-quest-at-a-delivery-step-does-nothing) | Cancelling an accepted quest at a delivery step does nothing | Medium | Upstream | `QuestDeliveryInteraction.java:55-73` | ✅ `vis04_cancelAcceptedQuestAtDelivery`; **FIXED** (test now required) |
 | [E2E-CRF01-1](#e2e-crf01-1-crusher-over-crafts-a-request-and-wastes-ingredients) | Crusher over-crafts a request and wastes ingredients | Medium | Likely upstream | `EntityAIWorkCrusher.java:115-120, 228` | ✅ `crf01_crusher` (about 2 of 3 runs) |
 | [E2E-CRF07-1](#e2e-crf07-1-enchanter-drains-himself) | Enchanter drains himself instead of the station's workers | Medium | Likely upstream | `EntityAIWorkEnchanter.java:324` | ✅ `crf07_enchanterDrainsStationWorker` |
 | [E2E-GAT-03-1](#e2e-gat-03-1-miner-falls-off-the-shaft-ladder) | Miner falls off the shaft ladder | Medium | Unclear | citizen path following on ladders, started by `AbstractEntityAIBasic.java:756` | ✅ `gat03_minerDigsShaftSafely` |
 | [E2E-GAT-04-1](#e2e-gat-04-1-miner-never-removes-liquids-around-a-node) | Miner never removes liquids around a node | Medium | Likely upstream | `EntityAIStructureMiner.java:794-820` | ✅ `gat04_minerSealsWater` |
 | [E2E-GAT-06-1](#e2e-gat-06-1-nether-worker-idles-after-returning) | Nether worker idles after returning until the next trip is allowed | Medium | Likely upstream | `EntityAIWorkNether.java:156`, `AbstractEntityAICrafting.java:162` | ✅ `gat06_netherWorkerReturnsAfterTravel` |
-| [E2E-COL-05-1](#e2e-col-05-1-friends-cant-open-hut-menus) | Friends can't open hut menus | Low | Upstream | `ColonyPermissionEventHandler.java:372, 412` | ✅ `col05b_friendOpensHut` |
-| [E2E-CON-01-1](#e2e-con-01-1-a-removed-connection-sign-leaves-a-stale-link) | A removed connection sign leaves a stale link in the other colony | Low | Upstream | `ColonyConnectionManager.java:169, 372` | ✅ `con01b_reconnectAfterSignRemoved` |
-| [E2E-VIS02-1](#e2e-vis02-1-removing-a-tavern-right-after-a-recruit-throws) | Removing a tavern right after a recruit throws and leaves visitors behind | Low | Upstream | `TavernBuildingModule.java:309-313`, `VisitorManager.java:301` | ✅ `vis02_tavernRemovedAfterRecruiting` |
+| [E2E-COL-05-1](#e2e-col-05-1-friends-cant-open-hut-menus) | Friends can't open hut menus | Low | Upstream | `ColonyPermissionEventHandler.java:372, 412` | ✅ `col05b_friendOpensHut`; **FIXED** (test now required) |
+| [E2E-CON-01-1](#e2e-con-01-1-a-removed-connection-sign-leaves-a-stale-link) | A removed connection sign leaves a stale link in the other colony | Low | Upstream | `ColonyConnectionManager.java:169, 372` | ✅ `con01b_reconnectAfterSignRemoved`; **FIXED** (test now required) |
+| [E2E-VIS02-1](#e2e-vis02-1-removing-a-tavern-right-after-a-recruit-throws) | Removing a tavern right after a recruit throws and leaves visitors behind | Low | Upstream | `TavernBuildingModule.java:309-313`, `VisitorManager.java:301` | ✅ `vis02_tavernRemovedAfterRecruiting`; **FIXED** (test now required) |
 | [E2E-FRM-06-1](#e2e-frm-06-1-herder-feeds-animals-that-are-too-far-apart-to-mate) | Herder feeds animals that are too far apart to mate | Low | Likely upstream | `AbstractEntityAIHerder.java:78, 454` | ✅ `frm06_herderFeedsPairOutOfMateRange` |
 | [E2E-FRM-03-1](#e2e-frm-03-1-composted-bed-expires-at-once-after-it-sat-idle) | Composted bed expires at once after it sat idle | Low | Likely upstream | `TileEntityCompostedDirt.java:75, 122` | ✅ traced variant of `frm03_florist` (no own test) |
 | [E2E-BLD-07-1](#e2e-bld-07-1-resource-list-misses-items-of-blueprint-entities) | Resource list misses items of blueprint entities | Low | Likely upstream | `WindowBuildBuilding.java:295` (`updateResources`), Structurize resource count | ❔ seen in early BLD-07 runs, no test |
-| [E2E-DEF-S1](#e2e-def-s1-raid-end-reads-the-first-raid-instead-of-the-last) | Raid end reads the first raid instead of the last | Low | Upstream | `RaidManager.java:1061, 1078` | ❔ code reading |
+| [E2E-DEF-S1](#e2e-def-s1-raid-end-reads-the-first-raid-instead-of-the-last) | Raid end reads the first raid instead of the last | Low | Upstream | `RaidManager.java:1061, 1078` | ✅ `defs1_raidEndUsesLastRaid`; **FIXED** |
 
 Legend: ✅ confirmed by a test run, ❔ suspected. E2E-DEF-S1 had no ID in its group protocol; the ID is new here.
 
@@ -153,11 +153,15 @@ checked on NeoForge. More: [logistics protocol](protocol/logistics-crafting.md#e
 
 #### E2E-CON-02-1 Ally teleport only works within 15 blocks of the target gate
 
+**FIXED:** the range is measured to the origin colony's gate houses. Upstream issue text: [upstream-bugs/citizens-colony.md](../upstream-bugs/citizens-colony.md).
+
 `TeleportToColonyMessage` checks that the player is within 15 blocks of the *target* colony's gate. The button is in the player's *own*
 gate house window, so it only works when the two gates are close. Introduced by "Packet range (#11888)". More:
 [colony protocol](protocol/colony-connections-robustness.md#e2e-con-02-1-ally-teleport-only-works-when-the-gates-are-at-most-15-blocks-apart).
 
 #### E2E-CIT06-1 Negative happiness factors can raise total happiness
+
+**FIXED:** all factors are averaged again. Upstream issue text: [upstream-bugs/citizens-colony.md](../upstream-bugs/citizens-colony.md).
 
 `getHappiness` skips factors that are exactly 1.0 and averages the rest. A below-neutral factor above the current average pulls the
 average up. In the test, an unemployed or sick citizen had 3.50, the healthy employed one 3.00. More:
@@ -165,10 +169,14 @@ average up. In the test, an unemployed or sick citizen had 3.50, the healthy emp
 
 #### E2E-SRV02-1 Study items make studying less successful
 
+**FIXED:** the success chance is `1 / customChance`. Upstream issue text: [upstream-bugs/citizens-colony.md](../upstream-bugs/citizens-colony.md).
+
 Since #7349 the success check is inverted. 4000 rolls each: no item 89%, paper 50%, book 26%. The book, configured as the best item, is
 the worst. More: [citizens protocol](protocol/citizens-services.md#e2e-srv02-1-study-items-make-studying-less-successful).
 
 #### E2E-VIS04-1 Cancelling an accepted quest at a delivery step does nothing
+
+**FIXED:** the cancel answer is applied to the quest. Upstream issue text: [upstream-bugs/citizens-colony.md](../upstream-bugs/citizens-colony.md).
 
 At a delivery step, "cancel" only closes the dialogue; `applyToQuest` (which deletes the quest) is never called. The quest stays in
 progress. Cancel in a normal dialogue works. More:
@@ -207,17 +215,23 @@ stands at the portal, the log says IN_PROGRESS and the loot stays in the job. Mo
 
 #### E2E-COL-05-1 Friends can't open hut menus
 
+**FIXED:** the container check skips huts (`ACCESS_HUTS` governs them). Upstream issue text: [upstream-bugs/citizens-colony.md](../upstream-bugs/citizens-colony.md).
+
 The permission handler lets a hut click through for `ACCESS_HUTS`, then treats the hut as a container (it has an item handler) and
 refuses it with `OPEN_CONTAINER`, which friends don't have. More:
 [colony protocol](protocol/colony-connections-robustness.md#e2e-col-05-1-friends-cant-open-hut-menus).
 
 #### E2E-CON-01-1 A removed connection sign leaves a stale link
 
+**FIXED:** the partner sign in the other colony is unlinked too. Upstream issue text: [upstream-bugs/citizens-colony.md](../upstream-bugs/citizens-colony.md).
+
 Removing a connection sign only resets pointers in its own colony. The partner sign in the other colony still points at the removed
 sign, so a new link is refused. More:
 [colony protocol](protocol/colony-connections-robustness.md#e2e-con-01-1-a-removed-connection-sign-leaves-a-stale-link-in-the-other-colony).
 
 #### E2E-VIS02-1 Removing a tavern right after a recruit throws
+
+**FIXED:** `onDestroyed` skips unknown visitor ids. Upstream issue text: [upstream-bugs/citizens-colony.md](../upstream-bugs/citizens-colony.md).
 
 The tavern keeps a recruited visitor's id until its next colony tick. Removing the tavern before that passes a null visitor to
 `VisitorManager.removeCivilian`: `NullPointerException`, later visitors stay registered. Also seen in the log when a test colony was
@@ -244,6 +258,8 @@ and asked for an item frame. Seen in early BLD-07 runs before the test switched 
 GUI. More: [construction protocol](protocol/construction-research.md#e2e-bld-07-1-suspected-resource-list-misses-items-of-blueprint-entities).
 
 #### E2E-DEF-S1 Raid end reads the first raid instead of the last
+
+**FIXED:** uses `getLastRaid()`; confirmed and covered by `defs1_raidEndUsesLastRaid`. Upstream issue text: [upstream-bugs/citizens-colony.md](../upstream-bugs/citizens-colony.md).
 
 `RaidManager.onRaidEventFinished` reads `raidHistories.get(0)` (the colony's first raid) for the mercy check and the victory sound,
 instead of the last raid. After more than one raid, these depend on the first raid's losses. Code reading only. More:
