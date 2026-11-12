@@ -70,6 +70,27 @@ public final class E2EMode
     }
 
     /**
+     * Set when a person closed the test window (close button, Alt+F4) during a client game test run; the run then ends with exit code
+     * {@link #WINDOW_CLOSED_EXIT_CODE} so Gradle reports it as failed, not as passed (docs/e2e-tests/framework.md, "No human input").
+     */
+    private static volatile boolean windowClosed;
+
+    /**
+     * Exit code of a client game test run whose window was closed by hand.
+     */
+    public static final int WINDOW_CLOSED_EXIT_CODE = 3;
+
+    public static void markWindowClosed()
+    {
+        windowClosed = true;
+    }
+
+    public static boolean wasWindowClosed()
+    {
+        return windowClosed;
+    }
+
+    /**
      * @return true in watch mode.
      */
     public static boolean isWatch()

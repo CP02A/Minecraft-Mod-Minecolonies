@@ -240,7 +240,7 @@ Details: [e2e-tests/ui.md](e2e-tests/ui.md). Run with `./gradlew runClientGameTe
 | [UI-05](e2e-tests/ui.md#ui-05-research-tree) | Research tree | The university and research tree show the branch's research. | ✅ Passing |
 | [UI-06](e2e-tests/ui.md#ui-06-post-box-request-window) | Post box request window | The post box lists items that can be requested. | ✅ Passing |
 | [UI-07](e2e-tests/ui.md#ui-07-warehouse-window) | Warehouse window | The warehouse window opens with the right title. | ✅ Passing |
-| [UI-08](e2e-tests/ui.md#ui-08-human-input-is-ignored) | Human input is ignored | Real keyboard and mouse input can't reach a test window. | ✅ Passing |
+| [UI-08](e2e-tests/ui.md#ui-08-human-input-is-ignored) | Human input is ignored | Real keyboard, mouse, focus and window changes can't affect a test window; simulated input still works. | ✅ Passing |
 | [UI-09](e2e-tests/ui.md#ui-09-brewing-teaching-computes-the-potion) | Brewing teaching computes the potion | The brewing teaching window finds the brewed potion from the synced recipes. | ✅ Passing |
 | [UI-10](e2e-tests/ui.md#ui-10-spear-item-renders-in-3d) | Spear item renders in 3D | The spear is drawn with its 3D model in hand and in item frames, flat in the GUI. | ✅ Passing |
 | [UI-11](e2e-tests/ui.md#ui-11-child-citizen-proportions) | Child citizen proportions | Child citizens (and their armor) are drawn with child proportions, adults full size. | ✅ Passing |
