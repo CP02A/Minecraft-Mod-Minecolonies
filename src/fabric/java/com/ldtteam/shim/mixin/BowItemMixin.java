@@ -15,7 +15,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * ArrowNockEvent / ArrowLooseEvent for the vanilla bow.
- * FABRIC-PORT TODO: a charge changed by ArrowLooseEvent listeners is not applied (only cancellation is honoured).
+ * Only cancellation is honoured for the vanilla bow (a changed charge is ignored); the ported mods' only listener (colony protection)
+ * just cancels. Bows that override releaseUsing (the pharao scepter) call EventHooks themselves.
  */
 @Mixin(BowItem.class)
 public abstract class BowItemMixin

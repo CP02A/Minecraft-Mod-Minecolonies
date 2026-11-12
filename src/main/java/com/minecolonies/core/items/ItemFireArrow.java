@@ -1,7 +1,6 @@
 package com.minecolonies.core.items;
 
 import com.minecolonies.api.entity.ModEntities;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ArrowItem;
@@ -25,12 +24,6 @@ public class ItemFireArrow extends ArrowItem
         super(properties);
     }
 
-    // FABRIC-PORT TODO: NeoForge IItemExtension#hasCustomEntity/createEntity hooks have no Fabric equivalent.
-    public boolean hasCustomEntity(final ItemStack stack)
-    {
-        return true;
-    }
-
     @Override
     public AbstractArrow createArrow(final Level worldIn, final ItemStack stack, final LivingEntity shooter, @Nullable final ItemStack bow)
     {
@@ -39,9 +32,7 @@ public class ItemFireArrow extends ArrowItem
         return entity;
     }
 
-    @Nullable
-    public Entity createEntity(final Level world, final Entity location, final ItemStack itemstack)
-    {
-        return ModEntities.FIREARROW.create(world, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
-    }
+    // FABRIC-PORT: the 1.21.1 hasCustomEntity/createEntity overrides (NeoForge IItemExtension) were dropped on purpose. NeoForge replaced
+    // every dropped fire arrow item entity with a new fire arrow entity at (0, 0, 0) (createEntity ignored the dropped item's position
+    // and stack), so dropped fire arrows (e.g. the pharao's loot) vanished. Shooting goes through createArrow above, which vanilla calls.
 }

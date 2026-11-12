@@ -62,7 +62,7 @@ public class FMLEventHandler
     }
 
     /**
-     * Add a reload listener, injecting the registry lookup for our json listeners (NeoForge's ContextAwareReloadListener did this before).
+     * Add a reload listener, injecting the registry lookup and condition context for our json listeners (NeoForge's ContextAwareReloadListener did this before).
      *
      * @param event    the event.
      * @param listener the listener.
@@ -72,6 +72,7 @@ public class FMLEventHandler
         if (listener instanceof RegistryAwareJsonReloadListener registryAware)
         {
             registryAware.injectRegistryLookup(event.getRegistryAccess());
+            registryAware.injectConditionContext(event.getConditionContext());
         }
         event.addListener(listener);
     }

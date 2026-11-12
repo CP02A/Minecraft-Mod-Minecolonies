@@ -371,10 +371,9 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob<?, J>, B ex
     {
         items = world.getEntitiesOfClass(ItemEntity.class, boundingBox)
                   .stream()
-                  .filter(item -> item != null && item.isAlive() &&
-                                    // FABRIC-PORT TODO: NeoForge "PreventRemoteMovement" persistent-data flag is not available on Fabric
-                                    
-                                    isItemWorthPickingUp(item.getItem()))
+                  // FABRIC-PORT: 1.21.1 also skipped items with NeoForge's "PreventRemoteMovement" persistent-data flag (set by other mods,
+                  // e.g. on conveyor belts). Fabric has no entity persistent data and no such convention, and no bundled mod sets it.
+                  .filter(item -> item != null && item.isAlive() && isItemWorthPickingUp(item.getItem()))
                   .map(BlockPosUtil::fromEntity)
                   .collect(Collectors.toList());
     }

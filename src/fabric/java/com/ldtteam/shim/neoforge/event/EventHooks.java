@@ -8,6 +8,9 @@ import com.ldtteam.shim.neoforge.event.entity.living.MobDespawnEvent;
 import com.ldtteam.shim.neoforge.event.entity.living.MobSpawnEvent;
 import com.ldtteam.shim.neoforge.event.entity.player.ArrowLooseEvent;
 import com.ldtteam.shim.neoforge.event.entity.player.ArrowNockEvent;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
+import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTabOutput;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -19,6 +22,8 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.ItemStackLinkedSet;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.Level;
@@ -26,6 +31,9 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -126,12 +134,48 @@ public final class EventHooks
     }
 
     /**
-     * Runs the display items generator of a tab into the output.
-     * FABRIC-PORT TODO: BuildCreativeModeTabContentsEvent / Fabric ItemGroupEvents modifications are not applied here.
+     * Runs the display items generator of a tab into the output, plus the modifications other mods make to the tab. On Fabric those
+     * come from Fabric API's {@link CreativeModeTabEvents} (NeoForge's BuildCreativeModeTabContentsEvent has no listener in the
+     * ported mods); they are applied the way Fabric API applies them when vanilla builds a tab (CreativeModeTab#buildContents),
+     * without touching the tab's own cached contents.
      */
     public static void onCreativeModeTabBuildContents(final CreativeModeTab tab, final @Nullable ResourceKey<CreativeModeTab> tabKey,
         final CreativeModeTab.DisplayItemsGenerator originalGenerator, final CreativeModeTab.ItemDisplayParameters params, final CreativeModeTab.Output output)
     {
-        originalGenerator.accept(params, output);
+        final Set<ItemStack> display = ItemStackLinkedSet.createTypeAndComponentsSet();
+        final Set<ItemStack> search = ItemStackLinkedSet.createTypeAndComponentsSet();
+        originalGenerator.accept(params, (stack, visibility) -> {
+            if (visibility != CreativeModeTab.TabVisibility.SEARCH_TAB_ONLY)
+            {
+                display.add(stack);
+            }
+            if (visibility != CreativeModeTab.TabVisibility.PARENT_TAB_ONLY)
+            {
+                search.add(stack);
+            }
+        });
+
+        final ResourceKey<CreativeModeTab> key = tabKey != null ? tabKey : BuiltInRegistries.CREATIVE_MODE_TAB.getResourceKey(tab).orElse(null);
+        final List<ItemStack> displayStacks = new LinkedList<>(display);
+        final List<ItemStack> searchStacks = new LinkedList<>(search);
+        // Same rules as Fabric API's CreativeModeTabMixin: right-aligned tabs (except the operator tab) are not modified,
+        // the operator tab only for players with permissions.
+        if (key != null && (!tab.isAlignedRight() || key == CreativeModeTabs.OP_BLOCKS) && (key != CreativeModeTabs.OP_BLOCKS || params.hasPermissions()))
+        {
+            final FabricCreativeModeTabOutput modifications = new FabricCreativeModeTabOutput(params, displayStacks, searchStacks);
+            CreativeModeTabEvents.modifyOutputEvent(key).invoker().modifyOutput(modifications);
+            CreativeModeTabEvents.MODIFY_OUTPUT_ALL.invoker().modifyOutput(tab, modifications);
+        }
+
+        final Set<ItemStack> searchOnly = ItemStackLinkedSet.createTypeAndComponentsSet();
+        searchOnly.addAll(searchStacks);
+        for (final ItemStack stack : displayStacks)
+        {
+            output.accept(stack, searchOnly.remove(stack) ? CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS : CreativeModeTab.TabVisibility.PARENT_TAB_ONLY);
+        }
+        for (final ItemStack stack : searchOnly)
+        {
+            output.accept(stack, CreativeModeTab.TabVisibility.SEARCH_TAB_ONLY);
+        }
     }
 }

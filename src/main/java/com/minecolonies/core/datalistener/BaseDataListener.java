@@ -85,7 +85,7 @@ public abstract class BaseDataListener<T> extends RegistryAwareJsonReloadListene
                 toRemove.addAll(getRemovalOrders(key, value));
 
                 final List<ICondition> conditions = getConditions(value);
-                if (conditions.stream().allMatch(a -> a.test(ICondition.IContext.EMPTY)))
+                if (conditions.stream().allMatch(a -> a.test(getContext())))
                 {
                     final MappingResult<T> result = mapEntry(key, value);
                     if (result.success())

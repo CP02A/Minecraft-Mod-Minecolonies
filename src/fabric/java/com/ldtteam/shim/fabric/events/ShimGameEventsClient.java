@@ -62,7 +62,7 @@ public final class ShimGameEventsClient
         });
         ClientChunkEvents.CHUNK_LOAD.register((level, chunk) -> NeoForge.EVENT_BUS.post(new ChunkEvent.Load(chunk, false)));
         ClientChunkEvents.CHUNK_UNLOAD.register((level, chunk) -> NeoForge.EVENT_BUS.post(new ChunkEvent.Unload(chunk)));
-        // FABRIC-PORT TODO: client-side EntityJoinLevelEvent cannot be canceled on Fabric.
+        // Client-side EntityJoinLevelEvent is informational only (Fabric's ENTITY_LOAD can't cancel); the ported mods only cancel it on the server.
         ClientEntityEvents.ENTITY_LOAD.register((Entity entity, ClientLevel level) -> NeoForge.EVENT_BUS.post(new EntityJoinLevelEvent(entity, level)));
         ClientEntityEvents.ENTITY_UNLOAD.register((Entity entity, ClientLevel level) -> NeoForge.EVENT_BUS.post(new EntityLeaveLevelEvent(entity, level)));
 
