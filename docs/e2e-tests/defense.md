@@ -24,6 +24,8 @@ Guards, their training and gear, and raids on the colony.
 
 **Time budget:** 2 minutes.
 
+**As implemented (e2e run):** The guard (knight, stone sword, leather chestplate, level 1 guard tower) is moved into the open field next to the arena wall and a husk (a zombie that does not burn by day) is spawned 8 blocks away. A bystander citizen stands at the town hall. Checks: the husk dies after being hurt by the guard, the guard's total XP rose, neither the bystander nor the owner was hurt by the guard.
+
 ---
 
 ## DEF-02 Each guard type fights its own way
@@ -55,6 +57,8 @@ One test per guard type:
 
 **Time budget:** 3 minutes per type.
 
+**As implemented (e2e run):** One test per type with a level 1 building (`def02_*`): knight (stone sword), huscarl (stone axe, research `combat/slicedanddecided`), ranger (bow + arrows), marksman (crossbow + arrows, research `combat/thathitthemark`) must kill the husk; melee types must hold their weapon while attacking, ranged types must fire arrows owned by the guard. **Druid (design changed):** the druid's potions don't kill - against a monster it throws slowness (weakness only with the magic-potion research), and it supports only allies that are in combat - so the druid test (barracks tower, the only building with a druid slot) checks that a druid potion is thrown and the husk gets slowness. The knight's shield blocking needs research `combat/avoidance` plus a shield and is not checked. **Cavalry** is not implemented (see DEF-10).
+
 ---
 
 ## DEF-03 Patrol, guard and follow modes
@@ -74,6 +78,8 @@ One test per guard type:
 
 **Time budget:** 3 minutes.
 
+**As implemented (e2e run):** As implemented: patrol (default, automatic mode) must yield at least 3 different patrol targets, the guard more than 8 blocks from the tower and never beyond `getPatrolDistance()`. Guard: the guard walks to the set guard spot; **design changed:** a guarding guard does not stay put the whole time - it leaves for errands (e.g. dumping its inventory at the hut after a few actions) and returns lazily (`guardMovement()` walks back with a 1-in-10 chance every 100 ticks) - so the test checks that after another 1500 ticks the guard is (back) within 6 blocks of the spot. Follow: the follow target is looked up in the server's player list and the level's player list, which the fake owner is not in; the test adds him to both for this phase (removed at the end). The owner then moves twice; the guard must come within 6 blocks each time (budget 6000 ticks, since a following guard can still fall asleep for up to 3000 ticks).
+
 ---
 
 ## DEF-04 Guards get gear by level
@@ -91,6 +97,8 @@ One test per guard type:
 - After the upgrade, better gear is requested and worn.
 
 **Time budget:** 5 minutes.
+
+**As implemented (e2e run):** As implemented: level 1 guard tower, warehouse (leather, iron, diamond armor and stone, iron, diamond swords), a courier (courier's hut level 1), an unequipped knight. The knight must end up with a sword and a chestplate; everything worn is leather and he has no iron or diamond item (level 1 allows leather/gold armor and level-1 tools). Upgrade without a builder: the level 3 tower blueprint is pasted over the tower (build tool paste; the hut block's schematic data sets the level, as when a builder finishes an upgrade) and the tower reports level 3. Then an iron and a diamond chestplate are put into the tower, the knight loses his helmet and his sword is moved into the tower. **Design note:** guards look at their gear only while at their hut (PREPARING, `AbstractEntityAIFight.atBuildingActions`), which they visit when a weapon is missing or to dump loot (the dump cycle is far longer than the budget) - the moved sword sends him there. Checks: he takes the iron chestplate from the tower, requests a helmet and gets the warehouse's iron helmet (not the diamond one), holds a sword again, wears no diamond, and the diamond chestplate stays in the tower (level 3 allows armor up to iron).
 
 ---
 
@@ -110,6 +118,8 @@ One test per guard type:
 - It returns to its task afterwards.
 
 **Time budget:** 3 minutes.
+
+**As implemented (e2e run):** As implemented: research `combat/regeneration` (retreat unlock), the tower's retreat setting on, a knight far from the tower attacks a slowed and weakened husk; the test then sets his health to 2. Checks: state GUARD_FLEE, then GUARD_REGEN within 8 blocks of the tower, then health >= 75% and back to another state. Food is not needed (regeneration is a potion effect).
 
 ---
 
@@ -143,6 +153,8 @@ One test per raid type:
 
 **Time budget:** 10 minutes per raid.
 
+**As implemented (e2e run):** **Design changed:** the fixture forces raids without ships, so: barbarians, amazons, egyptians, norsemen (land) and pirates (the land variant `pirate_ground_raid`) are tested; drowned pirates and all ship raids are not implementable here (a ship raid needs a large body of deep water next to the colony; `drowned_pirate_raid` without ships returns NO_SPAWN_POINT). No guards: the test kills the raiders itself (lethal hits with a living attacker, since raiders cap damage without one), after checking: one raid event of the right type, 4 raiders spawned within 16 blocks of the spawn point (arena corner), raiders come within 14 blocks of the town hall; after the kill the event is removed, the colony is no longer raided and the camp fires are gone. The barbarian test also checks that a tiny colony (raid level < 75) gets TOO_SMALL for a natural-size raid and that `calculateRaiderAmount` never exceeds `maxRaiders` + 1.
+
 ---
 
 ## DEF-07 Surviving a raid without losses
@@ -162,6 +174,8 @@ One test per raid type:
 
 **Time budget:** 10 minutes.
 
+**As implemented (e2e run):** As implemented: two citizens, a forced barbarian raid of 3 that the test ends by killing the raiders. Run 1: both citizens get the `raidwithoutdeath` modifier. Run 2: a raider-sourced attack kills one citizen during the raid (repeated hits: citizens cap the damage per hit); the other citizen gets no modifier, the colony's `death` statistic rose and the raid's lost-citizen count is > 0.
+
 ---
 
 ## DEF-08 Citizens flee from danger
@@ -180,6 +194,8 @@ One test per raid type:
 
 **Time budget:** 2 minutes.
 
+**As implemented (e2e run):** **Design changed:** citizens don't flee on sight. They switch to the FLEE state only when hurt (`EntityCitizen.performMoveAway`); while fleeing they keep away from monsters in range. The test: a working lumberjack and two unemployed citizens; a husk targets the lumberjack. Checks: the lumberjack enters FLEE, gets at least 8 blocks away from the husk; after the husk is removed he goes back to WORK; all three citizens survive.
+
 ---
 
 ## DEF-09 Training raises guard skills
@@ -197,6 +213,8 @@ One test per raid type:
 - The training uses the right targets (dummies, other trainees or targets).
 
 **Time budget:** 10 minutes.
+
+**As implemented (e2e run):** As implemented: combat academy level 1 with a knight trainee (wooden sword + shield) and archery level 1 with a ranger trainee (bow + arrows). **Design changed:** skill levels rise only after a lot of experience, so the test checks that both trainees gain experience from training (total XP) and that the archer went through its shooting state.
 
 ---
 
@@ -217,6 +235,8 @@ One test per raid type:
 
 **Time budget:** 5 minutes.
 
+**As implemented (e2e run):** **Not implemented** (see the protocol): the stablemaster's training of a horse is chance- and cooldown-driven (25% chance after a 50-decision cooldown) and only for horses inside the stable's corners; in the arena the horses were led away/stabled and no cavalry horse was registered within 12000 ticks.
+
 ---
 
 ## DEF-11 Raid timing follows the config
@@ -235,3 +255,6 @@ One test per raid type:
 - With `enableColonyRaids` off, no raid ever starts.
 
 **Time budget:** ten nights.
+
+**As implemented (e2e run):** As implemented: raids on, minimum 2 / average 3 nights between raids (with these values the mod raids every third night deterministically), 8 citizens with skills 80 (raid level >= 75), the owner added as an important colony player. Nights are made by setting the time (morning, then 13500); each new raid event is ended at once (status DONE) so the next night starts clean. Ten nights with raids on, then five nights with raids off. Two things the test has to provide: the game rule `spawnMobs` on (the test server has it off and `WorldUtil.isPeaceful` treats that as peaceful: no raids), and ground around the arena (a natural raid spawns 40+ blocks from the buildings; the test lays a grass ring and removes it afterwards).
+
