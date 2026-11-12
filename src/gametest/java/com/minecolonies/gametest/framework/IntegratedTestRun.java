@@ -158,6 +158,25 @@ public final class IntegratedTestRun
     }
 
     /**
+     * @return the part of the first running test's area where something happens ({@link WatchFocus}), if any.
+     */
+    public Optional<WatchFocus.Focus> currentFocus()
+    {
+        for (final GameTestInfo info : runningTests())
+        {
+            try
+            {
+                return Optional.of(WatchFocus.of(info.getLevel(), info.getStructureBounds()));
+            }
+            catch (final RuntimeException e)
+            {
+                // Structure not placed yet.
+            }
+        }
+        return Optional.empty();
+    }
+
+    /**
      * @return the id of the first running test, or "" if none.
      */
     public String currentTestId()

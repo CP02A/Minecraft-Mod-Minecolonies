@@ -34,7 +34,7 @@ This is the summary of all end-to-end test work. Details per group are in the [g
 | Server game test methods (headless run) | 149: 133 required, 16 optional |
 | UI test methods (`runClientGameTest`) | 8 (all pass) |
 
-Optional tests (`required = false`) reproduce a mod bug. They fail on purpose and don't fail the build.
+Optional tests (`required = false`) reproduce a mod bug. They fail on purpose and don't fail the run.
 
 ### Final runs
 
@@ -78,8 +78,8 @@ fixes:
 |---|---|---|
 | `def03_patrolGuardFollow` | Guards nap 2500-3000 ticks at random, and a guarding guard walks to his tower to dump, idles and walks back lazily. 6,000 and later 12,000 ticks ran out (1 of 51 repeats). | Budgets up to 30,000 ticks. |
 | `frm06_swineHerderBreeds` | The pigs slipped out of the hut area; the piglet was born outside it. | Animals outside the area are put back in the pen. |
-| `srv03_hospital`, `log09_fullWarehouse`, `log01_warehouseDeliversRequest`, `srv02_library` | A citizen went on a random 3-minute leisure break (`CitizenData.update`). | The test mod ends leisure breaks on every server tick ([framework.md](framework.md#test-configuration)); two budgets raised too. |
-| `srv04_graveyard` | The undertaker resurrected the citizen (about 3% without research), so he was never buried. | The roll is forced to miss (SRV-04b tests resurrection). |
+| `srv03_hospital`, `log09_fullWarehouse`, `log01_warehouseDeliversRequest`, `srv02_library` | A citizen went on a random 3-minute leisure break (`CitizenData.update`). | The test mod ended leisure breaks at once; now it shortens them to 3 seconds ([framework.md](framework.md#test-configuration)); two budgets raised too. |
+| `srv04_graveyard` | The undertaker resurrected the citizen (about 3% without research), so he was never buried. | The roll is forced to miss (SRV-06, formerly SRV-04b, tests resurrection). |
 | `def11_raidTimingFollowsConfig` | No raid in ten nights: the raid's spawn search goes outwards while chunks are loaded and ended past the ground ring. Depends on which chunks other tests left loaded. | Sky raiders on (the test checks timing, not spawn places). |
 | `crf01_alchemist` | Between brews the alchemist went for mistletoe without shears and waited on a tool request. | Shears in the warehouse. |
 | `crf06_alchemistHarvests` | All 3 attempts missed the mistletoe (random job choice). | 5 attempts. |
@@ -275,7 +275,8 @@ All in commit `396b6db53a` unless noted. Details: [framework.md](framework.md), 
 - **No room for mines.** `makeDeepGround()` puts stone under the arena down to y -32. This made GAT-03/04 possible.
 - **Fresh worktrees crashed** because the git-ignored `en_us.json` was missing. `mergeTranslations` now generates it.
 - **Hiring into a warehouse** silently gave no courier; `hire()` now throws with a pointer to the courier's hut.
-- **Random leisure breaks** (final step): citizens left work for 3 minutes at random; the test mod now ends each break at once.
+- **Random leisure breaks** (final step): citizens left work for 3 minutes at random; the test mod ended each break at once. Later
+  changed: breaks last 3 seconds, so the leisure behavior still runs (CIT-15 tests it).
 - **Flaky tests** (final step, test side): herder animals kept within mate range and inside the hut area, and the fixes in the
   [Flakiness](#flakiness) table.
 
@@ -317,7 +318,7 @@ doc got an "As implemented" or "As tested" note. The main ones:
 | One group or test | `./gradlew --no-daemon runGameTest -Pe2eFilter=farming_gathering_tests` or `-Pe2eFilter=minecolonies-gametest:farming_gathering_tests_frm06_herder_feeds_pair_out_of_mate_range` |
 | Watch in a game window | `./gradlew --no-daemon runGameTest -Pe2eWatch -Pe2eFilter=<prefix>` (`-Pe2eWatchSpeed=2` for double speed) |
 | UI tests with screenshots | `./gradlew --no-daemon runClientGameTest` (report: `build/e2e-ui-report.xml`, screenshots: `build/e2e-screenshots/`); some only: `-Pe2eUiFilter=UI-01,UI-03` |
-| Build with tests | `./gradlew --no-daemon build` (runs the headless game tests) |
+| Build | `./gradlew --no-daemon build` (compiles and runs the isolation checks; no game tests) |
 
 Test names in filters are the method names in snake case with the suite prefix, e.g. `frm06_chickenHerderBreeds` →
 `farming_gathering_tests_frm06_chicken_herder_breeds`.

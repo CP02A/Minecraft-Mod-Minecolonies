@@ -42,6 +42,7 @@ import com.minecolonies.core.colony.buildings.modules.BuildingModules;
 import com.minecolonies.core.colony.interactionhandling.RequestBasedInteraction;
 import com.minecolonies.api.entity.ai.statemachine.states.CitizenAIState;
 import com.minecolonies.core.entity.ai.minimal.EntityAICitizenChild;
+import com.minecolonies.core.entity.ai.minimal.EntityAICitizenWander;
 import com.minecolonies.core.entity.ai.minimal.EntityAIEatTask;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.tileentities.TileEntityGrave;
@@ -413,6 +414,63 @@ public class CitizensServicesTests
           }, () -> "request " + fixture.colony().getRequestManager().getRequestForToken(token[0]))
           .awaitUntil("interaction closed", 400, () -> !chatOptions(worker[0]).containsKey(interaction[0].getId()),
             () -> "interactions " + interactionKeys(worker[0]))
+          .succeed();
+    }
+
+    /**
+     * CIT-15 Leisure break: a working citizen goes on a leisure break (3 minutes in the game, 3 seconds in the tests), leaves work for
+     * its leisure (citizen AI IDLE with the wander AI, worker AI paused, status "house"), and goes back to work when the break is over.
+     */
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 1200, skyAccess = true)
+    public void cit15_leisureBreak(final GameTestHelper helper)
+    {
+        final ColonyFixture fixture = ColonyFixture.create(helper);
+        final IBuilding[] huts = new IBuilding[2];
+        final ICitizenData[] worker = new ICitizenData[1];
+        final long[] breakTime = new long[2];
+        final int[] leisureTicks = new int[1];
+        final boolean[] houseStatus = new boolean[1];
+        final Object[] workerAiState = new Object[1];
+        final List<String> workerAiDuringLeisure = new ArrayList<>();
+
+        fixture.flow()
+          .run("set up colony with a lumberjack who has a home", () -> {
+              fixture.createColony();
+              fixture.setMoveIn(false);
+              huts[0] = fixture.placeBuilding(ModBuildings.lumberjack.get(), 1, NW);
+              huts[1] = fixture.placeBuilding(ModBuildings.home.get(), 1, NE);
+              worker[0] = fixture.spawnCitizen(10, huts[0], huts[1]);
+          })
+          // A lumberjack without trees never goes idle (see CIT-05), so any pause is the break.
+          .awaitUntil("the lumberjack is working", 600, () -> isWorking(worker[0]), () -> ColonyFixture.describe(worker[0]))
+          .check("no break yet", () -> worker[0].getLeisureTime() <= 0, () -> "leisure time " + worker[0].getLeisureTime())
+          .run("a leisure break starts (as the random roll in CitizenData.update starts one)", () -> {
+              fixture.startLeisureBreak(worker[0]);
+              breakTime[0] = fixture.level().getGameTime();
+          })
+          .awaitUntil("the lumberjack leaves work for its leisure", 40, () -> isAtLeisure(worker[0]), () -> "leisure time " + worker[0].getLeisureTime() + ", " + ColonyFixture.describe(worker[0]))
+          .run("remember the paused worker AI", () -> workerAiState[0] = worker[0].getJob().getWorkerAI().getState())
+          .awaitUntil("the break is over", 200, () -> {
+              if (isAtLeisure(worker[0]))
+              {
+                  leisureTicks[0]++;
+                  houseStatus[0] |= worker[0].getStatus() == VisibleCitizenStatus.HOUSE;
+                  if (worker[0].getJob().getWorkerAI().getState() != workerAiState[0])
+                  {
+                      workerAiDuringLeisure.add(String.valueOf(worker[0].getJob().getWorkerAI().getState()));
+                  }
+              }
+              breakTime[1] = fixture.level().getGameTime();
+              return worker[0].getLeisureTime() <= 0;
+          }, () -> "leisure time " + worker[0].getLeisureTime() + ", " + ColonyFixture.describe(worker[0]))
+          .check("the break lasted 3 seconds (shortened from 3 minutes)", () -> Math.abs(breakTime[1] - breakTime[0] - ColonyFixture.LEISURE_BREAK_TICKS) <= 2,
+            () -> (breakTime[1] - breakTime[0]) + " ticks")
+          .check("the lumberjack was at leisure for most of the break", () -> leisureTicks[0] >= ColonyFixture.LEISURE_BREAK_TICKS - 20,
+            () -> leisureTicks[0] + " of " + (breakTime[1] - breakTime[0]) + " ticks")
+          .check("its status showed it off work", () -> houseStatus[0], () -> "status " + worker[0].getStatus())
+          .check("its work was paused during the leisure", workerAiDuringLeisure::isEmpty,
+            () -> "worker AI went from " + workerAiState[0] + " to " + workerAiDuringLeisure)
+          .awaitUntil("the lumberjack goes back to work", 100, () -> isWorking(worker[0]), () -> ColonyFixture.describe(worker[0]))
           .succeed();
     }
 
@@ -1114,7 +1172,7 @@ public class CitizensServicesTests
               give(victim[0], new ItemStack(Items.OAK_LOG, 7));
               name[0] = victim[0].getName();
               // Without research the undertaker still resurrects with about 3% (building level 1 x 0.005 + mana 20 x 0.00125); then the
-              // citizen lives and is never buried (seen once in a full run). The roll is forced to miss; SRV-04b covers resurrection.
+              // citizen lives and is never buried (seen once in a full run). The roll is forced to miss; SRV-06 covers resurrection.
               setField(undertaker[0].getJob().getWorkerAI(), "random", new java.util.Random()
               {
                   @Override
@@ -1140,31 +1198,43 @@ public class CitizensServicesTests
     }
 
     /**
-     * SRV-04b Resurrection: with the resurrection research and a forced lucky roll, the undertaker brings the dead citizen back.
+     * SRV-06 Revival: the test fixes the undertaker's random numbers so the resurrection roll hits (base chance about 3%, no research). The
+     * undertaker brings the dead citizen back with its name, gender and skills, takes the grave away and buries nobody.
      */
     @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 15000, skyAccess = true)
-    public void srv04b_resurrection(final GameTestHelper helper)
+    public void srv06_revival(final GameTestHelper helper)
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
         final IBuilding[] graveyard = new IBuilding[1];
         final ICitizenData[] undertaker = new ICitizenData[1];
         final ICitizenData[] victim = new ICitizenData[1];
+        final ICitizenData[] revived = new ICitizenData[1];
         final BlockPos[] grave = new BlockPos[1];
         final String[] name = new String[1];
+        final boolean[] female = new boolean[1];
+        final Map<Skill, Integer> skills = new EnumMap<>(Skill.class);
 
         fixture.flow()
-          .run("set up colony with a graveyard, an undertaker with a shovel and a victim", () -> {
+          .run("set up colony with a graveyard, an undertaker with a shovel and a victim with known skills", () -> {
               fixture.createColony();
               fixture.setMoveIn(false);
-              fixture.completeResearch(Identifier.parse("minecolonies:civilian/resurrectchance1"));
               graveyard[0] = fixture.placeBuilding(ModBuildings.graveyard.get(), 1, NW);
               undertaker[0] = fixture.spawnCitizen(20, graveyard[0], null);
-              victim[0] = fixture.spawnCitizen(Map.of(), null, null, new BlockPos(44, ColonyFixture.GROUND_Y, 50));
+              int level = 3;
+              for (final Skill skill : Skill.values())
+              {
+                  skills.put(skill, level);
+                  level += 2;
+              }
+              victim[0] = fixture.spawnCitizen(skills, null, null, new BlockPos(44, ColonyFixture.GROUND_Y, 50));
           })
           .awaitUntil("citizens have entities", 100, () -> allEntities(undertaker[0], victim[0]), () -> describeAll(undertaker[0], victim[0]))
-          .run("give the shovel, force the resurrection roll", () -> {
+          .run("give the shovel, make the resurrection roll hit", () -> {
               give(undertaker[0], new ItemStack(Items.WOODEN_SHOVEL));
               name[0] = victim[0].getName();
+              female[0] = victim[0].isFemale();
+              // The only random number of the roll: EntityAIWorkUndertaker.tryResurrect resurrects when chance >= random.nextDouble().
+              // The AI's own Random (a field of this undertaker's AI) is replaced, nothing else; 0 always hits. SRV-04 forces a miss.
               setField(undertaker[0].getJob().getWorkerAI(), "random", new java.util.Random()
               {
                   @Override
@@ -1179,17 +1249,29 @@ public class CitizensServicesTests
               grave[0] = fixture.colony().getGraveManager().getGraves().keySet().stream().findFirst().orElse(null);
               return grave[0] != null;
           }, () -> "graves " + fixture.colony().getGraveManager().getGraves())
+          .check("the victim is no longer a citizen", () -> fixture.colony().getCitizenManager().getCitizens().stream().noneMatch(c -> c.getName().equals(name[0])),
+            () -> describeAll(fixture.colony().getCitizenManager().getCitizens().toArray(new ICitizenData[0])))
           .awaitUntil("the dead citizen is alive again", 14000, () -> {
               for (final ICitizenData c : fixture.colony().getCitizenManager().getCitizens())
               {
-                  if (c.getName().equals(name[0]) && c.getEntity().isPresent())
+                  if (c.getName().equals(name[0]) && c.getEntity().map(e -> e.isAlive()).orElse(false))
                   {
+                      revived[0] = c;
                       return true;
                   }
               }
               return false;
           }, () -> "grave block " + fixture.level().getBlockState(grave[0]) + ", " + ColonyFixture.describe(undertaker[0]))
-          .check("not buried", () -> !graveyard[0].getModule(BuildingModules.GRAVEYARD).hasRestingCitizen(Set.of(name[0])), () -> "buried")
+          .check("same gender", () -> revived[0].isFemale() == female[0], () -> "female " + revived[0].isFemale() + ", was " + female[0])
+          .check("same skills", () -> skills.entrySet().stream().allMatch(e -> revived[0].getCitizenSkillHandler().getLevel(e.getKey()) == e.getValue()),
+            () -> "skills " + skillLevels(revived[0]) + ", were " + skills)
+          .check("the grave block is gone", () -> !(fixture.level().getBlockEntity(grave[0]) instanceof TileEntityGrave),
+            () -> "still " + fixture.level().getBlockState(grave[0]))
+          .check("the colony has no grave left", () -> fixture.colony().getGraveManager().getGraves().isEmpty(),
+            () -> "graves " + fixture.colony().getGraveManager().getGraves())
+          .check("not buried in the graveyard", () -> !graveyard[0].getModule(BuildingModules.GRAVEYARD).hasRestingCitizen(Set.of(name[0])), () -> "buried")
+          .check("one citizen of that name", () -> fixture.colony().getCitizenManager().getCitizens().stream().filter(c -> c.getName().equals(name[0])).count() == 1,
+            () -> describeAll(fixture.colony().getCitizenManager().getCitizens().toArray(new ICitizenData[0])))
           .succeed();
     }
 
@@ -1521,6 +1603,27 @@ public class CitizensServicesTests
     private static String aiState(final ICitizenData citizen)
     {
         return citizen.getEntity().map(e -> e instanceof final EntityCitizen ec ? String.valueOf(ec.getCitizenAI().getState()) : "?").orElse("<no entity>");
+    }
+
+    /**
+     * @return true while the citizen is in its leisure: the citizen AI state IDLE (where the wander AI runs) or one of the wander AI's
+     *     own states (going to a leisure site, wandering there, reading a book).
+     */
+    private static boolean isAtLeisure(final ICitizenData citizen)
+    {
+        return citizen.getEntity().map(e -> e instanceof final EntityCitizen ec
+                                              && (ec.getCitizenAI().getState() == CitizenAIState.IDLE
+                                                    || ec.getCitizenAI().getState() instanceof EntityAICitizenWander.WanderState)).orElse(false);
+    }
+
+    private static Map<Skill, Integer> skillLevels(final ICitizenData citizen)
+    {
+        final Map<Skill, Integer> levels = new EnumMap<>(Skill.class);
+        for (final Skill skill : Skill.values())
+        {
+            levels.put(skill, citizen.getCitizenSkillHandler().getLevel(skill));
+        }
+        return levels;
     }
 
     private static boolean isEating(final ICitizenData citizen)

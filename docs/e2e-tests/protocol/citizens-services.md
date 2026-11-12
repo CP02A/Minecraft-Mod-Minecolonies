@@ -29,7 +29,7 @@ Suite class: `src/gametest/java/com/minecolonies/gametest/suites/CitizensService
 | SRV-02b | ❌ fails due to mod bug | 0 | E2E-SRV02-1: study items lower the chance of an Intelligence gain. `required = false`. |
 | SRV-03 | ✅ passing | ~2120–2165 | Influenza cured, measles items requested, injured healed, distinct hospital beds. Final step: budget 8,500 → 13,000 (room for a random 3-minute leisure break). |
 | SRV-04 | ✅ passing | ~1080 | Grave dug up, citizen buried (resting list), items in the graveyard. Final step: the resurrection roll is forced to miss; without research it still hits about 3% of the time (the citizen then lives and is never buried, seen once in a full run). |
-| SRV-04b | ✅ passing | ~6080 | Resurrection with forced roll. |
+| SRV-04b | ✅ passing | ~6080 | Resurrection with forced roll. Later replaced by SRV-06 `srv06_revival` (no research, also checks name, gender, skills and that no grave is left). |
 | SRV-05 | ✅ passing | 0 | Factor 1.0 / 1.0 / 1.5 / 2.5 for no site / level 1 / 3 / 5. |
 
 Totals: 21 ✅ passing (19 designed tests, some split into a and b parts), 2 ❌ fail due to mod bugs, 0 ⛔, 0 📝.

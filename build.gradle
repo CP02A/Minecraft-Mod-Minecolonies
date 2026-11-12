@@ -65,7 +65,7 @@ loom {
 
 // End-to-end tests in their own source set and test mod (src/gametest, mod id minecolonies-gametest); not part of the mod jar.
 // See docs/e2e-tests/framework.md and docs/e2e-tests/AGENT-GUIDE.md.
-//   ./gradlew runGameTest                    server game tests, headless (also part of ./gradlew build)
+//   ./gradlew runGameTest                    server game tests, headless (not part of ./gradlew build: run them on purpose)
 //   ./gradlew runGameTest -Pe2eWatch         the same server game tests in a game window, to watch them (watch mode)
 //   ./gradlew runClientGameTest              UI tests: MineColonies windows in a game window, with screenshots (not part of build)
 fabricApi {
@@ -460,6 +460,12 @@ def checkInjectedMembers = tasks.register('checkInjectedMembers') {
 }
 
 tasks.named('check') {
+    // Fabric Loom's configureTests (enableGameTests) makes check depend on runGameTest. The game tests are for working on a behavior
+    // or an occasional full run (docs/e2e-tests/AGENT-GUIDE.md), not for every build, so that dependency is removed again here.
+    setDependsOn(dependsOn.findAll { dep ->
+        def name = (dep instanceof Task || dep instanceof TaskProvider) ? dep.name : dep.toString()
+        !(name in ['runGameTest', 'runClientGameTest'])
+    })
     dependsOn checkJarIsolation
     dependsOn checkInjectedMembers
 }

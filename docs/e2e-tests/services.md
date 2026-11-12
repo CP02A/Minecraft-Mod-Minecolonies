@@ -85,11 +85,10 @@ Buildings that look after citizens rather than producing goods.
 **Passes when**
 - The grave block is gone and its items are in the graveyard's inventory.
 - The citizen's name is in the graveyard's list of buried citizens and a burial spot is used.
-- With the resurrection research done (fixture) and a forced success, the citizen comes back to life instead.
 
 **Time budget:** 10 minutes.
 
-**As tested (`srv04_graveyard`, `srv04b_resurrection`):** the undertaker gets a wooden shovel (a level 1 hut refuses better tools). Resurrection has a base chance without research; the test completes `civilian/resurrectchance1` and forces the roll by replacing the undertaker AI's `random` with one that returns 0. Resurrection takes about 6000 ticks (the "effort" counter grows with the Mana skill), so `srv04b` allows 14000.
+**As tested (`srv04_graveyard`):** the undertaker gets a wooden shovel (a level 1 hut refuses better tools). Without research the undertaker still resurrects with about 3% (level 1 graveyard x 0.005 + Mana 20 x 0.00125); the citizen then lives and is never buried. The test forces that roll to miss by replacing the undertaker AI's `random` with one whose `nextDouble()` returns 1. Resurrection is [SRV-06](#srv-06-revival).
 
 ---
 
@@ -110,3 +109,29 @@ Buildings that look after citizens rather than producing goods.
 **Time budget:** 2 minutes.
 
 **As tested (`srv05_mysticalSite`):** one colony instead of three: sites of level 1, 3 and 5 are added one after the other and the factor is read after each. The factor is `max(1, highest site level / 2)`, so a level 1 (or 2) site gives *no* bonus; levels 3 and 5 give 1.5 and 2.5. The factor is colony wide (same for every citizen); total happiness grows with it.
+
+---
+
+## SRV-06 Revival
+
+**Tests:** when the undertaker's resurrection roll hits, the dead citizen comes back to life with its data instead of being buried.
+
+**Setup**
+- A graveyard with an undertaker and a shovel. A citizen with known skill levels dies near the colony (as in SRV-04).
+- The test controls the roll: it hits. No resurrection research.
+
+**What happens**
+1. The undertaker digs up the grave, takes its items and tries to resurrect the citizen.
+
+**Passes when**
+- The citizen is alive again, with the same name, gender and skill levels.
+- The grave block is gone and the colony has no grave left.
+- The citizen is not in the graveyard's list of buried citizens, and there is only one citizen with its name.
+
+**Time budget:** 12 minutes.
+
+**As tested (`srv06_revival`):** the only random number of the roll is `random.nextDouble()` in `EntityAIWorkUndertaker.tryResurrect`
+(resurrects when `chance >= random.nextDouble()`). The test replaces that undertaker AI's own `random` field (test-only reflection,
+nothing else changes) with a `Random` whose `nextDouble()` returns 0, so the roll hits with the base chance. The citizen data comes
+from the grave (`GraveData.getCitizenDataNBT`); job and home are cleared on resurrection (`CitizenData.onResurrect`), so they aren't
+checked. Resurrection takes about 6,000 ticks (the "effort" counter grows with the Mana skill); the wait allows 14,000.

@@ -5,9 +5,9 @@ it needs (a colony, huts, citizens, items, time of day), lets the colony run on 
 state a player can't see.
 
 - **Test protocol** (results, all bugs found, how the tests were made): [e2e-tests/PROTOCOL.md](e2e-tests/PROTOCOL.md)
-- **Progress:** 104 of 109 tests implemented: 102 ✅ passing (14 of them with an optional part that fails because of a mod bug), 2 ❌ failing because of a mod bug, 5 ⛔ not implementable. A headless run has 149 game tests: 133 required, 16 optional (14 fail on known mod bugs every time, `crf01_crusher` and `gat03_minerDigsShaftSafely` fail in some runs; see the [protocol](e2e-tests/PROTOCOL.md)); the 8 UI tests run with `runClientGameTest`.
+- **Progress:** 106 of 111 tests implemented: 104 ✅ passing (14 of them with an optional part that fails because of a mod bug), 2 ❌ failing because of a mod bug, 5 ⛔ not implementable. A headless run has 150 game tests: 134 required, 16 optional (14 fail on known mod bugs every time, `crf01_crusher` and `gat03_minerDigsShaftSafely` fail in some runs; see the [protocol](e2e-tests/PROTOCOL.md)); the 8 UI tests run with `runClientGameTest`.
 - **How the tests work** (setup helpers, test areas, config, time budgets): [e2e-tests/framework.md](e2e-tests/framework.md)
-- **Run them:** `./gradlew runGameTest` (report in `build/gametest-report.xml`); only some: `./gradlew runGameTest -Pe2eFilter=<prefix>`
+- **Run them:** `./gradlew runGameTest` (report in `build/gametest-report.xml`); only some: `./gradlew runGameTest -Pe2eFilter=<prefix>`. `./gradlew build` doesn't run them.
 - **Watch them in a game window:** `./gradlew runGameTest -Pe2eWatch` (combine with `-Pe2eFilter`); **UI tests** with screenshots: `./gradlew runClientGameTest`
 - **Writing tests:** [e2e-tests/AGENT-GUIDE.md](e2e-tests/AGENT-GUIDE.md) (fixture API, skeleton, gotchas)
 - Click a test ID for its setup, what happens and when it passes.
@@ -70,6 +70,7 @@ Details: [e2e-tests/citizens.md](e2e-tests/citizens.md)
 | [CIT-12](e2e-tests/citizens.md#cit-12-finding-the-way) | Finding the way | Citizens get through doors, stairs, ladders and water. | ✅ Passing |
 | [CIT-13](e2e-tests/citizens.md#cit-13-getting-unstuck) | Getting unstuck | A stuck citizen gets free and resumes work. | ✅ Passing |
 | [CIT-14](e2e-tests/citizens.md#cit-14-answering-a-citizen) | Answering a citizen | Answering a citizen's question changes what it does. | ✅ Passing |
+| [CIT-15](e2e-tests/citizens.md#cit-15-leisure-break) | Leisure break | A worker takes a leisure break, idles and goes back to work. | ✅ Passing |
 
 ## Requests and logistics
 
@@ -141,6 +142,7 @@ Details: [e2e-tests/services.md](e2e-tests/services.md)
 | [SRV-03](e2e-tests/services.md#srv-03-hospital) | Hospital | The healer treats several patients and asks for missing cures. | ✅ Passing |
 | [SRV-04](e2e-tests/services.md#srv-04-graveyard) | Graveyard | The undertaker buries dead citizens in the graveyard. | ✅ Passing |
 | [SRV-05](e2e-tests/services.md#srv-05-mystical-site) | Mystical site | A mystical site makes citizens happier, more at higher levels. | ✅ Passing |
+| [SRV-06](e2e-tests/services.md#srv-06-revival) | Revival | With a lucky roll the undertaker brings a dead citizen back with its data. | ✅ Passing |
 
 ## Defense and raids
 
