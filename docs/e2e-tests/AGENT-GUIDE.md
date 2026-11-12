@@ -46,6 +46,46 @@ For whoever writes the tests designed in this folder. Read [framework.md](framew
   citizens), plus about 0.5 s to set up. Budgets of several thousand ticks are fine.
 - Each worktree has its own `build/` folder, so several worktrees can run tests at the same time.
 
+## Watching tests in a game window
+
+```
+./gradlew runGameTest -Pe2eWatch                                        # all tests, in a window
+./gradlew runGameTest -Pe2eWatch "-Pe2eFilter=minecolonies-gametest:*_col01_*"   # one test (recommended: watching runs in real time)
+./gradlew runGameTest -Pe2eWatch -Pe2eFilter=citizens_services_tests -Pe2eWatchSpeed=2   # one suite at double speed
+```
+
+- Same tests, same config, same pathfinding wait, colony tests still one at a time; the camera (a spectator) follows the running test.
+  Keyboard and mouse do nothing. Results as headless: summary at the end of the log, `build/gametest-report.xml`, task fails if a
+  required test failed. Details: [framework.md, Watch mode](framework.md#watch-mode).
+- Ticks run at normal speed (20 per second), so a 3000-tick budget can take 2.5 minutes. Filter to what you want to see.
+- Use it to see *why* a test fails (a citizen stuck at a door, a builder walking in circles). Your test must still pass headless.
+- Log: `build/run/clientGameTest/logs/latest.log`.
+- A fresh worktree lacks the git-ignored `src/main/resources/assets/minecolonies/lang/en_us.json`; the game window crashes at start
+  (`NullPointerException` in `LanguageHandler`) without it. Copy it from the main checkout, don't commit it.
+
+## Writing a UI test
+
+UI tests open MineColonies windows and take screenshots ([ui.md](ui.md), [framework.md, UI tests](framework.md#ui-tests)). Run them with
+`./gradlew runClientGameTest` (only some: `-Pe2eUiFilter=UI-03`); screenshots go to `build/e2e-screenshots/`.
+
+1. **Colony:** `ui/UiColonySetup.colony` builds the shared colony with the normal fixture. Add what your window needs there (a hut,
+   items, a citizen) and publish its position or id through `UiBridge.Colony`. Keep huts at least 20 blocks apart.
+2. **Test:** add a method to `client/UiClientGameTest` and call it with `runCase("UI-nn", "Title", true, shots -> ...)` in `runTest`.
+   It runs on the client game test thread; never call `Minecraft.getInstance()` there.
+   - Open a window: `BOWindow w = open(context, mc -> new SomeWindow(buildingView(mc, colony.someHut())));` (the factory runs on the
+     client thread; waits until the window is shown plus 10 ticks).
+   - Screenshot: `shots.add(screenshot(context, "uinn-short-name"));` → `build/e2e-screenshots/uinn-short-name.png`.
+   - Read the window: `textOf(context, w, "paneId")` (one label, ids from the window's XML in
+     `src/main/resources/assets/minecolonies/gui/`), `texts(context, w)` (every visible text), `assertTranslated("what", texts)`.
+   - Expected values come from the server: `server.computeOnServer(s -> serverColony(s, colony)...)`. Translate keys on the client:
+     `context.computeOnClient(mc -> Component.translatable(key).getString())`.
+   - Fail with `assertThat(condition, "expected ..., found ...")`; end with `closeScreen(context)`.
+3. **Look at your screenshots** (open the PNG): the text checks don't see missing textures or broken layouts.
+4. **Mod bug:** if the window is wrong because of MineColonies, keep the test, pass `false` as `required` in `runCase` and add a
+   `// BUG E2E-UI-n` comment with what is wrong; report it with the screenshot path and the log lines.
+5. Document the test in [ui.md](ui.md) (Tests / Setup / What happens / Passes when / Screenshots / Time budget) and add a row to
+   the "User interface" table in `docs/E2E-tests.md`.
+
 ## Skeleton of a colony test
 
 ```java
@@ -198,6 +238,9 @@ at y = `FLOOR_Y` (4); huts and citizens stand at y = `GROUND_Y` (5). `ARENA_CENT
   are not in the server's player list, so code that looks players up there won't find them.
 - **`diseaseModifier` can't be 0** (config minimum is 1); 100 makes random disease very rare but not impossible.
 - **Visitor/quest timers, sounds and particles** are not turned off (no MineColonies setting for it).
+- **Watch mode and UI tests need a desktop:** they open a real window (GPU, desktop session). They can't run on a headless CI machine
+  without a virtual display. Don't run `runGameTest` and `runClientGameTest` in the same worktree at the same time: Loom clears
+  `build/run/clientGameTest` before either starts.
 - **No multi-server split:** one `runGameTest` runs every test in one server. Groups run side by side only as separate runs
   (e.g. one per worktree with `-Pe2eFilter`).
 - **Real-time timers** in MineColonies (`RecentTargetCache`, colony offline catch-up) still use the clock; tests must not depend on them.

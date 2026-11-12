@@ -4,9 +4,10 @@ Automated tests that check MineColonies behaves as intended, without anyone play
 it needs (a colony, huts, citizens, items, time of day), lets the colony run on its own, then checks the result, including internal
 state a player can't see.
 
-- **Progress:** 5 of 101 tests implemented (the Fabric port tests and COL-01). The rest are designed and planned.
+- **Progress:** 13 of 109 tests implemented (the Fabric port tests, COL-01 and the UI tests). The rest are designed and planned.
 - **How the tests work** (setup helpers, test areas, config, time budgets): [e2e-tests/framework.md](e2e-tests/framework.md)
 - **Run them:** `./gradlew runGameTest` (report in `build/gametest-report.xml`); only some: `./gradlew runGameTest -Pe2eFilter=<prefix>`
+- **Watch them in a game window:** `./gradlew runGameTest -Pe2eWatch` (combine with `-Pe2eFilter`); **UI tests** with screenshots: `./gradlew runClientGameTest`
 - **Writing tests:** [e2e-tests/AGENT-GUIDE.md](e2e-tests/AGENT-GUIDE.md) (fixture API, skeleton, gotchas)
 - Click a test ID for its setup, what happens and when it passes.
 
@@ -214,3 +215,18 @@ Details: [e2e-tests/fabric-port.md](e2e-tests/fabric-port.md)
 | [FAB-02](e2e-tests/fabric-port.md#fab-02-minecolonies-can-use-vanilla-chests) | MineColonies can use vanilla chests | MineColonies can put items into vanilla chests. | ✅ Implemented |
 | [FAB-03](e2e-tests/fabric-port.md#fab-03-minecolonies-can-use-fabric-only-storages) | MineColonies can use Fabric-only storages | MineColonies can put items into Fabric-only storages. | ✅ Implemented |
 | [FAB-04](e2e-tests/fabric-port.md#fab-04-minecolonies-food-is-compostable) | MineColonies food is compostable | MineColonies food uses the vanilla compost tiers. | ✅ Implemented |
+
+## User interface
+
+Details: [e2e-tests/ui.md](e2e-tests/ui.md). Run with `./gradlew runClientGameTest` (game window, screenshots in `build/e2e-screenshots/`).
+
+| ID | Test | What it checks | Status |
+|---|---|---|---|
+| [UI-01](e2e-tests/ui.md#ui-01-town-hall-window) | Town hall window | The town hall pages open and show the colony's real citizen count. | ✅ Implemented |
+| [UI-02](e2e-tests/ui.md#ui-02-builders-hut-window) | Builder's hut window | A hut window shows the building's name, level and worker. | ✅ Implemented |
+| [UI-03](e2e-tests/ui.md#ui-03-citizen-window) | Citizen window | The citizen window shows the citizen's real name, skills and job. | ✅ Implemented |
+| [UI-04](e2e-tests/ui.md#ui-04-build-tool-window) | Build tool window | The build tool opens on the selected pack and lists its categories. | ✅ Implemented |
+| [UI-05](e2e-tests/ui.md#ui-05-research-tree) | Research tree | The university and research tree show the branch's research. | ✅ Implemented |
+| [UI-06](e2e-tests/ui.md#ui-06-post-box-request-window) | Post box request window | The post box lists items that can be requested. | ✅ Implemented |
+| [UI-07](e2e-tests/ui.md#ui-07-warehouse-window) | Warehouse window | The warehouse window opens with the right title. | ✅ Implemented |
+| [UI-08](e2e-tests/ui.md#ui-08-human-input-is-ignored) | Human input is ignored | Real keyboard and mouse input can't reach a test window. | ✅ Implemented |
