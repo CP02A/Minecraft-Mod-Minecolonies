@@ -483,8 +483,12 @@ public class DefenseVisitorsTests
               }
           })
           .check("retreat setting on", () -> ((IGuardBuilding) hut[0]).shallRetrieveOnLowHealth(), () -> "off")
+          // A guard with no target may fall asleep at random (AbstractEntityAIGuard.shouldSleep, every 10 s about 1 in 35 at skill 30, for
+          // 2500-3000 ticks) and only wakes when hurt or woken by another guard. The weakened husk can't hurt him, so a nap ate the whole
+          // budget (seen in full runs). Asleep counts as ready; the husk then "hits" him (setLastHurtByMob, what a real hit does), which
+          // wakes him the way the mod wakes guards (sleep() checks getLastHurtByMob). Retreat and recovery are checked unchanged.
           .awaitUntil("guard entity exists and is ready", 1500,
-            () -> guard[0].getEntity().isPresent() && workerState(guard[0]).equals(CombatAIStates.NO_TARGET.toString()),
+            () -> guard[0].getEntity().isPresent() && (workerState(guard[0]).equals(CombatAIStates.NO_TARGET.toString()) || workerState(guard[0]).equals(AIWorkerState.GUARD_SLEEP.toString())),
             () -> ColonyFixture.describe(guard[0]))
           .run("move the guard far from the tower and spawn a slowed, weakened husk next to it", () -> {
               final BlockPos far = fixture.abs(standable(fixture, new BlockPos(46, ColonyFixture.GROUND_Y, 46)));
@@ -492,8 +496,12 @@ public class DefenseVisitorsTests
               mob[0] = spawnMob(fixture, EntityTypes.HUSK, new BlockPos(50, ColonyFixture.GROUND_Y, 46));
               mob[0].addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 20 * 600, 6));
               mob[0].addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 20 * 600, 9));
+              wakeIfAsleep(guard[0], mob[0]);
           })
-          .awaitUntil("guard attacks the husk", 1500, () -> workerState(guard[0]).equals(CombatAIStates.ATTACKING.toString()),
+          .awaitUntil("guard attacks the husk", 1500, () -> {
+                wakeIfAsleep(guard[0], mob[0]);
+                return workerState(guard[0]).equals(CombatAIStates.ATTACKING.toString());
+            },
             () -> ColonyFixture.describe(guard[0]))
           .run("guard drops to low health", () -> {
               fixture.setCitizenNeeds(guard[0], guard[0].getSaturation(), 2.0f);
@@ -1311,6 +1319,18 @@ public class DefenseVisitorsTests
     /**
      * @return the worker AI state of the citizen's job as text, or "none".
      */
+    /**
+     * If the guard is asleep (AIWorkerState.GUARD_SLEEP), marks {@code attacker} as the mob that last hurt him, as a real hit would: the
+     * sleeping guard's AI wakes up on its next tick (AbstractEntityAIGuard.sleep).
+     */
+    private static void wakeIfAsleep(final ICitizenData guard, final Mob attacker)
+    {
+        if (workerState(guard).equals(AIWorkerState.GUARD_SLEEP.toString()))
+        {
+            guard.getEntity().ifPresent(e -> e.setLastHurtByMob(attacker));
+        }
+    }
+
     private static String workerState(final ICitizenData citizen)
     {
         if (citizen == null || citizen.getJob() == null || citizen.getJob().getWorkerAI() == null)

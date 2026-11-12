@@ -910,7 +910,7 @@ public class CitizensServicesTests
     /**
      * CIT-13 Getting unstuck: a lumberjack trapped in a 1x1 hole two blocks deep gets out by itself and walks to its hut.
      */
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 7500, skyAccess = true)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 15000, skyAccess = true)
     public void cit13_gettingUnstuck(final GameTestHelper helper)
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
@@ -935,7 +935,9 @@ public class CitizensServicesTests
           })
           .check("worker is in the hole", () -> fixture.rel(worker[0].getEntity().get().blockPosition()).getY() < ColonyFixture.GROUND_Y,
             () -> ColonyFixture.describe(worker[0]) + ", rel " + worker[0].getEntity().map(e -> fixture.rel(e.blockPosition()).toShortString()).orElse("-") + ", hut rel " + fixture.rel(hut[0].getPosition()).toShortString())
-          .awaitUntil("worker got out of the hole", 5000, () -> worker[0].getEntity().map(e -> {
+          // The stuck handler escalates in steps (MinecoloniesAdvancedPathNavigate / PathingStuckHandler; the last step teleports): 17 logged
+          // runs needed 1,920-4,260 ticks, so 5,000 was too tight and timed out in full runs. 12,000 leaves room; what is checked is unchanged.
+          .awaitUntil("worker got out of the hole", 12000, () -> worker[0].getEntity().map(e -> {
               final BlockPos rel = fixture.rel(e.blockPosition());
               return rel.getY() >= ColonyFixture.GROUND_Y;
           }).orElse(false), () -> ColonyFixture.describe(worker[0]) + ", rel " + worker[0].getEntity().map(e -> fixture.rel(e.blockPosition()).toShortString()).orElse("-") + ", hut rel " + fixture.rel(hut[0].getPosition()).toShortString())
@@ -1096,6 +1098,11 @@ public class CitizensServicesTests
         final ICitizenData[] p = new ICitizenData[3];
         final BlockPos[] beds = new BlockPos[2];
         final boolean[] sharedBed = new boolean[1];
+        // Latched: influenza cured, measles cure requested, measles patient recovered by the natural roll (see below).
+        final boolean[] influenzaCured = new boolean[1];
+        final boolean[] measlesCureRequested = new boolean[1];
+        final String[] measlesRecovered = new String[1];
+        final java.util.function.Predicate<ItemStack> measlesCure = s -> s.is(Items.POPPY) || s.is(Items.DANDELION) || s.is(Items.KELP);
 
         fixture.flow()
           .run("set up colony with a hospital, a healer, influenza cure items and three patients", () -> {
@@ -1118,6 +1125,10 @@ public class CitizensServicesTests
               fixture.setCitizenNeeds(p[2], 20, 4);
           })
           // 13000: room for a random 3-minute leisure break of the healer (CitizenData.update); once 8500 were not enough.
+          // A patient waiting in a hospital bed also recovers by himself: a 1 in 7,200 roll every 20 ticks (EntityAISickTask.waitForCure),
+          // about 1.5% within the usual 2,100 ticks. When it hit the measles patient, "measles still sick" never came true and the test
+          // timed out (full runs). So the measles patient may also end healthy, but only while no measles cure item (poppy, dandelion,
+          // kelp) is in the hospital, with the healer or with him: then nobody cured him with items, which is what the test checks.
           .awaitUntil("influenza cured, measles cure requested, injured healed, both sick patients were in hospital beds", 13000, () -> {
               for (int i = 0; i < 2; i++)
               {
@@ -1128,11 +1139,23 @@ public class CitizensServicesTests
               }
               sharedBed[0] |= p[0].isAsleep() && p[1].isAsleep() && p[0].getBedPos().equals(p[1].getBedPos());
               final Set<Item> requested = requestedItems(hospital[0], healer[0]);
-              return !p[0].getCitizenDiseaseHandler().isSick() && p[1].getCitizenDiseaseHandler().isSick()
-                       && (requested.contains(Items.POPPY) || requested.contains(Items.DANDELION) || requested.contains(Items.KELP))
-                       && health(p[2]) >= 10 && beds[0] != null && beds[1] != null;
+              influenzaCured[0] |= !p[0].getCitizenDiseaseHandler().isSick();
+              measlesCureRequested[0] |= requested.contains(Items.POPPY) || requested.contains(Items.DANDELION) || requested.contains(Items.KELP);
+              if (measlesRecovered[0] == null && !p[1].getCitizenDiseaseHandler().isSick())
+              {
+                  final int cureItems = fixture.countItems(hospital[0], measlesCure)
+                                          + InventoryUtils.getItemCountInItemHandler(healer[0].getInventory(), measlesCure)
+                                          + InventoryUtils.getItemCountInItemHandler(p[1].getInventory(), measlesCure);
+                  measlesRecovered[0] = (cureItems == 0 ? "recovered by himself" : "healthy with " + cureItems + " cure items around") + " on tick " + helper.getTick();
+              }
+              return influenzaCured[0] && measlesCureRequested[0] && health(p[2]) >= 10 && beds[0] != null
+                       && (measlesRecovered[0] != null || p[1].getCitizenDiseaseHandler().isSick() && beds[1] != null);
           }, () -> "beds " + java.util.Arrays.toString(beds) + " of " + hospital[0].getBedList() + ", requested " + requestedItems(hospital[0], healer[0])
+                     + ", influenza cured " + influenzaCured[0] + ", measles cure requested " + measlesCureRequested[0]
+                     + ", measles " + (measlesRecovered[0] == null ? "sick" : measlesRecovered[0])
                      + ", injured health " + health(p[2]) + describeAll(p) + "\n  healer " + ColonyFixture.describe(healer[0]))
+          .check("the measles patient was not cured (the hospital had no measles cure items)",
+            () -> measlesRecovered[0] == null || measlesRecovered[0].startsWith("recovered by himself"), () -> "measles patient " + measlesRecovered[0])
           .check("the two sick patients never shared a bed", () -> !sharedBed[0], () -> "shared")
           .check("no influenza items were requested", () -> !requestedItems(hospital[0], healer[0]).contains(Items.CARROT)
                                                            && !requestedItems(hospital[0], healer[0]).contains(Items.POTATO),

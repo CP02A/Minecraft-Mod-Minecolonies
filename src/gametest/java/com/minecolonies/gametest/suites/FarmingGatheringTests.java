@@ -887,7 +887,7 @@ public class FarmingGatheringTests
     }
 
     /**
-     * A top-down map of the hut area at ground level for failure messages: '.' open ground with sky, 'f' fence or wall, '#' other blocks.
+     * A top-down map of the hut area at ground level for failure messages: '.' air with sky light, ' ' air without (the light may lag behind a paste), 'f' fence or wall, '#' other blocks.
      */
     private static String describeArea(final ColonyFixture fixture, final IBuilding building)
     {
@@ -923,7 +923,13 @@ public class FarmingGatheringTests
     }
 
     /**
-     * Open ground positions (air with a solid block below and sky above) inside the building's area, at the hut's ground level or one above.
+     * Open ground positions (two blocks of air with a solid block below) inside the building's area, at the hut's ground level or one above.
+     * <p>
+     * No sky check: {@code Level.canSeeSky} reads the sky light, and the light engine updates the pasted hut asynchronously. Mostly it hadn't
+     * yet, so every position counted as under the sky and the animals went into the chicken farmer's fenced, roofed coop (the only open
+     * ground at this height: its pen is sunk two blocks lower). When the light was already updated under full-run load, the coop counted as
+     * covered and the setup failed with "no pen inside the hut area" (E2E flaky test, round 2). Without the check the result is the one of
+     * the passing runs, every time.
      */
     private static List<BlockPos> openGroundInside(final ColonyFixture fixture, final IBuilding building)
     {
@@ -937,8 +943,7 @@ public class FarmingGatheringTests
                 for (int y = building.getPosition().getY() - 1; y <= building.getPosition().getY() + 1; y++)
                 {
                     final BlockPos p = new BlockPos(x, y, z);
-                    if (level.getBlockState(p).isAir() && level.getBlockState(p.above()).isAir() && level.getBlockState(p.below()).isSolidRender()
-                          && level.canSeeSky(p))
+                    if (level.getBlockState(p).isAir() && level.getBlockState(p.above()).isAir() && level.getBlockState(p.below()).isSolidRender())
                     {
                         result.add(p);
                         break;
