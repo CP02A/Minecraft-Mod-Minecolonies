@@ -2,8 +2,8 @@
 
 # Protocol: colony, connections, robustness
 
-Suite class `ColonyConnectionsRobustnessTests` (filter `colony_connections_robustness_tests`). Final run: 18 required tests passed,
-3 optional tests failed (the three bug reproductions below). Runtimes are game ticks of one run; colony behaviour is random, so they vary.
+Suite class `ColonyConnectionsRobustnessTests` (filter `colony_connections_robustness_tests`). Final run (after the bug fixes): all 18 tests passed and are required;
+the three bug reproductions below (COL-05b, CON-01b, CON-02b) pass since their bugs were fixed. Runtimes are game ticks of one run; colony behaviour is random, so they vary.
 
 | ID | Status | Runtime (ticks) | Notes |
 |---|---|---|---|
@@ -12,13 +12,13 @@ Suite class `ColonyConnectionsRobustnessTests` (filter `colony_connections_robus
 | COL-03 | ✅ | ~4600 | growth is by children; reproduction start timer zeroed (design corrected in colony.md) |
 | COL-04 | ✅ | ~1 | `initialColonySize` 1; tower placed inside the claim near the border |
 | COL-05 | ✅ | ~1 | owner/officer/friend/outsider, protection on and off |
-| COL-05b | ❌ | ~1 | optional; friend can't open huts (E2E-COL-05-1) |
+| COL-05b | ✅ | ~1 | friend opens a hut; was E2E-COL-05-1, FIXED, now required |
 | COL-06 | ✅ | ~300 | in-place reload of one colony from its saved NBT (no server restart possible) |
 | COL-07 | ✅ | ~1 | |
 | CON-01 | ✅ | ~35 | second colony created without the distance check (arena too small) |
-| CON-01b | ❌ | ~460 | optional; re-linking after a sign was removed fails (E2E-CON-01-1) |
-| CON-02 | ✅ | ~40 | ally teleport checked with the player within 15 blocks of the target gate |
-| CON-02b | ❌ | ~40 | optional; ally teleport from the own gate house fails (E2E-CON-02-1) |
+| CON-01b | ✅ | ~460 | re-linking after a sign was removed; was E2E-CON-01-1, FIXED, now required |
+| CON-02 | ✅ | ~40 | ally teleport checked from A's own gate house (since the E2E-CON-02-1 fix; before, the player stood near B's gate); CON-03 and CON-04 likewise |
+| CON-02b | ✅ | ~40 | refused 20 blocks from the own gate house, works from it (gates 28 blocks apart); was E2E-CON-02-1, FIXED, now required |
 | CON-03 | ✅ | ~40 | |
 | CON-04 | ✅ | ~40 | "disconnect" does not exist in the mod; tests neutral + gate house removal (design corrected) |
 | ROB-01 | ⛔ | - | chunks of a running game test can't be unloaded/reloaded |
@@ -29,11 +29,14 @@ Suite class `ColonyConnectionsRobustnessTests` (filter `colony_connections_robus
 | ROB-06 | ✅ | ~6000 | respawn happens on the colony's 5-minute entity check |
 | ROB-07 | ✅ | 600 | lumberjack, guard, small raid; no fisherman |
 
-Counts: ✅ 15 (plus the existing framework test `workerWalksToHut`), ❌ 3, ⛔ 4, 📝 0.
+Counts: ✅ 18 (plus the existing framework test `workerWalksToHut`), ❌ 0, ⛔ 4, 📝 0.
 
 ## Bugs found
 
 ### E2E-COL-05-1 Friends can't open hut menus
+- **FIXED:** the generic `OPEN_CONTAINER` check skips hut blocks (`!(block instanceof AbstractBlockHut)`); huts are governed by
+  `ACCESS_HUTS`, checked just before. `col05b_friendOpensHut` is required and passes. Upstream issue:
+  [docs/upstream-bugs/citizens-colony.md](../../upstream-bugs/citizens-colony.md#e2e-col-05-1-friends-cant-open-hut-menus).
 - **Severity:** minor (a default rank can't use a permission it has).
 - **Upstream or port:** upstream (same code in NeoForge MineColonies; not in the Fabric shim).
 - **Evidence:** `ColonyPermissionEventHandler.onPlayerInteract` (src/main/java/com/minecolonies/core/colony/permissions/ColonyPermissionEventHandler.java:372)
@@ -44,6 +47,9 @@ Counts: ✅ 15 (plus the existing framework test `workerWalksToHut`), ❌ 3, ⛔
 - **Reproduction:** `col05b_friendOpensHut`.
 
 ### E2E-CON-01-1 A removed connection sign leaves a stale link in the other colony
+- **FIXED:** `removeConnectionNode` also unlinks the partner sign in the connected colony (node's `targetColonyId`) when its next node
+  is the removed sign. `con01b_reconnectAfterSignRemoved` is required and passes. Upstream issue:
+  [docs/upstream-bugs/citizens-colony.md](../../upstream-bugs/citizens-colony.md#e2e-con-01-1-a-removed-connection-sign-leaves-a-stale-link-in-the-other-colony).
 - **Severity:** minor (the sign chain between two colonies can't be repaired after a sign of the connecting pair is broken).
 - **Upstream or port:** upstream (pure MineColonies logic).
 - **Evidence:** `ColonyConnectionManager.removeConnectionNode` (src/main/java/com/minecolonies/core/colony/managers/ColonyConnectionManager.java:169)
@@ -53,6 +59,10 @@ Counts: ✅ 15 (plus the existing framework test `workerWalksToHut`), ❌ 3, ⛔
 - **Reproduction:** `con01b_reconnectAfterSignRemoved`.
 
 ### E2E-CON-02-1 Ally teleport only works when the gates are at most 15 blocks apart
+- **FIXED:** the range check of #11888 now measures to the gate houses of the origin colony (where the window is opened) instead of
+  the target gate; a player away from all his colony's gate houses is still refused. CON-02, CON-03 and CON-04 now send the message
+  from A's gate house; `con02b_allyTeleportFromOwnGate` (also checks the refusal) is required and passes. Upstream issue:
+  [docs/upstream-bugs/citizens-colony.md](../../upstream-bugs/citizens-colony.md#e2e-con-02-1-ally-teleport-only-works-when-the-player-is-within-15-blocks-of-the-target-gate).
 - **Severity:** major for the feature (the gate house "teleport to ally" button practically never works).
 - **Upstream or port:** upstream, recent: introduced by "Packet range (#11888)" (commit d66bdaae3a), which added `IRangeRestrictedPacket`
   to `TeleportToColonyMessage`.

@@ -309,7 +309,12 @@ public class TavernBuildingModule extends AbstractBuildingModule implements IDef
     {
         for (final Integer id : externalCitizens)
         {
-            building.getColony().getVisitorManager().removeCivilian(building.getColony().getVisitorManager().getVisitor(id));
+            // A visitor that was just recruited or removed is no longer known to the visitor manager.
+            final IVisitorData visitor = building.getColony().getVisitorManager().getVisitor(id);
+            if (visitor != null)
+            {
+                building.getColony().getVisitorManager().removeCivilian(visitor);
+            }
         }
     }
 

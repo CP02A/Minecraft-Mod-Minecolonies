@@ -128,13 +128,13 @@ border (46, 5, 46). The tower is removed by the owner breaking its hut block (Br
 **Time budget:** 10 seconds.
 
 **Implemented:** `ColonyConnectionsRobustnessTests.col05_protectionAndPermissions` and `ColonyConnectionsRobustnessTests.col05b_friendOpensHut`
-(optional, fails: bug E2E-COL-05-1).
+(was bug E2E-COL-05-1, fixed; now required).
 
 **As implemented:** the players are Fabric fake players acting through `ServerPlayerGameMode` (`destroyBlock`, `useItemOn`), so the
 Fabric events and the shim's NeoForge events fire as for a real player. Break/place are judged by the block state, chest and hut by the
 interaction result (`Fail` = refused). Findings that changed the expectations:
 - The friend rank may not break, place or open containers. It has `ACCESS_HUTS`, but huts expose an item handler, so the container check
-  refuses it with `OPEN_CONTAINER` (bug E2E-COL-05-1, tested separately in COL-05b).
+  refused it with `OPEN_CONTAINER` (bug E2E-COL-05-1, fixed: the container check now skips huts; tested in COL-05b).
 - With `enableColonyProtection` off the outsider can break, place and open the chest, but hut menus stay rank protected (the
   `ACCESS_HUTS` checks in `EventHandler` and `ColonyPermissionEventHandler` don't look at the config).
 

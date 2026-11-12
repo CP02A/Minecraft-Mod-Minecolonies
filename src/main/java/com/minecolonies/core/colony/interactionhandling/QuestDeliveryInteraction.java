@@ -66,6 +66,8 @@ public class QuestDeliveryInteraction extends QuestDialogueInteraction
                 {
                     if (!(result instanceof IQuestDialogueAnswer.CloseUIDialogueAnswer))
                     {
+                        ((IFinalQuestDialogueAnswer) result).applyToQuest(player, colonyQuest);
+                        finished = true;
                         currentElement = null;
                         data.getColony().markDirty();
                         return;

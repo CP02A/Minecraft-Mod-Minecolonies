@@ -30,7 +30,7 @@ Details: [e2e-tests/colony.md](e2e-tests/colony.md)
 | [COL-02](e2e-tests/colony.md#col-02-first-citizens-arrive) | First citizens arrive | A new colony gets its starting citizens as living entities. | ✅ Passing |
 | [COL-03](e2e-tests/colony.md#col-03-housing-limits-the-population) | Housing limits the population | Citizens only move in while there are free beds. | ✅ Passing |
 | [COL-04](e2e-tests/colony.md#col-04-territory-grows-with-buildings) | Territory grows with buildings | Buildings extend the colony's claim, removing them shrinks it. | ✅ Passing |
-| [COL-05](e2e-tests/colony.md#col-05-colony-protection-and-permissions) | Colony protection and permissions | Outsiders can't grief the colony, members can do what their rank allows. | ✅ Passing; optional part ❌ (E2E-COL-05-1) |
+| [COL-05](e2e-tests/colony.md#col-05-colony-protection-and-permissions) | Colony protection and permissions | Outsiders can't grief the colony, members can do what their rank allows. | ✅ Passing (E2E-COL-05-1 fixed) |
 | [COL-06](e2e-tests/colony.md#col-06-save-and-reload-a-colony) | Save and reload a colony | A busy colony comes back unchanged after saving and loading. | ✅ Passing |
 | [COL-07](e2e-tests/colony.md#col-07-delete-a-colony) | Delete a colony | Deleting a colony removes its citizens and claims cleanly. | ✅ Passing |
 
@@ -61,7 +61,7 @@ Details: [e2e-tests/citizens.md](e2e-tests/citizens.md)
 | [CIT-03](e2e-tests/citizens.md#cit-03-no-food-anywhere) | No food anywhere | A citizen with no food tells the player and is unhappy. | ✅ Passing |
 | [CIT-04](e2e-tests/citizens.md#cit-04-sleeping-at-night) | Sleeping at night | Citizens sleep in their own beds at night and get up in the morning. | ✅ Passing |
 | [CIT-05](e2e-tests/citizens.md#cit-05-rain) | Rain | Workers shelter from rain unless the config says otherwise. | ✅ Passing |
-| [CIT-06](e2e-tests/citizens.md#cit-06-happiness-reacts-to-living-conditions) | Happiness reacts to living conditions | Each happiness factor moves happiness the right way. | ✅ Passing; optional part ❌ (E2E-CIT06-1) |
+| [CIT-06](e2e-tests/citizens.md#cit-06-happiness-reacts-to-living-conditions) | Happiness reacts to living conditions | Each happiness factor moves happiness the right way. | ✅ Passing (E2E-CIT06-1 fixed) |
 | [CIT-07](e2e-tests/citizens.md#cit-07-healing) | Healing | Injured citizens heal, faster at the hospital. | ✅ Passing |
 | [CIT-08](e2e-tests/citizens.md#cit-08-disease-and-cure) | Disease and cure | A sick citizen is cured at the hospital with the right items. | ✅ Passing |
 | [CIT-09](e2e-tests/citizens.md#cit-09-death-grave-and-mourning) | Death, grave and mourning | A death leaves a grave and the partner mourns. | ✅ Passing |
@@ -137,7 +137,7 @@ Details: [e2e-tests/services.md](e2e-tests/services.md)
 | ID | Test | What it checks | Status |
 |---|---|---|---|
 | [SRV-01](e2e-tests/services.md#srv-01-school) | School | The teacher teaches children and their skills rise. | ✅ Passing |
-| [SRV-02](e2e-tests/services.md#srv-02-library) | Library | Students study with study items and get smarter. | ✅ Passing; optional part ❌ (E2E-SRV02-1) |
+| [SRV-02](e2e-tests/services.md#srv-02-library) | Library | Students study with study items and get smarter. | ✅ Passing (E2E-SRV02-1 fixed) |
 | [SRV-03](e2e-tests/services.md#srv-03-hospital) | Hospital | The healer treats several patients and asks for missing cures. | ✅ Passing |
 | [SRV-04](e2e-tests/services.md#srv-04-graveyard) | Graveyard | The undertaker buries dead citizens in the graveyard. | ✅ Passing |
 | [SRV-05](e2e-tests/services.md#srv-05-mystical-site) | Mystical site | A mystical site makes citizens happier, more at higher levels. | ✅ Passing |
@@ -179,9 +179,9 @@ Details: [e2e-tests/visitors-quests.md](e2e-tests/visitors-quests.md)
 | ID | Test | What it checks | Status |
 |---|---|---|---|
 | [VIS-01](e2e-tests/visitors-quests.md#vis-01-visitors-come-to-the-tavern) | Visitors come to the tavern | A tavern attracts visitors. | ✅ Passing |
-| [VIS-02](e2e-tests/visitors-quests.md#vis-02-recruiting-a-visitor) | Recruiting a visitor | Paying a visitor's cost makes it a citizen. | ✅ Passing; optional part ❌ (E2E-VIS02-1) |
+| [VIS-02](e2e-tests/visitors-quests.md#vis-02-recruiting-a-visitor) | Recruiting a visitor | Paying a visitor's cost makes it a citizen. | ✅ Passing (E2E-VIS02-1 fixed) |
 | [VIS-03](e2e-tests/visitors-quests.md#vis-03-a-quest-from-start-to-reward) | A quest from start to reward | A quest goes from trigger to reward. | ✅ Passing |
-| [VIS-04](e2e-tests/visitors-quests.md#vis-04-declining-and-cancelling-quests) | Declining and cancelling quests | Declined and cancelled quests end cleanly. | ✅ Passing; optional part ❌ (E2E-VIS04-1) |
+| [VIS-04](e2e-tests/visitors-quests.md#vis-04-declining-and-cancelling-quests) | Declining and cancelling quests | Declined and cancelled quests end cleanly. | ✅ Passing (E2E-VIS04-1 fixed) |
 
 ## Colony connections
 
@@ -189,8 +189,8 @@ Details: [e2e-tests/connections.md](e2e-tests/connections.md)
 
 | ID | Test | What it checks | Status |
 |---|---|---|---|
-| [CON-01](e2e-tests/connections.md#con-01-connecting-two-colonies) | Connecting two colonies | Two colonies with gate houses and signs become connected. | ✅ Passing; optional part ❌ (E2E-CON-01-1) |
-| [CON-02](e2e-tests/connections.md#con-02-becoming-allies) | Becoming allies | An ally request and confirmation make colonies allies. | ✅ Passing; optional part ❌ (E2E-CON-02-1) |
+| [CON-01](e2e-tests/connections.md#con-01-connecting-two-colonies) | Connecting two colonies | Two colonies with gate houses and signs become connected. | ✅ Passing (E2E-CON-01-1 fixed) |
+| [CON-02](e2e-tests/connections.md#con-02-becoming-allies) | Becoming allies | An ally request and confirmation make colonies allies. | ✅ Passing (E2E-CON-02-1 fixed) |
 | [CON-03](e2e-tests/connections.md#con-03-feud) | Feud | A feud changes the relation for both colonies. | ✅ Passing |
 | [CON-04](e2e-tests/connections.md#con-04-neutral-and-disconnect) | Neutral and disconnect | Relations can be reset to neutral and disconnected. | ✅ Passing |
 

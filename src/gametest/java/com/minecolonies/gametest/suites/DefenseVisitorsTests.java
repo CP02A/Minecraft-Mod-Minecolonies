@@ -38,6 +38,7 @@ import com.minecolonies.core.colony.buildings.modules.TavernBuildingModule;
 import com.minecolonies.core.colony.buildings.modules.settings.BoolSetting;
 import com.minecolonies.core.colony.buildings.modules.settings.GuardTaskSetting;
 import com.minecolonies.core.colony.events.raid.HordeRaidEvent;
+import com.minecolonies.core.colony.events.raid.RaidManager;
 import com.minecolonies.core.colony.interactionhandling.RecruitmentInteraction;
 import com.minecolonies.core.entity.other.DruidPotionEntity;
 import com.minecolonies.core.quests.QuestInstance;
@@ -1136,9 +1137,7 @@ public class DefenseVisitorsTests
      * VIS-04 Cancelling an accepted quest: the owner accepts the hungry courier quest and, at the delivery step (no potato), picks the
      * dialogue's cancel answer. Expected: the quest is removed (not active, not finished), no reward.
      */
-    // BUG E2E-VIS04-1: QuestDeliveryInteraction.onServerResponseTriggered (core/colony/interactionhandling/QuestDeliveryInteraction.java:65-72)
-    // never applies a non-positive final answer: the "cancel" answer of a delivery objective only closes the dialogue, the quest stays in progress.
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 600, skyAccess = true, required = false)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 600, skyAccess = true)
     public void vis04_cancelAcceptedQuestAtDelivery(final GameTestHelper helper)
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
@@ -1168,10 +1167,7 @@ public class DefenseVisitorsTests
     /**
      * VIS-02 follow-up: a tavern that is removed right after one of its visitors was recruited removes its remaining visitors cleanly.
      */
-    // BUG E2E-VIS02-1: TavernBuildingModule keeps the recruited visitor's id in externalCitizens until its next colony tick; onDestroyed()
-    // (core/colony/buildings/modules/TavernBuildingModule.java:309-313) then passes null to VisitorManager.removeCivilian
-    // (core/colony/managers/VisitorManager.java:301) -> NullPointerException, and the other visitors are not removed.
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 600, skyAccess = true, required = false)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 600, skyAccess = true)
     public void vis02_tavernRemovedAfterRecruiting(final GameTestHelper helper)
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
@@ -1207,6 +1203,95 @@ public class DefenseVisitorsTests
             () -> error[0] == null && fixture.colony().getVisitorManager().getVisitor(visitors[1].getId()) == null,
             () -> "error " + error[0] + ", second visitor still registered " + (fixture.colony().getVisitorManager().getVisitor(visitors[1].getId()) != null))
           .succeed();
+    }
+
+    /**
+     * DEF-S1 The end of a raid looks at the raid that just ended: the mercy delay (more than half of the citizens lost) depends on the last
+     * raid's losses, not on the colony's first raid (was bug E2E-DEF-S1: RaidManager.onRaidEventFinished read raidHistories.get(0)).
+     */
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 100, skyAccess = true)
+    public void defs1_raidEndUsesLastRaid(final GameTestHelper helper)
+    {
+        final ColonyFixture fixture = ColonyFixture.create(helper);
+        final int[] delay = new int[2];
+
+        fixture.flow()
+          .run("colony with one citizen", () -> {
+              fixture.createColony();
+              fixture.setMoveIn(false);
+              fixture.spawnCitizen(10, null, null);
+          })
+          .run("history: a first raid with heavy losses, then a raid without losses ends", () -> {
+              final RaidManager raids = (RaidManager) fixture.colony().getRaiderManager();
+              raidHistories(raids).add(raidHistory(1000));
+              raidHistories(raids).add(raidHistory(0));
+              setRaidDelay(raids, 0);
+              raids.onRaidEventFinished(null);
+              delay[0] = raidDelay(raids);
+          })
+          .run("history: a raid without losses, then a raid with heavy losses ends", () -> {
+              final RaidManager raids = (RaidManager) fixture.colony().getRaiderManager();
+              raidHistories(raids).clear();
+              raidHistories(raids).add(raidHistory(0));
+              raidHistories(raids).add(raidHistory(1000));
+              setRaidDelay(raids, 0);
+              raids.onRaidEventFinished(null);
+              delay[1] = raidDelay(raids);
+          })
+          .check("no mercy delay after a raid without losses, mercy delay after a raid with heavy losses",
+            () -> delay[0] == 0 && delay[1] > 0,
+            () -> "extra nights after the loss-free raid " + delay[0] + ", after the heavy raid " + delay[1])
+          .succeed();
+    }
+
+    private static RaidManager.RaidHistory raidHistory(final int lostCitizens)
+    {
+        final RaidManager.RaidHistory history = new RaidManager.RaidHistory(5, 0);
+        history.lostCitizens = lostCitizens;
+        return history;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<RaidManager.RaidHistory> raidHistories(final RaidManager raids)
+    {
+        try
+        {
+            final Field field = RaidManager.class.getDeclaredField("raidHistories");
+            field.setAccessible(true);
+            return (List<RaidManager.RaidHistory>) field.get(raids);
+        }
+        catch (final ReflectiveOperationException e)
+        {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static int raidDelay(final RaidManager raids)
+    {
+        try
+        {
+            final Field field = RaidManager.class.getDeclaredField("extraDaysToNextRaid");
+            field.setAccessible(true);
+            return field.getInt(raids);
+        }
+        catch (final ReflectiveOperationException e)
+        {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static void setRaidDelay(final RaidManager raids, final int value)
+    {
+        try
+        {
+            final Field field = RaidManager.class.getDeclaredField("extraDaysToNextRaid");
+            field.setAccessible(true);
+            field.setInt(raids, value);
+        }
+        catch (final ReflectiveOperationException e)
+        {
+            throw new IllegalStateException(e);
+        }
     }
 
     // ====================================================================================================================================

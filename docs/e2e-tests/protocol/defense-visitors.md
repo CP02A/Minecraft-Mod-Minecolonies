@@ -5,7 +5,7 @@
 Suite: `src/gametest/java/com/minecolonies/gametest/suites/DefenseVisitorsTests.java`, run with
 `./gradlew --no-daemon runGameTest -Pe2eFilter=defense_visitors_tests`.
 
-Final run: all 25 required tests passed, 2 optional (bug) tests fail as expected. The whole suite takes about 20 s of server time
+Final run (after the bug fixes): all 26 required tests passed (VIS-02 and VIS-04 bug tests now required, DEF-S1 added). The whole suite takes about 20 s of server time
 (plus Gradle and server start-up). Runtime = game ticks until the test finished in the final run (they vary between runs, see the
 budgets in the code).
 
@@ -35,12 +35,13 @@ budgets in the code).
 | DEF-11 | `def11_raidTimingFollowsConfig` | ✅ passing | 1840 | Raids at nights 3, 6, 9 (min 2 / avg 3); none with raids off. Final step: sky raiders on. Once no raid started in ten nights ("next=true" every night): the spawn search goes outwards while chunks are loaded and ended past the ground ring (NO_SPAWN_POINT), depending on which chunks other tests left loaded. |
 | VIS-01 | `vis01_visitorsComeToTavern` | ✅ passing | 12280 | First visitor after ~9700 ticks; capacity 3 never exceeded. |
 | VIS-02 | `vis02_recruitVisitor` | ✅ passing | ~1 | `maxAttempts = 4` because 3% of recruits run off (mod design). |
-| VIS-02 | `vis02_tavernRemovedAfterRecruiting` | ❌ fails due to mod bug | ~1 | E2E-VIS02-1 (optional test). |
+| VIS-02 | `vis02_tavernRemovedAfterRecruiting` | ✅ passing | ~1 | Was E2E-VIS02-1; FIXED, now required. |
 | VIS-03 | `vis03_questFromStartToReward` | ✅ passing | 29 | Welcome quest (real trigger) + hungry courier (injected). |
 | VIS-04 | `vis04_declineAndCancelQuests` | ✅ passing | 613 | Decline + cancel in the first dialogue. |
-| VIS-04 | `vis04_cancelAcceptedQuestAtDelivery` | ❌ fails due to mod bug | ~1 | E2E-VIS04-1 (optional test). |
+| VIS-04 | `vis04_cancelAcceptedQuestAtDelivery` | ✅ passing | ~1 | Was E2E-VIS04-1; FIXED, now required. |
+| DEF-S1 | `defs1_raidEndUsesLastRaid` | ✅ passing | ~1 | Was E2E-DEF-S1 (suspect, confirmed by this test before the fix); FIXED. |
 
-Counts: 25 ✅ (test methods), 2 ❌ (mod bugs, optional tests), 3 ⛔ (cavalry/DEF-10, drowned pirates and ship raids), 0 📝.
+Counts: 28 ✅ (test methods), 0 ❌, 3 ⛔ (cavalry/DEF-10, drowned pirates and ship raids), 0 📝.
 
 **DEF-10 (⛔):** stable level 1 with a stablemaster (lead) and a cavalry guard (spear), two tamed horses inside the stable's corners.
 Within 12000 ticks no cavalry horse was registered to the stable: the stablemaster trains only after a cooldown of 50 decisions and then
@@ -51,6 +52,10 @@ stablemaster accepts); stopped after a reasonable effort. Not evidence of a bug.
 ## Bugs found
 
 ### E2E-VIS04-1 Cancelling an accepted quest at a delivery step does nothing
+
+- **FIXED:** `QuestDeliveryInteraction.onServerResponseTriggered` applies a non-positive final answer other than "close" to the quest
+  (`applyToQuest`, as `QuestDialogueInteraction` does), so cancel deletes the quest. `vis04_cancelAcceptedQuestAtDelivery` is required
+  and passes. Upstream issue: [docs/upstream-bugs/citizens-colony.md](../../upstream-bugs/citizens-colony.md#e2e-vis04-1-cancelling-an-accepted-quest-at-a-delivery-step-does-nothing).
 
 - **Severity:** medium (a player can't cancel an accepted delivery quest; the "cancel" button only closes the dialogue, the quest stays
   in progress until it times out).
@@ -65,6 +70,9 @@ stablemaster accepts); stopped after a reasonable effort. Not evidence of a bug.
 
 ### E2E-VIS02-1 Removing a tavern right after a recruit throws and leaves visitors behind
 
+- **FIXED:** `TavernBuildingModule.onDestroyed` skips ids the visitor manager no longer knows. `vis02_tavernRemovedAfterRecruiting` is
+  required and passes. Upstream issue: [docs/upstream-bugs/citizens-colony.md](../../upstream-bugs/citizens-colony.md#e2e-vis02-1-removing-a-tavern-right-after-recruiting-a-visitor-throws-and-leaves-visitors-behind).
+
 - **Severity:** low (needs the tavern to be removed within ~500 ticks of a recruit; then the remaining visitors are not removed).
 - **Port-specific or upstream:** upstream (shared code).
 - **Evidence:** after a recruit, `RecruitmentInteraction.onServerResponseTriggered` removes the visitor from the visitor manager, but
@@ -78,6 +86,10 @@ stablemaster accepts); stopped after a reasonable effort. Not evidence of a bug.
 - **Reproduction:** `vis02_tavernRemovedAfterRecruiting`.
 
 ### Suspect (code reading, not reproduced by a test)
+
+**E2E-DEF-S1, FIXED:** confirmed by `defs1_raidEndUsesLastRaid` (two raid histories, first with heavy losses, last without: the mercy
+delay was applied before the fix). `onRaidEventFinished` now uses `getLastRaid()` for the mercy check and the victory sound. Upstream
+issue: [docs/upstream-bugs/citizens-colony.md](../../upstream-bugs/citizens-colony.md#e2e-def-s1-raid-end-uses-the-colonys-first-raid-instead-of-the-one-that-just-ended).
 
 - `RaidManager.onRaidEventFinished` (`core/colony/events/raid/RaidManager.java`, the mercy check and the victory sound) reads
   `raidHistories.get(0)`, the colony's *first* raid, instead of the last one (`getLastRaid()`); after more than one raid the mercy
