@@ -146,7 +146,9 @@ Also off: vanilla raids, death messages, command feedback. They are set in `E2EB
 changes a rule for its own run with `fixture.setGameRule(...)` (restored at the end). The fixture starts every colony test at time 1000
 (morning) with clear weather.
 
-The world is a flat world, and only the test area is loaded. Only the colony being tested is loaded at a time.
+The world is a flat world, and only the test area is loaded. Only the colony being tested is loaded at a time. The headless test
+server's Nether is the exception: it uses vanilla's real noise generator (`GameTestServerNetherMixin`), so PRT-01 can check worldgen
+surface rules; it is only generated where a test loads chunks.
 
 ### Fewer ticks per test
 

@@ -220,6 +220,8 @@ Details: [e2e-tests/fabric-port.md](e2e-tests/fabric-port.md)
 | [FAB-02](e2e-tests/fabric-port.md#fab-02-minecolonies-can-use-vanilla-chests) | MineColonies can use vanilla chests | MineColonies can put items into vanilla chests. | ✅ Passing |
 | [FAB-03](e2e-tests/fabric-port.md#fab-03-minecolonies-can-use-fabric-only-storages) | MineColonies can use Fabric-only storages | MineColonies can put items into Fabric-only storages. | ✅ Passing |
 | [FAB-04](e2e-tests/fabric-port.md#fab-04-minecolonies-food-is-compostable) | MineColonies food is compostable | MineColonies food uses the vanilla compost tiers. | ✅ Passing |
+| [PRT-01](e2e-tests/fabric-port.md#prt-01-solid-placeholders-follow-the-worldgen-surface-rules) | Solid placeholders follow the worldgen surface rules | A pasted solid placeholder becomes the block the biome's surface rule gives (nylium in Nether forests). | ✅ Passing |
+| [PRT-02](e2e-tests/fabric-port.md#prt-02-domum-ornamentum-blocks-sound-like-their-material) | Domum Ornamentum blocks sound like their material | Place, step and fall sounds of Domum blocks are those of their main material. | ✅ Passing |
 
 ## User interface
 
@@ -236,3 +238,4 @@ Details: [e2e-tests/ui.md](e2e-tests/ui.md). Run with `./gradlew runClientGameTe
 | [UI-07](e2e-tests/ui.md#ui-07-warehouse-window) | Warehouse window | The warehouse window opens with the right title. | ✅ Passing |
 | [UI-08](e2e-tests/ui.md#ui-08-human-input-is-ignored) | Human input is ignored | Real keyboard and mouse input can't reach a test window. | ✅ Passing |
 | [UI-09](e2e-tests/ui.md#ui-09-brewing-teaching-computes-the-potion) | Brewing teaching computes the potion | The brewing teaching window finds the brewed potion from the synced recipes. | ✅ Passing |
+| [UI-10](e2e-tests/ui.md#ui-10-structurize-highlight-tips) | Structurize highlight tips | The selected item name shows the scan tool's slot and the tag substitution's block. | ✅ Passing |

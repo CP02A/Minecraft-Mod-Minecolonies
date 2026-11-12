@@ -30,6 +30,7 @@
     "SimplePreparableReloadListenerInvoker"
   ],
   "client": [
+    "client.HudMixin",
     "client.MouseHandlerMixin",
     "client.SoundEngineMixin"
   ],

@@ -32,6 +32,12 @@ public final class UiTestSupport
     public static final int SETTLE_TICKS = 10;
 
     /**
+     * Last text the HUD drew as the selected item name above the hotbar (set by the test mod's {@code HudSelectedItemNameCaptureMixin}).
+     */
+    @Nullable
+    public static volatile String lastSelectedItemName = null;
+
+    /**
      * Text that looks like an untranslated translation key, e.g. {@code com.minecolonies.coremod.gui.foo} or {@code structurize.gui.bar}.
      */
     private static final Pattern TRANSLATION_KEY = Pattern.compile(

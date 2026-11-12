@@ -19,6 +19,7 @@
       "com.minecolonies.gametest.suites.LogisticsCraftingTests",
       "com.minecolonies.gametest.suites.FarmingGatheringTests",
       "com.minecolonies.gametest.suites.DefenseVisitorsTests",
+      "com.minecolonies.gametest.suites.PortFeatureTests",
       "com.minecolonies.gametest.ui.UiColonySetup"
     ],
     "fabric-client-gametest": [

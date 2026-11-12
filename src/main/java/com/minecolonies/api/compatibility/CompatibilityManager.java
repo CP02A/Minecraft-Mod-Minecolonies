@@ -835,7 +835,11 @@ public class CompatibilityManager implements ICompatibilityManager
             Compatibility.tinkersCompat = new TinkersToolHelper();
             Compatibility.tinkersSlimeCompat = new SlimeTreeCheck();
         }
-        // FABRIC-PORT TODO: Dynamic Trees has no Fabric 26.x release; DynamicTreeCompat (compiled against it) was removed, the no-op proxy stays active.
+        // FABRIC-PORT DECISION: no Dynamic Trees compat on Fabric. Checked 2026-11-12 (Modrinth, DynamicTreesTeam/DynamicTrees): the
+        // official Fabric builds stop at 1.21.1 (1.7.x-BETA) and the only 26.x build is NeoForge 26.1.2; there is no Fabric 26.3
+        // release to compile against. DynamicTreeCompat was removed, the no-op DynamicTreeProxy stays active (lumberjack handles
+        // vanilla trees only). Re-add the compat (upstream DynamicTreeCompat + "dynamictrees" ModList check) once a Fabric 26.3 release
+        // exists.
     }
 
     @Override

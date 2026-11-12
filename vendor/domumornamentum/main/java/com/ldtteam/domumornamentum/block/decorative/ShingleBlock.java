@@ -142,7 +142,7 @@ public class ShingleBlock extends AbstractBlockStairs<ShingleBlock> implements I
         return getDODestroyProgress(super::getDestroyProgress, state, player, level, pos);
     }
 
-    // FABRIC-PORT TODO: NeoForge positional getSoundType overload, not called on Fabric (vanilla sound type is used)
+    // FABRIC-PORT: overrides IMateriallyTexturedBlock#getSoundType; vanilla sound lookups call it through MaterialSoundTypes (mixins)
     public @NonNull SoundType getSoundType(@NonNull BlockState state, @NonNull LevelReader level, @NonNull BlockPos pos, @Nullable Entity entity) {
         return getDOSoundType((s, l, p, e) -> super.getSoundType(s), state, level, pos, entity);
     }
