@@ -329,3 +329,61 @@ recipe manager from them (`RecipeAnalyzer#createRecipeManager`). In singleplayer
 **Screenshots:** none.
 
 **Time budget:** instant.
+
+---
+
+## UI-14 Config screen: client settings
+
+**Tests:** the in-game config screen of the Fabric shim (what Mod Menu opens for MineColonies) lists the bundled mods, shows each config
+file, keeps server settings read-only in the main menu, and saves client values changed with the mouse and keyboard to the client config
+file.
+
+**Setup**
+- The main menu (no world). Mod Menu is not in the test runtime: the test checks that `fabric.mod.json` declares the `modmenu`
+  entrypoint `ShimModMenuIntegration` and opens the same screen through `ShimConfigScreens.createModListScreen`.
+
+**What happens**
+1. Opens the mod list screen, takes a screenshot; opens Structurize's screen, takes a screenshot, goes back.
+2. Opens MineColonies' screen, takes a screenshot; opens the server settings, takes a screenshot, goes back.
+3. Opens the client settings. With simulated mouse and keyboard input: clicks `gameplay.holidayfeatures` (toggles it), types a new value into
+   `gameplay.neighborbuildingrange`, types `999` into `gameplay.buildgogglerange` (above its maximum 250), takes a screenshot, types the old
+   value back, takes a screenshot, clicks Done.
+4. Afterwards puts the two values back.
+
+**Passes when**
+- The mod list offers `minecolonies` and `structurize`; Structurize's screen has "Client settings".
+- MineColonies' screen offers "Client settings", "Common settings" and "Server settings (read-only)"; the server section is read-only and
+  its text boxes don't take input.
+- The click toggles the on/off button and the typed text is in the box; with `999` Done is blocked, with the old value it isn't.
+- After Done: both values are changed in memory (`MineColonies.getConfig().getClient()`) and in `minecolonies-client.toml`;
+  `buildgogglerange` is unchanged in the file.
+
+**Screenshots:** `ui14-config-mods.png`, `ui14-config-structurize.png`, `ui14-config-minecolonies.png`, `ui14-config-server-readonly.png`,
+`ui14-config-client.png`, `ui14-config-client-invalid.png`, `ui14-config-client-edited.png`.
+
+**Time budget:** about 5 seconds.
+
+---
+
+## UI-15 Config screen: server settings
+
+**Tests:** in a singleplayer world the server settings are editable, and a value changed in the screen reaches the integrated server and the
+world's `serverconfig` file. The list editor opens for a list value.
+
+**Setup**
+- The test world (no colony needed).
+
+**What happens**
+1. Opens MineColonies' config screen and its server settings, takes a screenshot.
+2. Clicks the edit button of the list `research.researchresetcost`, takes a screenshot of the list editor, clicks Cancel.
+3. Types a new value into `gameplay.foodmodifier`, takes a screenshot, clicks Done.
+4. Afterwards puts the value back.
+
+**Passes when**
+- The button reads "Server settings" (not read-only) and the section is editable; the list editor opens.
+- After Done the integrated server reads the new `foodmodifier`, the loaded file is `<world>/serverconfig/minecolonies-server.toml`, and
+  the file contains the new value.
+
+**Screenshots:** `ui15-config-server.png`, `ui15-config-server-list.png`, `ui15-config-server-edited.png`.
+
+**Time budget:** about 3 seconds.

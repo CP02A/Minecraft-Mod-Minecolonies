@@ -5,7 +5,7 @@ it needs (a colony, huts, citizens, items, time of day), lets the colony run on 
 state a player can't see.
 
 - **Test protocol** (results, all bugs found, how the tests were made): [e2e-tests/PROTOCOL.md](e2e-tests/PROTOCOL.md)
-- **Progress:** 107 of 112 tests implemented, all ✅ passing; 5 ⛔ not implementable (plus the cavalry part of DEF-02 and the ship raids of DEF-06). A headless run has 154 game tests, all required; the 9 UI tests run with `runClientGameTest`. Every mod bug the tests found is fixed (see the [protocol](e2e-tests/PROTOCOL.md)); the ones in the original MineColonies and Structurize code are written up for reporting in [Upstream-bugs.md](Upstream-bugs.md).
+- **Progress:** 109 of 114 tests implemented, all ✅ passing; 5 ⛔ not implementable (plus the cavalry part of DEF-02 and the ship raids of DEF-06). A headless run has 154 game tests, all required; the 11 UI tests run with `runClientGameTest`. Every mod bug the tests found is fixed (see the [protocol](e2e-tests/PROTOCOL.md)); the ones in the original MineColonies and Structurize code are written up for reporting in [Upstream-bugs.md](Upstream-bugs.md).
 - **How the tests work** (setup helpers, test areas, config, time budgets): [e2e-tests/framework.md](e2e-tests/framework.md)
 - **Run them:** `./gradlew runGameTest` (report in `build/gametest-report.xml`); only some: `./gradlew runGameTest -Pe2eFilter=<prefix>`. `./gradlew build` doesn't run them.
 - **Watch them in a game window:** `./gradlew runGameTest -Pe2eWatch` (combine with `-Pe2eFilter`); **UI tests** with screenshots: `./gradlew runClientGameTest`
@@ -244,3 +244,5 @@ Details: [e2e-tests/ui.md](e2e-tests/ui.md). Run with `./gradlew runClientGameTe
 | [UI-11](e2e-tests/ui.md#ui-11-child-citizen-proportions) | Child citizen proportions | Child citizens (and their armor) are drawn with child proportions, adults full size. | ✅ Passing |
 | [UI-12](e2e-tests/ui.md#ui-12-jei-draws-blocks-in-3d) | JEI draws blocks in 3D | The JEI categories' block drawing shows each block state as a turned 3D model. | ✅ Passing |
 | [UI-13](e2e-tests/ui.md#ui-13-jei-crafter-recipes-from-synced-recipes) | JEI crafter recipes from synced recipes | The crafter recipes built from the client's synced recipes equal the server's. | ✅ Passing |
+| [UI-14](e2e-tests/ui.md#ui-14-config-screen-client-settings) | Config screen: client settings | The config screen (Mod Menu) saves client values to the config file; server settings are read-only in the main menu. | ✅ Passing |
+| [UI-15](e2e-tests/ui.md#ui-15-config-screen-server-settings) | Config screen: server settings | In a singleplayer world server values changed in the config screen reach the server and its serverconfig file. | ✅ Passing |

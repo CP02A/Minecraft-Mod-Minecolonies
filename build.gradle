@@ -13,6 +13,11 @@ repositories {
     mavenCentral()
     maven { name = 'JEI'; url = 'https://maven.blamejared.com/' }
     maven { name = 'JourneyMap'; url = 'https://jm.gserv.me/repository/maven-public/' }
+    maven {
+        name = 'TerraformersMC'
+        url = 'https://maven.terraformersmc.com/releases/'
+        content { includeGroup 'com.terraformersmc' }
+    }
 }
 
 // MineColonies, plus its LDT Team library mods (Structurize, BlockUI, Domum Ornamentum) are
@@ -152,6 +157,8 @@ dependencies {
     // Optional integrations - compiled against, but not required at runtime.
     compileOnly "mezz.jei:jei-${project.jei_mc_version}-fabric-api:${project.jei_version}"
     compileOnly "info.journeymap:journeymap-api-fabric:${project.journeymap_api_version}"
+    // Mod Menu: the config screen entry (modmenu entrypoint, com.ldtteam.shim.fabric.client.config.ShimModMenuIntegration).
+    compileOnly("com.terraformersmc:modmenu:${project.modmenu_version}") { transitive = false }
 }
 
 // en_us.json is git-ignored (Crowdin uses it as the translation source) and generated: hand-written strings (manual_en_us.json) plus the

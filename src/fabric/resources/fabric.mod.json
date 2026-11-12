@@ -17,7 +17,8 @@
     "main": ["com.minecolonies.fabric.MineColoniesFabric"],
     "client": ["com.minecolonies.fabric.MineColoniesFabricClient", "com.ldtteam.blockui.fabric.BlockUIFabricClient", "com.ldtteam.domumornamentum.fabric.DomumOrnamentumFabricClient"],
     "jei_mod_plugin": ["com.minecolonies.core.compatibility.jei.JEIPlugin"],
-    "journeymap": ["com.minecolonies.core.compatibility.journeymap.JourneymapPlugin"]
+    "journeymap": ["com.minecolonies.core.compatibility.journeymap.JourneymapPlugin"],
+    "modmenu": ["com.ldtteam.shim.fabric.client.config.ShimModMenuIntegration"]
   },
   "mixins": [
     "minecolonies-shim.mixins.json",
@@ -38,6 +39,7 @@
   },
   "suggests": {
     "jei": "*",
-    "journeymap": "*"
+    "journeymap": "*",
+    "modmenu": "*"
   }
 }

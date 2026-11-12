@@ -125,6 +125,7 @@ public class UiClientGameTest implements FabricClientGameTest
         }
 
         runCase("UI-08", "Human input is ignored", true, shots -> checkInputBlocked());
+        runCase("UI-14", "Config screen: client settings", true, shots -> ConfigScreenUiTests.clientSettings(context, shots));
 
         UiBridge.reset();
         try (TestSingleplayerContext world = context.worldBuilder().create())
@@ -138,6 +139,7 @@ public class UiClientGameTest implements FabricClientGameTest
             runCase("UI-09", "Brewing teaching computes the potion", true, shots -> brewingOutput(context));
             runCase("UI-12", "JEI draws blocks in 3D", true, shots -> jeiBlocks(context, shots));
             runCase("UI-13", "JEI crafter recipes from synced recipes", true, shots -> jeiSyncedRecipes(context, server));
+            runCase("UI-15", "Config screen: server settings", true, shots -> ConfigScreenUiTests.serverSettings(context, server, shots));
             if (ready && colony != null)
             {
                 runCase("UI-01", "Town hall window", true, shots -> townHall(context, server, colony, shots));

@@ -5,11 +5,10 @@ import com.ldtteam.shim.bus.api.Event;
 import com.ldtteam.shim.fml.event.IModBusEvent;
 import net.fabricmc.fabric.api.client.rendering.v1.AtlasRegistry;
 import net.minecraft.client.resources.model.sprite.AtlasManager;
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.packs.metadata.MetadataSectionType;
 
 /**
- * Mod bus event to register texture atlases; forwarded to Fabric's {@link AtlasRegistry}.
+ * Mod bus event to register texture atlases; forwarded to Fabric's {@link AtlasRegistry}. Metadata sections go into the
+ * {@link AtlasManager.AtlasConfig} (NeoForge's {@code addAdditionalMetadata} for existing atlases is left out: no mod code uses it).
  */
 public class RegisterTextureAtlasesEvent extends Event implements IModBusEvent
 {
@@ -18,12 +17,5 @@ public class RegisterTextureAtlasesEvent extends Event implements IModBusEvent
     public void register(final AtlasManager.AtlasConfig atlasConfig)
     {
         AtlasRegistry.register(atlasConfig);
-    }
-
-    /**
-     * FABRIC-PORT TODO: adding metadata sections to existing atlases is not supported by Fabric; register them in the AtlasConfig instead.
-     */
-    public void addAdditionalMetadata(final Identifier atlasId, final MetadataSectionType<?> metaSectionType)
-    {
     }
 }

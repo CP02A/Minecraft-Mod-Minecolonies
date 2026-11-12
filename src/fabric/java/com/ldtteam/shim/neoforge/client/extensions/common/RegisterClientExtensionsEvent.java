@@ -5,27 +5,14 @@ import com.ldtteam.shim.bus.api.Event;
 import com.ldtteam.shim.fml.event.IModBusEvent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.Block;
 
 /**
- * Mod bus event to register client-side block/item extensions.
+ * Mod bus event to register client-side item extensions. (NeoForge's block extensions - particle hooks - are left out: no mod code
+ * registers any, and vanilla on Fabric would never consult them.)
  */
 public class RegisterClientExtensionsEvent extends Event implements IModBusEvent
 {
     public RegisterClientExtensionsEvent() {}
-
-    public void registerBlock(final IClientBlockExtensions extensions, final Block... blocks)
-    {
-        for (final Block block : blocks)
-        {
-            ClientExtensionsManager.BLOCK_EXTENSIONS.put(block, extensions);
-        }
-    }
-
-    public boolean isBlockRegistered(final Block block)
-    {
-        return ClientExtensionsManager.BLOCK_EXTENSIONS.containsKey(block);
-    }
 
     public void registerItem(final IClientItemExtensions extensions, final ItemLike... items)
     {
