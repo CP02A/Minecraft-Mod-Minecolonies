@@ -10,6 +10,7 @@ random numbers.
 |---|---|---|---|---|
 | FRM-01 | `frm01_farmerFieldCycle` | ✅ | 12010 | Field on dirt. The farmer works a field once per colony day, so the test lets nights pass while he idles. |
 | FRM-01 | `frm01_farmerTillsGrass` | ✅ | 5440 | Was optional (E2E-FRM-01-1, grass never tilled); bug FIXED, test required. |
+| FRM-01 | `frm01_farmerTillsOtherSoils` | ✅ | 5765 | Field of coarse dirt, rooted dirt, podzol, mycelium (in turn); all tilled and planted, as on 1.21.1 (added with the E2E-FRM-01-1 fix). |
 | FRM-02 | `frm02_planterSugarCane`, `frm02_planterCactus`, `frm02_planterBamboo` | ✅ | 6135 / 6145 / 12190 | One test per field type (level 1 owns one field). Bamboo is slow and leaves one position very long; the test accepts all but one position. Final step: wait budget 20,000 → 40,000 (bamboo took 11,200-19,700 ticks and once ran out). |
 | FRM-03 | `frm03_florist` | ✅ | 10620 | Level 2 shop, "don't grow" list, compost at 3 per bed, double-speed beds. Observation E2E-FRM-03-1. |
 | FRM-04 | `frm04_composter` | ✅ | 370 | Exact seed use checked; apples (not allowed) untouched. |
@@ -75,6 +76,9 @@ random numbers.
   `#moss_blocks`, `#grass_blocks`, the same blocks as 1.21.1's `#minecraft:dirt`) in `EntityAIWorkFarmer.findHoeableSurface` and in the
   two other `BlockTags.DIRT` uses (vendored Structurize: `PlacementHandlers.GrassPlacementHandler`, `BlockUtils` fancy-placement dirt
   match). `frm01_farmerTillsGrass` is required and passes (5,440 ticks).
+  Coarse and rooted dirt: the farmer never used the hoe's block transformation (upstream's `getToolModifiedState` check in
+  `findHoeableSurface` is unreachable, the port's `TURNS_INTO_FARMLAND` check too); any soil in the tag is set straight to farmland by
+  `createCorrectFarmlandForSeed`, so the tag fix restores 1.21.1 behaviour for them as well. Covered by `frm01_farmerTillsOtherSoils`.
 
 - **Severity:** high: a field placed on normal grass is never worked; the farmer cycles the field EMPTY → HOED → PLANTED without doing
   anything and idles. Works on plain dirt.

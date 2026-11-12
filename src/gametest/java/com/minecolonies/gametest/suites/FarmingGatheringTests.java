@@ -99,7 +99,26 @@ public class FarmingGatheringTests
         farmerFieldCycle(helper, Blocks.GRASS_BLOCK, false);
     }
 
+    /**
+     * FRM-01c Farmer tills other soils. Same as FRM-01b on a field of coarse dirt, rooted dirt, podzol and mycelium (in turn). On 1.21.1 all
+     * of them were in #minecraft:dirt and the farmer turned them straight into farmland; in 26.3 they are only in
+     * #minecraft:substrate_overworld (and vanilla's hoe makes coarse/rooted dirt plain dirt first). Every cell must end up tilled and planted.
+     */
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 8000, skyAccess = true)
+    public void frm01_farmerTillsOtherSoils(final GameTestHelper helper)
+    {
+        farmerFieldCycle(helper, new Block[] {Blocks.COARSE_DIRT, Blocks.ROOTED_DIRT, Blocks.PODZOL, Blocks.MYCELIUM}, false);
+    }
+
     private static void farmerFieldCycle(final GameTestHelper helper, final Block ground, final boolean fullCycle)
+    {
+        farmerFieldCycle(helper, new Block[] {ground}, fullCycle);
+    }
+
+    /**
+     * @param grounds the field's soil; cell i gets {@code grounds[i % grounds.length]}.
+     */
+    private static void farmerFieldCycle(final GameTestHelper helper, final Block[] grounds, final boolean fullCycle)
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
         final IBuilding[] hut = new IBuilding[1];
@@ -122,9 +141,9 @@ public class FarmingGatheringTests
         final DayPump days = new DayPump(fixture, worker);
         final com.minecolonies.gametest.framework.TestFlow flow = fixture.flow()
           .run("set up colony, farm and field", () -> {
-              for (final BlockPos c : cells)
+              for (int i = 0; i < cells.size(); i++)
               {
-                  helper.setBlock(c, ground);
+                  helper.setBlock(cells.get(i), grounds[i % grounds.length]);
               }
               fixture.createColony();
               fixture.setMoveIn(false);
