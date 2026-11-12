@@ -118,6 +118,11 @@ public final class TestFlow
             {
                 failNow(helper.assertionException(Component.literal("Timed out after " + waited + " ticks waiting for: " + message)));
             }
+            if (info.getTick() > info.getTimeoutTicks())
+            {
+                failNow(helper.assertionException(Component.literal(
+                  "Test timed out (maxTicks " + info.getTimeoutTicks() + ") after " + waited + " ticks waiting for: " + message)));
+            }
             // Retried next tick. If the test's maxTicks runs out first, this message becomes the failure.
             throw helper.assertionException(Component.literal("Still waiting (" + waited + " ticks) for: " + message));
         });
@@ -194,13 +199,20 @@ public final class TestFlow
     }
 
     /**
-     * Vanilla ticks a test's sequences once more in the tick it notices the test failed. Steps must not run again then.
+     * Vanilla ticks a test's sequences once more in the tick it notices the test failed (after the test's {@code maxTicks} even with
+     * "fail if not complete"). Steps must not run again then, and must not replace the test's failure: the sequence records whatever
+     * assertion a step throws as the test's error, so the existing error is thrown again.
      */
     private void stopIfFinished()
     {
         if (info.isDone() || info.hasFailed())
         {
-            throw helper.assertionException(Component.literal("Test already finished"));
+            final GameTestException error = info.getError();
+            if (error instanceof final GameTestAssertException assertion)
+            {
+                throw assertion;
+            }
+            throw helper.assertionException(error != null ? error.getDescription() : Component.literal("Test already finished"));
         }
     }
 

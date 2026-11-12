@@ -332,7 +332,7 @@ public class DefenseVisitorsTests
             () -> distance(guard[0], fixture.abs(guardSpot)) <= 6,
             () -> ColonyFixture.describe(guard[0]) + ", distance " + String.format("%.1f", distance(guard[0], fixture.abs(guardSpot))))
           .run("owner joins the world's player list (needed for follow), set task to follow the owner", () -> {
-              addOwnerToPlayerList(fixture);
+              fixture.addOwnerToPlayerLists();
               setGuardTask(fixture, hut[0], GuardTaskSetting.FOLLOW);
               moveOwner(fixture, new BlockPos(48, ColonyFixture.GROUND_Y, 20));
           })
@@ -1307,30 +1307,6 @@ public class DefenseVisitorsTests
             }
         }
         throw new IllegalStateException("No settings module with " + key.getUniqueId() + " in " + building.getBuildingDisplayName());
-    }
-
-    /**
-     * Puts the fake owner into the level's player list (as a logged-in player would be), so code that looks players up by UUID in the world
-     * (guard follow) finds him. Removed again when the test ends.
-     */
-    private static void addOwnerToPlayerList(final ColonyFixture fixture)
-    {
-        final ServerLevel level = fixture.level();
-        @SuppressWarnings("unchecked") final List<net.minecraft.server.level.ServerPlayer> players = (List<net.minecraft.server.level.ServerPlayer>) level.players();
-        if (!players.contains(fixture.owner()))
-        {
-            players.add(fixture.owner());
-        }
-        // Guard follow looks the player up in the server's player list (ServerUtils.getPlayerFromUUID(UUID, Level)).
-        final List<net.minecraft.server.level.ServerPlayer> online = level.getServer().getPlayerList().getPlayers();
-        if (!online.contains(fixture.owner()))
-        {
-            online.add(fixture.owner());
-        }
-        onTestEnd(fixture, () -> {
-            players.remove(fixture.owner());
-            online.remove(fixture.owner());
-        });
     }
 
     /**

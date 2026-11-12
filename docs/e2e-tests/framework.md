@@ -35,6 +35,10 @@ All three accept the filters described below; `./gradlew build` runs only the fi
   (`fillFloor`, `helper.setBlock`) instead of shipping more structures.
 - Like every game test, the arena is enclosed in barrier blocks (walls and floor; also a ceiling unless the test sets
   `skyAccess = true`), so citizens can't leave it.
+- **Deep arena** for mines: mining levels are absolute heights (y 48, 16, -16, -100) and the arena ground is at about y 9, so a level 1
+  mine digs to y -16, far below the barrier floor. `fixture.makeDeepGround()` replaces the barrier floor with stone and fills stone
+  under the whole arena down to y -32 (removed when the test ends). Simpler than a taller structure: test positions are fixed at
+  y 4 by the test server, and only mine tests pay for the extra blocks.
 - A colony claims chunks around its town hall. To keep test colonies from overlapping, colony tests use their **own test
   environment** (`minecolonies-gametest:colony`); a small mixin on the vanilla batch factory splits that environment into batches of one
   test, so colony tests run **one at a time**, after the parallel tests. Every colony test deletes its colony when it ends (passed or
@@ -98,7 +102,8 @@ involved.
   costs little real time.
 - Where the game rolls dice (crop growth, compost chances, loot), tests either set the outcome up front (fully grown crops, chance
   tiers with a guaranteed result) or run the behavior several times and pass when enough runs succeed (`@GameTest`
-  `maxAttempts`/`requiredSuccesses`).
+  `maxAttempts`/`requiredSuccesses`). Re-runs run after all other tests; a small listener (`RerunTracking`) puts each re-run into
+  the server's tracker in place of the failed attempt, without it the vanilla test server stopped before running them.
 
 ## Speed
 

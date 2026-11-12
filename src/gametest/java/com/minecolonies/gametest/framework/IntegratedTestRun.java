@@ -49,6 +49,7 @@ public final class IntegratedTestRun
         this.server = server;
         this.runner = runner;
         this.tracker = new MultipleTestTracker(runner.getTestInfos());
+        RerunTracking.install(tracker);
     }
 
     /**

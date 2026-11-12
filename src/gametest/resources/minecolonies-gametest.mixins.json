@@ -6,7 +6,8 @@
   "mixins": [
     "GameTestBatchFactoryMixin",
     "GameTestHelperAccessor",
-    "GameTestServerMixin"
+    "GameTestServerMixin",
+    "MultipleTestTrackerAccessor"
   ],
   "client": [
     "IntegratedServerMixin",

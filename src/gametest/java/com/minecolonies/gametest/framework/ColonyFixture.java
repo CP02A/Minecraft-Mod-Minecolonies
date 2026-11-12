@@ -10,6 +10,7 @@ import com.ldtteam.structurize.placement.StructurePlacer;
 import com.ldtteam.structurize.placement.structure.IStructureHandler;
 import com.ldtteam.structurize.storage.StructurePackMeta;
 import com.ldtteam.structurize.storage.StructurePacks;
+import com.minecolonies.api.blocks.ModBlocks;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IColonyManager;
@@ -36,6 +37,7 @@ import com.minecolonies.core.colony.workorders.WorkOrderBuilding;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
 import com.minecolonies.core.network.messages.server.CreateColonyMessage;
 import com.minecolonies.core.research.LocalResearch;
+import com.minecolonies.core.tileentities.TileEntityColonyBuilding;
 import com.minecolonies.gametest.mixin.GameTestHelperAccessor;
 import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.entity.FakePlayer;
@@ -56,7 +58,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.gamerules.GameRule;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
@@ -120,6 +125,13 @@ public final class ColonyFixture
     public static final BlockPos ARENA_CENTER = new BlockPos(ARENA_SIZE / 2, GROUND_Y, ARENA_SIZE / 2);
 
     /**
+     * Absolute y of the lowest layer {@link #makeDeepGround()} fills with stone. Mining levels are absolute heights (y 48, 16, -16, -100,
+     * {@code BuildingMiner.MINING_LEVELS}); a level 1 mine in the arena (ground at about y 9) digs its shaft down to y -16, so this leaves
+     * 16 layers of stone below the first level for its nodes.
+     */
+    public static final int DEEP_GROUND_BOTTOM_Y = -32;
+
+    /**
      * The fake owner: fixed UUID and name, so ownership and permissions work as for a real owner.
      */
     public static final UUID   OWNER_ID   = UUID.fromString("6d3b3a8e-9c1f-4f63-a3c5-0e2e2e000001");
@@ -135,10 +147,20 @@ public final class ColonyFixture
     private final ServerLevel    level;
     private final FakePlayer     owner;
     private final Deque<Runnable> restore = new ArrayDeque<>();
+    private final Deque<Runnable> endActions = new ArrayDeque<>();
 
     private String  pack = DEFAULT_PACK;
     @Nullable
     private IColony colony;
+    /**
+     * Colonies created besides the main one ({@link #createSecondColony}, {@link #createBareColony}); deleted when the test ends.
+     */
+    private final List<IColony> extraColonies = new ArrayList<>();
+    /**
+     * Fake players handed out by {@link #fakePlayer}, reset when the test ends.
+     */
+    private final List<ServerPlayer> players = new ArrayList<>();
+    private boolean deepGround;
     private boolean cleanedUp;
 
     private ColonyFixture(final GameTestHelper helper)
@@ -147,7 +169,22 @@ public final class ColonyFixture
         this.info = ((GameTestHelperAccessor) helper).minecoloniesGametest$getTestInfo();
         this.level = helper.getLevel();
         this.owner = FakePlayer.get(level, new GameProfile(OWNER_ID, OWNER_NAME));
-        this.owner.setGameMode(GameType.CREATIVE);
+        resetPlayer(owner, GameType.CREATIVE);
+        players.add(owner);
+    }
+
+    /**
+     * {@code FakePlayer.get} hands out one cached player per profile, so a fake player keeps inventory, game mode, sneaking and health from
+     * the test before. Every test starts with a clean one.
+     */
+    private static void resetPlayer(final ServerPlayer player, final GameType gameType)
+    {
+        player.getInventory().clearContent();
+        player.containerMenu.setCarried(ItemStack.EMPTY);
+        player.setGameMode(gameType);
+        player.setShiftKeyDown(false);
+        player.removeAllEffects();
+        player.setHealth(player.getMaxHealth());
     }
 
     /**
@@ -204,11 +241,69 @@ public final class ColonyFixture
     }
 
     /**
-     * @return the fake owner player (creative mode, not in the world's player list; positioned at the town hall by {@link #createColony}).
+     * @return the fake owner player: creative mode, empty inventory and full health at the start of every test; positioned at the town
+     *     hall by {@link #createColony}. Not in the level's or the server's player list unless {@link #addOwnerToPlayerLists()} is called.
      */
     public ServerPlayer owner()
     {
         return owner;
+    }
+
+    /**
+     * Another fake player (a friend, a second colony's owner, a stranger), reset like the owner: empty inventory, not sneaking, full health.
+     * The same name gives the same player (and UUID) in every test.
+     */
+    public ServerPlayer fakePlayer(final String name, final GameType gameType)
+    {
+        final UUID id = UUID.nameUUIDFromBytes(("minecolonies-e2e:" + name).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        final FakePlayer player = FakePlayer.get(level, new GameProfile(id, name));
+        resetPlayer(player, gameType);
+        if (!players.contains(player))
+        {
+            players.add(player);
+        }
+        return player;
+    }
+
+    /**
+     * Puts the fake owner into the level's and the server's player lists for this test, so code that looks players up there finds him
+     * (guard follow via {@code ServerUtils.getPlayerFromUUID}, rally banners, raid bars, messages to online owners). Removed again when the
+     * test ends. Only use it when the test needs it: everything that iterates online players now sees him.
+     */
+    public void addOwnerToPlayerLists()
+    {
+        addToPlayerLists(owner);
+    }
+
+    /**
+     * Puts a fake player into the level's and the server's player lists for this test; see {@link #addOwnerToPlayerLists()}.
+     */
+    @SuppressWarnings("unchecked")
+    public void addToPlayerLists(final ServerPlayer player)
+    {
+        final List<ServerPlayer> inLevel = (List<ServerPlayer>) level.players();
+        final List<ServerPlayer> online = level.getServer().getPlayerList().getPlayers();
+        if (!inLevel.contains(player))
+        {
+            inLevel.add(player);
+        }
+        if (!online.contains(player))
+        {
+            online.add(player);
+        }
+        onTestEnd(() -> {
+            inLevel.remove(player);
+            online.remove(player);
+        });
+    }
+
+    /**
+     * Runs the action when the test ends, passed or failed, before the fixture's own cleanup (colonies still exist). Actions run in
+     * reverse order of registration.
+     */
+    public void onTestEnd(final Runnable action)
+    {
+        endActions.push(action);
     }
 
     /**
@@ -228,9 +323,21 @@ public final class ColonyFixture
         return helper.absolutePos(relative);
     }
 
+    /**
+     * The inverse of {@link #abs(BlockPos)}. (Vanilla's {@code GameTestHelper.relativePos} is not: it turns the position by the test's
+     * rotation plus 180 degrees, so with no rotation it mirrors x and z.)
+     */
     public BlockPos rel(final BlockPos absolute)
     {
-        return helper.relativePos(absolute);
+        final BlockPos origin = info.getTestOrigin();
+        final Rotation inverse = switch (info.getRotation())
+        {
+            case NONE -> Rotation.NONE;
+            case CLOCKWISE_90 -> Rotation.COUNTERCLOCKWISE_90;
+            case CLOCKWISE_180 -> Rotation.CLOCKWISE_180;
+            case COUNTERCLOCKWISE_90 -> Rotation.CLOCKWISE_90;
+        };
+        return StructureTemplate.transform(absolute, Mirror.NONE, inverse, origin).subtract(origin);
     }
 
     /**
@@ -264,6 +371,43 @@ public final class ColonyFixture
                 {
                     pos.set(x, y, z);
                     level.setBlock(abs(pos), y == FLOOR_Y ? top : below, Block.UPDATE_CLIENTS);
+                }
+            }
+        }
+    }
+
+    /**
+     * "Deep arena" for mines: replaces the test's barrier floor under the whole arena with stone and fills stone below it down to
+     * {@link #DEEP_GROUND_BOTTOM_Y}, so a level 1 mine's shaft and its first mining level (y -16) are in solid stone. Call it before placing
+     * the mine. Below the arena's floor the world is otherwise empty (the test world's ground is at y -61), so keep the mine near the arena
+     * center: the stone ends at the arena's sides. Removed again when the test ends.
+     */
+    public void makeDeepGround()
+    {
+        if (deepGround)
+        {
+            return;
+        }
+        deepGround = true;
+        fillBelowArena(Blocks.STONE.defaultBlockState());
+    }
+
+    /**
+     * Fills every block below the arena (relative y -1, the barrier floor, down to {@link #DEEP_GROUND_BOTTOM_Y}) with the state.
+     */
+    private void fillBelowArena(final BlockState state)
+    {
+        final int top = abs(new BlockPos(0, -1, 0)).getY();
+        final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        for (int x = 0; x < ARENA_SIZE; x++)
+        {
+            for (int z = 0; z < ARENA_SIZE; z++)
+            {
+                final BlockPos column = abs(new BlockPos(x, 0, z));
+                for (int y = top; y >= DEEP_GROUND_BOTTOM_Y; y--)
+                {
+                    pos.set(column.getX(), y, column.getZ());
+                    level.setBlock(pos, state, Block.UPDATE_CLIENTS);
                 }
             }
         }
@@ -318,6 +462,63 @@ public final class ColonyFixture
     }
 
     /**
+     * Creates another colony owned by {@code owner} (e.g. {@code fakePlayer("E2EOwnerB", GameType.CREATIVE)}): pastes a level 1 town hall
+     * like the build tool and creates the colony the way the server side of the "create colony" message does, but without its distance
+     * check (two colonies at the normal distance don't fit into the arena). Use {@code setConfig(...initialColonySize, 1)} so the claims
+     * don't overlap. Automatic citizen arrival is off. The fixture's owner becomes an officer, so the fixture can paste huts into it
+     * ({@link #placeBuilding(IColony, BuildingEntry, int, BlockPos)}). Deleted when the test ends. {@link #colony()} stays the main colony.
+     *
+     * @param townHallPos relative position of the town hall block.
+     */
+    public IColony createSecondColony(final BlockPos townHallPos, final ServerPlayer colonyOwner)
+    {
+        final BlockPos absPos = abs(townHallPos);
+        colonyOwner.setPos(absPos.getX() + 0.5, absPos.getY(), absPos.getZ() + 0.5);
+        final PastedBlueprint pasted = pasteHut(ModBuildings.TOWNHALL_ID, 1, absPos, RotationMirror.NONE);
+        return registerExtraColony(absPos, colonyOwner, "E2E colony of " + colonyOwner.getName().getString(), pasted.subPath(), false);
+    }
+
+    /**
+     * Creates a colony with only a town hall <i>block</i> at level 1 (no town hall structure; small enough to put two colonies and some huts
+     * into the arena), owned by {@code owner} (may be the fixture's owner). Otherwise like {@link #createSecondColony}: no distance check,
+     * citizen arrival off, the fixture's owner is an officer, deleted when the test ends, not the fixture's {@link #colony()}.
+     */
+    public IColony createBareColony(final BlockPos townHallPos, final ServerPlayer colonyOwner, final String name)
+    {
+        final BlockPos absPos = abs(townHallPos);
+        colonyOwner.setPos(absPos.getX() + 0.5, absPos.getY(), absPos.getZ() + 0.5);
+        level.setBlockAndUpdate(absPos, ModBlocks.blockHutTownHall.defaultBlockState());
+        return registerExtraColony(absPos, colonyOwner, name, "fundamentals/townhall1.blueprint", true);
+    }
+
+    private IColony registerExtraColony(final BlockPos absPos, final ServerPlayer colonyOwner, final String name, final String blueprintPath, final boolean setLevel)
+    {
+        if (!(level.getBlockEntity(absPos) instanceof final TileEntityColonyBuilding hut))
+        {
+            throw new IllegalStateException("No town hall block entity at " + absPos);
+        }
+        hut.setStructurePack(StructurePacks.getStructurePack(pack));
+        hut.setBlueprintPath(blueprintPath);
+        final IColony created = IColonyManager.getInstance().createColony(level, absPos, colonyOwner, name, pack);
+        extraColonies.add(created);
+        final IBuilding hall = created.getServerBuildingManager().addNewBuilding(hut, level);
+        if (setLevel)
+        {
+            hall.setBuildingLevel(1);
+        }
+        final var moveIn = created.getSettings().getSetting(BuildingTownHall.MOVE_IN);
+        if (moveIn.getValue())
+        {
+            moveIn.trigger();
+        }
+        if (!OWNER_ID.equals(colonyOwner.getUUID()))
+        {
+            created.getPermissions().addPlayer(OWNER_ID, OWNER_NAME, created.getPermissions().getRankOfficer());
+        }
+        return created;
+    }
+
+    /**
      * Pastes the hut's blueprint instantly (Structurize creative build tool, "pretty" placement) and registers the building at that level,
      * as if a builder had built it.
      *
@@ -332,12 +533,29 @@ public final class ColonyFixture
 
     public IBuilding placeBuilding(final BuildingEntry type, final int level, final BlockPos pos, final RotationMirror rotationMirror)
     {
+        return placeBuilding(colony(), type, level, pos, rotationMirror);
+    }
+
+    /**
+     * Like {@link #placeBuilding(BuildingEntry, int, BlockPos)}, for another colony than the fixture's (see {@link #createSecondColony}).
+     * The position must be in that colony's claim, and the fixture's owner must be allowed to place there (he is an officer of colonies
+     * the fixture creates).
+     */
+    public IBuilding placeBuilding(final IColony colony, final BuildingEntry type, final int level, final BlockPos pos)
+    {
+        return placeBuilding(colony, type, level, pos, RotationMirror.NONE);
+    }
+
+    public IBuilding placeBuilding(final IColony colony, final BuildingEntry type, final int level, final BlockPos pos, final RotationMirror rotationMirror)
+    {
         final BlockPos absPos = abs(pos);
         pasteHut(type.getRegistryName().getPath(), level, absPos, rotationMirror);
-        final IBuilding building = colony().getServerBuildingManager().getBuilding(absPos);
+        final IBuilding building = colony.getServerBuildingManager().getBuilding(absPos);
         if (building == null)
         {
-            throw new IllegalStateException("Building " + type.getRegistryName() + " was pasted at " + absPos + " but not registered in the colony");
+            final IColony owning = IColonyManager.getInstance().getColonyByPosFromWorld(this.level, absPos);
+            throw new IllegalStateException("Building " + type.getRegistryName() + " was pasted at " + absPos + " but not registered in colony " + colony.getID()
+                                              + " (the position belongs to " + (owning == null ? "no colony" : "colony " + owning.getID()) + ")");
         }
         if (building.getBuildingLevel() != level)
         {
@@ -470,7 +688,28 @@ public final class ColonyFixture
      */
     public ICitizenData spawnCitizen(final Map<Skill, Integer> skills, @Nullable final IBuilding work, @Nullable final IBuilding home, @Nullable final BlockPos spawnAt)
     {
-        final IColony colony = colony();
+        return spawnCitizen(colony(), skills, work, home, spawnAt);
+    }
+
+    /**
+     * Like {@link #spawnCitizen(int, IBuilding, IBuilding)}, for another colony than the fixture's (see {@link #createSecondColony}).
+     */
+    public ICitizenData spawnCitizen(final IColony colony, final int skillLevel, @Nullable final IBuilding work, @Nullable final IBuilding home)
+    {
+        final Map<Skill, Integer> skills = new EnumMap<>(Skill.class);
+        for (final Skill skill : Skill.values())
+        {
+            skills.put(skill, skillLevel);
+        }
+        return spawnCitizen(colony, skills, work, home, null);
+    }
+
+    /**
+     * Like {@link #spawnCitizen(Map, IBuilding, IBuilding, BlockPos)}, for another colony than the fixture's.
+     */
+    public ICitizenData spawnCitizen(final IColony colony, final Map<Skill, Integer> skills, @Nullable final IBuilding work, @Nullable final IBuilding home,
+      @Nullable final BlockPos spawnAt)
+    {
         final ICitizenData citizen = colony.getCitizenManager().createAndRegisterCivilianData();
         setSkills(citizen, skills);
 
@@ -560,6 +799,11 @@ public final class ColonyFixture
      */
     public void hire(final ICitizenData citizen, final IBuilding work)
     {
+        if (work instanceof IWareHouse)
+        {
+            throw new IllegalArgumentException("Couriers are not hired at the warehouse (its courier list gives no job): place a courier's hut "
+                                                 + "(ModBuildings.deliveryman) and hire the courier there; the warehouse takes him on by itself");
+        }
         final IAssignsJob module = work.getFirstModuleOccurance(IAssignsJob.class);
         if (module == null)
         {
@@ -573,6 +817,10 @@ public final class ColonyFixture
      */
     public void hire(final ICitizenData citizen, final IBuilding work, final JobEntry job)
     {
+        if (work instanceof IWareHouse)
+        {
+            hire(citizen, work); // throws with the explanation
+        }
         final IAssignsJob module = work.getModuleMatching(IAssignsJob.class, m -> m.getJobEntry() == job);
         if (module == null)
         {
@@ -823,11 +1071,37 @@ public final class ColonyFixture
             return;
         }
         cleanedUp = true;
+        while (!endActions.isEmpty())
+        {
+            try
+            {
+                endActions.pop().run();
+            }
+            catch (final Exception e)
+            {
+                LOGGER.error("Test {}: an end-of-test action failed", info.id(), e);
+            }
+        }
         try
         {
             if (colony != null)
             {
                 IColonyManager.getInstance().deleteColonyByWorld(colony.getID(), false, level);
+            }
+            for (final IColony extra : extraColonies)
+            {
+                if (IColonyManager.getInstance().getColonyByWorld(extra.getID(), level) != null)
+                {
+                    IColonyManager.getInstance().deleteColonyByWorld(extra.getID(), false, level);
+                }
+            }
+            if (deepGround)
+            {
+                fillBelowArena(Blocks.AIR.defaultBlockState());
+            }
+            for (final ServerPlayer player : players)
+            {
+                resetPlayer(player, GameType.CREATIVE);
             }
             final AABB bounds = info.getStructureBounds().inflate(16);
             for (final Entity entity : level.getEntitiesOfClass(Entity.class, bounds, e -> !(e instanceof Player)))

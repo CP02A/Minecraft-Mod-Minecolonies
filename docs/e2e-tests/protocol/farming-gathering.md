@@ -20,8 +20,8 @@ random numbers.
 | FRM-07 | `frm07_fisherman` (optional) | ❌ mod bug | 8000 (timeout) | E2E-FRM-07-1: every catch throws, no loot ever. Rod/request part never reached. |
 | GAT-01 | `gat01_lumberjackFellsAndReplants` | ✅ | 8440 | One oak + one birch, defoliation on. |
 | GAT-02 | `gat02_lumberjackFollowsSettings` | ✅ | ~5650 | 3245 until the oak is replanted, then a fixed 2400-tick wait (it checks that something does *not* happen). |
-| GAT-03 | – | ⛔ not implementable | – | Mining levels are absolute heights (48/16/-16/-100); the first level under the arena (y≈6-10) is y -16, below the arena's barrier floor. |
-| GAT-04 | – | ⛔ not implementable | – | Same reason as GAT-03. |
+| GAT-03 | – | 📝 planned | – | Was ⛔: Mining levels are absolute heights (48/16/-16/-100); the first level under the arena (y≈6-10) is y -16, below the arena's barrier floor. Since the merge the fixture has a deep arena (`makeDeepGround`, stone down to y -32). A first attempt (not committed) dug from y 11 down to y 0 within its 38,000-tick budget, then stalled: the shaft needs framed planks (Domum Ornamentum) that only arrive via the retrying resolver (~40,000 ticks, see LOG-04) and the hut fills up. |
+| GAT-04 | – | 📝 planned | – | Needs the deep arena like GAT-03. |
 | GAT-05 | – | 📝 not done | – | Time box. Looks feasible: quarry building with `QuarryModule`, `creativeResolve` for the shaft materials, stone floor via `fillFloor`; only the 5 floor layers can be dug. |
 | GAT-06 | – | 📝 not done | – | Time box. Needs food, 5 tools, the crafting-module trip inputs, the "ready for trip" day period and the travel manager; worth its own session. |
 

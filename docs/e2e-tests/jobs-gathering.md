@@ -65,7 +65,7 @@ Workers who collect raw materials from the world: wood, stone, ores and nether r
 
 **Time budget:** 15 minutes.
 
-**As implemented** (`FarmingGatheringTests`): not implementable in the arena: mining levels are absolute heights (y 48, 16, -16, -100; `BuildingMiner.MINING_LEVELS`). The arena floor is at about y 6-10 on top of a barrier floor, so the first level (y -16) is below the unbreakable barrier.
+**As implemented:** not yet. Mining levels are absolute heights (y 48, 16, -16, -100; `BuildingMiner.MINING_LEVELS`), below the normal arena's barrier floor (ground at about y 9); use the deep arena (`ColonyFixture.makeDeepGround()`, stone down to y -32). Supply the shaft's framed planks yourself: the request otherwise waits for the retrying resolver (about 40,000 ticks).
 
 ---
 
@@ -86,7 +86,7 @@ Workers who collect raw materials from the world: wood, stone, ores and nether r
 
 **Time budget:** 15 minutes.
 
-**As implemented** (`FarmingGatheringTests`): not implementable, same reason as GAT-03.
+**As implemented:** not yet; needs the deep arena like GAT-03.
 
 ---
 

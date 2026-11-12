@@ -523,7 +523,7 @@ public class ColonyConnectionsRobustnessTests
               t.a = fixture.createColony(TOWN_HALL_A);
               fixture.setMoveIn(false);
               t.ownerB = fakePlayer(helper.getLevel(), 11, "E2EOwnerB", GameType.CREATIVE);
-              t.b = createSecondColony(fixture, TOWN_HALL_B, t.ownerB);
+              t.b = fixture.createSecondColony(TOWN_HALL_B, t.ownerB);
               t.gateA = fixture.placeBuilding(ModBuildings.gateHouse.get(), 1, GATE_A);
               fixture.pasteHut(ModBuildings.GATE_HOUSE_ID, 1, fixture.abs(GATE_B), RotationMirror.NONE);
               t.gateB = IColonyManager.getInstance().getBuilding(helper.getLevel(), fixture.abs(GATE_B));
@@ -569,7 +569,6 @@ public class ColonyConnectionsRobustnessTests
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
         final Twin t = new Twin();
-        registerSecondColonyCleanup(helper, t);
 
         connectedColonies(fixture, fixture.flow(), t)
           .check("each connection points at the other colony's gate house",
@@ -607,7 +606,6 @@ public class ColonyConnectionsRobustnessTests
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
         final Twin t = new Twin();
-        registerSecondColonyCleanup(helper, t);
         final BlockPos[] newSign = new BlockPos[1];
 
         connectedColonies(fixture, fixture.flow(), t)
@@ -633,7 +631,6 @@ public class ColonyConnectionsRobustnessTests
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
         final Twin t = new Twin();
-        registerSecondColonyCleanup(helper, t);
         final Vec3[] start = new Vec3[1];
 
         connectedColonies(fixture, fixture.flow(), t)
@@ -668,7 +665,6 @@ public class ColonyConnectionsRobustnessTests
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
         final Twin t = new Twin();
-        registerSecondColonyCleanup(helper, t);
         final Vec3[] start = new Vec3[1];
 
         connectedColonies(fixture, fixture.flow(), t)
@@ -697,7 +693,6 @@ public class ColonyConnectionsRobustnessTests
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
         final Twin t = new Twin();
-        registerSecondColonyCleanup(helper, t);
         final Vec3[] start = new Vec3[1];
 
         connectedColonies(fixture, fixture.flow(), t)
@@ -730,7 +725,6 @@ public class ColonyConnectionsRobustnessTests
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
         final Twin t = new Twin();
-        registerSecondColonyCleanup(helper, t);
         final Vec3[] start = new Vec3[1];
 
         connectedColonies(fixture, fixture.flow(), t)
@@ -772,7 +766,6 @@ public class ColonyConnectionsRobustnessTests
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
         final Twin t = new Twin();
-        registerSecondColonyCleanup(helper, t);
         final IBuilding[] a = new IBuilding[3]; // warehouse, lumberjack, courier hut
         final IBuilding[] b = new IBuilding[1]; // lumberjack
         final ICitizenData[] citizens = new ICitizenData[3]; // courier A, lumberjack A, lumberjack B
@@ -780,17 +773,17 @@ public class ColonyConnectionsRobustnessTests
         fixture.flow()
           .run("two small colonies: A with a warehouse, a courier hut with a courier and a lumberjack; B with a lumberjack", () -> {
               fixture.setConfig(MineColonies.getConfig().getServer().initialColonySize, 1);
-              t.a = createBareColony(fixture, new BlockPos(20, ColonyFixture.GROUND_Y, 44), fixture.owner(), "E2E colony A");
+              t.a = fixture.createBareColony(new BlockPos(20, ColonyFixture.GROUND_Y, 44), fixture.owner(), "E2E colony A");
               t.ownerB = fakePlayer(helper.getLevel(), 11, "E2EOwnerB", GameType.CREATIVE);
-              t.b = createBareColony(fixture, new BlockPos(62, ColonyFixture.GROUND_Y, 40), t.ownerB, "E2E colony B");
-              a[0] = placeIn(fixture, t.a, ModBuildings.wareHouse.get(), new BlockPos(9, ColonyFixture.GROUND_Y, 34));
-              a[1] = placeIn(fixture, t.a, ModBuildings.lumberjack.get(), new BlockPos(30, ColonyFixture.GROUND_Y, 50));
-              b[0] = placeIn(fixture, t.b, ModBuildings.lumberjack.get(), new BlockPos(58, ColonyFixture.GROUND_Y, 44));
+              t.b = fixture.createBareColony(new BlockPos(62, ColonyFixture.GROUND_Y, 40), t.ownerB, "E2E colony B");
+              a[0] = fixture.placeBuilding(t.a, ModBuildings.wareHouse.get(), 1, new BlockPos(9, ColonyFixture.GROUND_Y, 34));
+              a[1] = fixture.placeBuilding(t.a, ModBuildings.lumberjack.get(), 1, new BlockPos(30, ColonyFixture.GROUND_Y, 50));
+              b[0] = fixture.placeBuilding(t.b, ModBuildings.lumberjack.get(), 1, new BlockPos(58, ColonyFixture.GROUND_Y, 44));
               fixture.fillBuilding(a[0], new ItemStack(Items.WOODEN_AXE), new ItemStack(Items.WOODEN_AXE));
-              a[2] = placeIn(fixture, t.a, ModBuildings.deliveryman.get(), new BlockPos(27, ColonyFixture.GROUND_Y, 38));
-              citizens[0] = spawnIn(fixture, t.a, a[2]); // couriers are hired at the courier hut; the warehouse picks them up
-              citizens[1] = spawnIn(fixture, t.a, a[1]);
-              citizens[2] = spawnIn(fixture, t.b, b[0]);
+              a[2] = fixture.placeBuilding(t.a, ModBuildings.deliveryman.get(), 1, new BlockPos(27, ColonyFixture.GROUND_Y, 38));
+              citizens[0] = fixture.spawnCitizen(t.a, 20, a[2], null); // couriers are hired at the courier hut; the warehouse picks them up
+              citizens[1] = fixture.spawnCitizen(t.a, 20, a[1], null);
+              citizens[2] = fixture.spawnCitizen(t.b, 20, b[0], null);
           })
           .awaitUntil("A's lumberjack gets an axe from A's warehouse", 5000,
             () -> countAxes(citizens[1]) + countAxes(fixture, a[1]) >= 1,
@@ -1171,94 +1164,6 @@ public class ColonyConnectionsRobustnessTests
         return permissionEvents(colony).stream().anyMatch(e -> player.getUUID().equals(e.getId()) && pos.equals(e.getPosition()));
     }
 
-    /**
-     * Creates a second colony owned by {@code owner}: pastes a level 1 town hall like the build tool and creates the colony like the server
-     * side of the "create colony" message, without its distance check (the arena is too small for two colonies at the normal distance).
-     * The fixture's owner becomes an officer of it, so the fixture can paste huts into it.
-     */
-    private static IColony createSecondColony(final ColonyFixture fixture, final BlockPos relTownHall, final ServerPlayer owner)
-    {
-        final ServerLevel level = fixture.level();
-        final BlockPos abs = fixture.abs(relTownHall);
-        owner.setPos(abs.getX() + 0.5, abs.getY(), abs.getZ() + 0.5);
-        final ColonyFixture.PastedBlueprint pasted = fixture.pasteHut(ModBuildings.TOWNHALL_ID, 1, abs, RotationMirror.NONE);
-        if (!(level.getBlockEntity(abs) instanceof final TileEntityColonyBuilding hut))
-        {
-            throw new IllegalStateException("no town hall block entity at " + abs);
-        }
-        hut.setStructurePack(com.ldtteam.structurize.storage.StructurePacks.getStructurePack(ColonyFixture.DEFAULT_PACK));
-        hut.setBlueprintPath(pasted.subPath());
-        final IColony colony = IColonyManager.getInstance().createColony(level, abs, owner, "E2E colony B", ColonyFixture.DEFAULT_PACK);
-        colony.getServerBuildingManager().addNewBuilding(hut, level);
-        final var moveIn = colony.getSettings().getSetting(BuildingTownHall.MOVE_IN);
-        if (moveIn.getValue())
-        {
-            moveIn.trigger();
-        }
-        colony.getPermissions().addPlayer(ColonyFixture.OWNER_ID, ColonyFixture.OWNER_NAME, colony.getPermissions().getRankOfficer());
-        return colony;
-    }
-
-    /**
-     * Creates a colony with only a town hall block (no town hall structure, which would not fit twice into the arena) the way the server
-     * side of the "create colony" message does, and sets the town hall to level 1. The fixture's owner becomes an officer if he is not the
-     * owner, so the fixture can paste huts into it. Both colonies are deleted by registerSecondColonyCleanup.
-     */
-    private static IColony createBareColony(final ColonyFixture fixture, final BlockPos relTownHall, final ServerPlayer owner, final String name)
-    {
-        final ServerLevel level = fixture.level();
-        final BlockPos abs = fixture.abs(relTownHall);
-        owner.setPos(abs.getX() + 0.5, abs.getY(), abs.getZ() + 0.5);
-        level.setBlockAndUpdate(abs, ModBlocks.blockHutTownHall.defaultBlockState());
-        if (!(level.getBlockEntity(abs) instanceof final TileEntityColonyBuilding hut))
-        {
-            throw new IllegalStateException("no town hall block entity at " + abs);
-        }
-        hut.setStructurePack(com.ldtteam.structurize.storage.StructurePacks.getStructurePack(ColonyFixture.DEFAULT_PACK));
-        hut.setBlueprintPath("fundamentals/townhall1.blueprint");
-        final IColony colony = IColonyManager.getInstance().createColony(level, abs, owner, name, ColonyFixture.DEFAULT_PACK);
-        final IBuilding hall = colony.getServerBuildingManager().addNewBuilding(hut, level);
-        hall.setBuildingLevel(1);
-        final var moveIn = colony.getSettings().getSetting(BuildingTownHall.MOVE_IN);
-        if (moveIn.getValue())
-        {
-            moveIn.trigger();
-        }
-        if (!ColonyFixture.OWNER_ID.equals(owner.getUUID()))
-        {
-            colony.getPermissions().addPlayer(ColonyFixture.OWNER_ID, ColonyFixture.OWNER_NAME, colony.getPermissions().getRankOfficer());
-        }
-        return colony;
-    }
-
-    /**
-     * Pastes a level 1 hut into the colony that owns the position (the fixture's placeBuilding only knows the fixture's colony).
-     */
-    private static IBuilding placeIn(final ColonyFixture fixture, final IColony colony, final com.minecolonies.api.colony.buildings.registry.BuildingEntry type,
-      final BlockPos rel)
-    {
-        fixture.pasteHut(type.getRegistryName().getPath(), 1, fixture.abs(rel), RotationMirror.NONE);
-        final IBuilding building = colony.getServerBuildingManager().getBuilding(fixture.abs(rel));
-        if (building == null || building.getBuildingLevel() != 1)
-        {
-            throw new IllegalStateException(type.getRegistryName() + " at " + rel + " not registered in colony " + colony.getID() + ": " + building
-                                              + " (chunk owner " + ownerOf(fixture.level(), ChunkPos.containing(fixture.abs(rel))) + ")");
-        }
-        return building;
-    }
-
-    /**
-     * Spawns a citizen of the colony (skills 20) hired into the building, like the fixture's spawnCitizen does for the fixture colony.
-     */
-    private static ICitizenData spawnIn(final ColonyFixture fixture, final IColony colony, final IBuilding work)
-    {
-        final ICitizenData citizen = colony.getCitizenManager().createAndRegisterCivilianData();
-        fixture.setSkills(citizen, allSkills(20));
-        fixture.hire(citizen, work);
-        colony.getCitizenManager().spawnOrCreateCivilian(citizen, fixture.level(), List.of(work.getPosition()), true);
-        return citizen;
-    }
-
     private static int countAxes(final ICitizenData citizen)
     {
         int total = 0;
@@ -1275,50 +1180,6 @@ public class ColonyConnectionsRobustnessTests
     private static int countAxes(final ColonyFixture fixture, final IBuilding building)
     {
         return fixture.countItems(building, stack -> stack.is(Items.WOODEN_AXE));
-    }
-
-    /**
-     * Deletes colony B when the test ends (the fixture only knows colony A).
-     */
-    private static void registerSecondColonyCleanup(final GameTestHelper helper, final Twin twin)
-    {
-        final GameTestInfo info = ((GameTestHelperAccessor) helper).minecoloniesGametest$getTestInfo();
-        info.addListener(new GameTestListener()
-        {
-            @Override
-            public void testStructureLoaded(final GameTestInfo testInfo)
-            {
-            }
-
-            @Override
-            public void testPassed(final GameTestInfo testInfo, final GameTestRunner runner)
-            {
-                cleanup();
-            }
-
-            @Override
-            public void testFailed(final GameTestInfo testInfo, final GameTestRunner runner)
-            {
-                cleanup();
-            }
-
-            @Override
-            public void testAddedForRerun(final GameTestInfo original, final GameTestInfo copy, final GameTestRunner runner)
-            {
-            }
-
-            private void cleanup()
-            {
-                if (twin.a != null && IColonyManager.getInstance().getColonyByWorld(twin.a.getID(), helper.getLevel()) != null)
-                {
-                    IColonyManager.getInstance().deleteColonyByWorld(twin.a.getID(), false, helper.getLevel());
-                }
-                if (twin.b != null && IColonyManager.getInstance().getColonyByWorld(twin.b.getID(), helper.getLevel()) != null)
-                {
-                    IColonyManager.getInstance().deleteColonyByWorld(twin.b.getID(), false, helper.getLevel());
-                }
-            }
-        });
     }
 
     /**

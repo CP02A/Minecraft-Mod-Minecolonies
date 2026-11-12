@@ -1,6 +1,7 @@
 package com.minecolonies.gametest.framework;
 
 import com.minecolonies.api.colony.ICitizenData;
+import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.buildings.ModBuildings;
 import com.minecolonies.api.colony.managers.interfaces.IRaiderManager;
@@ -14,6 +15,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.Blocks;
 
 import java.util.List;
 
@@ -96,6 +99,80 @@ public class FrameworkGuardTests
             () -> "creativeResolve " + MineColonies.getConfig().getServer().creativeResolve.get() + ", time " + helper.getLevel().getOverworldClockTime())
           .run("start a raid", () -> raid[0] = fixture.startRaid("barbarian_raid", 2, new BlockPos(56, ColonyFixture.GROUND_Y, 56)))
           .check("raid started", () -> raid[0] == IRaiderManager.RaidSpawnResult.SUCCESS, () -> "result " + raid[0])
+          .succeed();
+    }
+
+    /**
+     * Fixture geometry and players: {@code rel} is the inverse of {@code abs}; the deep ground has stone below the first mining level and
+     * no barrier floor; the owner starts clean and can be put into the player lists; a second (bare) colony gets huts and citizens; hiring
+     * into the warehouse fails loudly.
+     */
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 200, skyAccess = true)
+    public void fixtureGeometryPlayersAndColonies(final GameTestHelper helper)
+    {
+        final ColonyFixture fixture = ColonyFixture.create(helper);
+        final BlockPos probe = new BlockPos(44, ColonyFixture.GROUND_Y, 12);
+        final BlockPos below = new BlockPos(ColonyFixture.ARENA_SIZE / 2, -1, ColonyFixture.ARENA_SIZE / 2);
+        final IBuilding[] buildings = new IBuilding[2];
+        final IColony[] second = new IColony[1];
+        final ICitizenData[] citizen = new ICitizenData[1];
+
+        fixture.flow()
+          .check("rel(abs(p)) == p", () -> fixture.rel(fixture.abs(probe)).equals(probe) && fixture.rel(fixture.abs(BlockPos.ZERO)).equals(BlockPos.ZERO),
+            () -> "rel(abs(" + probe.toShortString() + ")) = " + fixture.rel(fixture.abs(probe)).toShortString())
+          .check("the owner starts in creative mode with an empty inventory",
+            () -> fixture.owner().isCreative() && fixture.owner().getInventory().isEmpty(),
+            () -> "creative " + fixture.owner().isCreative() + ", inventory empty " + fixture.owner().getInventory().isEmpty())
+          .run("deep ground", fixture::makeDeepGround)
+          .check("stone from the arena floor down to below the first mining level (y -16), no barrier floor",
+            () -> helper.getLevel().getBlockState(fixture.abs(below)).is(Blocks.STONE)
+                    && helper.getLevel().getBlockState(fixture.abs(below).atY(-20)).is(Blocks.STONE)
+                    && helper.getLevel().getBlockState(fixture.abs(below).atY(ColonyFixture.DEEP_GROUND_BOTTOM_Y)).is(Blocks.STONE),
+            () -> "at " + fixture.abs(below).toShortString() + ": " + helper.getLevel().getBlockState(fixture.abs(below)) + ", at y -20: "
+                    + helper.getLevel().getBlockState(fixture.abs(below).atY(-20)))
+          .run("main colony with a warehouse, a bare second colony with a lumberjack and a worker", () -> {
+              fixture.setConfig(MineColonies.getConfig().getServer().initialColonySize, 1);
+              fixture.createColony(new BlockPos(16, ColonyFixture.GROUND_Y, 44)); // positions as in CON-01 and ROB-05
+              fixture.setMoveIn(false);
+              buildings[0] = fixture.placeBuilding(ModBuildings.wareHouse.get(), 1, new BlockPos(24, ColonyFixture.GROUND_Y, 30));
+              second[0] = fixture.createBareColony(new BlockPos(62, ColonyFixture.GROUND_Y, 40), fixture.fakePlayer("E2EOwnerB", GameType.CREATIVE), "E2E colony B");
+              buildings[1] = fixture.placeBuilding(second[0], ModBuildings.lumberjack.get(), 1, new BlockPos(58, ColonyFixture.GROUND_Y, 44));
+              citizen[0] = fixture.spawnCitizen(second[0], 10, buildings[1], null);
+          })
+          .check("the second colony's worker belongs to it",
+            () -> second[0] != fixture.colony() && citizen[0].getColony() == second[0] && citizen[0].getWorkBuilding() == buildings[1],
+            () -> "colony " + citizen[0].getColony().getID() + ", work " + citizen[0].getWorkBuilding())
+          .check("hiring into the warehouse fails with an explanation", () -> {
+              try
+              {
+                  fixture.hire(fixture.colony().getCitizenManager().createAndRegisterCivilianData(), buildings[0]);
+                  return false;
+              }
+              catch (final IllegalArgumentException e)
+              {
+                  return e.getMessage().contains("courier's hut");
+              }
+          }, () -> "no exception")
+          .run("owner into the player lists", fixture::addOwnerToPlayerLists)
+          .check("the owner is online", () -> helper.getLevel().players().contains(fixture.owner())
+                                                 && helper.getLevel().getServer().getPlayerList().getPlayers().contains(fixture.owner()),
+            () -> "level players " + helper.getLevel().players())
+          .run("give the owner an item (the next test must not see it)", () -> fixture.owner().getInventory().add(new ItemStack(Items.DIAMOND)))
+          .succeed();
+    }
+
+    private static int rerunAttempts;
+
+    /**
+     * {@code maxAttempts} works for colony tests: fails the first attempt on purpose, passes the second ({@link RerunTracking}).
+     */
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 40, skyAccess = true, maxAttempts = 2)
+    public void colonyTestsAreRerun(final GameTestHelper helper)
+    {
+        final ColonyFixture fixture = ColonyFixture.create(helper);
+        final int attempt = ++rerunAttempts;
+        fixture.flow()
+          .check("this is a re-run (the first attempt fails on purpose)", () -> attempt >= 2, () -> "attempt " + attempt)
           .succeed();
     }
 

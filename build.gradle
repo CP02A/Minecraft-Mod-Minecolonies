@@ -154,7 +154,33 @@ dependencies {
     compileOnly "info.journeymap:journeymap-api-fabric:${project.journeymap_api_version}"
 }
 
+// en_us.json is git-ignored (Crowdin uses it as the translation source) and generated: hand-written strings (manual_en_us.json) plus the
+// datagen ones. The NeoForge build did this with the LDT gradle plugin's translation merge (translationMergeSources in the old
+// gradle.properties); without the file MineColonies crashes at start-up (LanguageHandler NPE). Rewritten only when the content changes.
+def mergeTranslations = tasks.register('mergeTranslations') {
+    group = 'build'
+    description = 'Generates src/main/resources/assets/minecolonies/lang/en_us.json from manual_en_us.json and the datagen lang files.'
+    def sources = [
+        'src/main/resources/assets/minecolonies/lang/manual_en_us.json',
+        'src/datagen/generated/minecolonies/assets/minecolonies/lang/default.json',
+        'src/datagen/generated/minecolonies/assets/minecolonies/lang/tag.item.json',
+        'src/datagen/generated/minecolonies/assets/minecolonies/lang/quests.json',
+    ].collect { file(it) }
+    def destination = file('src/main/resources/assets/minecolonies/lang/en_us.json')
+    inputs.files(sources)
+    outputs.file(destination)
+    doLast {
+        def merged = new TreeMap<String, Object>()
+        sources.each { merged.putAll(new groovy.json.JsonSlurper().parse(it, 'UTF-8') as Map) }
+        def json = groovy.json.JsonOutput.prettyPrint(new groovy.json.JsonGenerator.Options().disableUnicodeEscaping().build().toJson(merged))
+        if (!destination.exists() || destination.getText('UTF-8') != json) {
+            destination.setText(json, 'UTF-8')
+        }
+    }
+}
+
 processResources {
+    dependsOn mergeTranslations
     def version = project.version
     inputs.property 'version', version
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
