@@ -13,6 +13,7 @@ the three bug reproductions below (COL-05b, CON-01b, CON-02b) pass since their b
 | COL-04 | ✅ | ~1 | `initialColonySize` 1; tower placed inside the claim near the border |
 | COL-05 | ✅ | ~1 | owner/officer/friend/outsider, protection on and off |
 | COL-05b | ✅ | ~1 | friend opens a hut; was E2E-COL-05-1, FIXED, now required |
+| COL-05c | ✅ | ~1 | friend/outsider drink a potion, shoot bow and pharao scepter, pick up an item (added with the Fabric-port shim TODOs) |
 | COL-06 | ✅ | ~300 | in-place reload of one colony from its saved NBT (no server restart possible) |
 | COL-07 | ✅ | ~1 | |
 | CON-01 | ✅ | ~35 | second colony created without the distance check (arena too small) |

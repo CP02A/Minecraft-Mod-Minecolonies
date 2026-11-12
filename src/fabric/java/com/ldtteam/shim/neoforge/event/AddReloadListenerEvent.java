@@ -8,6 +8,7 @@ package com.ldtteam.shim.neoforge.event;
 
 import com.google.common.collect.ImmutableList;
 import com.ldtteam.shim.bus.api.Event;
+import com.ldtteam.shim.neoforge.common.conditions.ConditionContext;
 import com.ldtteam.shim.neoforge.common.conditions.ICondition;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
@@ -54,11 +55,12 @@ public class AddReloadListenerEvent extends Event
     }
 
     /**
-     * FABRIC-PORT TODO: no staged-tag condition context on Fabric; tag conditions evaluate against the empty context.
+     * The condition context of this reload: tag conditions see the tags being loaded (NeoForge's staged tags), read from the
+     * registry lookup with the updated tags.
      */
     public ICondition.IContext getConditionContext()
     {
-        return ICondition.IContext.EMPTY;
+        return lookup == null ? ICondition.IContext.EMPTY : new ConditionContext(lookup);
     }
 
     /**

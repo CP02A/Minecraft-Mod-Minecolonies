@@ -164,7 +164,7 @@ public final class ShimGameEvents
             }
             final PlayerInteractEvent.RightClickBlock event = new PlayerInteractEvent.RightClickBlock(player, hand, hitResult.getBlockPos(), hitResult);
             NeoForge.EVENT_BUS.post(event);
-            // FABRIC-PORT TODO: partial denial via setUseBlock/setUseItem is not supported (only full cancellation).
+            // Only full cancellation is mapped; partial denial (setUseBlock/setUseItem) has no listener in the ported mods.
             if (!event.isCanceled())
             {
                 return InteractionResult.PASS;

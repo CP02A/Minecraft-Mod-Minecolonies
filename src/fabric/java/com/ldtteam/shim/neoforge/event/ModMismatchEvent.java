@@ -13,7 +13,8 @@ import java.util.Set;
 
 /**
  * Fired on the mod bus when a world is loaded that was saved with different mod versions (NeoForge shim).
- * FABRIC-PORT TODO: Fabric does not track per-world mod versions, so this event is never fired; listeners stay harmless.
+ * Never fired: Fabric does not track per-world mod versions and has no mod mismatch screen. The only listener (BlockUI) just marks
+ * itself resolved to keep NeoForge's mismatch screen quiet, so nothing is lost.
  */
 public class ModMismatchEvent extends Event implements IModBusEvent
 {

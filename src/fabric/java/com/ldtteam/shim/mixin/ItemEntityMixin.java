@@ -12,7 +12,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * ItemEntityPickupEvent.Pre: a FALSE result prevents the pickup.
- * FABRIC-PORT TODO: TRUE (force pickup ignoring delay/owner) is treated like DEFAULT; ItemEntityPickupEvent.Post is not fired.
+ * TRUE (force pickup ignoring delay/owner) is treated like DEFAULT and ItemEntityPickupEvent.Post is not fired: the ported mods
+ * only deny pickups (colony protection) and have no Post listener.
  */
 @Mixin(ItemEntity.class)
 public abstract class ItemEntityMixin

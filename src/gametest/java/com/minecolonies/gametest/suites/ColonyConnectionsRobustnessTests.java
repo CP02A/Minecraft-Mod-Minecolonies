@@ -20,6 +20,7 @@ import com.minecolonies.api.colony.workorders.IServerWorkOrder;
 import com.minecolonies.api.colony.workorders.WorkOrderType;
 import com.minecolonies.api.entity.ai.statemachine.states.AIWorkerState;
 import com.minecolonies.api.entity.citizen.Skill;
+import com.minecolonies.api.items.ModItems;
 import com.minecolonies.api.items.component.ColonyId;
 import com.minecolonies.api.research.ILocalResearch;
 import com.minecolonies.api.research.IGlobalResearchTree;
@@ -31,6 +32,7 @@ import com.minecolonies.core.MineColonies;
 import com.minecolonies.core.colony.Colony;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingTownHall;
 import com.minecolonies.core.entity.citizen.EntityCitizen;
+import com.minecolonies.core.entity.other.FireArrowEntity;
 import com.minecolonies.core.entity.pathfinding.Pathfinding;
 import com.minecolonies.core.network.messages.server.colony.TeleportToColonyMessage;
 import com.minecolonies.core.network.messages.server.colony.TriggerConnectionEventMessage;
@@ -58,6 +60,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ChunkPos;
@@ -370,6 +376,99 @@ public class ColonyConnectionsRobustnessTests
           .check("the hut menu opens (the click is not refused)", () -> !(result[0] instanceof InteractionResult.Fail),
             () -> result[0] + ", denied " + describeEvents(fixture.colony()))
           .succeed();
+    }
+
+    /**
+     * COL-05c Item actions of an outsider are refused: drinking a potion (use-item denial), shooting a bow and the pharao scepter
+     * (ArrowLooseEvent) and picking up an item (ItemEntityPickupEvent) are refused for an outsider and allowed for a friend.
+     */
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 100, skyAccess = true)
+    public void col05c_outsiderItemActionsRefused(final GameTestHelper helper)
+    {
+        final ColonyFixture fixture = ColonyFixture.create(helper);
+        final Map<String, ServerPlayer> players = new LinkedHashMap<>();
+        final Map<String, Map<String, Boolean>> results = new LinkedHashMap<>();
+
+        fixture.flow()
+          .run("colony with a friend and an outsider standing in it", () -> {
+              fixture.createColony();
+              fixture.setMoveIn(false);
+              players.put("friend", fakePlayer(helper.getLevel(), 3, "E2EFriend", GameType.SURVIVAL));
+              players.put("outsider", fakePlayer(helper.getLevel(), 4, "E2EOutsider", GameType.SURVIVAL));
+              fixture.colony().getPermissions().addPlayer(players.get("friend").getUUID(), "E2EFriend", fixture.colony().getPermissions().getRankFriend());
+              int column = 0;
+              for (final ServerPlayer player : players.values())
+              {
+                  final BlockPos stand = fixture.abs(new BlockPos(40 + 6 * column++, ColonyFixture.GROUND_Y, 40));
+                  player.setPos(stand.getX() + 0.5, stand.getY(), stand.getZ() + 0.5);
+                  fixture.colony().getServerBuildingManager().getTownHall().removePermissionEvents(player.getUUID());
+              }
+          })
+          .run("both players drink a potion, shoot a bow and the pharao scepter and pick up an item", () -> {
+              for (final Map.Entry<String, ServerPlayer> entry : players.entrySet())
+              {
+                  results.put(entry.getKey(), tryItemActions(fixture.level(), entry.getValue()));
+              }
+          })
+          .check("the friend may do all of it", () -> results.get("friend").values().stream().allMatch(b -> b),
+            () -> results + ", denied " + describeEvents(fixture.colony()))
+          .check("the outsider is refused all of it", () -> results.get("outsider").values().stream().noneMatch(b -> b),
+            () -> results + ", denied " + describeEvents(fixture.colony()))
+          .check("the town hall recorded the outsider's refused actions",
+            () -> permissionEvents(fixture.colony()).stream()
+              .filter(e -> players.get("outsider").getUUID().equals(e.getId()))
+              .map(PermissionEvent::getAction)
+              .collect(Collectors.toSet())
+              .containsAll(Set.of(Action.THROW_POTION, Action.SHOOT_ARROW, Action.PICKUP_ITEM)),
+            () -> describeEvents(fixture.colony()))
+          .succeed();
+    }
+
+    /**
+     * COL-05c: the player drinks a potion, shoots a bow and the pharao scepter at full charge and touches an item on the ground.
+     * Returns what was allowed; removes the arrows and items it made.
+     */
+    private static Map<String, Boolean> tryItemActions(final ServerLevel level, final ServerPlayer player)
+    {
+        final Map<String, Boolean> result = new LinkedHashMap<>();
+        player.getInventory().clearContent();
+
+        final ItemStack potion = PotionContents.createItemStack(Items.POTION, Potions.WATER);
+        player.setItemInHand(InteractionHand.MAIN_HAND, potion);
+        final InteractionResult drink = player.gameMode.useItem(player, level, potion, InteractionHand.MAIN_HAND);
+        result.put("potion", !(drink instanceof InteractionResult.Fail) && player.isUsingItem());
+        player.stopUsingItem();
+
+        result.put("bow", shoot(level, player, new ItemStack(Items.BOW), AbstractArrow.class));
+        result.put("scepter", shoot(level, player, new ItemStack(ModItems.pharaoscepter), FireArrowEntity.class));
+
+        player.getInventory().clearContent();
+        final ItemEntity item = new ItemEntity(level, player.getX(), player.getY(), player.getZ(), new ItemStack(Items.DIAMOND));
+        item.setNoPickUpDelay();
+        level.addFreshEntity(item);
+        item.playerTouch(player);
+        result.put("pickup", player.getInventory().countItem(Items.DIAMOND) == 1);
+        item.discard();
+        player.getInventory().clearContent();
+        LOGGER.info("COL-05c: {} -> {}", player.getName().getString(), result);
+        return result;
+    }
+
+    /**
+     * COL-05c: shoots {@code weapon} with one arrow in the inventory at full charge (like letting go of the right mouse button).
+     *
+     * @return true if an arrow of type {@code arrowType} owned by the player was fired.
+     */
+    private static boolean shoot(final ServerLevel level, final ServerPlayer player, final ItemStack weapon, final Class<? extends AbstractArrow> arrowType)
+    {
+        player.getInventory().clearContent();
+        player.setItemInHand(InteractionHand.MAIN_HAND, weapon);
+        player.getInventory().add(new ItemStack(Items.ARROW));
+        weapon.getItem().releaseUsing(weapon, level, player, weapon.getUseDuration(player) - 20);
+        final List<? extends AbstractArrow> arrows = level.getEntitiesOfClass(arrowType, player.getBoundingBox().inflate(4), a -> a.getOwner() == player);
+        arrows.forEach(Entity::discard);
+        player.getInventory().clearContent();
+        return !arrows.isEmpty();
     }
 
     /**

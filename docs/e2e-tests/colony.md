@@ -128,7 +128,7 @@ border (46, 5, 46). The tower is removed by the owner breaking its hut block (Br
 **Time budget:** 10 seconds.
 
 **Implemented:** `ColonyConnectionsRobustnessTests.col05_protectionAndPermissions` and `ColonyConnectionsRobustnessTests.col05b_friendOpensHut`
-(was bug E2E-COL-05-1, fixed; now required).
+(was bug E2E-COL-05-1, fixed; now required), plus `ColonyConnectionsRobustnessTests.col05c_outsiderItemActionsRefused` for item actions.
 
 **As implemented:** the players are Fabric fake players acting through `ServerPlayerGameMode` (`destroyBlock`, `useItemOn`), so the
 Fabric events and the shim's NeoForge events fire as for a real player. Break/place are judged by the block state, chest and hut by the
@@ -137,6 +137,14 @@ interaction result (`Fail` = refused). Findings that changed the expectations:
   refused it with `OPEN_CONTAINER` (bug E2E-COL-05-1, fixed: the container check now skips huts; tested in COL-05b).
 - With `enableColonyProtection` off the outsider can break, place and open the chest, but hut menus stay rank protected (the
   `ACCESS_HUTS` checks in `EventHandler` and `ColonyPermissionEventHandler` don't look at the config).
+
+**COL-05c Item actions** (`col05c_outsiderItemActionsRefused`): a friend and an outsider stand in the colony. Each drinks a water potion
+(`ServerPlayerGameMode#useItem`, refused as `THROW_POTION`), shoots a bow and the pharao scepter at full charge with one arrow in the
+inventory (`releaseUsing`, refused as `SHOOT_ARROW` through `ArrowLooseEvent`) and touches a diamond on the ground (`ItemEntity#playerTouch`,
+refused as `PICKUP_ITEM` through `ItemEntityPickupEvent.Pre`). Passes when the friend can do all four (he starts drinking, an arrow and a
+fire arrow fly, the diamond is in his inventory), the outsider none of them, and the town hall lists the outsider's `THROW_POTION`,
+`SHOOT_ARROW` and `PICKUP_ITEM` denials. Time budget: 5 seconds (done in the first tick). The scepter part failed before the port fix: its
+`use`/`releaseUsing` overrides had lost the `ArrowNockEvent`/`ArrowLooseEvent` calls, so outsiders could shoot it in a colony.
 
 ---
 

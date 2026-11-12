@@ -115,11 +115,26 @@ Features of the NeoForge original that the port doesn't have yet. None of them i
 | **DONE:** JEI crafter recipes derived from vanilla recipes on dedicated servers: built from the recipes the server synchronizes (Fabric `RecipeSynchronization`, now also transmute/dye/imbue crafting) via `RecipeAnalyzer#createRecipeManager`. Test UI-13 (JEI itself is not in the test runtime). | `JEIPlugin.java`, `MineColoniesFabric.java` |
 | **DONE:** JEI categories draw blocks as turned 3D block models of the exact state again, through a picture-in-picture renderer (`GuiBlockRenderer`). Test UI-12. | `compatibility/jei/RenderHelper.java`, `GuiBlockRenderer.java` |
 | Dynamic Trees compatibility removed (no Fabric 26.x release); the no-op proxy stays. | `CompatibilityManager.java:838` |
-| NeoForge's `PreventRemoteMovement` flag is ignored. | `AbstractEntityAIInteract.java:375` |
-| `ItemFireArrow`: the `createEntity` hook (custom item entity) is never called. | `ItemFireArrow.java:28` |
-| Event shim limitations: use-block/use-item denial only partly supported; client `EntityJoinLevel` can't be cancelled; `ArrowLooseEvent` ignores the bow charge; forced pickup / `ItemEntityPickupEvent.Post`; no config screen; registry aliases; staged tag conditions; creative tab event modifications; `ModMismatchEvent` never fires; atlas metadata; client particle hooks. | shim package `com.ldtteam.shim` |
+| Event shim limitations: no config screen; atlas metadata; client particle hooks. | shim package `com.ldtteam.shim` |
 | About 20 Domum Ornamentum blocks ignore the positional `getSoundType` overload (vanilla sound type is used). | e.g. `vendor/domumornamentum/.../AllBrickBlock.java:99` |
 | Structurize's scan tool and tag substitution items have no highlight tip (selected item name overlay). | `ItemScanTool.java:257`, `ItemTagSubstitution.java:116` |
+
+### Resolved server-side shim TODOs
+
+Checked against every use in MineColonies, Structurize, BlockUI and Domum Ornamentum (grep of the event, method or flag).
+
+| What | Outcome | Details / test |
+|---|---|---|
+| Partial use-block/use-item denial (`setUseBlock`/`setUseItem`) | **REMOVED (unused)** | No listener sets them; colony protection only cancels whole interactions, which the shim maps. Block use denial: COL-05; item use denial (potion): `col05c_outsiderItemActionsRefused`. |
+| Client `EntityJoinLevelEvent` can't be cancelled | **REMOVED (unused)** | The only listener (`EventHandler.onEntityAdded`) cancels on the server only; the server event is cancellable (Fabric `ServerEntityEvents.ALLOW_LOAD`). |
+| `ArrowLooseEvent`: a changed bow charge is ignored | **REMOVED (unused)**, and a port gap **FIXED** | The only listener (colony protection, `SHOOT_ARROW`) cancels, which the shim honours. The pharao scepter overrides `use`/`releaseUsing` and had lost its `ArrowNockEvent`/`ArrowLooseEvent` calls, so outsiders could shoot it in a colony; restored (it now also applies a changed charge, like 1.21.1). `col05c_outsiderItemActionsRefused` (fails without the fix). |
+| Forced item pickup (`TriState.TRUE`) / `ItemEntityPickupEvent.Post` | **REMOVED (unused)** | The only listener (colony protection, `PICKUP_ITEM`) denies with `FALSE`, which the shim honours; nothing listens to `Post`. Citizens don't pick up through this event (players only). `col05c_outsiderItemActionsRefused`. |
+| Registry aliases | **REMOVED (unused)** | No `DeferredRegister#addAlias` call in the bundled mods. |
+| Staged tag conditions | **DONE** | Upstream `BaseDataListener` tests `neoforge:conditions` against the reload's condition context (NeoForge staged tags); the port used an empty context, so `tag_empty` was always true. `AddReloadListenerEvent#getConditionContext` now reads the tags being loaded (registry lookup with updated tags) and `FMLEventHandler` injects it into the json listeners. FAB-08 `tagConditionsSeeLoadedTags`. |
+| Creative tab event modifications | **DONE** | `CraftingUtils.forEachCreativeTabItems` (MineColonies' list of all items) builds unbuilt tabs (dedicated server) through `EventHooks.onCreativeModeTabBuildContents`, which ran only the tab's own generator. It now also applies Fabric API's `CreativeModeTabEvents` (how Fabric mods add items to tabs; nothing in the bundled mods listens to NeoForge's `BuildCreativeModeTabContentsEvent`). FAB-07 `creativeTabAdditionsReachMineColonies`. |
+| `ModMismatchEvent` never fires | **REMOVED (unused)** | The only listener (BlockUI) just marks itself resolved to keep NeoForge's mod mismatch screen quiet; Fabric has no such screen. |
+| NeoForge's `PreventRemoteMovement` flag is ignored (`AbstractEntityAIInteract`) | **REMOVED (unused)** | The flag lives in NeoForge's entity persistent data and is set by other NeoForge mods (e.g. on conveyor belts). Fabric has no entity persistent data and no such convention, and no bundled mod sets it. |
+| `ItemFireArrow`: the `createEntity` hook is never called | **REMOVED (on purpose)** | Shooting creates the fire arrow through vanilla's `ArrowItem#createArrow` (works: FAB-05 `pharaoScepterShootsFireArrows`). The NeoForge hook only replaced dropped fire arrow items with a new fire arrow entity at (0, 0, 0) (`createEntity` ignored the drop's position), so dropped fire arrows (e.g. the pharao's loot) vanished on NeoForge, an upstream bug. Not ported; FAB-06 `droppedFireArrowStaysAnItem`. FAB-05 also found that the scepter took the first inventory slot as ammo, whatever it held, and crashed the shot when that was the scepter itself (upstream too); fixed (any arrow item). |
 
 ## Flakiness (first final step)
 

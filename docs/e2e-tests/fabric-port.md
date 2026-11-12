@@ -76,3 +76,87 @@ Checks that the port works with Fabric and with other Fabric mods. These tests e
 - The composter level rises to 1.
 
 **Time budget:** 1 second.
+
+---
+
+## FAB-05 The pharao scepter shoots fire arrows
+
+**Tests:** the fire arrow item creates its fire arrow entity when it is shot (`ItemFireArrow#createArrow`, called by vanilla's projectile
+weapon code; the scepter turns every arrow it shoots into a fire arrow).
+
+**Setup**
+- A fake player (survival) with the pharao scepter in his hand (first hotbar slot) and 2 arrows in his inventory, outside any colony.
+
+**What happens**
+1. The player lets go of the scepter at full charge (`releaseUsing` with 20 ticks of drawing).
+
+**Passes when**
+- Exactly one fire arrow entity exists next to the player, owned by him and burning.
+- One arrow is left in the inventory.
+
+**Time budget:** 1 second.
+
+**Found while writing it:** the scepter accepted any item as ammo (`getAllSupportedProjectiles` was `itemStack -> true`, also in
+upstream 1.21), so vanilla took the first inventory slot as ammo: an empty first slot meant no shot, any other item was used up, and the
+scepter itself in the first slot used itself up and the shot threw `IllegalArgumentException: Invalid weapon firing an arrow` on the
+server. Fixed in `ItemPharaoScepter.getAllSupportedProjectiles` (any arrow item).
+
+---
+
+## FAB-06 A dropped fire arrow stays an item
+
+**Tests:** a fire arrow item on the ground stays an item. On NeoForge 1.21.1 the item's `createEntity` hook replaced every dropped fire
+arrow (for example the pharao's loot) with a new fire arrow entity at (0, 0, 0), so the item vanished; the port doesn't copy that hook
+on purpose ([PROTOCOL.md, Open Fabric-port TODOs](PROTOCOL.md#open-fabric-port-todos-missing-features-not-bugs)).
+
+**Setup**
+- An item entity with 4 fire arrows.
+
+**What happens**
+1. 5 ticks pass.
+
+**Passes when**
+- The item entity still exists and still holds 4 fire arrows.
+
+**Time budget:** 1 second.
+
+---
+
+## FAB-07 Creative tab additions of other mods reach MineColonies
+
+**Tests:** MineColonies' list of all creative tab items (`CraftingUtils.forEachCreativeTabItems`, used for its item lists) contains the
+items other Fabric mods add to a tab through Fabric API (`CreativeModeTabEvents`), also on a dedicated server where the tabs are never
+built. On NeoForge these came from `BuildCreativeModeTabContentsEvent`.
+
+**Setup**
+- The test registers (once) a Fabric API listener that adds a stick named "e2e creative tab marker" to the vanilla ingredients tab.
+  The tab is not built on the test server.
+
+**What happens**
+1. The test collects the items of all tabs through `CraftingUtils.forEachCreativeTabItems`.
+
+**Passes when**
+- The ingredients tab's items contain its own items (iron ingot) and the marker stick.
+
+**Time budget:** 1 second.
+
+---
+
+## FAB-08 Tag conditions see the loaded tags
+
+**Tests:** `neoforge:tag_empty` conditions in MineColonies json data (`neoforge:conditions` in files read by `BaseDataListener`, e.g.
+study items) are tested against the tags being loaded, like NeoForge's staged tags. Before, they always saw empty tags.
+
+**Setup**
+- The condition context of a data reload (`AddReloadListenerEvent#getConditionContext`) built from the server's registries.
+- A MineColonies data listener (a `BaseDataListener` in the test) with two files: one with "`minecraft:logs` is not empty", one with
+  "`minecraft:logs` is empty".
+
+**What happens**
+1. The test checks two conditions directly, then lets the listener load the two files with that context.
+
+**Passes when**
+- `minecraft:logs` is not empty and a missing tag is empty.
+- The listener keeps only the file whose condition is true.
+
+**Time budget:** 1 second.

@@ -220,6 +220,10 @@ Details: [e2e-tests/fabric-port.md](e2e-tests/fabric-port.md)
 | [FAB-02](e2e-tests/fabric-port.md#fab-02-minecolonies-can-use-vanilla-chests) | MineColonies can use vanilla chests | MineColonies can put items into vanilla chests. | ✅ Passing |
 | [FAB-03](e2e-tests/fabric-port.md#fab-03-minecolonies-can-use-fabric-only-storages) | MineColonies can use Fabric-only storages | MineColonies can put items into Fabric-only storages. | ✅ Passing |
 | [FAB-04](e2e-tests/fabric-port.md#fab-04-minecolonies-food-is-compostable) | MineColonies food is compostable | MineColonies food uses the vanilla compost tiers. | ✅ Passing |
+| [FAB-05](e2e-tests/fabric-port.md#fab-05-the-pharao-scepter-shoots-fire-arrows) | The pharao scepter shoots fire arrows | Shooting creates the fire arrow entity. | ✅ Passing |
+| [FAB-06](e2e-tests/fabric-port.md#fab-06-a-dropped-fire-arrow-stays-an-item) | A dropped fire arrow stays an item | Dropped fire arrows don't vanish (NeoForge 1.21.1 lost them). | ✅ Passing |
+| [FAB-07](e2e-tests/fabric-port.md#fab-07-creative-tab-additions-of-other-mods-reach-minecolonies) | Creative tab additions of other mods reach MineColonies | Items other mods add to creative tabs are in MineColonies' item lists. | ✅ Passing |
+| [FAB-08](e2e-tests/fabric-port.md#fab-08-tag-conditions-see-the-loaded-tags) | Tag conditions see the loaded tags | `tag_empty` conditions in MineColonies data see the loaded tags. | ✅ Passing |
 
 ## User interface
 

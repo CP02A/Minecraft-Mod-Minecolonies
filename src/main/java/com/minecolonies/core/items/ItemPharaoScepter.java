@@ -1,5 +1,6 @@
 package com.minecolonies.core.items;
 
+import com.ldtteam.shim.neoforge.event.EventHooks;
 import com.minecolonies.api.items.ModItems;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -42,6 +43,12 @@ public class ItemPharaoScepter extends BowItem
     {
         ItemStack itemstack = playerIn.getItemInHand(handIn);
 
+        final InteractionResult ret = EventHooks.onArrowNock(itemstack, worldIn, playerIn, handIn, true);
+        if (ret != null)
+        {
+            return ret;
+        }
+
         playerIn.startUsingItem(handIn);
         return InteractionResult.CONSUME;
     }
@@ -53,6 +60,12 @@ public class ItemPharaoScepter extends BowItem
         {
             Player playerentity = (Player) entityLiving;
             int useDuration = this.getUseDuration(stack, entityLiving) - timeLeft;
+            // Colony protection (SHOOT_ARROW) cancels this; the vanilla bow fires the event from a shim mixin, this override doesn't call it.
+            useDuration = EventHooks.onArrowLoose(stack, worldIn, playerentity, useDuration, true);
+            if (useDuration < 0)
+            {
+                return false;
+            }
 
             ItemStack itemstack = playerentity.getProjectile(stack);
             if (!itemstack.isEmpty())
@@ -86,7 +99,10 @@ public class ItemPharaoScepter extends BowItem
     @Override
     public Predicate<ItemStack> getAllSupportedProjectiles()
     {
-        return itemStack -> true;
+        // Any kind of arrow. Was "itemStack -> true": Player#getProjectile then took the first inventory slot as ammo, whatever it held
+        // (an empty first slot meant no shot; the scepter itself in that slot was used up as its own ammo and the shot crashed with
+        // "Invalid weapon firing an arrow").
+        return itemStack -> itemStack.getItem() instanceof ArrowItem;
     }
 
     @Override

@@ -206,10 +206,7 @@ public class DeferredRegister<T>
         }
         this.seenRegisterEvent = true;
         final Registry<T> registry = event.getRegistry(this.registryKey);
-        if (!this.aliases.isEmpty())
-        {
-            // FABRIC-PORT TODO: registry aliases are not supported by vanilla registries; aliases are ignored.
-        }
+        // Registry aliases are ignored (vanilla registries have none); the ported mods register no aliases.
         for (final Map.Entry<DeferredHolder<T, ? extends T>, Supplier<? extends T>> e : entries.entrySet())
         {
             event.register(this.registryKey, e.getKey().getId(), () -> e.getValue().get());
