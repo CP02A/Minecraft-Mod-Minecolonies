@@ -18,8 +18,12 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.BrewingInput;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -106,6 +110,29 @@ public class WindowBrewingstandCrafting extends AbstractContainerScreen<Containe
         }
     }
 
+    /**
+     * Computes the result of brewing the given ingredient into the given potion (was {@code level.potionBrewing().mix(ingredient, potion)}).
+     * FABRIC-PORT: 26.3 brewing is data driven ({@link RecipeType#BREWING}); MineColonies syncs the brewing recipe serializer to the client
+     * (Fabric {@code RecipeSynchronization}, see MineColonies#onCommonSetup), so the recipes are looked up in the synchronized recipes.
+     *
+     * @param level      the client level.
+     * @param potion     the potion/bottle.
+     * @param ingredient the reagent.
+     * @return the brewed potion, or an empty stack if no recipe matches.
+     */
+    public static ItemStack getBrewingOutput(@Nullable final Level level, final ItemStack potion, final ItemStack ingredient)
+    {
+        if (level == null || ItemStackUtils.isEmpty(potion) || ItemStackUtils.isEmpty(ingredient))
+        {
+            return ItemStack.EMPTY;
+        }
+        final BrewingInput brewingInput = new BrewingInput(potion, ingredient);
+        return level.recipeAccess().getSynchronizedRecipes().getAllMatches(RecipeType.BREWING, brewingInput, level)
+                 .findFirst()
+                 .map(holder -> holder.value().assemble(brewingInput))
+                 .orElse(ItemStack.EMPTY);
+    }
+
     public class OnButtonPress implements Button.OnPress
     {
         @Override
@@ -120,9 +147,7 @@ public class WindowBrewingstandCrafting extends AbstractContainerScreen<Containe
                 input.add(new ItemStorage(potion, 3, false));
                 input.add(new ItemStorage(ingredient));
 
-                // FABRIC-PORT TODO: 26.3 made brewing data-driven (RecipeType.BREWING); brewing recipes are not synced to the client,
-                // so the output cannot be computed here. Needs the result to be computed server-side (e.g. synced by ContainerCraftingBrewingstand).
-                final ItemStack primaryOutput = ItemStack.EMPTY;
+                final ItemStack primaryOutput = getBrewingOutput(Minecraft.getInstance().level, potion, ingredient);
 
                 if (!ItemStackUtils.isEmpty(primaryOutput) && primaryOutput != potion)
                 {

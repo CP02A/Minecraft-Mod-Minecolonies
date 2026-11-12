@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
@@ -92,7 +93,9 @@ public class ResearchUnlocked implements LootItemCondition
 
     private Optional<Boolean> test(@NotNull final LootContext lootContext, @Nullable Entity entity)
     {
+        // 26.3's FISHING parameter set no longer allows ATTACKING_ENTITY; THIS_ENTITY is the bobber, so resolve projectiles to their owner.
         return Optional.ofNullable(entity)
+                .map(e -> e instanceof Projectile projectile && projectile.getOwner() != null ? projectile.getOwner() : e)
                 .map(e -> e instanceof AbstractEntityCitizen citizen ? citizen : null)
                 .flatMap(c -> test(lootContext, c.getCitizenColonyHandler().getColonyOrRegister()));
     }

@@ -321,7 +321,7 @@ public final class BlockUtils
                 return true;
             }
 
-            if (structureBlock == Blocks.DIRT && worldState.is(BlockTags.DIRT))
+            if (structureBlock == Blocks.DIRT && worldState.is(BlockTags.SUBSTRATE_OVERWORLD))
             {
                 return true;
             }

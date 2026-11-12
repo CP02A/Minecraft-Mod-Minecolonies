@@ -94,13 +94,13 @@ Details: [e2e-tests/jobs-farming.md](e2e-tests/jobs-farming.md)
 
 | ID | Test | What it checks | Status |
 |---|---|---|---|
-| [FRM-01](e2e-tests/jobs-farming.md#frm-01-farmer-field-cycle) | Farmer: field cycle | The farmer tills, plants, harvests and replants a field. | ✅ Passing; optional part ❌ (E2E-FRM-01-1) |
+| [FRM-01](e2e-tests/jobs-farming.md#frm-01-farmer-field-cycle) | Farmer: field cycle | The farmer tills, plants, harvests and replants a field. | ✅ Passing |
 | [FRM-02](e2e-tests/jobs-farming.md#frm-02-planter-plantation) | Planter: plantation | The planter harvests plantation crops and leaves the base plants. | ✅ Passing |
 | [FRM-03](e2e-tests/jobs-farming.md#frm-03-florist) | Florist | The florist grows the chosen flowers with compost. | ✅ Passing |
 | [FRM-04](e2e-tests/jobs-farming.md#frm-04-composter) | Composter | The composter turns allowed items into compost. | ✅ Passing |
 | [FRM-05](e2e-tests/jobs-farming.md#frm-05-beekeeper) | Beekeeper | The beekeeper harvests full hives without harming the bees. | ✅ Passing |
 | [FRM-06](e2e-tests/jobs-farming.md#frm-06-animal-herders) | Animal herders | Each herder keeps its animal count at the limit and uses its special action. | ✅ Passing; optional part ❌ (E2E-FRM-06-1) |
-| [FRM-07](e2e-tests/jobs-farming.md#frm-07-fisherman) | Fisherman | The fisherman finds water and fishes. | ❌ Fails (mod bug) (E2E-FRM-07-1) |
+| [FRM-07](e2e-tests/jobs-farming.md#frm-07-fisherman) | Fisherman | The fisherman finds water and fishes. | ✅ Passing |
 
 ## Jobs: gathering resources
 
@@ -233,3 +233,4 @@ Details: [e2e-tests/ui.md](e2e-tests/ui.md). Run with `./gradlew runClientGameTe
 | [UI-06](e2e-tests/ui.md#ui-06-post-box-request-window) | Post box request window | The post box lists items that can be requested. | ✅ Passing |
 | [UI-07](e2e-tests/ui.md#ui-07-warehouse-window) | Warehouse window | The warehouse window opens with the right title. | ✅ Passing |
 | [UI-08](e2e-tests/ui.md#ui-08-human-input-is-ignored) | Human input is ignored | Real keyboard and mouse input can't reach a test window. | ✅ Passing |
+| [UI-09](e2e-tests/ui.md#ui-09-brewing-teaching-computes-the-potion) | Brewing teaching computes the potion | The brewing teaching window finds the brewed potion from the synced recipes. | ✅ Passing |

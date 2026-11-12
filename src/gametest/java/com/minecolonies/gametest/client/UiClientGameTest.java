@@ -17,6 +17,7 @@ import com.minecolonies.core.client.gui.citizen.MainWindowCitizen;
 import com.minecolonies.core.client.gui.huts.WindowHutBuilderModule;
 import com.minecolonies.core.client.gui.WindowPostBoxMain;
 import com.minecolonies.core.client.gui.WindowResearchTree;
+import com.minecolonies.core.client.gui.containers.WindowBrewingstandCrafting;
 import com.minecolonies.core.client.gui.modules.building.UniversityModuleWindow;
 import com.minecolonies.core.client.gui.townhall.WindowMainPage;
 import com.minecolonies.core.client.gui.townhall.WindowStatsPage;
@@ -35,9 +36,14 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -113,6 +119,7 @@ public class UiClientGameTest implements FabricClientGameTest
 
             final boolean ready = waitForColony(context, server, run);
             final UiBridge.Colony colony = UiBridge.colony;
+            runCase("UI-09", "Brewing teaching computes the potion", true, shots -> brewingOutput(context));
             if (ready && colony != null)
             {
                 runCase("UI-01", "Town hall window", true, shots -> townHall(context, server, colony, shots));
@@ -395,6 +402,21 @@ public class UiClientGameTest implements FabricClientGameTest
           "Title should be '" + expectedName + " " + level + "', is '" + title + "'");
         assertTranslated("Warehouse window", texts(context, window));
         closeScreen(context);
+    }
+
+    /**
+     * UI-09: the brewing teaching window ({@link WindowBrewingstandCrafting}) computes the brewed potion on the client from the synchronized
+     * brewing recipes (E2E-CRF01-2: the output was always empty, so no brewing recipe could be taught). Water bottle + nether wart must
+     * give an awkward potion, a reagent that doesn't brew must give nothing.
+     */
+    private static void brewingOutput(final ClientGameTestContext context)
+    {
+        final ItemStack water = PotionContents.createItemStack(Items.POTION, Potions.WATER);
+        final ItemStack awkward = context.computeOnClient(mc -> WindowBrewingstandCrafting.getBrewingOutput(mc.level, water, new ItemStack(Items.NETHER_WART)));
+        assertThat(awkward.is(Items.POTION) && awkward.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY).is(Potions.AWKWARD),
+          "Water bottle + nether wart should brew an awkward potion, got " + awkward + " " + awkward.getComponents());
+        final ItemStack none = context.computeOnClient(mc -> WindowBrewingstandCrafting.getBrewingOutput(mc.level, water, new ItemStack(Items.DIRT)));
+        assertThat(none.isEmpty(), "Water bottle + dirt should brew nothing, got " + none);
     }
 
     /**

@@ -34,7 +34,7 @@ Runtime = game ticks of the main wait in the final run (ticks vary from run to r
 | CRF-01 Smeltery (raw iron → ingot) | ✅ | – | Not a request crafter (refuses taught recipes, requests ores itself); covered by CRF-03. |
 | CRF-01 Stone smeltery (cobblestone → stone) | ✅ | 2,235 | Furnace recipe, coal fuel. |
 | CRF-01 Concrete mixer (powder → concrete) | ✅ | 2,850 | Needs a pickaxe/shovel (it requests one; first version timed out without it). |
-| CRF-01 Alchemist (water bottle + nether wart → awkward) | ✅ | 3,190 | Taught through the server side; the Fabric port's teaching window can't do it (E2E-CRF01-2). Final step: shears in the warehouse (the alchemist once went for mistletoe without shears and waited on a tool request), budget 14,000. |
+| CRF-01 Alchemist (water bottle + nether wart → awkward) | ✅ | 3,190 | Taught through the server side (the teaching window's part is covered by UI-09 since E2E-CRF01-2 was fixed). Final step: shears in the warehouse (the alchemist once went for mistletoe without shears and waited on a tool request), budget 14,000. |
 | CRF-02 Learning recipes and their limits | ✅ | 0 | Limit 2^level x 5 = 10 at level 1; 11th refused; accepted after the upgrade to level 2. |
 | CRF-03 Furnaces and fuel | ✅ | 9,330 | 80 raw iron + 128 coal; second furnace placed in the level 1 hut; fuel requested only from the fuel list. |
 | CRF-04 Concrete mixer and water | ✅ | 5,230 | Water compared as source blocks. Budget raised from 7,000 to 14,000 after one slow run. |
@@ -71,6 +71,11 @@ Counts by row: ✅ 30, ❌ 3, ⛔ 0, 📝 0 (34 test methods: 31 required, all p
 - **Reproduction:** `log06_toolsByHutLevel`.
 
 ### E2E-CRF01-2 Fabric port: brewing recipes can't be taught in the GUI
+- **Status: FIXED** (branch `worktree-agent-a0f8cd80cd6f3aae7`). The brewing recipe serializer is already synced to the client (Fabric
+  `RecipeSynchronization` in `MineColonies`); the window now looks the output up with
+  `level.recipeAccess().getSynchronizedRecipes().getAllMatches(RecipeType.BREWING, new BrewingInput(potion, ingredient), level)`
+  (`WindowBrewingstandCrafting.getBrewingOutput`, replaces 1.21.1's `potionBrewing().mix`). UI test UI-09 checks water bottle + nether
+  wart → awkward potion on the client (passes); pressing Done in an opened window isn't automated, the server side is `crf01_alchemist`.
 - **Severity:** high for alchemist players (the alchemist can only use built-in recipes).
 - **Port-specific:** yes. `core/client/gui/containers/WindowBrewingstandCrafting.java` lines ~122-127: "FABRIC-PORT TODO: 26.3 made brewing
   data-driven … the output cannot be computed here"; `primaryOutput` is always empty, so the window never sends `AddRemoveRecipeMessage`.

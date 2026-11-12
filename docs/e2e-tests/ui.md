@@ -195,3 +195,27 @@ test is recorded and the next one still runs.
 **Screenshots:** none.
 
 **Time budget:** instant.
+
+---
+
+## UI-09 Brewing teaching computes the potion
+
+**Tests:** the alchemist's brewing teaching window (`WindowBrewingstandCrafting`) can work out the brewed potion on the client, so a
+brewing recipe can be taught (bug E2E-CRF01-2).
+
+**Setup**
+- The test world (no colony needed).
+
+**What happens**
+1. On the client thread, calls `WindowBrewingstandCrafting.getBrewingOutput` (what the window's Done button uses) with a water bottle
+   and nether wart, then with a water bottle and dirt. The lookup uses the brewing recipes synchronized to the client.
+
+**Passes when**
+- Water bottle + nether wart gives an awkward potion; water bottle + dirt gives nothing.
+
+**Not covered:** opening the window from an alchemist hut and pressing Done (the server side of teaching, `AddRemoveRecipeMessage`, is
+covered by `crf01_alchemist`).
+
+**Screenshots:** none.
+
+**Time budget:** instant.
