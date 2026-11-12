@@ -1,0 +1,105 @@
+[← Back to the test overview](../../E2E-tests.md) · [Logistics](../logistics.md) · [Crafting](../jobs-crafting.md)
+
+# Protocol: logistics and crafting tests
+
+Suite class: `src/gametest/java/com/minecolonies/gametest/suites/LogisticsCraftingTests.java`
+(filter `-Pe2eFilter=logistics_crafting_tests`). Final run: 27 required tests passed, 2 optional (bug) tests; whole suite about 80 s
+real time (LOG-04 alone runs about 40,500 game ticks).
+
+Runtime = game ticks of the main wait in the final run (ticks vary from run to run by roughly ±30 %).
+
+| ID | Status | Runtime (ticks) | Notes |
+|---|---|---|---|
+| LOG-01 Warehouse delivers a requested item | ✅ | 500 | Resolved by `WarehouseConcreteRequestResolver` (stack of one item). Building request from a hut without a worker. |
+| LOG-02 Couriers bring products to the warehouse | ✅ | 510 | Pickup started like the "force pickup" button; axe and saplings stay in the hut. |
+| LOG-03 Crafting chain | ✅ | 900 | Sticks request → sawmill `PublicWorkerCraftingRequestResolver`, child crafting request for planks; exactly 1 log used. |
+| LOG-04 Unfulfillable request goes to the player | ✅ | 40,455 | Retrying resolver for ~40,000 ticks (3 retries x 1200 RS ticks x 11), then player resolver; diamond put into a warehouse rack (not the postbox) → warehouse → courier. |
+| LOG-05 Minimum stock | ✅ | 1,345 | Minimum stock is in stacks: 1 stack = 64 torches; refilled after 20 removed; never above 64. |
+| LOG-06 Tools by hut level | ❌ | (timeout 3,500) | BUG E2E-LOG06-1: orphaned delivery, miner never gets a pickaxe. `required = false`. |
+| LOG-07 Several couriers share the work | ✅ | 900 | 5 postboxes x 2 requests, 3 couriers (each in its own courier's hut), level 2 warehouse. |
+| LOG-08 Requests cancelled when a hut is removed | ✅ | 515 | Hut broken while the courier carries items; requests gone, items back in the warehouse, no references left. |
+| LOG-09 Full warehouse | ✅ | 745 | Courier keeps the items, `lastNotification` set; after a rack is added the items are stored. |
+| LOG-10 Stash | ✅ | 450 | |
+| CRF-01 Sawmill (oak log → planks) | ✅ | 1,395 | |
+| CRF-01 Stonemason (stone → stone bricks) | ✅ | 1,480 | |
+| CRF-01 Blacksmith (iron pickaxe) | ✅ | 5,090 | Slowest crafter (1,630 in an earlier run). |
+| CRF-01 Fletcher (arrows) | ✅ | 1,365 | |
+| CRF-01 Baker (wheat → dough → bread) | ✅ | 1,955 | Built-in recipe chain, coal fuel. |
+| CRF-01 Kitchen (chef) | 📝 | – | Not done (needs MineColonies crops as ingredients). |
+| CRF-01 Glassblower (glass → panes) | ✅ | 1,445 | |
+| CRF-01 Dyer (white wool + red dye → red wool) | ✅ | 1,500 | |
+| CRF-01 Mechanic (piston) | ✅ | 1,845 | |
+| CRF-01 Crusher (cobblestone → gravel) | ❌ | 1,015 | BUG E2E-CRF01-1, intermittent (failed 3 of 5 runs; passed in the final run). `required = false`. Daily limit set to 0. |
+| CRF-01 Sifter | ✅ | – | Covered by CRF-05 (the sifter is not a request crafter). |
+| CRF-01 Smeltery (raw iron → ingot) | ✅ | – | Not a request crafter (refuses taught recipes, requests ores itself); covered by CRF-03. |
+| CRF-01 Stone smeltery (cobblestone → stone) | ✅ | 2,235 | Furnace recipe, coal fuel. |
+| CRF-01 Concrete mixer (powder → concrete) | ✅ | 2,850 | Needs a pickaxe/shovel (it requests one; first version timed out without it). |
+| CRF-01 Alchemist (water bottle + nether wart → awkward) | ✅ | 3,190 | Taught through the server side; the Fabric port's teaching window can't do it (E2E-CRF01-2). |
+| CRF-02 Learning recipes and their limits | ✅ | 0 | Limit 2^level x 5 = 10 at level 1; 11th refused; accepted after the upgrade to level 2. |
+| CRF-03 Furnaces and fuel | ✅ | 9,330 | 80 raw iron + 128 coal; second furnace placed in the level 1 hut; fuel requested only from the fuel list. |
+| CRF-04 Concrete mixer and water | ✅ | 5,230 | Water compared as source blocks. |
+| CRF-05 Sifter meshes | ✅ | 455 (+1,200 idle) | Mesh with 3 uses left; drops only iron nugget/flint/coal; nothing sifted without mesh. |
+| CRF-06 Alchemist (brew + harvest) | 📝 | – | Brewing is covered by CRF-01 alchemist; harvesting nether wart/mistletoe not done (time). |
+| CRF-07 Enchanter | 📝 | – | Not done (time). |
+| CRF-08 Cook keeps the restaurant stocked | ✅ | 5,335 | Menu foods made, no cooked chicken; citizens eating not checked (CIT-02). |
+
+Counts by row: ✅ 27, ❌ 2, ⛔ 0, 📝 3 (29 test methods: 27 required, all passing; 2 optional bug tests).
+
+## Bugs found
+
+### E2E-CRF01-1 Crusher over-crafts a request and wastes ingredients
+- **Severity:** medium (ingredients wasted, extra output stays in the crusher; intermittent).
+- **Upstream or port:** most likely upstream. The code is shared MineColonies code with no port changes
+  (`src/main/java/com/minecolonies/core/entity/ai/workers/crafting/EntityAIWorkCrusher.java`).
+- **Evidence:** a request for 2 gravel (recipe 2 cobblestone → 1 gravel) with the daily limit at 0 used 8 cobblestone; the requester got
+  2 gravel, the crusher worker held 2 more ("cobblestone used 8 (expected 4); product: lumberjack 2; citizen … 2"). In one earlier run
+  the request completed but the requester got no gravel at all. Code: `craft()` (line ~220) calls `crush()`; once
+  `craftCounter >= maxCraftingCount` it only calls `resetValues()` (line 228) and leaves the request open until the worker dumps. On the
+  next tick `crush()` finds `currentRecipeStorage == null`, takes the crusher-mode recipe (line 117) and, because the state is `CRAFT`,
+  skips the daily-limit check (line 120) and crafts again.
+- **Reproduction:** `crf01_crusher` (fails about 3 of 5 runs).
+
+### E2E-LOG06-1 Orphaned delivery: a tool request is never delivered
+- **Severity:** high (the worker is stuck for good; here a miner never gets to work).
+- **Upstream or port:** unknown, probably upstream (request system and courier code are shared code); not verified on NeoForge.
+- **Evidence:** miner in a level 1 hut, wooden/stone/diamond pickaxes and wooden/stone shovels in the warehouse. The miner gets one shovel,
+  then opens a second shovel request (levels 0..1). That request is `FOLLOWUP_IN_PROGRESS` with the warehouse resolver; its `Delivery`
+  child is `IN_PROGRESS` with the `DeliveryRequestResolver`, but the courier's task queue is empty, the warehouse request queue is empty
+  and the courier idles in `START_WORKING` for 3,000+ ticks. The miner stays in `NEEDS_ITEM` and never requests a pickaxe. Seen in 3 of 3
+  runs after the diagnostics were added.
+- **Reproduction:** `log06_toolsByHutLevel`.
+
+### E2E-CRF01-2 Fabric port: brewing recipes can't be taught in the GUI
+- **Severity:** high for alchemist players (the alchemist can only use built-in recipes).
+- **Port-specific:** yes. `core/client/gui/containers/WindowBrewingstandCrafting.java` lines ~122-127: "FABRIC-PORT TODO: 26.3 made brewing
+  data-driven … the output cannot be computed here"; `primaryOutput` is always empty, so the window never sends `AddRemoveRecipeMessage`.
+- **Evidence:** code reading; the server side works (`crf01_alchemist` teaches through it and passes). Not testable headless (client GUI).
+
+## Design changes
+
+All recorded as "*As implemented*" notes in [logistics.md](../logistics.md) and [jobs-crafting.md](../jobs-crafting.md):
+- LOG-01: concrete resolver; building-level request from a hut without a worker.
+- LOG-02: pickup is triggered like "force pickup" (huts only ask for pickups when a worker dumps).
+- LOG-04: retrying resolver comes first (~40,000 ticks); the postbox is a requester, so the diamond goes into a warehouse rack.
+- LOG-05: minimum stock is in stacks (64), not 32 items.
+- LOG-07: postboxes as requesters; one courier's hut per courier.
+- LOG-09: "warehouse full" is checked through `TileEntityWareHouse.lastNotification` (players-only chat message).
+- CRF-01: smeltery and sifter are not request crafters (covered by CRF-03/CRF-05); crusher daily limit set to 0; concrete mixer needs tools.
+- CRF-02: limit is 2^level x 5.
+- CRF-03: level 1 smeltery has one furnace (second one placed); one stack goes into one furnace, so 80 ore / 128 coal are used.
+- CRF-04: water compared as source blocks; production is request-driven.
+- CRF-05: the sifter shows a "no mesh" interaction instead of requesting a mesh.
+
+## Framework issues
+
+- **Timeout message lost when `awaitUntil` has no own tick limit** (`TestFlow`): when the test's `maxTicks` runs out, vanilla ticks the
+  sequence once more and `stopIfFinished()` throws "Test already finished", which becomes the reported failure ("Test already finished on
+  tick 6002") instead of the "Still waiting … Found: …" text. Workaround in this suite: every wait has its own budget below `maxTicks`.
+- **Worktree setup:** `src/main/resources/assets/minecolonies/lang/en_us.json` is git-ignored, so a fresh worktree crashes at server start
+  (NPE in `LanguageHandler$LanguageCache.load`); copied from the main checkout (not committed).
+- **Missing helpers** (written as private helpers in the suite, candidates for the fixture): placing a hut by footprint
+  (`placeInBox`, reads blueprint size/offset), single-block buildings (stash/postbox via `setPlacedBy`), courier setup (courier's hut +
+  warehouse assignment), request-system inspection (resolver per request, all requests), recipe teaching (grid/furnace/brewing),
+  placing a block into a hut (`addBlockInHut`).
+- The fixture's `hire(citizen, warehouse)` would put a citizen into the warehouse's courier module without a job (the warehouse module has
+  no job of its own); couriers must be hired into a courier's hut.
