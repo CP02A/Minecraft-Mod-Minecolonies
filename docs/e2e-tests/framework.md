@@ -234,8 +234,8 @@ changes: `runGameTest` is headless as before.
   2.5 minutes to watch; filter to the tests you want to see.
 - **End:** when all tests are done the log shows the same summary as headless ("All N required tests passed" or the failed tests),
   `build/gametest-report.xml` is written, the window closes, and the Gradle task fails if a required test failed.
-- **Input:** keyboard and mouse can't change anything, not even the camera (see [No human input](#no-human-input)); you can only
-  watch. Closing the window ends the run.
+- **Input:** keyboard and mouse can't change anything, not even the camera, and switching windows, minimizing or resizing doesn't pause
+  or change the run (see [No human input](#no-human-input)); you can only watch. Closing the window aborts the run (the task fails).
 
 ## UI tests
 
@@ -261,11 +261,28 @@ The tests are in [ui.md](ui.md).
 
 A person at the computer must not be able to change a test by accident (for example by moving the player).
 
-- In every client test run (watch mode and UI tests) real keyboard, mouse and text input is dropped where it enters the game, in
-  Minecraft's `SDLEventHandler`. Fabric's client game test framework already does this; the test mod's own
-  `mixin/SDLEventHandlerMixin` does the same so the guarantee doesn't depend on Fabric, and UI-08 checks that both are applied.
-  Simulated input from tests (`context.getInput()`) goes straight to Minecraft's keyboard and mouse handlers and still works.
-- Losing window focus doesn't pause the game (Fabric ignores focus events in client test runs).
+In every client test run (watch mode and UI tests):
+
+| What the person does | What happens | Done by |
+|---|---|---|
+| Keyboard, mouse buttons, mouse movement, wheel, typing, IME text editing, dropping files on the window | Dropped where it enters the game: all input handlers of Minecraft's `SDLEventHandler` (every `handle…Event` except the key map change, which only relabels the key binds screen). | Fabric and `mixin/SDLEventHandlerMixin` |
+| Gamepad, joystick, touch screen, pen | Nothing: Minecraft starts SDL with the video subsystem only, so there are no gamepad or joystick events, and touch and pen arrive only as the mouse events SDL makes from them (dropped above). | Minecraft |
+| Clicking another window (focus loss) | The game stays "focused": no pause menu, the integrated server doesn't pause, even with "Pause on Lost Focus" on. | Fabric, `mixin/WindowMixin` (ignores focus events), `mixin/MinecraftMixin` (never pauses on focus loss) |
+| Minimizing, restoring | Ignored: the game keeps ticking and rendering at full speed and doesn't pause. | Fabric and `mixin/WindowMixin` |
+| Resizing, maximizing | The real window changes, the game doesn't: the framebuffer keeps its fixed test size (Fabric scales the picture into the window), so screenshots and rendering checks always have the same size. | Fabric |
+| Changing the monitor resolution, fullscreen through the window system (macOS green button) | Ignored: would set the framebuffer to the real window size or change and save the fullscreen option. (F11 is a key and dropped anyway.) | `mixin/WindowMixin` |
+| Moving the mouse over the window, clicking into it | The cursor is never captured: no relative mouse mode (hidden cursor locked in the window), no moving it to the window's center, so the person keeps using the mouse. The game's own cursor position never comes from the real mouse, not even when the GUI is resized (Minecraft reads the real cursor position then; it would hover buttons and show tooltips in screenshots). | Fabric and `mixin/InputConstantsMixin` (capture), `mixin/MouseHandlerMixin` (position) |
+| Closing the window (close button, Alt+F4) | Allowed on purpose: it's the way to stop a run. The game shuts down normally (world saved, logs written) and the log says "The test window was closed: the client game test run is aborted without a test result (exit code 3)."; the game then exits with code 3, so the Gradle task fails (`finished with non-zero exit value 3`) instead of reporting an aborted run as passed. | `mixin/WindowMixin` (logs, marks), `mixin/MainMixin` (exit code) |
+
+- The test mod repeats Fabric's blockers so the guarantee doesn't depend on Fabric; window size is left to Fabric alone (it keeps the
+  real size to draw the fixed-size picture into the window). UI-08 checks that every blocker (ours and Fabric's) is applied and covers
+  every input handler, and then tries it all for real: it pushes keyboard, mouse, text, file drop, focus, minimize, fullscreen and display
+  events into the window's SDL event queue and resizes, maximizes and minimizes the real window ([ui.md, UI-08](ui.md#ui-08-human-input-is-ignored)).
+- Watch mode was also tried from outside the game (Windows messages to the test window during a quarrier test: minimize, restore,
+  resize, Escape/E/W and mouse clicks, then close): the game ticked on at 20 per second the whole time, no screen opened, and closing
+  failed the task with exit value 3.
+- Simulated input from tests (`context.getInput()`) goes straight to Minecraft's keyboard and mouse handlers and still works (UI-08
+  checks that too).
 - In watch mode the player is a spectator, so even without the input blocker it couldn't break or place blocks or hit entities. The
   camera is moved by the test only.
 - These mixins are only active in client game test runs (`fabric.client.gametest` is set); a normal `runClient` game is not affected.

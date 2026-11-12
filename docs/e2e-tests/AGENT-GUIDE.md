@@ -58,7 +58,10 @@ For whoever writes the tests designed in this folder. Read [framework.md](framew
 
 - Same tests, same config, same pathfinding wait, colony tests still one at a time. The camera (a spectator) is placed automatically:
   from above at an angle, framing the town hall, the citizens and their huts (a close-up for small tests), and it glides after the
-  citizens while they move. Keyboard and mouse do nothing, also not to the camera. Screenshots of each test:
+  citizens while they move. Keyboard and mouse do nothing, also not to the camera; switching to another window, minimizing or
+  resizing the window doesn't pause or change the run, and the window never captures the mouse; closing the window aborts the run
+  and the task fails (exit value 3)
+  ([framework.md, No human input](framework.md#no-human-input)). Screenshots of each test:
   `build/e2e-screenshots/watch-<test path>.png` (and `-2.png` for long tests). Results as headless: summary at the end of the log, `build/gametest-report.xml`, task fails if a
   required test failed. Details: [framework.md, Watch mode](framework.md#watch-mode).
 - Ticks run at normal speed (20 per second), so a 3000-tick budget can take 2.5 minutes. Filter to what you want to see.
@@ -86,6 +89,10 @@ UI tests open MineColonies windows and take screenshots ([ui.md](ui.md), [framew
    - Expected values come from the server: `server.computeOnServer(s -> serverColony(s, colony)...)`. Translate keys on the client:
      `context.computeOnClient(mc -> Component.translatable(key).getString())`.
    - Fail with `assertThat(condition, "expected ..., found ...")`; end with `closeScreen(context)`.
+   - Input: only `context.getInput()` (keys, typed text, cursor, clicks, scroll, `resizeWindow`) reaches the game; real keyboard, mouse,
+     focus and window changes are blocked ([framework.md, No human input](framework.md#no-human-input), checked by UI-08). The game's
+     cursor stays where the game or the test put it, never where the real mouse is; set it with
+     `setCursorPos` before relying on hover. The window size is fixed by Fabric, so screenshots always have the same size.
 3. **Look at your screenshots** (open the PNG): the text checks don't see missing textures or broken layouts.
 4. **Mod bug:** if the window is wrong because of MineColonies, keep the test, pass `false` as `required` in `runCase` and add a
    `// BUG E2E-UI-n` comment with what is wrong; report it with the screenshot path and the log lines.

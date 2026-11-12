@@ -32,7 +32,6 @@ import com.minecolonies.gametest.framework.IntegratedTestRun;
 import com.minecolonies.gametest.mixin.HudAccessor;
 import com.minecolonies.gametest.ui.UiBridge;
 import com.minecolonies.gametest.ui.UiColonySetup;
-import com.mojang.blaze3d.platform.SDLEventHandler;
 import com.minecolonies.api.MinecoloniesAPIProxy;
 import com.minecolonies.api.client.render.modeltype.CitizenModel;
 import com.minecolonies.api.client.render.modeltype.CitizenRenderState;
@@ -79,21 +78,17 @@ import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.asm.mixin.transformer.meta.MixinMerged;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import static com.ldtteam.structurize.api.constants.Constants.GROUNDSTYLE_RELATIVE;
 import static com.minecolonies.gametest.client.UiTestSupport.assertThat;
@@ -141,7 +136,6 @@ public class UiClientGameTest implements FabricClientGameTest
             return;
         }
 
-        runCase("UI-08", "Human input is ignored", true, shots -> checkInputBlocked());
         runCase("UI-14", "Config screen: client settings", true, shots -> ConfigScreenUiTests.clientSettings(context, shots));
 
         UiBridge.reset();
@@ -153,6 +147,7 @@ public class UiClientGameTest implements FabricClientGameTest
 
             final boolean ready = waitForColony(context, server, run);
             final UiBridge.Colony colony = UiBridge.colony;
+            runCase("UI-08", "Human input is ignored", true, shots -> HumanInputUiTests.run(context, server, shots));
             runCase("UI-09", "Brewing teaching computes the potion", true, shots -> brewingOutput(context));
             runCase("UI-12", "JEI draws blocks in 3D", true, shots -> jeiBlocks(context, shots));
             runCase("UI-15", "Config screen: server settings", true, shots -> ConfigScreenUiTests.serverSettings(context, server, shots));
@@ -267,7 +262,7 @@ public class UiClientGameTest implements FabricClientGameTest
     }
 
     // --------------------------------------------------------------------------------------------------------------------------------------
-    // UI-01 .. UI-08
+    // UI-01 .. UI-07 (UI-08 is in HumanInputUiTests)
     // --------------------------------------------------------------------------------------------------------------------------------------
 
     /**
@@ -967,28 +962,6 @@ public class UiClientGameTest implements FabricClientGameTest
             player.getInventory().setItem(0, ItemStack.EMPTY);
             player.getInventory().setItem(1, ItemStack.EMPTY);
         });
-    }
-
-    /**
-     * UI-08: real keyboard and mouse input can't reach the game: both the test mod's {@code SDLEventHandlerMixin} and Fabric's are applied
-     * to every input handler of {@link SDLEventHandler}.
-     */
-    private static void checkInputBlocked()
-    {
-        final Set<String> mixins = new HashSet<>();
-        for (final Method method : SDLEventHandler.class.getDeclaredMethods())
-        {
-            final MixinMerged merged = method.getAnnotation(MixinMerged.class);
-            if (merged != null)
-            {
-                mixins.add(merged.mixin());
-            }
-        }
-        assertThat(E2EMode.isClientTestRun(), "Not a client game test run (fabric.client.gametest not set)");
-        assertThat(mixins.contains("com.minecolonies.gametest.mixin.SDLEventHandlerMixin"),
-          "The test mod's input blocker (SDLEventHandlerMixin) is not applied to SDLEventHandler. Applied: " + mixins);
-        assertThat(mixins.contains("net.fabricmc.fabric.mixin.client.gametest.input.SDLEventHandlerMixin"),
-          "Fabric's client game test input blocker is not applied to SDLEventHandler. Applied: " + mixins);
     }
 
     // --------------------------------------------------------------------------------------------------------------------------------------

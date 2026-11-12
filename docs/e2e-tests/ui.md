@@ -179,22 +179,47 @@ test is recorded and the next one still runs.
 
 ## UI-08 Human input is ignored
 
-**Tests:** a person at the keyboard or mouse can't affect a test window.
+**Tests:** a person at the computer can't affect a test window: keyboard, mouse, focus changes and window changes (see
+[framework.md, No human input](framework.md#no-human-input)). Code: `client/HumanInputUiTests`.
 
 **Setup**
-- None (runs before the world is created).
+- The UI world, player in creative in front of the town hall (doesn't need the colony). "Pause on Lost Focus" is switched on for the
+  test (and back after it), so a missing guard would really pause.
+- "Real" input is made by pushing SDL events into the window's event queue, where the operating system's events arrive; window changes
+  are made on the real window through SDL. The person's real mouse and keyboard are not touched.
 
 **What happens**
-1. Looks at the mixins applied to Minecraft's `SDLEventHandler` (where real keyboard, mouse and text events from the window enter the
-   game).
+1. Wiring: every input handler of Minecraft's `SDLEventHandler` (all `handle…Event` methods except the key map change: keys, text input,
+   text editing, mouse motion, buttons, wheel, file drop begin/file/complete) is blocked by both the test mod's `SDLEventHandlerMixin`
+   and Fabric's; the test mod's `WindowMixin` (focus, minimize, display and fullscreen events), `MinecraftMixin` (pause on focus loss),
+   `InputConstantsMixin` (mouse capture), `MouseHandlerMixin` (real cursor position) and `MainMixin` (exit code after a closed window)
+   are applied, and Fabric's `WindowMixin` still covers focus, minimize and resize. (Closing the window is not tried: it would end the
+   run.) A new input handler in a future Minecraft version fails this until it is looked at.
+2. In the world, no screen open: pushes W, E and Escape key presses, left and right mouse button presses, a mouse movement, a wheel
+   scroll, focus loss, minimize, enter-fullscreen and a display mode change, then waits 1.5 seconds (Minecraft pauses 0.5 seconds after
+   losing focus).
+3. With a screen open that records every input it gets: pushes a key press and release, text editing (IME), text input, a mouse movement,
+   a click, a wheel scroll and a dropped file. Then resizes the GUI (which reads the real cursor position in a normal game). Then the
+   same kinds of input from the test (`context.getInput()`: key, typed text, cursor move, click, scroll).
+4. Resizes the real window by 160×90 pixels, maximizes it, restores it, minimizes it for 1.5 seconds, restores it and sets its old size
+   back; takes a screenshot after each step.
+5. Grabs the mouse the way the game does without a screen.
 
 **Passes when**
-- The test mod's `SDLEventHandlerMixin` and Fabric's client game test input blocker are both applied. Both drop every real input event
-  in client game test runs; simulated input from tests (`context.getInput()`) bypasses them.
+- Step 2: no screen opened (no inventory, no pause menu), neither the client nor the integrated server is paused and the server kept
+  ticking, the window still counts as focused and not minimized, the fullscreen option is unchanged, the player didn't move or turn, the
+  hotbar slot is the same, no key or button counts as held, and the framebuffer has its size.
+- Step 3: the screen received none of the real input and the game's cursor position didn't move (not even by the GUI resize); the
+  screen received every kind of simulated input (key press and release, typed character, click and release, scroll) and the simulated
+  cursor move moved the game's cursor.
+- Step 4: the framebuffer and the screenshots keep the size they had before; while minimized the client and the server keep ticking,
+  nothing pauses and no screen opens.
+- Step 5: the window is not in relative mouse mode (the cursor is not hidden or locked in the window).
 
-**Screenshots:** none.
+**Screenshots:** `ui08-reference`, `ui08-resized`, `ui08-maximized`, `ui08-minimized` (all the same size; the window itself may look
+different).
 
-**Time budget:** instant.
+**Time budget:** about 6 seconds.
 
 ---
 

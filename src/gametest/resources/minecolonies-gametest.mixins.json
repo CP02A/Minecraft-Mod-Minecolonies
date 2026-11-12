@@ -16,8 +16,13 @@
   "client": [
     "HudAccessor",
     "HudSelectedItemNameCaptureMixin",
+    "InputConstantsMixin",
     "IntegratedServerMixin",
-    "SDLEventHandlerMixin"
+    "MainMixin",
+    "MinecraftMixin",
+    "MouseHandlerMixin",
+    "SDLEventHandlerMixin",
+    "WindowMixin"
   ],
   "injectors": {
     "defaultRequire": 1
