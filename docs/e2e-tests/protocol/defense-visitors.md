@@ -19,7 +19,7 @@ budgets in the code).
 | DEF-02 | `def02_druidThrowsPotions` | ✅ passing | 146 | Design changed: druid slows the mob, doesn't kill it. |
 | DEF-02 | cavalry | ⛔ not implementable | - | See DEF-10. |
 | DEF-03 | `def03_patrolGuardFollow` | ✅ passing | 5336 | Guard mode checks "returns to the spot"; follow needs the owner in the player lists (test adds him). |
-| DEF-04 | `def04_guardGetsGearByLevel` | ✅ passing (partial) | 1580 | Level 1 gear via warehouse + courier. Upgrade part 📝 not done. |
+| DEF-04 | `def04_guardGetsGearByLevel` | ✅ passing | 2475 | Level 1 gear via warehouse + courier; after an upgrade to level 3 (blueprint pasted, no builder) iron is taken/requested, diamond refused. |
 | DEF-05 | `def05_injuredGuardRetreats` | ✅ passing | 2180 | Flee → regen at tower → back on duty. |
 | DEF-06 | `def06_barbarianRaid` | ✅ passing | 3586 | Also TOO_SMALL and maxRaiders checks. |
 | DEF-06 | `def06_amazonRaid` | ✅ passing | 2594 | |
@@ -40,8 +40,7 @@ budgets in the code).
 | VIS-04 | `vis04_declineAndCancelQuests` | ✅ passing | 613 | Decline + cancel in the first dialogue. |
 | VIS-04 | `vis04_cancelAcceptedQuestAtDelivery` | ❌ fails due to mod bug | ~1 | E2E-VIS04-1 (optional test). |
 
-Counts: 25 ✅ (test methods), 2 ❌ (mod bugs, optional tests), 3 ⛔ (cavalry/DEF-10, drowned pirates and ship raids), 1 📝 (DEF-04
-upgrade part).
+Counts: 25 ✅ (test methods), 2 ❌ (mod bugs, optional tests), 3 ⛔ (cavalry/DEF-10, drowned pirates and ship raids), 0 📝.
 
 **DEF-10 (⛔):** stable level 1 with a stablemaster (lead) and a cavalry guard (spear), two tamed horses inside the stable's corners.
 Within 12000 ticks no cavalry horse was registered to the stable: the stablemaster trains only after a cooldown of 50 decisions and then
@@ -91,7 +90,8 @@ stablemaster accepts); stopped after a reasonable effort. Not evidence of a bug.
   checked (needs research + shield).
 - **DEF-03 guard mode:** a guarding guard leaves for errands (dumping inventory at its hut) and walks back lazily; the test checks it is
   back at the spot later instead of "never leaves".
-- **DEF-04:** level 1 only; the upgrade part needs a builder (not done).
+- **DEF-04:** the upgrade is done without a builder by pasting the level 3 blueprint over the tower. Guards only check gear at their
+  hut, so the test sends the knight there by moving his sword into the tower (otherwise only the long dump cycle brings him there).
 - **DEF-06:** no guards (raiders are killed by the test after the approach is seen); only land raids (ships off); pirates = land
   variant.
 - **DEF-07:** the citizen is killed with raider-sourced hits by the test.

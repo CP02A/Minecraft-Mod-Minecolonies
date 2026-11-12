@@ -359,7 +359,7 @@ public class DefenseVisitorsTests
      * warehouse that holds leather, iron and diamond gear. The knight ends up wearing leather (level 1 allows leather/gold armor) and holding
      * a stone sword (level 1 allows wood/stone/gold tools), never iron or diamond.
      */
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 12000, skyAccess = true)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 26000, skyAccess = true)
     public void def04_guardGetsGearByLevel(final GameTestHelper helper)
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
@@ -404,6 +404,44 @@ public class DefenseVisitorsTests
                                                                                          || s.getItem().toString().contains("iron_") || s.getItem().toString().contains("diamond_"));
             }).orElse(false),
             () -> "worn " + guard[0].getEntity().map(DefenseVisitorsTests::wornArmor).orElse("-") + ", inventory " + inventoryText(guard[0]))
+          .run("upgrade the tower to level 3: the level 3 blueprint is pasted over it (as the builder's finished upgrade places it)", () -> {
+              fixture.pasteHut(ModBuildings.GUARD_TOWER_ID, 3, hut[0].getPosition(), com.ldtteam.structurize.api.RotationMirror.NONE);
+          })
+          .check("the tower is level 3 now", () -> hut[0].getBuildingLevel() == 3, () -> "level " + hut[0].getBuildingLevel())
+          .run("the knight loses his helmet and leaves his sword in the tower; an iron and a diamond chestplate are put into the tower", () -> {
+              // Guards only look at their gear while at their hut (PREPARING -> atBuildingActions), which they visit when a weapon is
+              // missing or to dump loot (the dump cycle takes far longer than the budget). The sword in the tower sends him there now.
+              final LivingEntity knight = guard[0].getEntity().get();
+              guard[0].getInventory().moveArmorToInventory(net.minecraft.world.entity.EquipmentSlot.HEAD);
+              knight.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, ItemStack.EMPTY);
+              knight.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+              for (int slot = 0; slot < guard[0].getInventory().getSlots(); slot++)
+              {
+                  final ItemStack stack = guard[0].getInventory().getStackInSlot(slot);
+                  if (stack.is(Items.LEATHER_HELMET))
+                  {
+                      guard[0].getInventory().extractItem(slot, 64, false);
+                  }
+                  else if (stack.is(net.minecraft.tags.ItemTags.SWORDS))
+                  {
+                      fixture.fillBuilding(hut[0], guard[0].getInventory().extractItem(slot, 64, false));
+                  }
+              }
+              fixture.fillBuilding(hut[0], new ItemStack(Items.IRON_CHESTPLATE), new ItemStack(Items.DIAMOND_CHESTPLATE));
+          })
+          .awaitUntil("level 3: the knight takes the iron chestplate from the tower, requests a helmet (iron arrives) and holds a sword again", 12000,
+            () -> guard[0].getEntity().map(e -> e.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD).is(Items.IRON_HELMET)
+                                                && e.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST).is(Items.IRON_CHESTPLATE)
+                                                && InventoryUtils.hasItemInItemHandler(guard[0].getInventory(), st -> st.is(net.minecraft.tags.ItemTags.SWORDS))).orElse(false),
+            () -> ColonyFixture.describe(guard[0]) + ", worn " + guard[0].getEntity().map(DefenseVisitorsTests::wornArmor).orElse("-")
+                    + ", inventory " + inventoryText(guard[0]) + ", open requests " + hut[0].getOpenRequests(guard[0].getId()).stream()
+                      .map(r -> r.getShortDisplayString().getString() + "/" + r.getState()).toList() + ", courier " + ColonyFixture.describe(courier[0])
+                    + ", tower chestplates " + fixture.countItems(hut[0], st -> st.is(Items.IRON_CHESTPLATE) || st.is(Items.DIAMOND_CHESTPLATE)))
+          .check("level 3 allows iron but not diamond: no diamond armor worn, the diamond chestplate is still in the tower",
+            () -> guard[0].getEntity().map(e -> !wornArmor(e).contains("diamond")).orElse(false)
+                    && fixture.countItems(hut[0], st -> st.is(Items.DIAMOND_CHESTPLATE)) == 1,
+            () -> "worn " + guard[0].getEntity().map(DefenseVisitorsTests::wornArmor).orElse("-") + ", diamond chestplates in tower "
+                    + fixture.countItems(hut[0], st -> st.is(Items.DIAMOND_CHESTPLATE)))
           .succeed();
     }
 
