@@ -78,6 +78,15 @@ fabricApi {
 loom.runs.matching { it.name == 'gameTest' }.configureEach {
     // JUnit-style report listing every test that ran.
     vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('gametest-report.xml').get().asFile.absolutePath}"
+
+    // Run only some tests: ./gradlew runGameTest -Pe2eFilter=<prefix>, e.g. -Pe2eFilter=colony_connections_robustness_tests.
+    // A value without ':' matches test ids "minecolonies-gametest:<prefix>*"; a value with ':' is passed on as a vanilla test selector
+    // (namespaced id with * and ? wildcards, e.g. "minecolonies-gametest:*_col01_*"). See docs/e2e-tests/AGENT-GUIDE.md.
+    def e2eFilter = project.findProperty('e2eFilter')
+    if (e2eFilter) {
+        def selector = e2eFilter.toString().contains(':') ? e2eFilter.toString() : "minecolonies-gametest:${e2eFilter}*"
+        vmArg "-Dfabric-api.gametest.filter=${selector}"
+    }
 }
 
 dependencies {

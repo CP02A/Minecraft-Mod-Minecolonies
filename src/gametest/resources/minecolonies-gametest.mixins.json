@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.minecolonies.gametest.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": [
+    "GameTestBatchFactoryMixin",
+    "GameTestHelperAccessor",
+    "GameTestServerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

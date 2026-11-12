@@ -7,10 +7,23 @@
   "license": "GPL-3.0",
   "environment": "*",
   "entrypoints": {
+    "main": [
+      "com.minecolonies.gametest.framework.E2EBootstrap"
+    ],
     "fabric-gametest": [
-      "com.minecolonies.gametest.TransferBridgeGameTests"
+      "com.minecolonies.gametest.TransferBridgeGameTests",
+      "com.minecolonies.gametest.framework.FrameworkGuardTests",
+      "com.minecolonies.gametest.suites.ColonyConnectionsRobustnessTests",
+      "com.minecolonies.gametest.suites.ConstructionResearchTests",
+      "com.minecolonies.gametest.suites.CitizensServicesTests",
+      "com.minecolonies.gametest.suites.LogisticsCraftingTests",
+      "com.minecolonies.gametest.suites.FarmingGatheringTests",
+      "com.minecolonies.gametest.suites.DefenseVisitorsTests"
     ]
   },
+  "mixins": [
+    "minecolonies-gametest.mixins.json"
+  ],
   "depends": {
     "minecolonies": "*",
     "fabric-gametest-api-v1": "*",
