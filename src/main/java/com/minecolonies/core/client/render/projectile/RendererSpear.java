@@ -2,9 +2,9 @@ package com.minecolonies.core.client.render.projectile;
 
 import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.model.SpearModel;
+import com.minecolonies.core.event.ClientRegistryHandler;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -32,7 +32,16 @@ public class RendererSpear extends EntityRenderer<ThrownTrident, ThrownTridentRe
     public RendererSpear(final EntityRendererProvider.Context context)
     {
         super(context);
-        this.model = new SpearModel(context.bakeLayer(ModelLayers.TRIDENT));
+        // FABRIC-PORT: the spear's own mesh; 1.21.1 baked ModelLayers.TRIDENT.
+        this.model = new SpearModel(context.bakeLayer(ClientRegistryHandler.SPEAR));
+    }
+
+    /**
+     * @return the baked spear model.
+     */
+    public SpearModel model()
+    {
+        return this.model;
     }
 
     @Override

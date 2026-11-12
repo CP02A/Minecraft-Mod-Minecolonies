@@ -42,8 +42,10 @@ public class SpearModel extends Model<Unit>
           .texOffs(4, 7).addBox(-1.0F, -1.5F, -1.0F, 2.0F, 3.0F, 2.0F),
           PartPose.offsetAndRotation(0.0F, -6.375F, 0.0F, 0.0F, 0.7854F, 0.0F));
 
+        // FABRIC-PORT: texture offset (4, 12) instead of (4, 7): textures/entity/spear.png has the tip's own 4x4 patch at (4, 12); (4, 7) is
+        // the flair's patch. The mesh was never drawn upstream (see ClientRegistryHandler#SPEAR), so the wrong offset never showed.
         currentHandle.addOrReplaceChild("arrow_head",  CubeListBuilder.create()
-            .texOffs(4, 7).addBox(-0.5F, -1.5F, -0.5F, 1.0F, 3.0F, 1.0F),
+            .texOffs(4, 12).addBox(-0.5F, -1.5F, -0.5F, 1.0F, 3.0F, 1.0F),
           PartPose.offsetAndRotation(0.0F, -9.375F, 0.0F, 0.0F, -0.7854F, 0.0F));
 
         return LayerDefinition.create(meshdefinition, 32, 32);

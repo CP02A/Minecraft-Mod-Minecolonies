@@ -225,7 +225,10 @@ covered by `crf01_alchemist`).
 ## UI-10 Spear item renders in 3D
 
 **Tests:** the spear item is drawn with its 3D model (special item model renderer `SpearItemTileEntityRenderer`) in hand, on armor
-stands and in item frames, and with its flat sprite in the GUI, like the NeoForge version.
+stands and in item frames, and with its flat sprite in the GUI, like the NeoForge version. The 3D model and the thrown spear use the
+spear's own mesh (`SpearModel#createLayer`, layer `minecolonies:spear#main`), not the vanilla trident's
+([E2E-UI-10-1](../Upstream-bugs.md#e2e-ui-10-1-the-spear-is-drawn-with-the-vanilla-trident-mesh)), and the spear fits into an item frame
+([E2E-UI-10-2](../Upstream-bugs.md#e2e-ui-10-2-in-an-item-frame-the-spear-hangs-out-of-the-frame)).
 
 **Setup**
 - The test world. A small scene 20 blocks west of the UI colony's arena (in the air, y 19-25): a stone floor, a concrete wall, an item
@@ -233,19 +236,25 @@ stands and in item frames, and with its flat sprite in the GUI, like the NeoForg
   wall. Runs after the other UI tests (it moves the player).
 
 **What happens**
-1. Resolves the spear's item model on the client for third person, first person, item frame and GUI and measures its bounding box.
+1. Resolves the spear's item model on the client for third person, first person, item frame and GUI, measures its bounding box and
+   reads which mesh its special renderer baked (by reflection on the render state's first layer).
 2. Takes a screenshot in first person, then one in third person (front view), then empties the player's hand.
+3. Spawns a spear entity 3 blocks in front of the player (no gravity, flying slowly east and a bit up), checks the mesh of its entity
+   renderer (`RendererSpear`) and takes a screenshot with the HUD hidden.
+4. Removes it, moves the player 1.5 blocks in front of the item frame and takes a close-up.
 
 **Passes when**
-- In hand (first and third person) and in the item frame the model's longest side is over 1.3 blocks (the 3D spear is about two blocks
-  long; the flat sprite and the missing model are one block); in the GUI it is the flat one-block sprite.
+- In hand (first and third person) the model's longest side is over 1.3 blocks (the 3D spear is two blocks long; the flat sprite and the
+  missing model are one block); in the item frame it is between 0.7 and 1.3 (the 3D spear scaled to 0.6, diagonal); in the GUI it is the
+  flat one-block sprite.
+- The item renderer (third person, first person, item frame), the thrown spear's renderer and the baked layer `ClientRegistryHandler.SPEAR`
+  all hold the spear mesh (root part `handle` with `arrow_head` and `arrow_flair`; the trident's root part is `pole`).
 
-**Look at the screenshots:** the spear in the hand, held by the armor stand and in the item frame is the 3D model; the hotbar shows the
-flat sprite. Like in 1.21.1 the item frame transform (`models/item/spear_in_hand.json`, `fixed`) pushes most of the spear into the wall,
-only the tip shows below the frame. Like in 1.21.1 the 3D spear is the trident mesh with the spear texture (the spear's own mesh
-`SpearModel#createLayer` was never registered upstream).
+**Look at the screenshots:** the spear in the hand, held by the armor stand and thrown is a thin wooden shaft with a dark leather grip and
+a white two-part iron tip (not the trident's three prongs). In the item frame it lies diagonally inside the frame, tip to the upper right,
+fully visible. The hotbar shows the flat sprite.
 
-**Screenshots:** `ui10-spear-first-person.png`, `ui10-spear-third-person.png`.
+**Screenshots:** `ui10-spear-first-person.png`, `ui10-spear-third-person.png`, `ui10-spear-thrown.png`, `ui10-spear-item-frame.png`.
 
 **Time budget:** about 4 seconds.
 

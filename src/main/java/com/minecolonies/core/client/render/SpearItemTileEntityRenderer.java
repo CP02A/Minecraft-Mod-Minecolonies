@@ -4,7 +4,7 @@ import com.minecolonies.api.util.constant.Constants;
 import com.minecolonies.core.client.model.SpearModel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.client.model.geom.ModelLayers;
+import com.minecolonies.core.event.ClientRegistryHandler;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.special.NoDataSpecialModelRenderer;
@@ -23,7 +23,7 @@ import java.util.function.Consumer;
  * referenced from assets/minecolonies/items/spear.json ("type": "minecraft:special", "model": {"type": "minecolonies:spear"}), registered
  * by {@link #register()} during client init (ClientRegistryHandler#doClientStuff, before the first resource load). The display transforms
  * come from models/item/spear_in_hand.json and spear_throwing.json, as before; like 1.21.1 the model is drawn without the trident's
- * (1, -1, -1) flip.
+ * (1, -1, -1) flip. The model is the spear's own mesh ({@link ClientRegistryHandler#SPEAR}); 1.21.1 baked the vanilla trident layer.
  */
 public class SpearItemTileEntityRenderer implements NoDataSpecialModelRenderer
 {
@@ -39,6 +39,14 @@ public class SpearItemTileEntityRenderer implements NoDataSpecialModelRenderer
     public SpearItemTileEntityRenderer(final SpearModel model)
     {
         this.model = model;
+    }
+
+    /**
+     * @return the baked spear model.
+     */
+    public SpearModel model()
+    {
+        return this.model;
     }
 
     /**
@@ -93,7 +101,7 @@ public class SpearItemTileEntityRenderer implements NoDataSpecialModelRenderer
         @Override
         public SpearItemTileEntityRenderer bake(final SpecialModelRenderer.BakingContext context)
         {
-            return new SpearItemTileEntityRenderer(new SpearModel(context.entityModelSet().bakeLayer(ModelLayers.TRIDENT)));
+            return new SpearItemTileEntityRenderer(new SpearModel(context.entityModelSet().bakeLayer(ClientRegistryHandler.SPEAR)));
         }
     }
 }
