@@ -167,7 +167,7 @@ The [remaining known gaps](#remaining-known-gaps) are listed in the round-3 sect
 
 | What | Where |
 |---|---|
-| **DONE:** the spear's custom item renderer. It already was a `SpecialModelRenderer` registered in `ClientRegistryHandler#doClientStuff` and used by `items/spear.json` (the TODO was stale); item frames now use the 3D model like 1.21.1 (they showed the flat sprite). Test UI-10. | `SpearItemTileEntityRenderer.java`, `items/spear.json` |
+| **DONE:** the spear's custom item renderer. It already was a `SpecialModelRenderer` registered in `ClientRegistryHandler#doClientStuff` and used by `items/spear.json` (the TODO was stale); item frames now use the 3D model like 1.21.1 (they showed the flat sprite). Later in round 3 the spear got its own mesh instead of the trident's and fits into item frames (E2E-UI-10-1, E2E-UI-10-2). Test UI-10. | `SpearItemTileEntityRenderer.java`, `items/spear.json` |
 | **DONE:** child citizens are drawn with child proportions again: `CitizenModel#applyChildProportions` applies 1.21.1's `young` scaling (head 0.75, body 0.5) to the posed parts, also on the armor model (`CitizenArmorModel`); held items follow the arm. Test UI-11. | `CitizenModel.java`, `RenderBipedCitizen.java` |
 | **DONE.** Structurize's solid placeholder blocks ignore worldgen surface rules (26.x replaced `SurfaceRules`); they fall back to the dimension's default block or dirt. Now the noise generator's material rule (`NoiseGeneratorSettings#materialRule`) is evaluated at the position with a `MaterialRuleContext` built like `MaterialSystem#buildSurface` does (package-private constructor and `updateXZ`/`updateY` through the invoker mixin `MaterialRuleContextInvoker`). Test: [PRT-01](fabric-port.md#prt-01-solid-placeholders-follow-the-worldgen-surface-rules). | `BlockUtils#getMaterialRuleBlock` |
 | **DONE:** JEI crafter recipes derived from vanilla recipes on dedicated servers: built from the recipes the server synchronizes (Fabric `RecipeSynchronization`, now also transmute/dye/imbue crafting) via `RecipeAnalyzer#createRecipeManager`. Test UI-13 (JEI itself is not in the test runtime). | `JEIPlugin.java`, `MineColoniesFabric.java` |
@@ -225,9 +225,9 @@ Budgets are in game ticks and cost little real time, so they were raised generou
 
 ## Bugs found
 
-25 reports: 24 real bugs, all **FIXED**, and 1 that was not a mod bug (E2E-LOG06-1, a test setup problem). By origin: 4 specific to the
-Fabric port, 19 in original MineColonies code and 1 in original Structurize code (round 3 added E2E-COL-05-2, E2E-CIT01-1, E2E-FRM-01-2,
-E2E-FAB-05-1 and E2E-FAB-06-1). The 20 bugs in original code are written up for
+27 reports: 26 real bugs, all **FIXED**, and 1 that was not a mod bug (E2E-LOG06-1, a test setup problem). By origin: 4 specific to the
+Fabric port, 21 in original MineColonies code and 1 in original Structurize code (round 3 added E2E-COL-05-2, E2E-CIT01-1, E2E-FRM-01-2,
+E2E-FAB-05-1, E2E-FAB-06-1 and the two spear rendering bugs E2E-UI-10-1 and E2E-UI-10-2). The 22 bugs in original code are written up for
 reporting, with steps to reproduce and patches, in [Upstream-bugs.md](../Upstream-bugs.md). Each fix has a required test.
 
 | ID | Title | Severity | Origin | Where | Status / test |
@@ -256,6 +256,8 @@ reporting, with steps to reproduce and patches, in [Upstream-bugs.md](../Upstrea
 | [E2E-FAB-06-1](#e2e-fab-06-1-dropped-fire-arrows-vanish) | Dropped fire arrows vanish | Low | Upstream (NeoForge hook) | `ItemFireArrow.java:29, 44` | **FIXED** (hook not ported); `droppedFireArrowStaysAnItem` (FAB-06) |
 | [E2E-FRM-01-2](#e2e-frm-01-2-farmer-skips-a-field-cell-after-every-interruption) | Farmer skips a field cell after every interruption | Low | Upstream | `EntityAIWorkFarmer.java:311-316` | **FIXED**; `frm01_farmerTillsOtherSoils` |
 | [E2E-CIT01-1](#e2e-cit01-1-a-citizen-who-just-finished-a-meal-sometimes-eats-once-more) | A citizen who just finished a meal sometimes eats once more | Low | Upstream | `CitizenAI.java:281`, `CitizenData.java:1182` | **FIXED**; `cit01_eatingWhenHungry` |
+| [E2E-UI-10-1](#e2e-ui-10-1-the-spear-is-drawn-with-the-vanilla-trident-mesh) | The spear is drawn with the vanilla trident mesh | Low (visual) | Upstream | `SpearItemTileEntityRenderer.java:30, 36`, `RendererSpear.java:37`, `SpearModel.java:47` | **FIXED**; UI-10 (client) |
+| [E2E-UI-10-2](#e2e-ui-10-2-in-an-item-frame-the-spear-hangs-out-of-the-frame) | In an item frame the spear hangs out of the frame | Low (visual) | Upstream | `models/item/spear_in_hand.json:34-37` | **FIXED**; UI-10 (client) |
 | [E2E-LOG06-1](#e2e-log06-1-orphaned-delivery-a-tool-request-is-never-delivered) | Orphaned delivery: a tool request is never delivered | – | Not a mod bug (test setup) | test `log06_toolsByHutLevel` | Test fixed; `log06_toolsByHutLevel` |
 
 "Upstream" means the same code is in MineColonies `upstream/version/1.21` (the port's base) and, unless [Upstream-bugs.md](../Upstream-bugs.md)
@@ -473,6 +475,22 @@ working offset before testing it, so the cell he was about to till (or harvest) 
 
 After the last bite `lastState` stays `EATING` for up to 10 ticks; a saturation drop in that window clears `justAte`, and `shouldEat`
 started a new meal at saturation 59.7.
+
+#### E2E-UI-10-1 The spear is drawn with the vanilla trident mesh
+
+**FIXED:** the spear's own mesh `SpearModel#createLayer` is registered as layer `ClientRegistryHandler.SPEAR` (`minecolonies:spear#main`)
+and baked by `SpearItemTileEntityRenderer` and `RendererSpear`; the tip's texture offset is (4, 12), where `textures/entity/spear.png`
+has its patch. [Upstream report](../Upstream-bugs.md#e2e-ui-10-1-the-spear-is-drawn-with-the-vanilla-trident-mesh).
+
+Both renderers baked `ModelLayers.TRIDENT` since the spear was added (1.18), so the spear was a trident with the spear texture. UI-10
+checks the baked meshes and shows the thrown spear (`ui10-spear-thrown.png`).
+
+#### E2E-UI-10-2 In an item frame the spear hangs out of the frame
+
+**FIXED:** the `fixed` transform of `models/item/spear_in_hand.json` scales the spear to 0.6, lays it diagonally and centers it in the
+frame. [Upstream report](../Upstream-bugs.md#e2e-ui-10-2-in-an-item-frame-the-spear-hangs-out-of-the-frame).
+
+The unscaled two-block model stood upright below the frame's center. Close-up: `ui10-spear-item-frame.png`.
 
 ## Not implementable
 

@@ -153,6 +153,12 @@ public class ClientRegistryHandler
     public static final ModelLayerLocation AMAZON_CHIEF = new ModelLayerLocation(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "amazon_chief"), "amazon_chief");
     public static final ModelLayerLocation AMAZON_SPEARMAN = new ModelLayerLocation(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "amazon_spearman"), "amazon_spearman");
 
+    /**
+     * The spear's own mesh (item in hand/frame and the thrown spear). FABRIC-PORT: 1.21.1 never registered it and baked the vanilla trident
+     * layer instead.
+     */
+    public static final ModelLayerLocation SPEAR = new ModelLayerLocation(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "spear"), "main");
+
     public static final ModelLayerLocation SCARECROW = new ModelLayerLocation(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "scarecrow"), "scarecrow");
 
     public static final ModelLayerLocation CITIZEN = new ModelLayerLocation(Identifier.fromNamespaceAndPath(Constants.MOD_ID, "citizen"), "citizen");
@@ -166,6 +172,7 @@ public class ClientRegistryHandler
         event.registerLayerDefinition(AMAZON, ModelAmazon::createMesh);
         event.registerLayerDefinition(AMAZON_CHIEF, ModelAmazonChief::createMesh);
         event.registerLayerDefinition(AMAZON_SPEARMAN, ModelAmazonSpearman::createMesh);
+        event.registerLayerDefinition(SPEAR, SpearModel::createLayer);
 
         event.registerLayerDefinition(ARCHER_MUMMY, ModelArcherMummy::createMesh);
         event.registerLayerDefinition(MUMMY, ModelMummy::createMesh);

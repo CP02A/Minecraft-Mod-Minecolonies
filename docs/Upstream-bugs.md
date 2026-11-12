@@ -29,7 +29,7 @@ The other fixes only restore the intended behavior.
 
 ## MineColonies
 
-19 bugs, and two [visual quirks](#visual-quirks-not-filed-as-bugs).
+21 bugs.
 
 | ID | Title | `version/1.21` | `version/main` (1.20.1) |
 |---|---|---|---|
@@ -52,6 +52,8 @@ The other fixes only restore the intended behavior.
 | [E2E-FRM-01-2](#e2e-frm-01-2-farmer-skips-a-field-cell-after-every-interruption) | Farmer skips a field cell after every interruption | yes | yes |
 | [E2E-FAB-05-1](#e2e-fab-05-1-the-pharao-scepter-shoots-whatever-is-in-the-off-hand-or-the-first-hotbar-slot) | The pharao scepter shoots whatever is in the off hand or the first hotbar slot | yes | yes |
 | [E2E-FAB-06-1](#e2e-fab-06-1-dropped-fire-arrows-vanish) | Dropped fire arrows vanish | yes | yes |
+| [E2E-UI-10-1](#e2e-ui-10-1-the-spear-is-drawn-with-the-vanilla-trident-mesh) | The spear is drawn with the vanilla trident mesh | yes | yes |
+| [E2E-UI-10-2](#e2e-ui-10-2-in-an-item-frame-the-spear-hangs-out-of-the-frame) | In an item frame the spear hangs out of the frame | yes | yes |
 
 ### E2E-CIT06-1: Unemployed or sick citizens can be happier than healthy employed ones
 
@@ -898,15 +900,99 @@ guards against porting it back).
 
 ---
 
-### Visual quirks (not filed as bugs)
+### E2E-UI-10-1: The spear is drawn with the vanilla trident mesh
 
-Seen while testing the spear's renderer (UI-10); the port keeps the 1.21.1 look, so they are noted here for the maintainers only.
+**Applies to:** `version/1.21` (`d66bdaae3a`, NeoForge); also `version/main` (`b2fb29ec11`, Forge, same lines). Since the spear was added
+("amazon-spearman-port", 1.18): the spear's own model was never used.
 
-- **The spear is drawn with the vanilla trident mesh.** `SpearModel#createLayer` (`core/client/model/SpearModel.java:31`) defines the
-  spear's own mesh, but it is never registered as a model layer; the item renderer and the thrown spear bake `ModelLayers.TRIDENT` instead
-  (`core/client/render/SpearItemTileEntityRenderer.java:30`, `core/client/render/projectile/RendererSpear.java:37`).
-- **In an item frame the spear sits mostly inside the wall.** The `fixed` transform of `models/item/spear_in_hand.json` (lines 34-37,
-  translation `[-7.75, -6.5, -8.5]`) pushes the two-block model into the block behind the frame; only the tip shows below the frame.
+**Steps to reproduce**
+1. Hold a spear (or give one to an armor stand), or let an amazon spearman throw one.
+
+**Expected:** the spear's own model, `SpearModel#createLayer`: a thin wooden shaft (26 px) with a leather grip and a two-part iron tip,
+textured by `textures/entity/spear.png`.
+
+**Actual:** the vanilla trident's mesh (pole, base and three prongs) with the spear texture mapped onto the trident's UV layout, so the
+prongs and the base show random patches of the spear texture.
+
+**Root cause:** `SpearModel#createLayer` (`core/client/model/SpearModel.java:31`) is never registered as a model layer
+(`ClientRegistryHandler#registerLayerDefinitions`, `core/event/ClientRegistryHandler.java:162`, registers the amazon spearman at line 168
+but no spear), and both renderers bake the trident's layer instead: `core/client/render/SpearItemTileEntityRenderer.java:30` and `:36`
+(`this.set.bakeLayer(ModelLayers.TRIDENT)`) and `core/client/render/projectile/RendererSpear.java:37`
+(`context.bakeLayer(ModelLayers.TRIDENT)`). Because the mesh was never drawn, its texture offsets were never checked either:
+`arrow_head` (`SpearModel.java:47`) uses `texOffs(4, 7)`, the flair's patch; the texture has the tip's own 4x4 patch at (4, 12).
+
+**Suggested patch:**
+```diff
+--- a/src/main/java/com/minecolonies/core/event/ClientRegistryHandler.java
++++ b/src/main/java/com/minecolonies/core/event/ClientRegistryHandler.java
+@@
+     public static final ModelLayerLocation AMAZON_SPEARMAN = new ModelLayerLocation(new ResourceLocation(Constants.MOD_ID, "amazon_spearman"), "amazon_spearman");
++    public static final ModelLayerLocation SPEAR = new ModelLayerLocation(new ResourceLocation(Constants.MOD_ID, "spear"), "main");
+@@
+         event.registerLayerDefinition(AMAZON_SPEARMAN, ModelAmazonSpearman::createMesh);
++        event.registerLayerDefinition(SPEAR, SpearModel::createLayer);
+--- a/src/main/java/com/minecolonies/core/client/render/SpearItemTileEntityRenderer.java
++++ b/src/main/java/com/minecolonies/core/client/render/SpearItemTileEntityRenderer.java
+@@
+-        this.model = new SpearModel(this.set.bakeLayer(ModelLayers.TRIDENT));
++        this.model = new SpearModel(this.set.bakeLayer(ClientRegistryHandler.SPEAR));
+@@
+-        this.model = new SpearModel(this.set.bakeLayer(ModelLayers.TRIDENT));
++        this.model = new SpearModel(this.set.bakeLayer(ClientRegistryHandler.SPEAR));
+--- a/src/main/java/com/minecolonies/core/client/render/projectile/RendererSpear.java
++++ b/src/main/java/com/minecolonies/core/client/render/projectile/RendererSpear.java
+@@
+-        this.model = new SpearModel(context.bakeLayer(ModelLayers.TRIDENT));
++        this.model = new SpearModel(context.bakeLayer(ClientRegistryHandler.SPEAR));
+--- a/src/main/java/com/minecolonies/core/client/model/SpearModel.java
++++ b/src/main/java/com/minecolonies/core/client/model/SpearModel.java
+@@
+         currentHandle.addOrReplaceChild("arrow_head",  CubeListBuilder.create()
+-            .texOffs(4, 7).addBox(-0.5F, -1.5F, -0.5F, 1.0F, 3.0F, 1.0F),
++            .texOffs(4, 12).addBox(-0.5F, -1.5F, -0.5F, 1.0F, 3.0F, 1.0F),
+```
+The mesh points the same way as the trident's (tip towards -y, about the same length), so the existing display transforms and the
+thrown spear's rotations still fit.
+
+**E2E test:** UI-10 (client UI test; checks the baked mesh of the item renderer, the thrown spear's renderer and the layer;
+screenshots `ui10-spear-first-person.png`, `ui10-spear-thrown.png`).
+
+---
+
+### E2E-UI-10-2: In an item frame the spear hangs out of the frame
+
+**Applies to:** `version/1.21` (`d66bdaae3a`, NeoForge); also `version/main` (`b2fb29ec11`, Forge, same lines).
+
+**Steps to reproduce**
+1. Put a spear into an item frame on a wall.
+
+**Expected:** the spear lies inside the frame, fully visible, like other weapons in a frame.
+
+**Actual:** the full-size two-block model stands upright from the frame's center down; most of it hangs below the frame along the wall
+(with the trident mesh of [E2E-UI-10-1](#e2e-ui-10-1-the-spear-is-drawn-with-the-vanilla-trident-mesh), the part behind the frame is
+hidden and only the tip shows below it).
+
+**Root cause:** the `fixed` transform of `src/main/resources/assets/minecolonies/models/item/spear_in_hand.json` (lines 34-37) only turns
+the model (`rotation [0, 180, 0]`) and moves it by `[-7.75, -6.5, -8.5]`, without scaling it: the model is two blocks long (32 px) and
+its shaft lies on the model's edge (x = z = 0), so it ends up 6.5 px below the frame's center and twice the size of the frame.
+
+**Suggested patch:** scale it to 0.6, turn it diagonal (tip to the upper right, like swords in a frame) and move its center to the
+frame's center (the translation is `R * S * (0.5, 0, 0.5)` blocks, R and S the rotation and scale, for the shaft's center at
+model (0, 0.5, 0)):
+```diff
+--- a/src/main/resources/assets/minecolonies/models/item/spear_in_hand.json
++++ b/src/main/resources/assets/minecolonies/models/item/spear_in_hand.json
+@@
+     "fixed": {
+-      "rotation": [0, 180, 0],
+-      "translation": [-7.75, -6.5, -8.5]
++      "rotation": [0, 180, 135],
++      "translation": [3.39, 3.39, -4.8],
++      "scale": [0.6, 0.6, 0.6]
+     }
+```
+
+**E2E test:** UI-10 (client UI test; the item frame model must be 0.7 to 1.3 blocks; screenshot `ui10-spear-item-frame.png`).
 
 ---
 

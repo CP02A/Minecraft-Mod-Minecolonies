@@ -453,9 +453,10 @@ public class UiClientGameTest implements FabricClientGameTest
     // --------------------------------------------------------------------------------------------------------------------------------------
 
     /**
-     * UI-10: the spear item uses its special 3D model renderer in hand and in item frames, and the flat sprite in the GUI. Builds a small
-     * scene away from the colony (a wall with the spear in an item frame, an armor stand holding it, the player holding it) and takes
-     * screenshots in first and third person.
+     * UI-10: the spear item uses its special 3D model renderer (the spear's own mesh, layer ClientRegistryHandler#SPEAR, not the vanilla
+     * trident) in hand and in item frames, and the flat sprite in the GUI; the thrown spear entity uses the same mesh. Builds a small scene
+     * away from the colony (a wall with the spear in an item frame, an armor stand holding it, the player holding it, a thrown spear in the
+     * air) and takes screenshots in first and third person, of the thrown spear and of the item frame up close.
      */
     private static void spear(final ClientGameTestContext context, final TestServerContext server, final List<Path> shots)
     {
@@ -468,13 +469,20 @@ public class UiClientGameTest implements FabricClientGameTest
         server.runCommand("tp @a 26.5 20 24.5 0 15");
         context.waitTicks(60);
 
-        // Item model check: 3D (the spear model is about two blocks long) in hand and in item frames, the flat sprite (one block) in the GUI.
+        // Item model check: 3D (the spear model is two blocks long) in hand, the flat sprite (one block) in the GUI, and in the item frame
+        // the 3D model scaled to fit the frame (about one block long, like the flat items).
         final double[] sizes = context.computeOnClient(mc -> new double[] {
           itemModelSize(mc, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND),
           itemModelSize(mc, ItemDisplayContext.FIRST_PERSON_RIGHT_HAND),
           itemModelSize(mc, ItemDisplayContext.FIXED),
           itemModelSize(mc, ItemDisplayContext.GUI)});
         LOGGER.info("UI-10 spear item model sizes (third person, first person, item frame, GUI): {}", java.util.Arrays.toString(sizes));
+        // The special renderer of the hand and frame models must hold the spear's own mesh (root part "handle"; the trident's is "pole").
+        final String[] itemMeshes = context.computeOnClient(mc -> new String[] {
+          itemMesh(mc, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND),
+          itemMesh(mc, ItemDisplayContext.FIRST_PERSON_RIGHT_HAND),
+          itemMesh(mc, ItemDisplayContext.FIXED)});
+        LOGGER.info("UI-10 spear item meshes (third person, first person, item frame): {}", java.util.Arrays.toString(itemMeshes));
 
         shots.add(screenshot(context, "ui10-spear-first-person"));
         context.runOnClient(mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT));
@@ -483,9 +491,113 @@ public class UiClientGameTest implements FabricClientGameTest
         context.runOnClient(mc -> mc.options.setCameraType(CameraType.FIRST_PERSON));
         server.runCommand("item replace entity @a weapon.mainhand with minecraft:air");
 
-        assertThat(sizes[0] > 1.3 && sizes[1] > 1.3 && sizes[2] > 1.3,
-          "The spear should use its 3D model in hand and in item frames (longest side > 1.3 blocks), sizes " + java.util.Arrays.toString(sizes));
+        // Thrown spear: floats 3 blocks in front of the player, flying slowly sideways and a bit up (it points where it flies), no gravity.
+        server.runCommand("kill @e[type=minecolonies:spear]");
+        server.runOnServer(s -> {
+            final com.minecolonies.core.entity.other.SpearEntity thrown =
+              new com.minecolonies.core.entity.other.SpearEntity(com.minecolonies.api.entity.ModEntities.SPEAR, s.overworld());
+            thrown.setNoGravity(true);
+            thrown.setPos(25.5, 21.4, 27.5);
+            thrown.setDeltaMovement(0.004, 0.0015, 0.0);
+            thrown.setYRot(-90.0F);
+            thrown.setXRot(-20.0F);
+            s.overworld().addFreshEntity(thrown);
+        });
+        context.waitTicks(10);
+        final String thrownMesh = context.computeOnClient(mc -> {
+            for (final net.minecraft.world.entity.Entity entity : mc.level.entitiesForRendering())
+            {
+                if (entity.getType() == com.minecolonies.api.entity.ModEntities.SPEAR)
+                {
+                    final Object renderer = mc.getEntityRenderDispatcher().getRenderer(entity);
+                    return renderer instanceof com.minecolonies.core.client.render.projectile.RendererSpear spearRenderer
+                             ? meshName(spearRenderer.model()) : "renderer " + renderer.getClass().getSimpleName();
+                }
+            }
+            return "no thrown spear on the client";
+        });
+        LOGGER.info("UI-10 thrown spear mesh: {}", thrownMesh);
+        context.runOnClient(mc -> setHudHidden(mc, true));
+        shots.add(screenshot(context, "ui10-spear-thrown"));
+
+        // Item frame close-up: 1.5 blocks in front of the frame, eyes at the frame's height.
+        server.runCommand("kill @e[type=minecolonies:spear]");
+        server.runCommand("tp @a 27.5 20 29.0 0 0");
+        context.waitTicks(10);
+        shots.add(screenshot(context, "ui10-spear-item-frame"));
+        context.runOnClient(mc -> setHudHidden(mc, false));
+
+        assertThat(sizes[0] > 1.3 && sizes[1] > 1.3,
+          "The spear should use its 3D model in hand (longest side > 1.3 blocks), sizes " + java.util.Arrays.toString(sizes));
+        assertThat(sizes[2] > 0.7 && sizes[2] < 1.3,
+          "The spear in an item frame should be the 3D model scaled to about one block (0.7 to 1.3), size " + sizes[2]);
         assertThat(sizes[3] < 1.1, "The spear should use its flat sprite in the GUI, size " + sizes[3]);
+        for (final String mesh : itemMeshes)
+        {
+            assertThat(SPEAR_MESH.equals(mesh), "The spear item should be drawn with the spear's own mesh, found " + java.util.Arrays.toString(itemMeshes));
+        }
+        assertThat(SPEAR_MESH.equals(thrownMesh), "The thrown spear should be drawn with the spear's own mesh, found " + thrownMesh);
+        final String layerMesh = context.computeOnClient(mc -> meshName(mc.getEntityModels().bakeLayer(com.minecolonies.core.event.ClientRegistryHandler.SPEAR)));
+        assertThat(SPEAR_MESH.equals(layerMesh), "Layer minecolonies:spear should hold the spear mesh, found " + layerMesh);
+    }
+
+    /**
+     * Hide or show the HUD (like F1).
+     */
+    private static void setHudHidden(final Minecraft mc, final boolean hidden)
+    {
+        if (mc.gui.hud.isHidden() != hidden)
+        {
+            mc.gui.hud.toggle();
+        }
+    }
+
+    /**
+     * Name of the spear's own mesh in {@link #meshName}.
+     */
+    private static final String SPEAR_MESH = "spear";
+
+    /**
+     * @return "spear" for the spear mesh (SpearModel#createLayer: handle with arrow_head and arrow_flair), "trident" for the vanilla trident
+     * mesh (pole), otherwise the root's description.
+     */
+    private static String meshName(final net.minecraft.client.model.geom.ModelPart root)
+    {
+        if (root.hasChild("handle") && root.getChild("handle").hasChild("arrow_head") && root.getChild("handle").hasChild("arrow_flair"))
+        {
+            return SPEAR_MESH;
+        }
+        return root.hasChild("pole") ? "trident" : "unknown mesh " + root;
+    }
+
+    private static String meshName(final com.minecolonies.core.client.model.SpearModel model)
+    {
+        return meshName(model.root());
+    }
+
+    /**
+     * @return the mesh the spear's special item renderer draws in this display context (see {@link #meshName}); reads the first layer's
+     * special renderer of the resolved item model.
+     */
+    private static String itemMesh(final Minecraft mc, final ItemDisplayContext displayContext)
+    {
+        final ItemStackRenderState state = new ItemStackRenderState();
+        mc.getItemModelResolver().updateForTopItem(state, new ItemStack(ModItems.spear), displayContext, mc.level, mc.player, 0);
+        try
+        {
+            final java.lang.reflect.Field layersField = ItemStackRenderState.class.getDeclaredField("layers");
+            layersField.setAccessible(true);
+            final Object layer = ((Object[]) layersField.get(state))[0];
+            final java.lang.reflect.Field rendererField = layer.getClass().getDeclaredField("specialRenderer");
+            rendererField.setAccessible(true);
+            final Object renderer = rendererField.get(layer);
+            return renderer instanceof com.minecolonies.core.client.render.SpearItemTileEntityRenderer spear
+                     ? meshName(spear.model()) : "special renderer " + (renderer == null ? "none" : renderer.getClass().getSimpleName());
+        }
+        catch (final ReflectiveOperationException e)
+        {
+            return "reflection failed: " + e;
+        }
     }
 
     /**
