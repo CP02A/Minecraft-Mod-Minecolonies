@@ -448,7 +448,7 @@ public final class PlacementHandlers
         {
             if (placementContext.fancyPlacement())
             {
-                return worldState.is(BlockTags.DIRT);
+                return worldState.is(BlockTags.SUBSTRATE_OVERWORLD);
             }
             return worldState.equals(blueprintState);
         }

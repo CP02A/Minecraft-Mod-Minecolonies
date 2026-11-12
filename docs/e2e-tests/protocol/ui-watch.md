@@ -21,6 +21,7 @@ Run on Windows 11 (NVIDIA GPU, real window 854×480), Minecraft 26.3, Fabric API
 | UI-06 | ✅ | Post box lists items (Ice, Bow, Mud, Egg, …) with Request buttons. |
 | UI-07 | ✅ | "Warehouse 1". |
 | UI-08 | ✅ | Both the test mod's and Fabric's `SDLEventHandlerMixin` are applied. |
+| UI-09 | ✅ | Added with the E2E-CRF01-2 fix: water bottle + nether wart → awkward potion, + dirt → nothing (`-Pe2eUiFilter=UI-09`, 9 ms). |
 
 ## Bugs found
 

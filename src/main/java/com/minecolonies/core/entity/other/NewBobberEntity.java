@@ -520,7 +520,6 @@ public class NewBobberEntity extends Projectile implements IEntityWithComplexSpa
                                           .withParameter(LootContextParams.ORIGIN, this.position())
                                           .withParameter(LootContextParams.TOOL, p_37157_)
                                           .withParameter(LootContextParams.THIS_ENTITY, this)
-                                          .withParameter(LootContextParams.ATTACKING_ENTITY, this.getOwner())
                                           .withLuck((float) this.luck)
                                           .create(LootContextParamSets.FISHING);
                 LootTable loottable = this.level().getServer().reloadableRegistries().getLootTable(ModLootTables.FISHING);

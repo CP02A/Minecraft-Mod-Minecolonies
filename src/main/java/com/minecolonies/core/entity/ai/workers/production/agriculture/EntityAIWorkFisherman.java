@@ -696,7 +696,6 @@ public class EntityAIWorkFisherman extends AbstractEntityAISkill<JobFisherman, B
                                      .withParameter(LootContextParams.ORIGIN, entityFishHook.position())
                                      .withParameter(LootContextParams.THIS_ENTITY, entityFishHook)
                                      .withParameter(LootContextParams.TOOL, worker.getMainHandItem())
-                                     .withParameter(LootContextParams.ATTACKING_ENTITY, worker)
                                      .withLuck((float) getPrimarySkillLevel())
                                      .create(LootContextParamSets.FISHING);
         final LootTable bonusLoot =

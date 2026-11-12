@@ -9,7 +9,7 @@ random numbers.
 | ID | Test method(s) | Status | Runtime (ticks) | Notes |
 |---|---|---|---|---|
 | FRM-01 | `frm01_farmerFieldCycle` | ✅ | 12010 | Field on dirt. The farmer works a field once per colony day, so the test lets nights pass while he idles. |
-| FRM-01 | `frm01_farmerTillsGrass` (optional) | ❌ mod bug | 8000 (timeout) | E2E-FRM-01-1: grass is never tilled. |
+| FRM-01 | `frm01_farmerTillsGrass` | ✅ | 5440 | Was optional (E2E-FRM-01-1, grass never tilled); bug FIXED, test required. |
 | FRM-02 | `frm02_planterSugarCane`, `frm02_planterCactus`, `frm02_planterBamboo` | ✅ | 6135 / 6145 / 12190 | One test per field type (level 1 owns one field). Bamboo is slow and leaves one position very long; the test accepts all but one position. Final step: wait budget 20,000 → 40,000 (bamboo took 11,200-19,700 ticks and once ran out). |
 | FRM-03 | `frm03_florist` | ✅ | 10620 | Level 2 shop, "don't grow" list, compost at 3 per bed, double-speed beds. Observation E2E-FRM-03-1. |
 | FRM-04 | `frm04_composter` | ✅ | 370 | Exact seed use checked; apples (not allowed) untouched. |
@@ -18,7 +18,7 @@ random numbers.
 | FRM-06 | `frm06_swineHerderBreeds` | ✅ | 459 (median of 100) | Was optional and flaky: the pigs drifted apart and the herder fed them anyway (E2E-FRM-06-1). Required again since the test keeps the pair within 6 blocks. |
 | FRM-06 | `frm06_herderFeedsPairOutOfMateRange` (optional) | ❌ mod bug | ~400 | E2E-FRM-06-1: two chickens that can't move, 9 blocks apart; the herder puts both in love ("both in love 9.3 blocks apart"). Failed 22 of 22 runs. |
 | FRM-06 | `frm06_*ButchersAboveLimit` (chicken, cow, sheep, pig, rabbit) | ✅ | 955 / 1405 / 840 / 1005 / 1265 | 6 adults → at most 3 adults, drops in hut, outsider alive. Limit is soft by design. |
-| FRM-07 | `frm07_fisherman` (optional) | ❌ mod bug | 8000 (timeout) | E2E-FRM-07-1: every catch throws, no loot ever. Rod/request part never reached. |
+| FRM-07 | `frm07_fisherman` | ✅ | 1250 | Was optional (E2E-FRM-07-1, every catch threw); bug FIXED, test required. Loot after 895 ticks, rod breaks and is requested after 1250. |
 | GAT-01 | `gat01_lumberjackFellsAndReplants` | ✅ | 8440 | One oak + one birch, defoliation on. |
 | GAT-02 | `gat02_lumberjackFollowsSettings` | ✅ | ~5650 | 3245 until the oak is replanted, then a fixed 2400-tick wait (it checks that something does *not* happen). |
 | GAT-03 | `gat03_minerDigsShaft` | ✅ | 18630 / 18795 | Deep arena, level 1 mine; the first level is built right under the hut (y 6), not at y -16. Owner fulfils the main shaft's framed blocks etc. (`OwnerFulfils`). |
@@ -71,6 +71,11 @@ random numbers.
 
 ### E2E-FRM-01-1 Farmer never tills grass blocks
 
+- **Status: FIXED** (branch `worktree-agent-a0f8cd80cd6f3aae7`). The checks now use `BlockTags.SUBSTRATE_OVERWORLD` (26.3: `#dirt`, `#mud`,
+  `#moss_blocks`, `#grass_blocks`, the same blocks as 1.21.1's `#minecraft:dirt`) in `EntityAIWorkFarmer.findHoeableSurface` and in the
+  two other `BlockTags.DIRT` uses (vendored Structurize: `PlacementHandlers.GrassPlacementHandler`, `BlockUtils` fancy-placement dirt
+  match). `frm01_farmerTillsGrass` is required and passes (5,440 ticks).
+
 - **Severity:** high: a field placed on normal grass is never worked; the farmer cycles the field EMPTY → HOED → PLANTED without doing
   anything and idles. Works on plain dirt.
 - **Port-specific** (Minecraft 26.3 change). `EntityAIWorkFarmer.findHoeableSurface` (`EntityAIWorkFarmer.java:337`) only accepts
@@ -82,6 +87,11 @@ random numbers.
 - **Reproduce:** `-Pe2eFilter=minecolonies-gametest:farming_gathering_tests_frm01_farmer_tills_grass`.
 
 ### E2E-FRM-07-1 Fisherman throws on every catch, never gets loot
+
+- **Status: FIXED** (branch `worktree-agent-a0f8cd80cd6f3aae7`). FISHING loot params built like vanilla 26.3 `FishingHook` (origin, tool,
+  this entity, luck) in `NewBobberEntity.retrieve` and in the same mistake in `EntityAIWorkFisherman.generateBonusLoot`. The
+  `minecolonies:research_unlocked` loot condition (used by the fisherman loot table) read the citizen from `ATTACKING_ENTITY`; it now
+  also resolves a projectile `THIS_ENTITY` (the bobber) to its owner. `frm07_fisherman` is required and passes (1,250 ticks).
 
 - **Severity:** high: the fisherman job produces nothing.
 - **Port-specific** (Minecraft 26.3 change). `NewBobberEntity.retrieve` (`NewBobberEntity.java:519-525`) builds the FISHING loot params with

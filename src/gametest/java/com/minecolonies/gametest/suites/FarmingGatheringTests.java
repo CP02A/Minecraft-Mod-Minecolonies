@@ -93,10 +93,7 @@ public class FarmingGatheringTests
      * FRM-01b Farmer tills grass. Same as FRM-01 but the field is the arena's grass, the usual case in a real world. Only checks that every
      * cell gets tilled and planted.
      */
-    // BUG E2E-FRM-01-1: the farmer never tills grass blocks. EntityAIWorkFarmer.findHoeableSurface (EntityAIWorkFarmer.java:337) only accepts
-    // blocks in BlockTags.DIRT, and in Minecraft 26.3 the vanilla #minecraft:dirt tag no longer contains grass_block (only dirt, coarse_dirt,
-    // rooted_dirt). Every grass cell is skipped and the field cycles EMPTY -> HOED -> PLANTED without any work.
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 8000, skyAccess = true, required = false)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 8000, skyAccess = true)
     public void frm01_farmerTillsGrass(final GameTestHelper helper)
     {
         farmerFieldCycle(helper, Blocks.GRASS_BLOCK, false);
@@ -1009,11 +1006,7 @@ public class FarmingGatheringTests
      * FRM-07 Fisherman. A level 1 fisher's hut next to a 9x9 pond three blocks deep, a fishing rod that is about to break. The fisherman finds
      * the pond on his own, fishes, the loot ends up in the hut (or his inventory), the rod wears down and breaks, and he requests a new one.
      */
-    // BUG E2E-FRM-07-1: the fisherman never lands a catch. NewBobberEntity.retrieve (NewBobberEntity.java:519-525) builds the FISHING loot
-    // params with LootContextParams.ATTACKING_ENTITY; in Minecraft 26.3 that parameter is not allowed in LootContextParamSets.FISHING, so
-    // LootParams.Builder.create throws "Parameters not allowed in this parameter set: [<parameter minecraft:attacking_entity>]" on every
-    // catch and the AI is paused (log: "Pausing Citizen ... (com.minecolonies.job.fisherman)", state FISHERMAN_START_FISHING).
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 12000, skyAccess = true, required = false)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 12000, skyAccess = true)
     public void frm07_fisherman(final GameTestHelper helper)
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
