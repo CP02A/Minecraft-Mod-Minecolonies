@@ -24,6 +24,18 @@ Gate houses and the relationships between colonies (ally, feud, neutral).
 
 **Time budget:** 2 minutes.
 
+**Implemented:** `ColonyConnectionsRobustnessTests.con01_connectTwoColonies` and `ColonyConnectionsRobustnessTests.con01b_reconnectAfterSignRemoved`
+(optional, fails: bug E2E-CON-01-1).
+
+**As implemented:** two colonies don't fit into the arena at the normal distance. The test uses `initialColonySize` 1 and creates colony B
+like the server side of the create-colony message but without its distance check (B's center is at least 2 chunks from A's, so the static
+claims don't overlap). Each owner sneak-uses a colony sign item on his gate house (links the item), places a sign in front of it (pending
+node -> path -> node), then owner A sneak-uses his item on B's sign (`attemptEstablishConnection`). Positions are chosen so every hut and sign
+lies in its own colony's static claim (otherwise the other colony's protection refuses the sign).
+
+**Design corrected:** removing a sign does not remove the connection: the colonies stay listed as connected (the relation is independent
+of the sign chain); only the node disappears. Re-placing the sign and re-linking does not work (bug E2E-CON-01-1).
+
 ---
 
 ## CON-02 Becoming allies
@@ -44,6 +56,13 @@ Gate houses and the relationships between colonies (ally, feud, neutral).
 
 **Time budget:** 1 minute.
 
+**Implemented:** `ColonyConnectionsRobustnessTests.con02_becomingAllies` and `ColonyConnectionsRobustnessTests.con02b_allyTeleportFromOwnGate`
+(optional, fails: bug E2E-CON-02-1).
+
+**As implemented:** events are sent with `TriggerConnectionEventMessage` (server side, as the alliance page sends them). The allied feature
+checked is `TeleportToColonyMessage` for a friend of A: it works when the player stands within 15 blocks of B's gate (CON-02), but not from
+A's own gate house window, which is how the client sends it (CON-02b).
+
 ---
 
 ## CON-03 Feud
@@ -61,6 +80,9 @@ Gate houses and the relationships between colonies (ally, feud, neutral).
 - Ally features are not available while feuding.
 
 **Time budget:** 1 minute.
+
+**Implemented:** `ColonyConnectionsRobustnessTests.con03_feud`. The feud is started from an alliance; both sides show `HOSTILE`
+(`FEUD_STARTED`) and the ally teleport is refused (player standing within the message range of B's gate).
 
 ---
 
@@ -80,3 +102,11 @@ Gate houses and the relationships between colonies (ally, feud, neutral).
 - After step 2, neither colony lists the other as connected (`DISCONNECTED`), and no event for the other colony is left pending.
 
 **Time budget:** 1 minute.
+
+**Implemented:** `ColonyConnectionsRobustnessTests.con04_neutralAndGateRemoval`.
+
+**Design corrected:** the mod has no "disconnect": `ConnectionEventType.DISCONNECTED` is never sent (the alliance page has buttons for
+ally request/confirm, feud and neutral only) and nothing removes a directly connected colony while both exist. Events are never removed
+either; a newer event of the same colony replaces the older one. The test checks: after `NEUTRAL_SET` both sides are `NEUTRAL`, B's event
+from A is `NEUTRAL_SET` (the ally request is gone) and the ally teleport is refused; after A's gate house is broken, B still lists A but
+with gate position zero (no teleport target).

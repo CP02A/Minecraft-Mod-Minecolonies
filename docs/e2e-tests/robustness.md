@@ -24,6 +24,10 @@ Colonies surviving unloading, restarts, old worlds and size.
 
 **Time budget:** 3 minutes.
 
+**Not implemented (not feasible in a game test):** the test area's chunks are kept loaded by the game test framework
+and there is no supported way to unload and reload chunks inside a running test. Entity save/load and respawn are covered by COL-06
+(entities saved to NBT and loaded back) and ROB-06 (lost entity respawned).
+
 ---
 
 ## ROB-02 Server restart
@@ -42,6 +46,9 @@ Colonies surviving unloading, restarts, old worlds and size.
 - No errors are logged during the load.
 
 **Time budget:** 2 minutes.
+
+**Not implemented (not feasible in a game test):** needs a world save and a fresh server start. The colony-data part is
+covered by COL-06 (in-place reload of one colony from its saved NBT); raiders, sick citizens and children across a restart are not.
 
 ---
 
@@ -62,6 +69,9 @@ Colonies surviving unloading, restarts, old worlds and size.
 
 **Time budget:** 5 minutes.
 
+**Not implemented:** 100 citizens and 30 huts don't fit into the 64x64 arena, and the tick budget has to be measured on a
+reference machine first; a timing assertion would make the run machine dependent.
+
 ---
 
 ## ROB-04 Loading a 1.21.1 world
@@ -80,6 +90,9 @@ Colonies surviving unloading, restarts, old worlds and size.
 - No errors are logged during the upgrade.
 
 **Time budget:** 2 minutes.
+
+**Not implemented:** there is no 1.21.1 test world in the repository, and the test server can't load a different world
+in the middle of a run.
 
 ---
 
@@ -101,6 +114,13 @@ Colonies surviving unloading, restarts, old worlds and size.
 
 **Time budget:** 5 minutes.
 
+**Implemented:** `ColonyConnectionsRobustnessTests.rob05_coloniesDontAffectEachOther`.
+
+**As implemented:** two small colonies (town hall block only, set to level 1, `initialColonySize` 1). A: warehouse with 2 wooden axes, a
+courier hut with a courier (the warehouse takes couriers hired at a courier hut), a lumberjack. B: a lumberjack. Both lumberjacks request an
+axe. A's courier delivers one from A's warehouse; B's request is held by B's own retrying/player resolver, A's warehouse keeps its second
+axe and B's lumberjack gets none; every citizen works for and belongs to its own colony.
+
 ---
 
 ## ROB-06 Lost citizen entities come back
@@ -118,6 +138,10 @@ Colonies surviving unloading, restarts, old worlds and size.
 - There is never more than one entity for that citizen.
 
 **Time budget:** 2 minutes.
+
+**Implemented:** `ColonyConnectionsRobustnessTests.rob06_lostCitizenEntityComesBack`. The entity is removed with
+`RemovalReason.DISCARDED`; the colony respawns it on its 5-minute check (`CitizenManager.onColonyTick`, about 5600-6000 ticks), with
+the same citizen data, job and home, never two entities.
 
 ---
 
@@ -140,3 +164,8 @@ depend on the machine's speed.
 - At the end of every tick, the submitted and finished job counts are equal.
 
 **Time budget:** 1 minute.
+
+**Implemented:** `ColonyConnectionsRobustnessTests.rob07_pathfindingOnOneThread` with a lumberjack, a guard and a 2-barbarian raid
+(no fisherman). For 600 ticks: every job counted by the executor before tick N is completed at tick N+1, and no thread named
+`Minecolonies Pathfinding*` other than the executor's exists. Real path jobs are counted as submitted jobs minus the one marker job the
+test server submits per tick.

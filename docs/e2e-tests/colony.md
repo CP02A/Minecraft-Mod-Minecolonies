@@ -49,6 +49,8 @@ Founding a colony, its population, its territory, who may do what in it, and whe
 time: the first after about 1000 ticks, then one about every 1500 ticks (`CitizenManager.onColonyTick`, checked every 500 ticks), so
 the fourth arrives after about 5500 ticks. At test speed that is a few seconds of real time.
 
+**Implemented:** `ColonyConnectionsRobustnessTests.col02_firstCitizensArrive` (also checks that the starting citizens are not all of one gender).
+
 ---
 
 ## COL-03 Housing limits the population
@@ -71,6 +73,14 @@ the fourth arrives after about 5500 ticks. At test speed that is a few seconds o
 
 **Time budget:** 2 minutes.
 
+**Implemented:** `ColonyConnectionsRobustnessTests.col03_housingLimitsPopulation`.
+
+**As implemented (design corrected):** beyond `initialCitizenAmount` a colony grows only by children (`ReproductionManager.trySpawnChild`),
+which needs a free bed, a male and a female citizen and "move in" on. The test sets `initialCitizenAmount` to 2, houses a couple in a level 2
+residence (2 beds) and zeroes the reproduction timer (a new colony waits 5-15 game minutes before its first try; after that it tries every
+500 ticks while citizens < max(4, beds)). Full housing: no child within 2000 ticks. After a second level 2 residence is added, two children
+are born (about 600 ticks) and growth stops at 4.
+
 ---
 
 ## COL-04 Territory grows with buildings
@@ -89,6 +99,12 @@ the fourth arrives after about 5500 ticks. At test speed that is a few seconds o
 - After removing it, those extra chunks are released, and chunks claimed by the town hall stay claimed.
 
 **Time budget:** 10 seconds.
+
+**Implemented:** `ColonyConnectionsRobustnessTests.col04_territoryGrowsWithBuildings`.
+
+**As implemented:** with the default `initialColonySize` (4) the whole arena is already claimed, so the test founds the colony with
+`initialColonySize` 1. A hut can only be placed inside the claim, so the level 1 guard tower (claim radius 2) stands inside it near its
+border (46, 5, 46). The tower is removed by the owner breaking its hut block (BreakEvent -> `building.destroy()`).
 
 ---
 
@@ -111,6 +127,17 @@ the fourth arrives after about 5500 ticks. At test speed that is a few seconds o
 
 **Time budget:** 10 seconds.
 
+**Implemented:** `ColonyConnectionsRobustnessTests.col05_protectionAndPermissions` and `ColonyConnectionsRobustnessTests.col05b_friendOpensHut`
+(optional, fails: bug E2E-COL-05-1).
+
+**As implemented:** the players are Fabric fake players acting through `ServerPlayerGameMode` (`destroyBlock`, `useItemOn`), so the
+Fabric events and the shim's NeoForge events fire as for a real player. Break/place are judged by the block state, chest and hut by the
+interaction result (`Fail` = refused). Findings that changed the expectations:
+- The friend rank may not break, place or open containers. It has `ACCESS_HUTS`, but huts expose an item handler, so the container check
+  refuses it with `OPEN_CONTAINER` (bug E2E-COL-05-1, tested separately in COL-05b).
+- With `enableColonyProtection` off the outsider can break, place and open the chest, but hut menus stay rank protected (the
+  `ACCESS_HUTS` checks in `EventHandler` and `ColonyPermissionEventHandler` don't look at the config).
+
 ---
 
 ## COL-06 Save and reload a colony
@@ -129,6 +156,16 @@ the fourth arrives after about 5500 ticks. At test speed that is a few seconds o
 - Citizens keep working afterwards (at least one worker returns to its job within the budget).
 
 **Time budget:** 30 seconds.
+
+**Implemented:** `ColonyConnectionsRobustnessTests.col06_saveAndReload`.
+
+**As implemented:** a server restart is not possible inside a game test run, so the test reloads one colony in place: `getColonyTag()`
+(what the world save writes), citizen entities saved to NBT and unloaded, the colony removed from the save data and its event handler
+unregistered, a new `Colony.loadColony(tag)` added and `onWorldLoad` called (what a server start does), hut block entities pointed at the
+new objects, citizen entities loaded back from their NBT. Compared before/after: buildings (type, level, assigned citizens), citizens
+(name, gender, job, work, home, skills, saturation, happiness recomputed from the stored modifiers - the cached value is reset on both
+sides), work orders, open request tokens, research state and progress, claimed chunks. Then all citizens have entities again and the
+lumberjack's worker AI runs.
 
 ---
 
@@ -149,3 +186,5 @@ the fourth arrives after about 5500 ticks. At test speed that is a few seconds o
 - A new colony can be founded in the same place afterwards.
 
 **Time budget:** 10 seconds.
+
+**Implemented:** `ColonyConnectionsRobustnessTests.col07_deleteColony` (uses `deleteColonyByDimension`, the call of the delete command).
