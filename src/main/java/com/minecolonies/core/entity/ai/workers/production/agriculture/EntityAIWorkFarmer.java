@@ -311,6 +311,16 @@ public class EntityAIWorkFarmer extends AbstractEntityAICrafting<JobFarmer, Buil
     private boolean checkIfShouldExecute(@NotNull final FarmField farmField, @NotNull final Predicate<BlockPos> predicate)
     {
         BlockPos position;
+        // E2E-FRM-01-2: a pass that was interrupted (leisure, eating, a new day, ...) resumes at the cell it hadn't worked yet. Before, the
+        // loop below advanced first, so the farmer skipped that cell until the field's next cycle.
+        if (building.getWorkingOffset() != null)
+        {
+            position = farmField.getPosition().below().south(building.getWorkingOffset().getZ()).east(building.getWorkingOffset().getX());
+            if (predicate.test(position))
+            {
+                return true;
+            }
+        }
         do
         {
             building.setWorkingOffset(nextValidCell(farmField));

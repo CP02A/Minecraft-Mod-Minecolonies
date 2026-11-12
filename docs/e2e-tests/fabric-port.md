@@ -107,7 +107,7 @@ server. Fixed in `ItemPharaoScepter.getAllSupportedProjectiles` (any arrow item)
 
 **Tests:** a fire arrow item on the ground stays an item. On NeoForge 1.21.1 the item's `createEntity` hook replaced every dropped fire
 arrow (for example the pharao's loot) with a new fire arrow entity at (0, 0, 0), so the item vanished; the port doesn't copy that hook
-on purpose ([PROTOCOL.md, Open Fabric-port TODOs](PROTOCOL.md#open-fabric-port-todos-missing-features-not-bugs)).
+on purpose ([PROTOCOL.md, resolved shim TODOs](PROTOCOL.md#resolved-server-side-shim-todos)).
 
 **Setup**
 - An item entity with 4 fire arrows.

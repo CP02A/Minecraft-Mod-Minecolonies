@@ -28,6 +28,7 @@ import com.google.common.reflect.TypeToken;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -259,11 +260,17 @@ public class FarmingGatheringTests
         int farmland = 0;
         int wheat = 0;
         int ripe = 0;
+        final List<String> notFarmland = new ArrayList<>();
         for (final BlockPos c : cells)
         {
             if (isFarmland(helper, c))
             {
                 farmland++;
+            }
+            else
+            {
+                notFarmland.add(c.toShortString() + " " + BuiltInRegistries.BLOCK.getKey(helper.getBlockState(c).getBlock()).getPath()
+                                  + " under " + BuiltInRegistries.BLOCK.getKey(helper.getBlockState(c.above()).getBlock()).getPath());
             }
             final BlockState above = helper.getBlockState(c.above());
             if (above.is(Blocks.WHEAT))
@@ -275,7 +282,8 @@ public class FarmingGatheringTests
                 }
             }
         }
-        return cells.size() + " cells: farmland " + farmland + ", wheat " + wheat + " (ripe " + ripe + ")";
+        return cells.size() + " cells: farmland " + farmland + ", wheat " + wheat + " (ripe " + ripe + ")"
+                 + (notFarmland.isEmpty() || notFarmland.size() > 4 ? "" : ", not farmland " + notFarmland);
     }
 
     // ------------------------------------------------------------------------------------------------------------------------------------

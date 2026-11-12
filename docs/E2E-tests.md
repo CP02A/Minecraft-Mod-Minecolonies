@@ -5,7 +5,7 @@ it needs (a colony, huts, citizens, items, time of day), lets the colony run on 
 state a player can't see.
 
 - **Test protocol** (results, all bugs found, how the tests were made): [e2e-tests/PROTOCOL.md](e2e-tests/PROTOCOL.md)
-- **Progress:** 109 of 114 tests implemented, all ✅ passing; 5 ⛔ not implementable (plus the cavalry part of DEF-02 and the ship raids of DEF-06). A headless run has 154 game tests, all required; the 11 UI tests run with `runClientGameTest`. Every mod bug the tests found is fixed (see the [protocol](e2e-tests/PROTOCOL.md)); the ones in the original MineColonies and Structurize code are written up for reporting in [Upstream-bugs.md](Upstream-bugs.md).
+- **Progress:** 120 of 125 tests implemented, all ✅ passing; 5 ⛔ not implementable (plus the cavalry part of DEF-02 and the ship raids of DEF-06). A headless run has 161 game tests, all required; the 16 UI tests (UI-01..16) run with `runClientGameTest`. Every mod bug the tests found is fixed (see the [protocol](e2e-tests/PROTOCOL.md)); the ones in the original MineColonies and Structurize code are written up for reporting in [Upstream-bugs.md](Upstream-bugs.md).
 - **How the tests work** (setup helpers, test areas, config, time budgets): [e2e-tests/framework.md](e2e-tests/framework.md)
 - **Run them:** `./gradlew runGameTest` (report in `build/gametest-report.xml`); only some: `./gradlew runGameTest -Pe2eFilter=<prefix>`. `./gradlew build` doesn't run them.
 - **Watch them in a game window:** `./gradlew runGameTest -Pe2eWatch` (combine with `-Pe2eFilter`); **UI tests** with screenshots: `./gradlew runClientGameTest`
@@ -30,7 +30,7 @@ Details: [e2e-tests/colony.md](e2e-tests/colony.md)
 | [COL-02](e2e-tests/colony.md#col-02-first-citizens-arrive) | First citizens arrive | A new colony gets its starting citizens as living entities. | ✅ Passing |
 | [COL-03](e2e-tests/colony.md#col-03-housing-limits-the-population) | Housing limits the population | Citizens only move in while there are free beds. | ✅ Passing |
 | [COL-04](e2e-tests/colony.md#col-04-territory-grows-with-buildings) | Territory grows with buildings | Buildings extend the colony's claim, removing them shrinks it. | ✅ Passing |
-| [COL-05](e2e-tests/colony.md#col-05-colony-protection-and-permissions) | Colony protection and permissions | Outsiders can't grief the colony, members can do what their rank allows. | ✅ Passing (E2E-COL-05-1 fixed) |
+| [COL-05](e2e-tests/colony.md#col-05-colony-protection-and-permissions) | Colony protection and permissions | Outsiders can't grief the colony, members can do what their rank allows. | ✅ Passing (E2E-COL-05-1 and E2E-COL-05-2 fixed) |
 | [COL-06](e2e-tests/colony.md#col-06-save-and-reload-a-colony) | Save and reload a colony | A busy colony comes back unchanged after saving and loading. | ✅ Passing |
 | [COL-07](e2e-tests/colony.md#col-07-delete-a-colony) | Delete a colony | Deleting a colony removes its citizens and claims cleanly. | ✅ Passing |
 
@@ -56,7 +56,7 @@ Details: [e2e-tests/citizens.md](e2e-tests/citizens.md)
 
 | ID | Test | What it checks | Status |
 |---|---|---|---|
-| [CIT-01](e2e-tests/citizens.md#cit-01-eating-when-hungry) | Eating when hungry | A hungry citizen eats food from its inventory. | ✅ Passing |
+| [CIT-01](e2e-tests/citizens.md#cit-01-eating-when-hungry) | Eating when hungry | A hungry citizen eats food from its inventory. | ✅ Passing (E2E-CIT01-1 fixed) |
 | [CIT-02](e2e-tests/citizens.md#cit-02-eating-at-the-restaurant) | Eating at the restaurant | Hungry citizens are served at the restaurant. | ✅ Passing |
 | [CIT-03](e2e-tests/citizens.md#cit-03-no-food-anywhere) | No food anywhere | A citizen with no food tells the player and is unhappy. | ✅ Passing |
 | [CIT-04](e2e-tests/citizens.md#cit-04-sleeping-at-night) | Sleeping at night | Citizens sleep in their own beds at night and get up in the morning. | ✅ Passing |
@@ -95,7 +95,7 @@ Details: [e2e-tests/jobs-farming.md](e2e-tests/jobs-farming.md)
 
 | ID | Test | What it checks | Status |
 |---|---|---|---|
-| [FRM-01](e2e-tests/jobs-farming.md#frm-01-farmer-field-cycle) | Farmer: field cycle | The farmer tills, plants, harvests and replants a field. | ✅ Passing (E2E-FRM-01-1 fixed) |
+| [FRM-01](e2e-tests/jobs-farming.md#frm-01-farmer-field-cycle) | Farmer: field cycle | The farmer tills, plants, harvests and replants a field. | ✅ Passing (E2E-FRM-01-1 and E2E-FRM-01-2 fixed) |
 | [FRM-02](e2e-tests/jobs-farming.md#frm-02-planter-plantation) | Planter: plantation | The planter harvests plantation crops and leaves the base plants. | ✅ Passing |
 | [FRM-03](e2e-tests/jobs-farming.md#frm-03-florist) | Florist | The florist grows the chosen flowers with compost. | ✅ Passing (E2E-FRM-03-1 fixed) |
 | [FRM-04](e2e-tests/jobs-farming.md#frm-04-composter) | Composter | The composter turns allowed items into compost. | ✅ Passing |
@@ -220,8 +220,8 @@ Details: [e2e-tests/fabric-port.md](e2e-tests/fabric-port.md)
 | [FAB-02](e2e-tests/fabric-port.md#fab-02-minecolonies-can-use-vanilla-chests) | MineColonies can use vanilla chests | MineColonies can put items into vanilla chests. | ✅ Passing |
 | [FAB-03](e2e-tests/fabric-port.md#fab-03-minecolonies-can-use-fabric-only-storages) | MineColonies can use Fabric-only storages | MineColonies can put items into Fabric-only storages. | ✅ Passing |
 | [FAB-04](e2e-tests/fabric-port.md#fab-04-minecolonies-food-is-compostable) | MineColonies food is compostable | MineColonies food uses the vanilla compost tiers. | ✅ Passing |
-| [FAB-05](e2e-tests/fabric-port.md#fab-05-the-pharao-scepter-shoots-fire-arrows) | The pharao scepter shoots fire arrows | Shooting creates the fire arrow entity. | ✅ Passing |
-| [FAB-06](e2e-tests/fabric-port.md#fab-06-a-dropped-fire-arrow-stays-an-item) | A dropped fire arrow stays an item | Dropped fire arrows don't vanish (NeoForge 1.21.1 lost them). | ✅ Passing |
+| [FAB-05](e2e-tests/fabric-port.md#fab-05-the-pharao-scepter-shoots-fire-arrows) | The pharao scepter shoots fire arrows | Shooting creates the fire arrow entity. | ✅ Passing (E2E-FAB-05-1 fixed) |
+| [FAB-06](e2e-tests/fabric-port.md#fab-06-a-dropped-fire-arrow-stays-an-item) | A dropped fire arrow stays an item | Dropped fire arrows don't vanish (NeoForge 1.21.1 lost them). | ✅ Passing (E2E-FAB-06-1 not ported) |
 | [FAB-07](e2e-tests/fabric-port.md#fab-07-creative-tab-additions-of-other-mods-reach-minecolonies) | Creative tab additions of other mods reach MineColonies | Items other mods add to creative tabs are in MineColonies' item lists. | ✅ Passing |
 | [FAB-08](e2e-tests/fabric-port.md#fab-08-tag-conditions-see-the-loaded-tags) | Tag conditions see the loaded tags | `tag_empty` conditions in MineColonies data see the loaded tags. | ✅ Passing |
 | [PRT-01](e2e-tests/fabric-port.md#prt-01-solid-placeholders-follow-the-worldgen-surface-rules) | Solid placeholders follow the worldgen surface rules | A pasted solid placeholder becomes the block the biome's surface rule gives (nylium in Nether forests). | ✅ Passing |

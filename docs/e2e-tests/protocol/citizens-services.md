@@ -8,7 +8,7 @@ Suite class: `src/gametest/java/com/minecolonies/gametest/suites/CitizensService
 
 | ID | Status | Runtime (ticks) | Notes |
 |---|---|---|---|
-| CIT-01 | ✅ passing | ~1430 | Eats until saturation 60 (not 20); then 200 ticks without eating. |
+| CIT-01 | ✅ passing | ~1430 | Eats until saturation 60 (not 20); then 200 ticks without eating. Round 3: failed in about 1 of 5 full runs, a full citizen ate once more (bug [E2E-CIT01-1](../PROTOCOL.md#e2e-cit01-1-a-citizen-who-just-finished-a-meal-sometimes-eats-once-more), fixed in the mod). |
 | CIT-02 | ✅ passing | ~1080 | Food happiness factor not usable (needs home + 10-meal history); checks food history and `food_served` instead. |
 | CIT-03 | ✅ passing | ~230 | Interaction `ai.norestaurant`; social factor instead of food factor. |
 | CIT-04 | ✅ passing | ~360 | Sleep in own beds, distinct beds, "slept tonight" counter reset, wake up in the morning. |

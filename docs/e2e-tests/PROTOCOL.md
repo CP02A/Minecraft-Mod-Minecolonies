@@ -8,7 +8,7 @@ original MineColonies and Structurize code are written up for reporting in [Upst
 ## Summary
 
 - **Date:** 2026-11-12 to 2026-11-13.
-- **Branch:** `e2e-tests`. The final runs are on the commit that adds the round-2 version of this file.
+- **Branch:** `e2e-tests`. The final runs are on the code of the commit that adds the round-3 version of this file.
 - **Game:** Minecraft 26.3, Fabric Loader 0.20.1, Fabric API 0.165.2+26.3, Windows 11.
 - **Result:** every designed test that can run in the test environment is implemented and passes; every mod bug the tests found is
   fixed, and its test is required. No optional (`required = false`) tests are left.
@@ -27,39 +27,43 @@ original MineColonies and Structurize code are written up for reporting in [Upst
 7. **Round 2: bug fixes** (see [Round 2](#round-2-bug-fixes)): five agents fixed every bug in parallel, the branches were merged, four
    tests that failed now and then under full-run load were made robust (plus one that the compost fix slowed down), and the bugs in original code were collected in
    [Upstream-bugs.md](../Upstream-bugs.md).
+8. **Round 3: unfinished Fabric-port features** (see [Round 3](#round-3-unfinished-fabric-port-features)): four agents resolved every
+   `FABRIC-PORT TODO` (implemented with tests, removed as unused, or a documented decision), the branches were merged, and two tests that
+   failed now and then under full-run load turned out to show upstream bugs, now fixed.
 
 ### Test counts
 
 | What | Count |
 |---|---|
-| Designed test IDs (rows in the [overview](../E2E-tests.md)) | 112 |
-| ✅ Passing | 107 |
+| Designed test IDs (rows in the [overview](../E2E-tests.md)) | 125 |
+| ✅ Passing | 120 |
 | ❌ Fails because of a mod bug | 0 |
 | ⛔ Not implementable | 5 (ROB-01..04, DEF-10), plus parts of DEF-02 (cavalry) and DEF-06 (ship raids) |
 | 📝 Planned | 0 |
-| Server game test methods (headless run) | 154, all required |
-| UI test methods (`runClientGameTest`) | 9 (UI-01..09), all required |
+| Server game test methods (headless run) | 161, all required |
+| UI test methods (`runClientGameTest`) | 16 (UI-01..16), all required |
 
 `./gradlew build` no longer runs the game tests (round 2); run them with `runGameTest` and `runClientGameTest`.
 
 ### Final runs
 
-Three full headless runs, `./gradlew --no-daemon runGameTest`, on the final code, one after the other on the same machine, then the UI
-tests once:
+Three full headless runs, `./gradlew --no-daemon runGameTest`, on the final code of round 3, one after the other on the same machine,
+then the UI tests once:
 
 | | Run 1 | Run 2 | Run 3 |
 |---|---|---|---|
-| Game tests | 154 | 154 | 154 |
-| Required passed | 154 of 154 | 154 of 154 | 154 of 154 |
+| Game tests | 161 | 161 | 161 |
+| Required passed | 161 of 161 | 161 of 161 | 161 of 161 |
 | Optional tests | none | none | none |
-| Wall time (Gradle included) | 5 min 3 s | 5 min 17 s | 4 min 45 s |
-| Test server time | 4.55 min | 4.83 min | 4.31 min |
+| Wall time (Gradle included) | 4 min 35 s | 2 min 17 s | 2 min 17 s |
+| Test server time | 1 min 55 s | 1 min 55 s | 1 min 54 s |
 
-**UI tests** (`./gradlew --no-daemon runClientGameTest`): UI-01..09 all passed, 1 min 6 s wall time.
+**UI tests** (`./gradlew --no-daemon runClientGameTest`): UI-01..16 all passed, 1 min 21 s wall time. Screenshots of the child citizen
+(UI-11), the config screen (UI-14) and the scan tool's highlight tip (UI-16) were checked by eye.
 
-**Run time:** earlier full runs on this machine took 2.5-4 minutes wall time; in this round 2 min 55 s to 5 min 17 s (server time 2.4-4.8
-minutes). The spread comes from the random AI (long tests such as CRF-06 take 20,000-34,000 ticks), the longer florist test, and the
-machine's load. Ticks run as fast as the CPU allows.
+**Run time:** run 1 includes Gradle compiling the changed code (about 2.5 minutes); the test server itself took under 2 minutes each time.
+Round 2's runs took 2 min 55 s to 5 min 17 s. The spread comes from the random AI (long tests such as CRF-06 take 20,000-34,000 ticks)
+and the machine's load. Ticks run as fast as the CPU allows.
 
 ## Round 2: bug fixes
 
@@ -98,14 +102,68 @@ of this round. All causes were in the tests, none in the mod:
 
 **Results.** Before the four fixes, the merged code (run 0, 3 min 6 s) happened to pass all 154 required tests. With the four fixes, three full runs
 before the florist budget: runs 1 and 3 passed, run 2 failed only `frm03_florist` (see the table). After the florist budget the three
-final runs above passed. In these six runs: `frm06_chickenHerderBreeds` set up every time (chick after 379-549 ticks), `cit13_gettingUnstuck`
+final runs of round 2 passed (154 of 154 each; 5 min 3 s, 5 min 17 s and 4 min 45 s wall time). In these six runs: `frm06_chickenHerderBreeds` set up every time (chick after 379-549 ticks), `cit13_gettingUnstuck`
 got out after 2,112-4,248 ticks (budget now 12,000), `srv03_hospital` finished after 2,100-2,195 ticks,
 `def05_injuredGuardRetreats` finished after 2,060-2,520 ticks, and `frm03_florist`'s compost step took 7,045-9,945 ticks in the passing runs and more than 10,000 in the failing one (budget now 20,000).
 
-## Open Fabric-port TODOs (missing features, not bugs)
+## Round 3: unfinished Fabric-port features
 
-Features of the NeoForge original that the port doesn't have yet. None of them is a bug the tests found; each is marked
-`FABRIC-PORT TODO` (or documented as a limitation) in the code, checked with grep for this list.
+Four agents, each in its own worktree on `65c323542b`, resolved the [Fabric-port TODOs](#fabric-port-todos-round-3-none-left-open)
+left after round 2. Merged with `--no-ff` in this order:
+
+| Branch | What |
+|---|---|
+| `worktree-agent-a0f307c8664cfbb84` | Spear in item frames uses the 3D model (the renderer itself was already registered), child citizen proportions (`CitizenModel`, `CitizenArmorModel`, `CitizenRenderState.isChild`), JEI blocks drawn as 3D models (`GuiBlockRenderer`), JEI crafter recipes on dedicated servers from the synchronized recipes (more serializers synchronized). UI-10..13. |
+| `worktree-agent-ae0257368bf6c2421` | Server-side shim TODOs: 8 removed as unused, staged tag conditions and creative tab events implemented ([table](#resolved-server-side-shim-todos)); pharao scepter: port bug E2E-COL-05-2, upstream bugs E2E-FAB-05-1 and E2E-FAB-06-1. COL-05c, FAB-05..08. |
+| `worktree-agent-ab9debe0c0fbf23dd` | In-game config screen through Mod Menu (optional dependency, vanilla widgets); atlas metadata and client particle hooks removed as unused. UI-14, UI-15. |
+| `worktree-agent-a6c735a0374b2763d` | Structurize placeholder blocks follow the worldgen surface rules (`MaterialRuleContextInvoker`, real Nether noise in the test server), Domum Ornamentum material sounds, Structurize highlight tips (`HudMixin`), Dynamic Trees decision. PRT-01, PRT-02, UI-16. |
+
+**Renumbering.** Three branches had each named their new UI tests from UI-10. The rendering tests keep UI-10..13; the config screen
+tests became UI-14 (client settings) and UI-15 (server settings), the highlight tips UI-16. Test ids, the `-Pe2eUiFilter` ids,
+screenshot names (`ui14-*`, `ui15-*`, `ui16-*`), [ui.md](ui.md), the [overview](../E2E-tests.md) and this file were changed to match.
+
+**Merge conflicts:** `UiClientGameTest.java` (the `runCase` lines, twice), `docs/E2E-tests.md`, `docs/e2e-tests/ui.md`,
+`docs/e2e-tests/fabric-port.md` and this file's TODO table; resolved by keeping every branch's tests and rows. The expected conflicts in
+the mixin configs, the test mod's `fabric.mod.json`, the shim's `IItemExtension` and `ClientExtensionsManager` merged cleanly.
+
+**New bugs.** One port bug: [E2E-COL-05-2](#e2e-col-05-2-outsiders-can-shoot-the-pharao-scepter-in-a-colony), the pharao scepter's
+`use`/`releaseUsing` had lost the arrow events, so colony protection never saw it. Four upstream bugs, written up in
+[Upstream-bugs.md](../Upstream-bugs.md): the scepter's ammo predicate ([E2E-FAB-05-1](#e2e-fab-05-1-the-pharao-scepter-shoots-whatever-is-in-the-off-hand-or-the-first-hotbar-slot)),
+dropped fire arrows vanishing ([E2E-FAB-06-1](#e2e-fab-06-1-dropped-fire-arrows-vanish)), and the two below.
+
+### Flaky required tests (round 3)
+
+Two required tests failed now and then in full runs and passed alone. Both were traced with 20-40 parallel copies of the test in one
+run (a temporary test class, removed again); both causes are upstream mod bugs, so the mod is fixed and the tests are unchanged.
+
+| Test | What happened | Cause | Fix (mod) |
+|---|---|---|---|
+| `frm01_farmerTillsOtherSoils` | Timeout with 47 of 48 cells tilled and planted (3 of 60 copies). | The farmer skipped the cell he was about to till whenever his work was interrupted (here by the test's short leisure breaks): on resuming, `checkIfShouldExecute` advanced the working offset before testing it. The log of a failing copy shows the ring order jump over exactly the cell that stayed untilled; the cell would have been done in the field's next cycle, after the budget. Bug [E2E-FRM-01-2](#e2e-frm-01-2-farmer-skips-a-field-cell-after-every-interruption). | `checkIfShouldExecute` tests the saved cell first. |
+| `cit01_eatingWhenHungry` | "no more bread eaten while full": bread 3 (was 4), saturation 60 (4 of 20 copies). | A per-tick trace of AI state, saturation and bread: the meal ends at saturation 60 (state `IDLE`), a saturation drop to 59.7 follows within a few ticks and clears `justAte`, and `shouldEat` still sees `lastState == EATING`, so a new meal starts and one more bread is eaten. Bug [E2E-CIT01-1](#e2e-cit01-1-a-citizen-who-just-finished-a-meal-sometimes-eats-once-more). | `shouldEat` continues a meal only while the AI is not back in `IDLE`. |
+
+**Results.** With both fixes, three stress runs of 40 copies of each test: 120 of 120 farmer copies and 120 of 120 eating copies
+passed (the farmer finished after 4,943-6,278 of 8,000 ticks). The three [final runs](#final-runs) passed every required test.
+`FarmingGatheringTests.describeField` now also names the cells that are not farmland, for the next time.
+
+### Remaining known gaps
+
+None of them is marked `FABRIC-PORT TODO` (a grep of `src/` and `vendor/` finds no such marker; the only marker left is the
+`FABRIC-PORT DECISION` for Dynamic Trees).
+
+- **JEI on dedicated servers, other mods' recipe types:** the client builds MineColonies' crafter recipes from the recipes the server
+  synchronizes. MineColonies synchronizes the vanilla serializers its crafters need and the architect's cutter; recipes of other mods'
+  custom serializers reach the client only if that mod synchronizes them (Fabric `RecipeSynchronization`). In singleplayer all recipes
+  are there.
+- **Dynamic Trees:** no compatibility (decision above): there is no Fabric release for 26.x yet.
+- **`enablecitizenvoices` had no translation** (the language file only has the old key `disablecitizenvoices`, also upstream), so the
+  config screen had no proper name for it. Fixed: added to `manual_en_us.json` in round 3 ("Citizen Voices"), visible in the UI-14 screenshots.
+
+## Fabric-port TODOs (round 3: none left open)
+
+Features of the NeoForge original that the port didn't have after round 2 (marked `FABRIC-PORT TODO` or documented as a shim
+limitation). Round 3 resolved every one: **DONE** (implemented, with a test), **REMOVED** (nothing in the bundled mods uses it) or
+**DECISION** (documented, marked `FABRIC-PORT DECISION` in the code). A grep for `FABRIC-PORT TODO` in `src/` and `vendor/` finds nothing.
+The [remaining known gaps](#remaining-known-gaps) are listed in the round-3 section.
 
 | What | Where |
 |---|---|
@@ -167,8 +225,9 @@ Budgets are in game ticks and cost little real time, so they were raised generou
 
 ## Bugs found
 
-20 reports: 19 real bugs, all **FIXED**, and 1 that was not a mod bug (E2E-LOG06-1, a test setup problem). By origin: 3 specific to the
-Fabric port, 15 in original MineColonies code and 1 in original Structurize code. The 16 bugs in original code are written up for
+25 reports: 24 real bugs, all **FIXED**, and 1 that was not a mod bug (E2E-LOG06-1, a test setup problem). By origin: 4 specific to the
+Fabric port, 19 in original MineColonies code and 1 in original Structurize code (round 3 added E2E-COL-05-2, E2E-CIT01-1, E2E-FRM-01-2,
+E2E-FAB-05-1 and E2E-FAB-06-1). The 20 bugs in original code are written up for
 reporting, with steps to reproduce and patches, in [Upstream-bugs.md](../Upstream-bugs.md). Each fix has a required test.
 
 | ID | Title | Severity | Origin | Where | Status / test |
@@ -192,6 +251,11 @@ reporting, with steps to reproduce and patches, in [Upstream-bugs.md](../Upstrea
 | [E2E-FRM-03-1](#e2e-frm-03-1-composted-bed-expires-at-once-after-it-sat-idle) | Composted bed expires at once after it sat idle | Low | Upstream | `TileEntityCompostedDirt.java:75, 122` | **FIXED**; `frm03_compostLastsOnIdleBed` |
 | [E2E-BLD-07-1](#e2e-bld-07-1-resource-list-misses-items-of-blueprint-entities) | Resource list misses items of blueprint entities | Low | Upstream (Structurize) | Structurize `StructurePlacer.handleEntitySpawn` | **FIXED**; `bld07_decorationWithEntitiesMaterialList` |
 | [E2E-DEF-S1](#e2e-def-s1-raid-end-reads-the-first-raid-instead-of-the-last) | Raid end reads the first raid instead of the last | Low | Upstream | `RaidManager.java:1061, 1078` | **FIXED**; `defs1_raidEndUsesLastRaid` |
+| [E2E-COL-05-2](#e2e-col-05-2-outsiders-can-shoot-the-pharao-scepter-in-a-colony) | Outsiders can shoot the pharao scepter in a colony | Medium | Fabric port | `ItemPharaoScepter.java` (`use`, `releaseUsing`) | **FIXED**; `col05c_outsiderItemActionsRefused` |
+| [E2E-FAB-05-1](#e2e-fab-05-1-the-pharao-scepter-shoots-whatever-is-in-the-off-hand-or-the-first-hotbar-slot) | The pharao scepter shoots whatever is in the off hand or the first hotbar slot | Medium | Upstream | `ItemPharaoScepter.java:96-98` | **FIXED**; `pharaoScepterShootsFireArrows` (FAB-05) |
+| [E2E-FAB-06-1](#e2e-fab-06-1-dropped-fire-arrows-vanish) | Dropped fire arrows vanish | Low | Upstream (NeoForge hook) | `ItemFireArrow.java:29, 44` | **FIXED** (hook not ported); `droppedFireArrowStaysAnItem` (FAB-06) |
+| [E2E-FRM-01-2](#e2e-frm-01-2-farmer-skips-a-field-cell-after-every-interruption) | Farmer skips a field cell after every interruption | Low | Upstream | `EntityAIWorkFarmer.java:311-316` | **FIXED**; `frm01_farmerTillsOtherSoils` |
+| [E2E-CIT01-1](#e2e-cit01-1-a-citizen-who-just-finished-a-meal-sometimes-eats-once-more) | A citizen who just finished a meal sometimes eats once more | Low | Upstream | `CitizenAI.java:281`, `CitizenData.java:1182` | **FIXED**; `cit01_eatingWhenHungry` |
 | [E2E-LOG06-1](#e2e-log06-1-orphaned-delivery-a-tool-request-is-never-delivered) | Orphaned delivery: a tool request is never delivered | – | Not a mod bug (test setup) | test `log06_toolsByHutLevel` | Test fixed; `log06_toolsByHutLevel` |
 
 "Upstream" means the same code is in MineColonies `upstream/version/1.21` (the port's base) and, unless [Upstream-bugs.md](../Upstream-bugs.md)
@@ -369,6 +433,46 @@ More: [construction protocol](protocol/construction-research.md#e2e-bld-07-1-res
 
 `RaidManager.onRaidEventFinished` read `raidHistories.get(0)` (the colony's first raid) for the mercy check and the victory sound,
 instead of the last raid. More: [defense protocol](protocol/defense-visitors.md#suspect-code-reading-not-reproduced-by-a-test).
+
+#### E2E-COL-05-2 Outsiders can shoot the pharao scepter in a colony
+
+**FIXED** (Fabric port): `ItemPharaoScepter.use`/`releaseUsing` call the shim's `EventHooks.onArrowNock`/`onArrowLoose` again, like 1.21.1;
+a changed charge is applied too. Found while resolving the shim's `ArrowLooseEvent` TODO.
+
+The port's overrides had dropped the two event calls, so colony protection (`SHOOT_ARROW`) never saw the scepter: an outsider could shoot
+fire arrows inside a colony. `col05c_outsiderItemActionsRefused` failed without the fix. More: [colony.md](colony.md#col-05-colony-protection-and-permissions).
+
+#### E2E-FAB-05-1 The pharao scepter shoots whatever is in the off hand or the first hotbar slot
+
+**FIXED:** `getAllSupportedProjectiles` accepts arrow items only.
+[Upstream report](../Upstream-bugs.md#e2e-fab-05-1-the-pharao-scepter-shoots-whatever-is-in-the-off-hand-or-the-first-hotbar-slot).
+
+The predicate was `itemStack -> true`, so vanilla's ammo search took the off hand or the first inventory slot, whatever it held: an empty
+first slot meant no shot, the scepter in the first slot used itself as ammo and the shot threw. More:
+[fabric-port.md](fabric-port.md#fab-05-the-pharao-scepter-shoots-fire-arrows).
+
+#### E2E-FAB-06-1 Dropped fire arrows vanish
+
+**FIXED** (not ported): the Fabric port has no `createEntity` hook, and FAB-06 makes sure a dropped fire arrow stays an item.
+[Upstream report](../Upstream-bugs.md#e2e-fab-06-1-dropped-fire-arrows-vanish).
+
+On NeoForge, `ItemFireArrow.createEntity` replaced every dropped fire arrow item with a new fire arrow entity at (0, 0, 0).
+
+#### E2E-FRM-01-2 Farmer skips a field cell after every interruption
+
+**FIXED:** `checkIfShouldExecute` tests the saved cell first when a pass resumes. Found as the flaky `frm01_farmerTillsOtherSoils`
+(round 3). [Upstream report](../Upstream-bugs.md#e2e-frm-01-2-farmer-skips-a-field-cell-after-every-interruption).
+
+When the farmer's work was interrupted (leisure, eating, rain, a new day), `prepareForFarming` → `checkIfShouldExecute` advanced the
+working offset before testing it, so the cell he was about to till (or harvest) was left for the next cycle.
+
+#### E2E-CIT01-1 A citizen who just finished a meal sometimes eats once more
+
+**FIXED:** `CitizenAI.shouldEat` keeps a meal going only while the citizen AI is not back in `IDLE`. Found as the flaky
+`cit01_eatingWhenHungry` (round 3). [Upstream report](../Upstream-bugs.md#e2e-cit01-1-a-citizen-who-just-finished-a-meal-sometimes-eats-once-more).
+
+After the last bite `lastState` stays `EATING` for up to 10 ticks; a saturation drop in that window clears `justAte`, and `shouldEat`
+started a new meal at saturation 59.7.
 
 ## Not implementable
 

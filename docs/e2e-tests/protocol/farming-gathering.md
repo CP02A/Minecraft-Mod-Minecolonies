@@ -10,7 +10,7 @@ random numbers.
 |---|---|---|---|---|
 | FRM-01 | `frm01_farmerFieldCycle` | ✅ | 12010 | Field on dirt. The farmer works a field once per colony day, so the test lets nights pass while he idles. |
 | FRM-01 | `frm01_farmerTillsGrass` | ✅ | 5440 | Was optional (E2E-FRM-01-1, grass never tilled); bug FIXED, test required. |
-| FRM-01 | `frm01_farmerTillsOtherSoils` | ✅ | 5765 | Field of coarse dirt, rooted dirt, podzol, mycelium (in turn); all tilled and planted, as on 1.21.1 (added with the E2E-FRM-01-1 fix). |
+| FRM-01 | `frm01_farmerTillsOtherSoils` | ✅ | 5765 | Field of coarse dirt, rooted dirt, podzol, mycelium (in turn); all tilled and planted, as on 1.21.1 (added with the E2E-FRM-01-1 fix). Round 3: one cell was sometimes left (bug [E2E-FRM-01-2](../PROTOCOL.md#e2e-frm-01-2-farmer-skips-a-field-cell-after-every-interruption), fixed in the mod). |
 | FRM-02 | `frm02_planterSugarCane`, `frm02_planterCactus`, `frm02_planterBamboo` | ✅ | 6135 / 6145 / 12190 | One test per field type (level 1 owns one field). Bamboo is slow and leaves one position very long; the test accepts all but one position. Final step: wait budget 20,000 → 40,000 (bamboo took 11,200-19,700 ticks and once ran out). |
 | FRM-03 | `frm03_florist` | ✅ | 10620 | Level 2 shop, "don't grow" list, compost at 3 per bed, double-speed beds. Observation E2E-FRM-03-1 (fixed). Round 2: since that fix each compost lasts its full time, so "compost used up" ends at about test tick 11,000-12,000; the step's 10,000-tick budget timed out once in a full run, now 20,000 (test 34,000). |
 | FRM-03 | `frm03_compostLastsOnIdleBed` | ✅ | 100 | E2E-FRM-03-1 (**FIXED**): a bed idle for 301 s (block entity ticked directly) keeps new compost. Failed before the fix. |

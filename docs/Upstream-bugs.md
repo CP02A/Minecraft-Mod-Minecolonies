@@ -29,7 +29,7 @@ The other fixes only restore the intended behavior.
 
 ## MineColonies
 
-15 bugs.
+19 bugs, and two [visual quirks](#visual-quirks-not-filed-as-bugs).
 
 | ID | Title | `version/1.21` | `version/main` (1.20.1) |
 |---|---|---|---|
@@ -48,6 +48,10 @@ The other fixes only restore the intended behavior.
 | [E2E-GAT-06-1](#e2e-gat-06-1-nether-worker-stands-at-the-portal-for-up-to-3-days-after-an-expedition) | Nether worker idles at the portal after an expedition | yes | yes |
 | [E2E-FRM-06-1](#e2e-frm-06-1-herder-and-beekeeper-feeds-animals-that-are-too-far-apart-to-mate) | Herder (and beekeeper) feeds animals too far apart to mate | yes | yes |
 | [E2E-FRM-03-1](#e2e-frm-03-1-florist-compost-on-a-bed-that-sat-idle-expires-at-once) | Florist: compost on an idle bed expires at once | yes | yes |
+| [E2E-CIT01-1](#e2e-cit01-1-a-citizen-who-just-finished-a-meal-sometimes-eats-once-more) | A citizen who just finished a meal sometimes eats once more | yes | yes |
+| [E2E-FRM-01-2](#e2e-frm-01-2-farmer-skips-a-field-cell-after-every-interruption) | Farmer skips a field cell after every interruption | yes | yes |
+| [E2E-FAB-05-1](#e2e-fab-05-1-the-pharao-scepter-shoots-whatever-is-in-the-off-hand-or-the-first-hotbar-slot) | The pharao scepter shoots whatever is in the off hand or the first hotbar slot | yes | yes |
+| [E2E-FAB-06-1](#e2e-fab-06-1-dropped-fire-arrows-vanish) | Dropped fire arrows vanish | yes | yes |
 
 ### E2E-CIT06-1: Unemployed or sick citizens can be happier than healthy employed ones
 
@@ -738,6 +742,171 @@ timer.
 ```
 
 **E2E test:** `FarmingGatheringTests.frm03_compostLastsOnIdleBed`.
+
+---
+
+### E2E-CIT01-1: A citizen who just finished a meal sometimes eats once more
+
+**Applies to:** `version/1.21` (`d66bdaae3a`); also `version/main` (`b2fb29ec11`), line numbers below.
+
+**Steps to reproduce**
+1. A hungry citizen (saturation about 1) with 16 bread in his inventory, no restaurant.
+2. Let him eat; note the bread count when he stops (saturation 60), then watch for a few seconds.
+
+**Expected:** he eats until saturation 60 and then stops; the bread count stays.
+
+**Actual:** in about 1 of 5 meals he starts eating again within half a second of finishing and eats one more bread at saturation
+59.7 (the extra food is wasted; saturation is capped at 60).
+
+**Root cause:** when the meal ends, `EntityAIEatTask.eat` sets `justAte` and returns `CitizenAIState.IDLE`
+(`core/entity/ai/minimal/EntityAIEatTask.java:244-245`; `version/main` 241-242). `CitizenAI.lastState` stays `EATING` until the next
+`decideAiTask` (an event target, every 10 ticks). `CitizenData.decreaseSaturation` clears `justAte` on every saturation drop
+(`core/colony/CitizenData.java:1182`; `version/main` 1169). If a drop lands in that window, `CitizenAI.shouldEat`
+(`core/entity/ai/workers/CitizenAI.java:281`; `version/main` 280) sees `lastState == EATING` and returns true although the meal is over,
+and `decideAiTask` (line 118) starts a new meal because the state is `IDLE`.
+
+**Suggested patch:** keep a meal going only while it really is going on.
+```diff
+--- a/src/main/java/com/minecolonies/core/entity/ai/workers/CitizenAI.java
++++ b/src/main/java/com/minecolonies/core/entity/ai/workers/CitizenAI.java
+@@ public boolean shouldEat()
+-        if (lastState == CitizenAIState.EATING)
++        if (lastState == CitizenAIState.EATING && citizen.getCitizenAI().getState() != CitizenAIState.IDLE)
+         {
+             return true;
+         }
+```
+
+**E2E test:** `CitizensServicesTests.cit01_eatingWhenHungry` (before the fix it failed in 4 of 20 parallel repeats).
+
+---
+
+### E2E-FRM-01-2: Farmer skips a field cell after every interruption
+
+**Applies to:** `version/1.21` (`d66bdaae3a`); also `version/main` (`b2fb29ec11`), line numbers below.
+
+**Steps to reproduce**
+1. A farm with a farmer and a large untilled field (e.g. radius 3, 48 cells).
+2. While the farmer tills the field, interrupt him once (he eats, goes on a leisure break, or it starts raining), then let him finish.
+
+**Expected:** after the interruption he goes on with the cell he was about to till.
+
+**Actual:** that cell stays untilled (and unplanted) until the field's next cycle, a colony day or more later. The same happens to a ripe
+crop during harvesting.
+
+**Root cause:** after an interruption the farmer's AI starts again at `prepareForFarming`, which calls `checkIfShouldExecute` for the
+harvest and the hoe stage (`core/entity/ai/workers/production/agriculture/EntityAIWorkFarmer.java:261, 269`; `version/main` 263, 271).
+`checkIfShouldExecute` (line 311; `version/main` 313) advances the working offset (`nextValidCell`, line 316; `version/main` 318) before it
+tests a cell, so the cell at the saved offset, which wasn't worked yet, is never tested.
+
+**Suggested patch**
+```diff
+--- a/src/main/java/com/minecolonies/core/entity/ai/workers/production/agriculture/EntityAIWorkFarmer.java
++++ b/src/main/java/com/minecolonies/core/entity/ai/workers/production/agriculture/EntityAIWorkFarmer.java
+@@ private boolean checkIfShouldExecute(...)
+     {
+         BlockPos position;
++        // An interrupted pass resumes at the cell it hadn't worked yet.
++        if (building.getWorkingOffset() != null)
++        {
++            position = farmField.getPosition().below().south(building.getWorkingOffset().getZ()).east(building.getWorkingOffset().getX());
++            if (predicate.test(position))
++            {
++                return true;
++            }
++        }
+         do
+         {
+             building.setWorkingOffset(nextValidCell(farmField));
+```
+
+**E2E test:** `FarmingGatheringTests.frm01_farmerTillsOtherSoils` (the test's short leisure breaks interrupt the farmer; before the fix it
+failed in 3 of 60 parallel repeats, each time with one cell left).
+
+---
+
+### E2E-FAB-05-1: The pharao scepter shoots whatever is in the off hand or the first hotbar slot
+
+**Applies to:** `version/1.21` (`d66bdaae3a`); also `version/main` (`b2fb29ec11`).
+
+**Steps to reproduce**
+1. Survival player with the pharao scepter in the second hotbar slot, arrows somewhere in the inventory, a torch in the first hotbar slot.
+2. Draw and release the scepter. Then empty the first hotbar slot and try again. Then put the scepter itself in the first hotbar slot.
+
+**Expected:** each shot uses one arrow from the inventory (like a bow) and fires a fire arrow.
+
+**Actual:** the first shot uses up the torch; with an empty first slot nothing is shot at all, although there are arrows; with the scepter
+in the first slot it uses itself as ammo (in the Fabric port this made the shot throw `IllegalArgumentException: Invalid weapon firing an
+arrow` on the server). An item in the off hand is always taken first.
+
+**Root cause:** `ItemPharaoScepter.getAllSupportedProjectiles` returns `itemStack -> true`
+(`core/items/ItemPharaoScepter.java:96-98`; `version/main` 128-130). Vanilla's `Player#getProjectile` takes the off hand, then the main
+hand, then the first inventory slot whose stack matches that predicate, so it never gets past the first slot (an empty stack matches too).
+
+**Suggested patch**
+```diff
+--- a/src/main/java/com/minecolonies/core/items/ItemPharaoScepter.java
++++ b/src/main/java/com/minecolonies/core/items/ItemPharaoScepter.java
+     public Predicate<ItemStack> getAllSupportedProjectiles()
+     {
+-        return itemStack -> true;
++        return itemStack -> itemStack.getItem() instanceof ArrowItem;
+     }
+```
+
+**E2E test:** `TransferBridgeGameTests.pharaoScepterShootsFireArrows` (FAB-05).
+
+---
+
+### E2E-FAB-06-1: Dropped fire arrows vanish
+
+**Applies to:** `version/1.21` (`d66bdaae3a`, NeoForge); also `version/main` (`b2fb29ec11`, Forge).
+
+**Steps to reproduce**
+1. Get fire arrows (e.g. from the pharao's loot) and drop them with Q, or break a chest that holds some.
+
+**Expected:** the fire arrows lie on the ground as an item and can be picked up.
+
+**Actual:** the item disappears at once; a fire arrow entity appears at (0, 0, 0) of the dimension instead.
+
+**Root cause:** `ItemFireArrow` returns true from `hasCustomEntity` (`core/items/ItemFireArrow.java:29`; `version/main` 30), so the
+loader's entity join handler (NeoForge `NeoForgeEventHandler#onEntityJoinWorld`, Forge `ForgeInternalHandler`) replaces every item entity
+holding it with `createEntity`'s result and discards the item. `createEntity` (line 44; `version/main` 46) returns a new fire arrow
+entity without copying the position, the motion or the stack: `ModEntities.FIREARROW.create(world)`.
+
+**Suggested patch:** fire arrows need no custom item entity; shooting already creates the fire arrow through `createArrow`.
+```diff
+--- a/src/main/java/com/minecolonies/core/items/ItemFireArrow.java
++++ b/src/main/java/com/minecolonies/core/items/ItemFireArrow.java
+-    @Override
+-    public boolean hasCustomEntity(final ItemStack stack)
+-    {
+-        return true;
+-    }
+-
+@@
+-    @Nullable
+-    @Override
+-    public Entity createEntity(final Level world, final Entity location, final ItemStack itemstack)
+-    {
+-        return ModEntities.FIREARROW.create(world);
+-    }
+```
+
+**E2E test:** `TransferBridgeGameTests.droppedFireArrowStaysAnItem` (FAB-06; the Fabric port doesn't have the hook at all, so the test
+guards against porting it back).
+
+---
+
+### Visual quirks (not filed as bugs)
+
+Seen while testing the spear's renderer (UI-10); the port keeps the 1.21.1 look, so they are noted here for the maintainers only.
+
+- **The spear is drawn with the vanilla trident mesh.** `SpearModel#createLayer` (`core/client/model/SpearModel.java:31`) defines the
+  spear's own mesh, but it is never registered as a model layer; the item renderer and the thrown spear bake `ModelLayers.TRIDENT` instead
+  (`core/client/render/SpearItemTileEntityRenderer.java:30`, `core/client/render/projectile/RendererSpear.java:37`).
+- **In an item frame the spear sits mostly inside the wall.** The `fixed` transform of `models/item/spear_in_hand.json` (lines 34-37,
+  translation `[-7.75, -6.5, -8.5]`) pushes the two-block model into the block behind the frame; only the tip shows below the frame.
 
 ---
 

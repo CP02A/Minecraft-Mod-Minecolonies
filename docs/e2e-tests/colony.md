@@ -143,7 +143,7 @@ interaction result (`Fail` = refused). Findings that changed the expectations:
 inventory (`releaseUsing`, refused as `SHOOT_ARROW` through `ArrowLooseEvent`) and touches a diamond on the ground (`ItemEntity#playerTouch`,
 refused as `PICKUP_ITEM` through `ItemEntityPickupEvent.Pre`). Passes when the friend can do all four (he starts drinking, an arrow and a
 fire arrow fly, the diamond is in his inventory), the outsider none of them, and the town hall lists the outsider's `THROW_POTION`,
-`SHOOT_ARROW` and `PICKUP_ITEM` denials. Time budget: 5 seconds (done in the first tick). The scepter part failed before the port fix: its
+`SHOOT_ARROW` and `PICKUP_ITEM` denials. Time budget: 5 seconds (done in the first tick). The scepter part failed before the port fix (bug E2E-COL-05-2): its
 `use`/`releaseUsing` overrides had lost the `ArrowNockEvent`/`ArrowLooseEvent` calls, so outsiders could shoot it in a colony.
 
 ---

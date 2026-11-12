@@ -278,7 +278,9 @@ public class CitizenAI implements IStateAI
             return false;
         }
 
-        if (lastState == CitizenAIState.EATING)
+        // E2E-CIT01-1: only while the meal is still going on. When it has ended (state IDLE) lastState stays EATING until the next decision,
+        // and a saturation drop in that window (it clears justAte) made a full citizen eat once more.
+        if (lastState == CitizenAIState.EATING && citizen.getCitizenAI().getState() != CitizenAIState.IDLE)
         {
             return true;
         }
