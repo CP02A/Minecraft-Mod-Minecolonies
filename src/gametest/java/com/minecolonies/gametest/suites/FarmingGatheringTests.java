@@ -1489,11 +1489,9 @@ public class FarmingGatheringTests
     /**
      * GAT-03b The miner digs the shaft safely. Same as GAT-03; the miner must never fall more than three blocks and never take damage.
      */
-    // BUG E2E-GAT-03-1: the miner falls off the shaft ladder. Climbing up to the hut for a new tool (worker AI NEEDS_ITEM, the shovel broke at
-    // the shaft bottom) he leaves the ladder sideways at y ~8 (the block next to the ladder, over the open shaft) and falls 3.3-4 blocks onto
-    // the shaft floor (1 fall damage at 4 blocks). Seen in most runs between tick 7,500 and 10,200 (log lines "[MINE] tick N: falling ...").
-    // The miner AI only asks to walk to the hut (AbstractEntityAIBasic.walkToBuilding), so the cause is the citizen pathing/ladder movement.
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 40000, skyAccess = true, required = false)
+    // Was optional (bug E2E-GAT-03-1, fixed): the miner stopped on the ladder to mine, MovementHandler stayed in JUMPING with a forward
+    // input and walked him sideways off the ladder; he fell 3.3-4 blocks.
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 40000, skyAccess = true)
     public void gat03_minerDigsShaftSafely(final GameTestHelper helper)
     {
         minerShaft(helper, true);

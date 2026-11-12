@@ -138,6 +138,18 @@ public class MovementHandler extends MoveControl
         else if (this.operation == net.minecraft.world.entity.ai.control.MoveControl.Operation.JUMPING)
         {
             jumpingticks++;
+
+            // The path was finished or stopped (e.g. a worker reached the spot to mine from) while jumping or climbing: nothing to move to
+            // any more, so stop walking. JUMPING only ends on the ground, which an entity on a ladder never reaches; it would keep walking
+            // forward in its last facing (often turned towards the block it works on), climb on by colliding with the ladder and drift
+            // sideways off it, then fall.
+            if (this.mob.getNavigation().isDone())
+            {
+                this.operation = net.minecraft.world.entity.ai.control.MoveControl.Operation.WAIT;
+                this.mob.setZza(0.0F);
+                return;
+            }
+
             this.mob.setSpeed((float) (this.speedModifier * speedValue));
 
             // Avoid beeing stuck in jumping while in liquids

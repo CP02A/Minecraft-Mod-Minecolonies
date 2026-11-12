@@ -105,14 +105,14 @@ code reading, or seen once without a test that reproduces it.
 | [E2E-FRM-01-1](#e2e-frm-01-1-farmer-never-tills-grass-blocks) | Farmer never tills grass blocks | High | Fabric port (26.3 tag change) | `EntityAIWorkFarmer.java:337` | ✅ `frm01_farmerTillsGrass` |
 | [E2E-FRM-07-1](#e2e-frm-07-1-fisherman-throws-on-every-catch) | Fisherman throws on every catch, never gets loot | High | Fabric port (26.3 loot params) | `NewBobberEntity.java:519-525` | ✅ `frm07_fisherman` |
 | [E2E-CRF01-2](#e2e-crf01-2-brewing-recipes-cant-be-taught-in-the-gui) | Brewing recipes can't be taught in the GUI | High | Fabric port | `WindowBrewingstandCrafting.java:122-127` | ❔ code reading (known port TODO) |
-| [E2E-LOG06-1](#e2e-log06-1-orphaned-delivery-a-tool-request-is-never-delivered) | Orphaned delivery: a tool request is never delivered | High | Unclear (probably upstream) | request system / courier, no single line found | ✅ `log06_toolsByHutLevel` |
+| [E2E-LOG06-1](#e2e-log06-1-orphaned-delivery-a-tool-request-is-never-delivered) | Orphaned delivery: a tool request is never delivered | – | FIXED: not a mod bug (test setup) | test `log06_toolsByHutLevel` | ✅ `log06_toolsByHutLevel` now required and passing |
 | [E2E-CON-02-1](#e2e-con-02-1-ally-teleport-only-works-within-15-blocks-of-the-target-gate) | Ally teleport only works within 15 blocks of the target gate | High (for the feature) | Upstream (#11888) | `TeleportToColonyMessage.java:89` | ✅ `con02b_allyTeleportFromOwnGate` |
 | [E2E-CIT06-1](#e2e-cit06-1-negative-happiness-factors-can-raise-total-happiness) | Negative happiness factors can raise total happiness | Medium | Upstream | `CitizenHappinessHandler.java:148` | ✅ `cit06b_negativeFactorsLowerHappiness` |
 | [E2E-SRV02-1](#e2e-srv02-1-study-items-make-studying-less-successful) | Study items make studying less successful | Medium | Upstream (#7349) | `CitizenSkillHandler.java:152` | ✅ `srv02b_studyItemsHelp` |
 | [E2E-VIS04-1](#e2e-vis04-1-cancelling-an-accepted-quest-at-a-delivery-step-does-nothing) | Cancelling an accepted quest at a delivery step does nothing | Medium | Upstream | `QuestDeliveryInteraction.java:55-73` | ✅ `vis04_cancelAcceptedQuestAtDelivery` |
 | [E2E-CRF01-1](#e2e-crf01-1-crusher-over-crafts-a-request-and-wastes-ingredients) | Crusher over-crafts a request and wastes ingredients | Medium | Likely upstream | `EntityAIWorkCrusher.java:115-120, 228` | ✅ `crf01_crusher` (about 2 of 3 runs) |
 | [E2E-CRF07-1](#e2e-crf07-1-enchanter-drains-himself) | Enchanter drains himself instead of the station's workers | Medium | Likely upstream | `EntityAIWorkEnchanter.java:324` | ✅ `crf07_enchanterDrainsStationWorker` |
-| [E2E-GAT-03-1](#e2e-gat-03-1-miner-falls-off-the-shaft-ladder) | Miner falls off the shaft ladder | Medium | Unclear | citizen path following on ladders, started by `AbstractEntityAIBasic.java:756` | ✅ `gat03_minerDigsShaftSafely` |
+| [E2E-GAT-03-1](#e2e-gat-03-1-miner-falls-off-the-shaft-ladder) | Miner falls off the shaft ladder | Medium | Upstream; FIXED | `MovementHandler.java` (JUMPING state), stop from `AbstractEntityAIBasic.walkWithProxy` | ✅ `gat03_minerDigsShaftSafely` now required and passing |
 | [E2E-GAT-04-1](#e2e-gat-04-1-miner-never-removes-liquids-around-a-node) | Miner never removes liquids around a node | Medium | Likely upstream | `EntityAIStructureMiner.java:794-820` | ✅ `gat04_minerSealsWater` |
 | [E2E-GAT-06-1](#e2e-gat-06-1-nether-worker-idles-after-returning) | Nether worker idles after returning until the next trip is allowed | Medium | Likely upstream | `EntityAIWorkNether.java:156`, `AbstractEntityAICrafting.java:162` | ✅ `gat06_netherWorkerReturnsAfterTravel` |
 | [E2E-COL-05-1](#e2e-col-05-1-friends-cant-open-hut-menus) | Friends can't open hut menus | Low | Upstream | `ColonyPermissionEventHandler.java:372, 412` | ✅ `col05b_friendOpensHut` |
@@ -147,9 +147,11 @@ recipe. The server side works (`crf01_alchemist` teaches through it). Client GUI
 
 #### E2E-LOG06-1 Orphaned delivery: a tool request is never delivered
 
-A miner in a level 1 hut asks for a second shovel. The request waits on a delivery that is `IN_PROGRESS`, but no courier has it: the
-courier's queue and the warehouse queue are empty, the courier idles. The miner stays in `NEEDS_ITEM` for good. 3 of 3 runs. Not
-checked on NeoForge. More: [logistics protocol](protocol/logistics-crafting.md#e2e-log06-1-orphaned-delivery-a-tool-request-is-never-delivered).
+FIXED, not a mod bug. The test's request list collects every state a request had, so the one shovel request showed up twice (an
+old `FOLLOWUP_IN_PROGRESS` snapshot with its delivery, then `COMPLETED`); traced, the delivery went through the courier normally. The
+miner was really waiting for cobblestone nobody had, and under the arena's dirt was only the barrier floor, so he never needed a
+pickaxe. The test now uses stone ground and puts cobblestone and ladders into the hut; it is required again. More:
+[logistics protocol](protocol/logistics-crafting.md#e2e-log06-1-orphaned-delivery-a-tool-request-is-never-delivered-fixed-not-a-mod-bug-test-setup).
 
 #### E2E-CON-02-1 Ally teleport only works within 15 blocks of the target gate
 
@@ -188,10 +190,11 @@ himself; the station's worker is never visited. 2 of 2 runs and every full run s
 
 #### E2E-GAT-03-1 Miner falls off the shaft ladder
 
-Climbing out of the shaft for a new tool, the miner leaves the ladder sideways at about y 8 and falls 3.3-4 blocks (1 damage at 4).
-Seen in most runs. The AI only asks to walk to the hut; the fall happens in path following on the ladder. The port changed
-pathfinding in places, so the origin is unclear. More:
-[farming protocol](protocol/farming-gathering.md#e2e-gat-03-1-miner-falls-off-the-shaft-ladder).
+FIXED, upstream (same code in `upstream/version/1.21`). Climbing the ladder, the citizen's `MovementHandler` is in state JUMPING, which
+sets the forward input every tick and ends only on the ground. When the miner reached the spot to mine from while still on the ladder,
+the navigation was stopped, but JUMPING went on: he kept walking in the direction he faced (turned towards the block he mines), climbed
+on and drifted sideways off the ladder, then fell 3.3-4 blocks. Fix: JUMPING ends (forward input 0) when the navigation has no path.
+More: [farming protocol](protocol/farming-gathering.md#e2e-gat-03-1-miner-falls-off-the-shaft-ladder-fixed).
 
 #### E2E-GAT-04-1 Miner never removes liquids around a node
 

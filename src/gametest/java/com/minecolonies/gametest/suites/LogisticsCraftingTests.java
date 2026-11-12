@@ -9,6 +9,7 @@ import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.buildings.ModBuildings;
 import com.minecolonies.api.colony.buildings.registry.BuildingEntry;
 import com.minecolonies.api.colony.requestsystem.request.IRequest;
+import com.minecolonies.api.colony.requestsystem.request.RequestState;
 import com.minecolonies.api.colony.requestsystem.requestable.Stack;
 import com.minecolonies.api.colony.requestsystem.requestable.StackList;
 import com.minecolonies.api.colony.requestsystem.requestable.Tool;
@@ -634,11 +635,16 @@ public class LogisticsCraftingTests
     /**
      * LOG-06 Tools by hut level: a miner in a level 1 hut requests a pickaxe and gets one within the level 1 limit (not the diamond one);
      * after the hut reaches level 3 and the low pickaxes are gone, the new request is fulfilled with the diamond pickaxe.
+     * <p>
+     * The miner only asks for a pickaxe when his shaft reaches stone, and he extends the shaft only with cobblestone (the column behind
+     * the ladder) and ladders. So the test makes the arena floor and the ground below it stone (the first block of the shaft needs a pickaxe)
+     * and puts cobblestone and ladders into the hut.
      */
-    // BUG E2E-LOG06-1: the miner requests a shovel twice; the second request's Delivery child stays IN_PROGRESS with the
-    // DeliveryRequestResolver but sits in no courier's task queue and not in the warehouse request queue, so it is never carried out. The
-    // miner waits (NEEDS_ITEM) forever and never gets to request its pickaxe.
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 8000, skyAccess = true, required = false)
+    // Was optional as "E2E-LOG06-1 orphaned delivery": not a mod bug. The shovel request was delivered and completed; the "tool requests"
+    // set below collects every state a request had, so it listed the finished shovel request twice (FOLLOWUP_IN_PROGRESS with its delivery,
+    // then COMPLETED). The miner was really waiting (NEEDS_ITEM) for 1-32 cobblestone that nobody had, and below the arena there was only
+    // the barrier floor, so he never reached stone and never needed a pickaxe.
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 8000, skyAccess = true)
     public void log06_toolsByHutLevel(final GameTestHelper helper)
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
@@ -648,17 +654,20 @@ public class LogisticsCraftingTests
         final Set<String> toolRequests = new LinkedHashSet<>();
 
         fixture.flow()
-          .run("colony with warehouse (wooden, stone, diamond pickaxe), courier, level 1 miner's hut with a miner", () -> {
+          .run("colony with warehouse (wooden, stone, diamond pickaxe), courier, level 1 miner's hut (cobblestone, ladders) with a miner on stone ground", () -> {
+              fixture.fillFloor(Blocks.STONE.defaultBlockState(), Blocks.STONE.defaultBlockState());
+              fixture.makeDeepGround();
               lg.setUp(1);
               hut[0] = placeInBox(fixture, ModBuildings.miner.get(), 1, NORTH_EAST_BOX);
               fixture.fillWarehouse(new ItemStack(Items.WOODEN_PICKAXE), new ItemStack(Items.STONE_PICKAXE), new ItemStack(Items.DIAMOND_PICKAXE),
                 new ItemStack(Items.WOODEN_SHOVEL), new ItemStack(Items.STONE_SHOVEL));
+              fixture.fillBuilding(hut[0], new ItemStack(Items.COBBLESTONE, 16), new ItemStack(Items.LADDER, 16));
               miner[0] = fixture.spawnCitizen(skills(30), hut[0], null, null);
           })
           .awaitUntil("the miner holds a pickaxe", 3500, () -> {
               recordToolRequests(fixture, hut[0], toolRequests);
               return pickaxeOf(miner[0]) != null;
-          }, () -> "tool requests " + toolRequests + "; pickaxes: wooden " + whereIs(fixture, Items.WOODEN_PICKAXE) + ", stone "
+          }, () -> "tool requests (every state seen) " + toolRequests + "; open requests of the hut " + openRequestsOf(fixture, hut[0]) + "; pickaxes: wooden " + whereIs(fixture, Items.WOODEN_PICKAXE) + ", stone "
                      + whereIs(fixture, Items.STONE_PICKAXE) + ", diamond " + whereIs(fixture, Items.DIAMOND_PICKAXE) + ", shovels " + whereIs(fixture, Items.WOODEN_SHOVEL)
                      + whereIs(fixture, Items.STONE_SHOVEL) + "; courier queue " + ((com.minecolonies.core.colony.jobs.JobDeliveryman) lg.couriers.get(0).getJob()).getTaskQueue()
                      + ", warehouse queue " + lg.warehouse.getModule(BuildingModules.WAREHOUSE_REQUEST_QUEUE).getMutableRequestList() + "; " + ColonyFixture.describe(miner[0]) + "; "
@@ -679,7 +688,7 @@ public class LogisticsCraftingTests
           .awaitUntil("the miner gets the diamond pickaxe", 4000, () -> {
               recordToolRequests(fixture, hut[0], toolRequests);
               return pickaxeOf(miner[0]) != null && pickaxeOf(miner[0]).is(Items.DIAMOND_PICKAXE);
-          }, () -> "miner has " + pickaxeOf(miner[0]) + ", tool requests " + toolRequests + "; " + ColonyFixture.describe(miner[0]))
+          }, () -> "miner has " + pickaxeOf(miner[0]) + ", tool requests (every state seen) " + toolRequests + "; open requests of the hut " + openRequestsOf(fixture, hut[0]) + "; " + ColonyFixture.describe(miner[0]))
           .succeed();
     }
 
@@ -1673,6 +1682,24 @@ public class LogisticsCraftingTests
         {
             return "<unassigned>";
         }
+    }
+
+    /**
+     * The requests of a hut that are not finished yet, with state and resolver (for failure messages).
+     */
+    static String openRequestsOf(final ColonyFixture fixture, final IBuilding hut)
+    {
+        final StringBuilder sb = new StringBuilder("[");
+        for (final IRequest<?> request : allRequests(fixture))
+        {
+            if (request.getRequester().getLocation().getInDimensionLocation().equals(hut.getPosition())
+                  && request.getState().ordinal() < RequestState.COMPLETED.ordinal())
+            {
+                sb.append(request.getShortDisplayString().getString()).append(' ').append(request.getState()).append(' ')
+                  .append(resolverName(fixture, request.getId())).append("; ");
+            }
+        }
+        return sb.append(']').toString();
     }
 
     static Collection<IRequest<?>> allRequests(final ColonyFixture fixture)

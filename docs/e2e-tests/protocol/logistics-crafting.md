@@ -15,7 +15,7 @@ Runtime = game ticks of the main wait in the final run (ticks vary from run to r
 | LOG-03 Crafting chain | ✅ | 900 | Sticks request → sawmill `PublicWorkerCraftingRequestResolver`, child crafting request for planks; exactly 1 log used. |
 | LOG-04 Unfulfillable request goes to the player | ✅ | 40,455 | Retrying resolver for ~40,000 ticks (3 retries x 1200 RS ticks x 11), then player resolver; diamond put into a warehouse rack (not the postbox) → warehouse → courier. |
 | LOG-05 Minimum stock | ✅ | 1,345 | Minimum stock is in stacks: 1 stack = 64 torches; refilled after 20 removed; never above 64. |
-| LOG-06 Tools by hut level | ❌ | (timeout 3,500) | BUG E2E-LOG06-1: orphaned delivery, miner never gets a pickaxe. `required = false`. |
+| LOG-06 Tools by hut level | ✅ | 500 + 585 | Was ❌ "E2E-LOG06-1 orphaned delivery": not a mod bug, the miner had no cobblestone and no stone to dig (see the bug entry). Stone ground, cobblestone and ladders in the hut; required again. |
 | LOG-07 Several couriers share the work | ✅ | 900 | 5 postboxes x 2 requests, 3 couriers (each in its own courier's hut), level 2 warehouse. |
 | LOG-08 Requests cancelled when a hut is removed | ✅ | 515 | Hut broken while the courier carries items; requests gone, items back in the warehouse, no references left. |
 | LOG-09 Full warehouse | ✅ | 745 | Courier keeps the items, `lastNotification` set; after a rack is added the items are stored. Final step: budget 3,000 → 8,000 (the courier once went on a random 3-minute leisure break). |
@@ -60,14 +60,20 @@ Counts by row: ✅ 30, ❌ 3, ⛔ 0, 📝 0 (34 test methods: 31 required, all p
   skips the daily-limit check (line 120) and crafts again.
 - **Reproduction:** `crf01_crusher` (fails about 2 of 3 runs; twice the requester got no gravel at all, "requester has 0 of 2; where: crusher 2").
 
-### E2E-LOG06-1 Orphaned delivery: a tool request is never delivered
-- **Severity:** high (the worker is stuck for good; here a miner never gets to work).
-- **Upstream or port:** unknown, probably upstream (request system and courier code are shared code); not verified on NeoForge.
-- **Evidence:** miner in a level 1 hut, wooden/stone/diamond pickaxes and wooden/stone shovels in the warehouse. The miner gets one shovel,
-  then opens a second shovel request (levels 0..1). That request is `FOLLOWUP_IN_PROGRESS` with the warehouse resolver; its `Delivery`
-  child is `IN_PROGRESS` with the `DeliveryRequestResolver`, but the courier's task queue is empty, the warehouse request queue is empty
-  and the courier idles in `START_WORKING` for 3,000+ ticks. The miner stays in `NEEDS_ITEM` and never requests a pickaxe. Seen in 3 of 3
-  runs after the diagnostics were added.
+### E2E-LOG06-1 Orphaned delivery: a tool request is never delivered (FIXED: not a mod bug, test setup)
+- **Status:** FIXED in the test. **Not a mod bug**, so no origin (neither port nor upstream).
+- **Root cause:** a wrong reading of the test's own output plus a test setup the miner can't work in.
+  - The "second shovel request" never existed. The test's `toolRequests` is a set of strings that collects every state a request had;
+    the one shovel request was listed twice, first as `FOLLOWUP_IN_PROGRESS` with its `Delivery` child `IN_PROGRESS` (an old snapshot),
+    then as `COMPLETED`. Traced with logging in `StandardRequestManager.updateRequestState`, `DeliverymenRequestResolver.resolveRequest`
+    and `JobDeliveryman.getCurrentTask/finishRequest`: the delivery went warehouse queue → courier queue → `RESOLVED` → `COMPLETED` →
+    `RECEIVED` within a second; the courier's empty queue was correct.
+  - The miner's real open request was "1-32 Cobblestone" (`EntityAIStructureMiner.advanceLadder` needs cobblestone for the column behind
+    the ladder, and ladders). Nobody had cobblestone, so he waited in `NEEDS_ITEM`. Under the arena's dirt there was only the barrier
+    floor, so he would never have reached a block that needs a pickaxe either (the miner asks for a pickaxe only when a block needs one).
+- **Fix (test):** arena floor and the ground below it are stone (`fillFloor(stone, stone)`, `makeDeepGround()`), 16 cobblestone and 16
+  ladders in the hut; the failure message now also lists the hut's open requests (`openRequestsOf`). `required = false` removed.
+- **Result:** pickaxe after about 500 ticks (wooden or stone, never diamond), diamond pickaxe about 585 ticks after the upgrade to level 3.
 - **Reproduction:** `log06_toolsByHutLevel`.
 
 ### E2E-CRF01-2 Fabric port: brewing recipes can't be taught in the GUI

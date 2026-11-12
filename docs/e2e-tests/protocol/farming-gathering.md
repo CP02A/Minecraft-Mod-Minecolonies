@@ -22,7 +22,7 @@ random numbers.
 | GAT-01 | `gat01_lumberjackFellsAndReplants` | ✅ | 8440 | One oak + one birch, defoliation on. |
 | GAT-02 | `gat02_lumberjackFollowsSettings` | ✅ | ~5650 | 3245 until the oak is replanted, then a fixed 2400-tick wait (it checks that something does *not* happen). |
 | GAT-03 | `gat03_minerDigsShaft` | ✅ | 18630 / 18795 | Deep arena, level 1 mine; the first level is built right under the hut (y 6), not at y -16. Owner fulfils the main shaft's framed blocks etc. (`OwnerFulfils`). |
-| GAT-03 | `gat03_minerDigsShaftSafely` (optional) | ❌ mod bug | fails at about 7500-10200 | E2E-GAT-03-1: the miner falls off the shaft ladder (3.3-4 blocks, 1 damage). Intermittent: passed in some of the final-step full runs. |
+| GAT-03 | `gat03_minerDigsShaftSafely` | ✅ | 17330-19335 | Was optional (E2E-GAT-03-1, the miner fell off the shaft ladder); fixed in `MovementHandler`, required again. 8 of 8 single runs passed after the fix. |
 | GAT-04 | `gat04_minerMinesNodes` | ✅ | 31310 / 31885 | First level as in GAT-03 (~18000), then max depth = that level; two tunnel nodes built (~13500), supports, cave hole closed, iron ores in the hut. |
 | GAT-04 | `gat04_minerSealsWater` (optional) | ❌ mod bug | 24975 / 28625 (check fails) | E2E-GAT-04-1: the water source next to the first node is never removed. |
 | GAT-05 | `gat05_quarrierDigsLayers` | ✅ | 28990 / 24910 (budget raised to 60,000 after a run that needed more than 34,000) | Simple quarry on stone; top layer is open from the hut paste, the quarrier digs the next two (~235 blocks each), top down, nothing outside. |
@@ -31,17 +31,29 @@ random numbers.
 
 ## Bugs found
 
-### E2E-GAT-03-1 Miner falls off the shaft ladder
+### E2E-GAT-03-1 Miner falls off the shaft ladder (FIXED)
 
+- **Status:** FIXED in `MovementHandler.tick` (`core/entity/pathfinding/navigation/MovementHandler.java`, JUMPING branch).
 - **Severity:** medium: fall damage (1 heart at 4 blocks) every time the miner climbs out of the shaft at the wrong moment; deeper shafts
   could hurt more.
-- **Port-specific: unclear.** The miner AI only asks to walk to the hut (`AbstractEntityAIBasic.walkToBuilding`, from
-  `EntityAIStructureMiner.startWorkingAtOwnBuilding` / NEEDS_ITEM); the fall happens in the citizen's path following on the ladder
-  (MineColonies pathfinding, which the port changed in places, e.g. `PathfindingUtils.blocksMotion`). Not checked against upstream.
-- **Evidence:** `gat03_minerDigsShaftSafely` logs "[MINE] tick N: falling ..." every tick of the fall: at about tick 10,150 the miner
-  (worker AI NEEDS_ITEM: his shovel broke at the shaft bottom, he climbs up to fetch a new one) is at y 7.43 next to the ladder (ladder
-  x, ladder z + 1, over the open shaft), not on a climbable block, falls to y 4 (fall distance 4.06) and takes 1 damage. Same tick range in
-  4 of the first 5 runs; in run 4 a 3.35-block fall at tick 7,492.
+- **Origin: upstream.** Not caused by the port. The code involved is the same in `upstream/version/1.21` (the port's base) apart from
+  mechanical renames (`isLadder` → `BlockTags.CLIMBABLE`): `MovementHandler` JUMPING state, `MinecoloniesAdvancedPathNavigate.stop` and
+  ladder handling, `AbstractEntityAIBasic.walkWithProxy`, `WorkerUtil.faceBlock`. The vanilla parts are unchanged too (26.3
+  `Mob.setSpeed` sets `zza`, `LivingEntity` climbs on `horizontalCollision || jumping` while `onClimbable()`). Not run on NeoForge.
+- **Root cause:** going up the ladder the citizen's `MovementHandler` is in state JUMPING (its jump condition "target higher than the
+  step height and horizontally close" is not excluded for ladders). JUMPING calls `mob.setSpeed(...)` every tick, which also sets the
+  forward input `zza`, and ends only when the mob is on the ground or in a liquid; on a ladder it never is. When the miner reached the
+  spot to mine from while still on the ladder, `AbstractEntityAIBasic.walkWithProxy` (line ~908, from `checkMiningLocation`) stopped the
+  navigation. The stale JUMPING state kept walking forward in the miner's facing, which `faceBlock` had turned towards the block he mines
+  (yaw 77.9 instead of 90 = west, into the ladder): the push into the ladder kept him climbing, the small sideways part moved him 0.013
+  blocks per tick along the ladder until he left the ladder block (his head was stuck under the hut at y 8.2), then he fell 3.3-4 blocks.
+  Traced per tick (position, motion, `onClimbable`, move-control operation, `zza`, yaw, path nodes): path gone at y 5.48, operation
+  JUMPING, `zza` 0.3, then 35 ticks of climbing and drifting from z 0.59 to 1.0, fall.
+- **Fix:** in JUMPING, if the navigation is done (path finished or stopped), switch to WAIT and set `zza` to 0. Only the navigation
+  uses this move control, so "no path" always means "nothing to walk to". Now the miner stops on the ladder and slides down it slowly
+  (`handleOnClimbable`, no fall damage); the trace shows the same situation (stop at y 5.48, yaw 77.5) ending in a slide to the bottom.
+- **Evidence before the fix:** `gat03_minerDigsShaftSafely` failed in most full runs (falls at ticks 7,500-11,500); 2 of 10 single runs
+  in this investigation. After the fix: see the test table (8 of 8 single runs passed, no fall above 1.2 blocks).
 - **Reproduce:** `-Pe2eFilter=minecolonies-gametest:farming_gathering_tests_gat03_miner_digs_shaft_safely`.
 
 ### E2E-GAT-04-1 Miner never removes liquids around a node

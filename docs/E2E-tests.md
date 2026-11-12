@@ -82,7 +82,7 @@ Details: [e2e-tests/logistics.md](e2e-tests/logistics.md)
 | [LOG-03](e2e-tests/logistics.md#log-03-crafting-chain) | Crafting chain | Missing items are crafted through a chain of crafters. | ✅ Passing |
 | [LOG-04](e2e-tests/logistics.md#log-04-requests-the-colony-cant-fulfill-go-to-the-player) | Requests the colony can't fulfill go to the player | Items nobody can provide are requested from the player; the postbox completes it. | ✅ Passing |
 | [LOG-05](e2e-tests/logistics.md#log-05-minimum-stock) | Minimum stock | Huts are kept at their minimum stock. | ✅ Passing |
-| [LOG-06](e2e-tests/logistics.md#log-06-tools-by-hut-level) | Tools by hut level | Workers get tools within their hut level's tier limit. | ❌ Fails (mod bug) (E2E-LOG06-1) |
+| [LOG-06](e2e-tests/logistics.md#log-06-tools-by-hut-level) | Tools by hut level | Workers get tools within their hut level's tier limit. | ✅ Passing (E2E-LOG06-1 was a test setup problem) |
 | [LOG-07](e2e-tests/logistics.md#log-07-several-couriers-share-the-work) | Several couriers share the work | Several couriers split the deliveries. | ✅ Passing |
 | [LOG-08](e2e-tests/logistics.md#log-08-requests-are-cancelled-when-a-hut-is-removed) | Requests are cancelled when a hut is removed | Removing a hut cancels its requests without losing items. | ✅ Passing |
 | [LOG-09](e2e-tests/logistics.md#log-09-full-warehouse) | Full warehouse | A full warehouse loses nothing and reports it. | ✅ Passing |
@@ -110,7 +110,7 @@ Details: [e2e-tests/jobs-gathering.md](e2e-tests/jobs-gathering.md)
 |---|---|---|---|
 | [GAT-01](e2e-tests/jobs-gathering.md#gat-01-lumberjack-fells-and-replants) | Lumberjack fells and replants | The lumberjack cuts whole trees and replants them. | ✅ Passing |
 | [GAT-02](e2e-tests/jobs-gathering.md#gat-02-lumberjack-follows-its-settings) | Lumberjack follows its settings | The lumberjack only cuts allowed trees in its area. | ✅ Passing |
-| [GAT-03](e2e-tests/jobs-gathering.md#gat-03-miner-digs-the-shaft) | Miner digs the shaft | The miner digs the shaft safely with ladders. | ✅ Passing; optional part ❌ (E2E-GAT-03-1) |
+| [GAT-03](e2e-tests/jobs-gathering.md#gat-03-miner-digs-the-shaft) | Miner digs the shaft | The miner digs the shaft safely with ladders. | ✅ Passing (E2E-GAT-03-1 fixed) |
 | [GAT-04](e2e-tests/jobs-gathering.md#gat-04-miner-mines-a-level) | Miner mines a level | The miner digs out nodes and collects ores. | ✅ Passing; optional part ❌ (E2E-GAT-04-1) |
 | [GAT-05](e2e-tests/jobs-gathering.md#gat-05-quarrier) | Quarrier | The quarrier digs its quarry layer by layer. | ✅ Passing |
 | [GAT-06](e2e-tests/jobs-gathering.md#gat-06-nether-expedition) | Nether expedition | The nether worker returns from an expedition with loot and a log entry. | ✅ Passing; optional part ❌ (E2E-GAT-06-1) |

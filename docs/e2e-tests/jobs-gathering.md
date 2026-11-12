@@ -65,7 +65,7 @@ Workers who collect raw materials from the world: wood, stone, ores and nether r
 
 **Time budget:** 15 minutes.
 
-**As implemented** (`FarmingGatheringTests`, `gat03_minerDigsShaft` + optional `gat03_minerDigsShaftSafely`): deep arena
+**As implemented** (`FarmingGatheringTests`, `gat03_minerDigsShaft` + `gat03_minerDigsShaftSafely`): deep arena
 (`makeDeepGround`), town hall at (12, 5, 12), level 1 mine at (32, 5, 44) with four extra racks next to it (room for what the miner digs
 out), 64 ladders, 64 cobblestone, 64 torches, 4 wooden pickaxes and 2 wooden shovels in the hut; miner with all skills 50.
 - **The first mining level is right under the hut**, not at an absolute height: the miner builds a level 5 blocks below where the shaft
@@ -78,8 +78,8 @@ out), 64 ladders, 64 cobblestone, 64 torches, 4 wooden pickaxes and 2 wooden sho
   only after about 40,000 ticks.
 - Checks: ladders from the hut's top ladder down to the level and a solid column behind them; at least 64 dug blocks (cobblestone, stone,
   dirt, minus what the test put in) in the hut.
-- "Never falls more than three blocks, no damage" is the optional `gat03_minerDigsShaftSafely` (fails on bug E2E-GAT-03-1: the miner
-  falls off the shaft ladder).
+- "Never falls more than three blocks, no damage" is `gat03_minerDigsShaftSafely` (was optional because of bug E2E-GAT-03-1, the
+  miner falling off the shaft ladder; fixed).
 
 ---
 
