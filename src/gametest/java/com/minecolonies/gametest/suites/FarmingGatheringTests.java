@@ -1230,7 +1230,7 @@ public class FarmingGatheringTests
      * runs the composted beds at double speed. Only poppies and dandelions grow, the compost is used up, flowers
      * end up in the hut, and when the compost is gone the florist requests more.
      */
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 24000, skyAccess = true)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 34000, skyAccess = true)
     public void frm03_florist(final GameTestHelper helper)
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
@@ -1285,7 +1285,9 @@ public class FarmingGatheringTests
             () -> "flowers in hut " + fixture.countItems(hut[0], s -> allowed.contains(s.getItem())) + ", with florist " + countInCitizen(worker[0], s -> allowed.contains(s.getItem()))
                     + ", compost left " + (fixture.countItems(hut[0], isCompost) + countInCitizen(worker[0], isCompost)) + ", beds " + describeBeds(fixture, hut[0])
                     + " / " + describeWork(hut[0], worker[0]))
-          .awaitUntil("the compost is used up", 10000,
+          // Since the compost timer fix (E2E-FRM-03-1) each compost lasts its full 300 s (150 s at the test's double speed), so using up
+          // 3 per bed ends at about test tick 11,000-12,000 whatever the step started at; 10,000 from the step start was too tight.
+          .awaitUntil("the compost is used up", 20000,
             () -> {
                 speedUp.run();
                 return fixture.countItems(hut[0], isCompost) + countInCitizen(worker[0], isCompost) == 0;
