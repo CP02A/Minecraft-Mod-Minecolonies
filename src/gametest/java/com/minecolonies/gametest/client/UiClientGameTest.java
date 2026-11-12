@@ -109,6 +109,7 @@ public class UiClientGameTest implements FabricClientGameTest
         }
 
         runCase("UI-08", "Human input is ignored", true, shots -> checkInputBlocked());
+        runCase("UI-10", "Config screen: client settings", true, shots -> ConfigScreenUiTests.clientSettings(context, shots));
 
         UiBridge.reset();
         try (TestSingleplayerContext world = context.worldBuilder().create())
@@ -120,6 +121,7 @@ public class UiClientGameTest implements FabricClientGameTest
             final boolean ready = waitForColony(context, server, run);
             final UiBridge.Colony colony = UiBridge.colony;
             runCase("UI-09", "Brewing teaching computes the potion", true, shots -> brewingOutput(context));
+            runCase("UI-11", "Config screen: server settings", true, shots -> ConfigScreenUiTests.serverSettings(context, server, shots));
             if (ready && colony != null)
             {
                 runCase("UI-01", "Town hall window", true, shots -> townHall(context, server, colony, shots));

@@ -2,7 +2,6 @@
 package com.ldtteam.shim.neoforge.client.extensions.common;
 
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,7 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class ClientExtensionsManager
 {
     static final Map<Item, IClientItemExtensions> ITEM_EXTENSIONS = new ConcurrentHashMap<>();
-    static final Map<Block, IClientBlockExtensions> BLOCK_EXTENSIONS = new ConcurrentHashMap<>();
 
     private ClientExtensionsManager() {}
 }
