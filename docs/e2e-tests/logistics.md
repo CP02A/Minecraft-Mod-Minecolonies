@@ -13,6 +13,9 @@ The request system, the warehouse and couriers: how items get from where they ar
 **Setup**
 - Warehouse with a courier, 64 oak planks in its racks.
 - A worker hut whose worker requests 16 oak planks (the test opens the request).
+- *As implemented:* a lumberjack's hut without a worker opens a building request (a hut with a worker would take the planks into the
+  worker's inventory). Stack requests for one specific item are handled by the `WarehouseConcreteRequestResolver`, so the check is
+  "only warehouse resolvers, never the player resolver".
 
 **What happens**
 1. The request system assigns the request. The courier carries the planks over.
@@ -32,6 +35,8 @@ The request system, the warehouse and couriers: how items get from where they ar
 
 **Setup**
 - Warehouse with a courier. A lumberjack's hut whose inventory is full of logs (above what it keeps for itself).
+- *As implemented:* 128 logs, a stone axe and 16 saplings in the hut. Pickups are only requested when a worker dumps its inventory or the
+  player presses "force pickup"; the test calls `createPickupRequest` like that button (a lumberjack without trees never dumps).
 
 **What happens**
 1. The colony runs.
@@ -79,6 +84,11 @@ The request system, the warehouse and couriers: how items get from where they ar
 1. The request ends up with the player resolver.
 2. The test puts a diamond into the postbox (as a player would).
 
+*As implemented:* the postbox is a requester (the player orders items through it), not a drop-off. The request first goes to the
+retrying resolver, which retries 3 times every 1200 request-system ticks (one every 11 game ticks), so it reaches the player resolver
+after about 40,000 ticks. The player then puts the diamond into a warehouse rack; the rack notifies the request system, the request is
+reassigned to the warehouse and a courier delivers it. Budget 60,000 ticks.
+
 **Passes when**
 - The request is assigned to the player resolver.
 - After the diamond is in the postbox, a courier brings it to the worker and the request completes.
@@ -93,6 +103,9 @@ The request system, the warehouse and couriers: how items get from where they ar
 
 **Setup**
 - Warehouse with a courier and 128 torches. A worker hut with a minimum stock of 32 torches and none in the hut.
+- *As implemented:* minimum stock is set in stacks (`MinimumStockModule`: target = quantity x max stack size), so 32 torches can't be
+  set. The test uses 1 stack (64 torches) and 192 torches in the warehouse; after 20 are removed it is refilled to 64, and the warehouse
+  lost exactly 84.
 
 **What happens**
 1. The colony runs.
@@ -134,6 +147,8 @@ The request system, the warehouse and couriers: how items get from where they ar
 **Setup**
 - Warehouse at a level that allows three couriers, three couriers hired.
 - Ten requests from five huts, all available in the warehouse.
+- *As implemented:* five postboxes (single-block requesters) open two requests each (10 different items, 8 each). A courier's hut employs
+  one courier, so there are three courier's huts. "Each courier delivered" is recorded from the couriers' current delivery tasks.
 
 **What happens**
 1. The colony runs.
@@ -172,6 +187,9 @@ The request system, the warehouse and couriers: how items get from where they ar
 
 **Setup**
 - Warehouse with every rack slot full. A hut with surplus items to collect.
+- *As implemented:* every warehouse slot is filled with dirt; 64 cobblestone in a lumberjack's hut, pickup forced. The "warehouse full"
+  message goes to players only (the fake owner gets no chat), so the test checks `TileEntityWareHouse.lastNotification`, which is set when
+  the message is sent. The rack is added by placing a rack block in the warehouse and registering it with the building.
 
 **What happens**
 1. The colony runs.
