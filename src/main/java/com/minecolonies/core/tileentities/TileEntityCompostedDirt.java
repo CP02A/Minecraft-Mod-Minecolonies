@@ -155,6 +155,8 @@ public class TileEntityCompostedDirt extends BlockEntity implements ITickable
                 e.printStackTrace();
             }
         }
+        // The ticker also counts while not composted; restart it so the new compost lasts the full TICKER_LIMIT.
+        this.ticker = 0;
         this.composted = true;
     }
 

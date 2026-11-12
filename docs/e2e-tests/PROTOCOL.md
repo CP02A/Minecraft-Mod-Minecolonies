@@ -88,7 +88,7 @@ fixes:
 Budgets are in game ticks and cost little real time, so they were raised generously. Each fix is noted in the group protocol's table.
 
 **Intermittent bug tests** (optional): `crf01_crusher` ([E2E-CRF01-1](#e2e-crf01-1-crusher-over-crafts-a-request-and-wastes-ingredients))
-fails in about half of the runs, `gat03_minerDigsShaftSafely` ([E2E-GAT-03-1](#e2e-gat-03-1-miner-falls-off-the-shaft-ladder)) in most.
+failed in about half of the runs (bug fixed since, test required again), `gat03_minerDigsShaftSafely` ([E2E-GAT-03-1](#e2e-gat-03-1-miner-falls-off-the-shaft-ladder)) in most.
 In the full run before the final step the crusher was the 15th optional failure (14 bug tests plus the crusher; GAT-03b also
 failed, the swine test passed that time).
 
@@ -110,17 +110,17 @@ code reading, or seen once without a test that reproduces it.
 | [E2E-CIT06-1](#e2e-cit06-1-negative-happiness-factors-can-raise-total-happiness) | Negative happiness factors can raise total happiness | Medium | Upstream | `CitizenHappinessHandler.java:148` | ✅ `cit06b_negativeFactorsLowerHappiness` |
 | [E2E-SRV02-1](#e2e-srv02-1-study-items-make-studying-less-successful) | Study items make studying less successful | Medium | Upstream (#7349) | `CitizenSkillHandler.java:152` | ✅ `srv02b_studyItemsHelp` |
 | [E2E-VIS04-1](#e2e-vis04-1-cancelling-an-accepted-quest-at-a-delivery-step-does-nothing) | Cancelling an accepted quest at a delivery step does nothing | Medium | Upstream | `QuestDeliveryInteraction.java:55-73` | ✅ `vis04_cancelAcceptedQuestAtDelivery` |
-| [E2E-CRF01-1](#e2e-crf01-1-crusher-over-crafts-a-request-and-wastes-ingredients) | Crusher over-crafts a request and wastes ingredients | Medium | Likely upstream | `EntityAIWorkCrusher.java:115-120, 228` | ✅ `crf01_crusher` (about 2 of 3 runs) |
-| [E2E-CRF07-1](#e2e-crf07-1-enchanter-drains-himself) | Enchanter drains himself instead of the station's workers | Medium | Likely upstream | `EntityAIWorkEnchanter.java:324` | ✅ `crf07_enchanterDrainsStationWorker` |
+| [E2E-CRF01-1](#e2e-crf01-1-crusher-over-crafts-a-request-and-wastes-ingredients) | Crusher over-crafts a request and wastes ingredients | Medium | Likely upstream | `EntityAIWorkCrusher.java:115-120, 228` | ✅ `crf01_crusher` (about 2 of 3 runs) · **FIXED**, test required |
+| [E2E-CRF07-1](#e2e-crf07-1-enchanter-drains-himself) | Enchanter drains himself instead of the station's workers | Medium | Likely upstream | `EntityAIWorkEnchanter.java:324` | ✅ `crf07_enchanterDrainsStationWorker` · **FIXED**, test required |
 | [E2E-GAT-03-1](#e2e-gat-03-1-miner-falls-off-the-shaft-ladder) | Miner falls off the shaft ladder | Medium | Unclear | citizen path following on ladders, started by `AbstractEntityAIBasic.java:756` | ✅ `gat03_minerDigsShaftSafely` |
-| [E2E-GAT-04-1](#e2e-gat-04-1-miner-never-removes-liquids-around-a-node) | Miner never removes liquids around a node | Medium | Likely upstream | `EntityAIStructureMiner.java:794-820` | ✅ `gat04_minerSealsWater` |
-| [E2E-GAT-06-1](#e2e-gat-06-1-nether-worker-idles-after-returning) | Nether worker idles after returning until the next trip is allowed | Medium | Likely upstream | `EntityAIWorkNether.java:156`, `AbstractEntityAICrafting.java:162` | ✅ `gat06_netherWorkerReturnsAfterTravel` |
+| [E2E-GAT-04-1](#e2e-gat-04-1-miner-never-removes-liquids-around-a-node) | Miner never removes liquids around a node | Medium | Likely upstream | `EntityAIStructureMiner.java:794-820` | ✅ `gat04_minerSealsWater` · **FIXED**, test required |
+| [E2E-GAT-06-1](#e2e-gat-06-1-nether-worker-idles-after-returning) | Nether worker idles after returning until the next trip is allowed | Medium | Likely upstream | `EntityAIWorkNether.java:156`, `AbstractEntityAICrafting.java:162` | ✅ `gat06_netherWorkerReturnsAfterTravel` · **FIXED**, test required |
 | [E2E-COL-05-1](#e2e-col-05-1-friends-cant-open-hut-menus) | Friends can't open hut menus | Low | Upstream | `ColonyPermissionEventHandler.java:372, 412` | ✅ `col05b_friendOpensHut` |
 | [E2E-CON-01-1](#e2e-con-01-1-a-removed-connection-sign-leaves-a-stale-link) | A removed connection sign leaves a stale link in the other colony | Low | Upstream | `ColonyConnectionManager.java:169, 372` | ✅ `con01b_reconnectAfterSignRemoved` |
 | [E2E-VIS02-1](#e2e-vis02-1-removing-a-tavern-right-after-a-recruit-throws) | Removing a tavern right after a recruit throws and leaves visitors behind | Low | Upstream | `TavernBuildingModule.java:309-313`, `VisitorManager.java:301` | ✅ `vis02_tavernRemovedAfterRecruiting` |
-| [E2E-FRM-06-1](#e2e-frm-06-1-herder-feeds-animals-that-are-too-far-apart-to-mate) | Herder feeds animals that are too far apart to mate | Low | Likely upstream | `AbstractEntityAIHerder.java:78, 454` | ✅ `frm06_herderFeedsPairOutOfMateRange` |
-| [E2E-FRM-03-1](#e2e-frm-03-1-composted-bed-expires-at-once-after-it-sat-idle) | Composted bed expires at once after it sat idle | Low | Likely upstream | `TileEntityCompostedDirt.java:75, 122` | ✅ traced variant of `frm03_florist` (no own test) |
-| [E2E-BLD-07-1](#e2e-bld-07-1-resource-list-misses-items-of-blueprint-entities) | Resource list misses items of blueprint entities | Low | Likely upstream | `WindowBuildBuilding.java:295` (`updateResources`), Structurize resource count | ❔ seen in early BLD-07 runs, no test |
+| [E2E-FRM-06-1](#e2e-frm-06-1-herder-feeds-animals-that-are-too-far-apart-to-mate) | Herder feeds animals that are too far apart to mate | Low | Likely upstream | `AbstractEntityAIHerder.java:78, 454` | ✅ `frm06_herderFeedsPairOutOfMateRange` · **FIXED**, test required |
+| [E2E-FRM-03-1](#e2e-frm-03-1-composted-bed-expires-at-once-after-it-sat-idle) | Composted bed expires at once after it sat idle | Low | Likely upstream | `TileEntityCompostedDirt.java:75, 122` | ✅ traced variant of `frm03_florist` · **FIXED**, new required test `frm03_compostLastsOnIdleBed` |
+| [E2E-BLD-07-1](#e2e-bld-07-1-resource-list-misses-items-of-blueprint-entities) | Resource list misses items of blueprint entities | Low | Likely upstream | `WindowBuildBuilding.java:295` (`updateResources`), Structurize resource count | ✅ `bld07_decorationWithEntitiesMaterialList` · **FIXED** (Structurize `StructurePlacer.handleEntitySpawn`), test required |
 | [E2E-DEF-S1](#e2e-def-s1-raid-end-reads-the-first-raid-instead-of-the-last) | Raid end reads the first raid instead of the last | Low | Upstream | `RaidManager.java:1061, 1078` | ❔ code reading |
 
 Legend: ✅ confirmed by a test run, ❔ suspected. E2E-DEF-S1 had no ID in its group protocol; the ID is new here.
@@ -176,11 +176,17 @@ progress. Cancel in a normal dialogue works. More:
 
 #### E2E-CRF01-1 Crusher over-crafts a request and wastes ingredients
 
+**FIXED:** after the last craft `craft()` returns `finalizeCraftingTask()` (dump, then `afterDump()` closes the request). [upstream issue](../upstream-bugs/jobs.md).
+
+
 After the last craft for a request the crusher resets, but the request stays open until the worker dumps. On the next tick it takes
 the crusher-mode recipe and, in state `CRAFT`, skips the daily limit and crafts again. A request for 2 gravel used 8 cobblestone.
 Intermittent (about 2 of 3 runs). More: [logistics protocol](protocol/logistics-crafting.md#e2e-crf01-1-crusher-over-crafts-a-request-and-wastes-ingredients).
 
 #### E2E-CRF07-1 Enchanter drains himself
+
+**FIXED:** the citizen is picked from the station building's job modules. [upstream issue](../upstream-bugs/jobs.md).
+
 
 `gatherAndDrain` walks to the station building but picks the citizen from the enchanter's own work module. The enchanter drains
 himself; the station's worker is never visited. 2 of 2 runs and every full run since. More:
@@ -195,11 +201,17 @@ pathfinding in places, so the origin is unclear. More:
 
 #### E2E-GAT-04-1 Miner never removes liquids around a node
 
+**FIXED:** the liquid check runs before the node's blueprint is loaded. [upstream issue](../upstream-bugs/jobs.md).
+
+
 The liquid check around a node runs only when the node's blueprint is already loaded. After loading, the AI goes on building and
 doesn't come back to the check, so water or lava next to a node is never sealed. More:
 [farming protocol](protocol/farming-gathering.md#e2e-gat-04-1-miner-never-removes-liquids-around-a-node).
 
 #### E2E-GAT-06-1 Nether worker idles after returning
+
+**FIXED:** `hasWorkToDo()` is also true while the job is "in nether" (results to work off). [upstream issue](../upstream-bugs/jobs.md).
+
 
 The returned worker's AI starts in IDLE and leaves it only when the next trip is allowed (one trip per 3-day period). Until then he
 stands at the portal, the log says IN_PROGRESS and the loot stays in the job. More:
@@ -226,6 +238,9 @@ deleted right after a recruit. More:
 
 #### E2E-FRM-06-1 Herder feeds animals that are too far apart to mate
 
+**FIXED:** `DISTANCE_TO_BREED` = 8 in the herder and beekeeper AI. [upstream issue](../upstream-bugs/jobs.md).
+
+
 The herder pairs animals up to 10 blocks apart; vanilla's `BreedGoal` looks for a partner only within 8 blocks. A pair 8-10 blocks apart
 is put in love, never meets, the food is wasted and the herder waits 60 s. The optional test (two chickens that can't move, 9 blocks
 apart) failed 22 of 22 runs. This was the cause of the flaky chicken test. More:
@@ -233,11 +248,18 @@ apart) failed 22 of 22 runs. This was the cause of the flaky chicken test. More:
 
 #### E2E-FRM-03-1 Composted bed expires at once after it sat idle
 
+**FIXED:** `compost()` resets the timer; new test `frm03_compostLastsOnIdleBed`. [upstream issue](../upstream-bugs/jobs.md).
+
+
 The compost timer counts on every tick, also while the bed isn't composted. A bed idle for more than 300 s loses new compost at its
 first update, so the first compost is wasted. Seen with reflection diagnostics in a sped-up `frm03_florist`. More:
 [farming protocol](protocol/farming-gathering.md#e2e-frm-03-1-composted-bed-expires-at-once-after-it-sat-idle-minor-observation).
 
 #### E2E-BLD-07-1 Resource list misses items of blueprint entities
+
+**Confirmed and FIXED:** Structurize's resource count (`StructurePlacer.handleEntitySpawn`, simulate mode) counted only the first entity
+of a block position; now all. New required test `bld07_decorationWithEntitiesMaterialList` (failed before: 1 torch, 1 item frame short). [upstream issue](../upstream-bugs/jobs.md).
+
 
 The material list of a decoration with 4 entities was one item frame and one torch short; a builder given exactly that list stopped
 and asked for an item frame. Seen in early BLD-07 runs before the test switched to an entity-free decoration. Not checked in the real

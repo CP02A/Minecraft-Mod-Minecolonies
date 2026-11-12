@@ -107,9 +107,9 @@ and an air pocket (cave hole) into a wall corner of the first node (corners are 
 - Waits until two of these nodes are completed. Each built node's 7x7x5 box must have the tunnel blueprint's supports (at least 16 framed
   blocks, 4 fences, a torch) and be open (at least 20 air); the hole is solid again; the hut holds 2 iron ores per built node (the miner
   mines ores with silk touch, so they arrive as ore blocks).
-- Lava/water: the optional `gat04_minerSealsWater` puts a water source one block past the open end of the first node (inside the range
-  the miner checks for liquids before a node) and expects the fill block there after the node is built. Fails on bug E2E-GAT-04-1 (the
-  check is never reached).
+- Lava/water: `gat04_minerSealsWater` puts a water source one block past the open end of the first node (inside the range
+  the miner checks for liquids before a node) and expects the fill block there after the node is built. Failed on bug E2E-GAT-04-1 (the
+  check was never reached; fixed, the test is required).
 - Supplies as in GAT-03 (`OwnerFulfils` for what the colony can't deliver).
 
 ---
@@ -173,8 +173,8 @@ walks home to dump the loot.
 - Setup: level 1 nether mine at (20, 5, 14), research `technology/netherlog` completed (the log's view is gated by it), the level 1 trip
   inputs (64 cobblestone, 32 torches, 16 ladders), wooden axe, pickaxe, shovel and sword, flint and steel, leather armor, bread on the
   hut's menu; worker with all skills 50.
-- The test skips the travel time (re-registers the trip with 0 ticks left). The returned worker then idles until the hut allows a new trip
-  (1 trip per 3 days, bug E2E-GAT-06-1); the required test runs the hut's morning update (`onWakeUp`) four times, as four mornings would,
-  and the worker carries on. The optional `gat06_netherWorkerReturnsAfterTravel` expects the trip to be worked off without that.
+- The test skips the travel time (re-registers the trip with 0 ticks left). The returned worker used to idle until the hut allowed a new trip
+  (1 trip per 3 days, bug E2E-GAT-06-1, fixed); `gat06_netherExpedition` still runs the hut's morning update (`onWakeUp`) four times, as
+  four mornings would. The required `gat06_netherWorkerReturnsAfterTravel` expects the trip to be worked off without that.
 - Passes when the log says COMPLETED with loot, the worker is back near the hut (visible) and items of the logged loot are in the hut; or
   the worker died and the log says KILLED (allowed by the rules; not seen so far: the worker fought 3 mobs and came back).

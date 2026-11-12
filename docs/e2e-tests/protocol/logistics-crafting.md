@@ -29,7 +29,7 @@ Runtime = game ticks of the main wait in the final run (ticks vary from run to r
 | CRF-01 Glassblower (glass → panes) | ✅ | 1,445 | |
 | CRF-01 Dyer (white wool + red dye → red wool) | ✅ | 1,500 | |
 | CRF-01 Mechanic (piston) | ✅ | 1,845 | |
-| CRF-01 Crusher (cobblestone → gravel) | ❌ | 1,015 | BUG E2E-CRF01-1, intermittent (failed 6 of 9 runs; passed in the final run). `required = false`. Daily limit set to 0. |
+| CRF-01 Crusher (cobblestone → gravel) | ✅ | 1,015 | Was BUG E2E-CRF01-1 (intermittent, failed 6 of 9 runs), **FIXED**; required again, passed 7 of 7 runs after the fix. Daily limit set to 0. |
 | CRF-01 Sifter | ✅ | – | Covered by CRF-05 (the sifter is not a request crafter). |
 | CRF-01 Smeltery (raw iron → ingot) | ✅ | – | Not a request crafter (refuses taught recipes, requests ores itself); covered by CRF-03. |
 | CRF-01 Stone smeltery (cobblestone → stone) | ✅ | 2,235 | Furnace recipe, coal fuel. |
@@ -41,7 +41,7 @@ Runtime = game ticks of the main wait in the final run (ticks vary from run to r
 | CRF-05 Sifter meshes | ✅ | 455 (+1,200 idle) | Mesh with 3 uses left; drops only iron nugget/flint/coal; nothing sifted without mesh. |
 | CRF-06 Alchemist (brew + harvest) | ✅ | 21,120 | Brewing covered by CRF-01 alchemist. Grown wart harvested and replanted, mistletoe gathered with shears from the warehouse. Random job choice (seen 21,120 / 29,110 / 57,145 ticks, one miss at 13,000): budget 43,000 per attempt, `maxAttempts = 5, requiredSuccesses = 1` (was 3; in one full run all three attempts missed the mistletoe). |
 | CRF-07 Enchanter | ✅ | 1,195 + 6,615 | `crf07_enchanter`: book used, mana up, ancient tome → enchanted book in the hut, station worker keeps XP. Drain takes no XP (design change). |
-| CRF-07 Enchanter, drain target | ❌ | 1,115 | BUG E2E-CRF07-1: the enchanter drains himself. `crf07_enchanterDrainsStationWorker`, `required = false`. |
+| CRF-07 Enchanter, drain target | ✅ | 1,115 | Was BUG E2E-CRF07-1 (the enchanter drained himself), **FIXED**; `crf07_enchanterDrainsStationWorker` is required again. |
 | CRF-08 Cook keeps the restaurant stocked | ✅ | 5,335 | Menu foods made, no cooked chicken; citizens eating not checked (CIT-02). |
 
 Counts by row: ✅ 30, ❌ 3, ⛔ 0, 📝 0 (34 test methods: 31 required, all passing; 3 optional bug tests).
@@ -49,6 +49,10 @@ Counts by row: ✅ 30, ❌ 3, ⛔ 0, 📝 0 (34 test methods: 31 required, all p
 ## Bugs found
 
 ### E2E-CRF01-1 Crusher over-crafts a request and wastes ingredients
+- **FIXED:** `EntityAIWorkCrusher.craft()` now returns `finalizeCraftingTask()` (→ `INVENTORY_FULL`) after the last craft, like
+  `AbstractEntityAICrafting`; `afterDump()` then finishes the request, so the worker no longer stays in `CRAFT` with the request open. The
+  description below is the original analysis (the re-craft actually goes through `decide()` → `GET_RECIPE` → `CRAFT`, where `crush()` crafts
+  whenever its progress is full). `crf01_crusher` is required again. Present on upstream `version/1.21` (and `version/main`); [upstream issue](../../upstream-bugs/jobs.md).
 - **Severity:** medium (ingredients wasted, extra output stays in the crusher; intermittent).
 - **Upstream or port:** most likely upstream. The code is shared MineColonies code with no port changes
   (`src/main/java/com/minecolonies/core/entity/ai/workers/crafting/EntityAIWorkCrusher.java`).
@@ -77,6 +81,8 @@ Counts by row: ✅ 30, ❌ 3, ⛔ 0, 📝 0 (34 test methods: 31 required, all p
 - **Evidence:** code reading; the server side works (`crf01_alchemist` teaches through it and passes). Not testable headless (client GUI).
 
 ### E2E-CRF07-1 Enchanter drains himself instead of the station's workers
+- **FIXED:** `gatherAndDrain()` now picks the citizen from the job modules (`IAssignsJob`) of the station building it walked to.
+  `crf07_enchanterDrainsStationWorker` is required again. Present on upstream `version/1.21` (and `version/main`); [upstream issue](../../upstream-bugs/jobs.md).
 - **Severity:** medium (the enchanter still gains mana, but the station mechanic is meaningless; the "random enchant" lands in the
   enchanter's own inventory instead of the visited worker's).
 - **Upstream or port:** most likely upstream (shared code, no port changes in

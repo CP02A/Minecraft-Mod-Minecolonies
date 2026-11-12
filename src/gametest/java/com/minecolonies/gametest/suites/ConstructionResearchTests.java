@@ -460,6 +460,49 @@ public class ConstructionResearchTests
     }
 
     /**
+     * BLD-07 (E2E-BLD-07-1) A decoration with blueprint entities (item frames holding items): a builder given exactly the material list
+     * the hut/decoration window computes finishes it without asking for more. Was a bug: Structurize's resource count
+     * ({@code StructurePlacer.handleEntitySpawn} in simulate mode) returned after the first entity of a block position, so a second item
+     * frame on the same block was missing from the list.
+     */
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 8000, skyAccess = true)
+    public void bld07_decorationWithEntitiesMaterialList(final GameTestHelper helper)
+    {
+        final ColonyFixture fixture = ColonyFixture.create(helper);
+        final IBuilding[] builderHut = new IBuilding[1];
+        final ICitizenData[] builder = new ICitizenData[1];
+        final Blueprint[] blueprint = new Blueprint[1];
+        final IServerWorkOrder[] order = new IServerWorkOrder[1];
+        final List<ItemStack> materials = new ArrayList<>();
+        final BlockPos site = fixture.abs(CORNER_SE);
+        final String deco = "decorations/statues/pedastal_oak.blueprint";
+
+        fixture.flow()
+          .run("colony, builder with exactly the decoration's material list", () -> {
+              fixture.createColony();
+              fixture.setMoveIn(false);
+              builderHut[0] = fixture.placeBuilding(ModBuildings.builder.get(), 1, CORNER_NW);
+              blueprint[0] = ConstructionSupport.blueprint(fixture.level(), deco);
+              materials.addAll(ConstructionSupport.materials(fixture.level(), blueprint[0], site));
+              org.slf4j.LoggerFactory.getLogger(ConstructionResearchTests.class).info("BLD-07: material list of pedastal_oak ({} entities): {}",
+                blueprint[0].getEntitiesAsList().size(), materials);
+              fixture.fillBuilding(builderHut[0], materials.toArray(ItemStack[]::new));
+              fixture.fillBuilding(builderHut[0], ConstructionSupport.builderKit());
+              builder[0] = fixture.spawnCitizen(40, builderHut[0], null);
+              ConstructionSupport.requestDecoration(fixture, deco, site, BlockPos.ZERO);
+          })
+          .check("the decoration has entities", () -> !blueprint[0].getEntitiesAsList().isEmpty(), () -> "no entities in " + deco)
+          .awaitUntil("decoration work order exists", 200, () -> (order[0] = ConstructionSupport.orderAt(fixture.colony(), site)) != null, () -> "none")
+          .awaitUntil("work order done with only the listed materials", 7000,
+            () -> fixture.colony().getWorkManager().getWorkOrder(order[0].getID()) == null,
+            () -> ConstructionSupport.describeBuilder(builderHut[0], builder[0]) + ", material list " + materials)
+          .check("world matches the decoration blueprint",
+            () -> ConstructionSupport.mismatches(fixture.level(), blueprint[0], site, 10).isEmpty(),
+            () -> String.join("; ", ConstructionSupport.mismatches(fixture.level(), blueprint[0], site, 10)))
+          .succeed();
+    }
+
+    /**
      * BLD-08 Work orders are shared between builders: two builders take one order each; a manually assigned order goes to its builder.
      */
     @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 16000, skyAccess = true)

@@ -17,6 +17,7 @@ Final run: **all 14 required tests passed**, about 1 minute for the whole server
 | BLD-05 | ✅ | ~5,200 | Design changed: after removal the hut stays registered as *deconstructed* (level kept); pick-up then unregisters it and the worker loses his job. |
 | BLD-06 | ✅ | ~215 | Hut window refuses the order; order added directly; not claimed in 200 ticks; claimed 15 ticks after `setBuildingLevel(2)`. |
 | BLD-07 | ✅ | ~1,850 | `DecorationBuildRequestMessage` server side; entity-free decoration (`pillar`). No building registered. |
+| BLD-07 (entities) | ✅ | <7,000 | `bld07_decorationWithEntitiesMaterialList`: builder given exactly the computed material list of `pedastal_oak` (4 entities) finishes. E2E-BLD-07-1 **FIXED**; failed before the fix (`NEEDS_ITEM`, 1 torch + 1 item frame). |
 | BLD-08 | ✅ | ~3,250 | Three small decorations; two builders take one each; the third (assigned to builder 2) only ever claimed by builder 2. |
 | BLD-09 | ✅ | ~18,000 | Dirt bumps, short grass, 3-log tree with leaves, 2×2 water pool inside the footprint; all cleared, world matches blueprint. |
 | RES-01 | ✅ | ~2,550 | First Aid started by a survival player (hay taken from the university), skipped to 3 steps before the end; no progress in 1,100 ticks without researcher. |
@@ -29,9 +30,16 @@ Counts: ✅ 14 · ❌ 0 · ⛔ 0 · 📝 0.
 
 ## Bugs found
 
-No test fails because of a mod bug. One suspected low-severity problem, not covered by a required test:
+No test fails because of a mod bug. One low-severity problem, confirmed and fixed:
 
-### E2E-BLD-07-1 (suspected) Resource list misses items of blueprint entities
+### E2E-BLD-07-1 Resource list misses items of blueprint entities (confirmed, FIXED)
+
+- **FIXED** (in the vendored Structurize): `StructurePlacer.handleEntitySpawn` with `simulate = true` returned after the first entity of a
+  block position; entities sharing a block (here a second item frame on the same block, holding a torch) were never counted. It now
+  collects the items of all entities of the position. The list is now `4 item_frame, 7 torch`. Confirmed by the new required test
+  `bld07_decorationWithEntitiesMaterialList` (failed before the fix with `still needed: 1xminecraft:torch, 1xminecraft:item_frame`).
+  The same count feeds `WindowBuildBuilding`/`WindowBuildDecoration#updateResources` and the builder's `ENTITIES` request stage. The
+  analysis below is the original suspicion. Upstream: Structurize; [upstream issue](../../upstream-bugs/jobs.md).
 
 - **Severity:** low (only the hut/decoration window's material list; the builder itself computes his needs correctly and requests the
   missing items).

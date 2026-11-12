@@ -181,7 +181,7 @@ these jobs at random (about 2 in 30 decisions each, a decision every ~400 ticks)
 drained citizen's inventory. Sources are huts (`EnchanterStationsModule`), not citizens. The test: a lumberjack's hut with its worker as
 station, 16 books and 2 ancient tomes in the tower, enchanter mana 9 (the level 1 threshold is 10). Passes when a book was used, mana went
 up, an enchanted book (from an ancient tome) is in the hut, and the station worker lost no XP. A second test checks that the drained
-citizen is the station's worker; it fails (bug E2E-CRF07-1: the enchanter drains himself).
+citizen is the station's worker (it failed on bug E2E-CRF07-1, the enchanter drained himself; fixed).
 
 **Time budget:** 10 minutes.
 

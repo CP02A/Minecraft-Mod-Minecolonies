@@ -675,7 +675,7 @@ public class FarmingGatheringTests
     /**
      * Vanilla's mate search ({@code BreedGoal}) only looks 8 blocks around an animal in love. The test animals are slowed so they stay in the
      * pen, which also means two animals that have wandered more than 8 blocks apart stay apart for a long time. The herder still feeds such
-     * a pair (bug E2E-FRM-06-1), so they never meet, and he waits 60 s before the next try; with bad luck the budget runs out
+     * a pair (bug E2E-FRM-06-1, fixed), so they never meet, and he waits 60 s before the next try; with bad luck the budget runs out
      * (seen once in a full run, 5,148 ticks in 1 of 200 repeated runs). While neither animal is in love and they are more than 6 blocks
      * apart, the second one is put back next to the first. An animal that got out of the hut area anyway (pigs once slipped past the
      * fence gates; the herder only sees animals inside the area) is put back on {@code penSpot}. Doesn't change what the herder does;
@@ -699,15 +699,11 @@ public class FarmingGatheringTests
     }
 
     /**
-     * FRM-06 below the limit, the mate range: two chickens 9 blocks apart in the hut area, slowed to a standstill so they stay there. The
-     * herder pairs animals up to 10 blocks apart (AbstractEntityAIHerder.DISTANCE_TO_BREED), vanilla's BreedGoal finds a partner only within
-     * 8 blocks. Expected: in 3000 ticks the herder never puts both in love while they can't find each other.
+     * FRM-06 below the limit, the mate range: two chickens 9 blocks apart in the hut area, slowed to a standstill so they stay there.
+     * Vanilla's BreedGoal finds a partner only within 8 blocks; the herder used to pair animals up to 10 blocks apart
+     * (AbstractEntityAIHerder.DISTANCE_TO_BREED, E2E-FRM-06-1, fixed: now 8). Expected: in 3000 ticks the herder never puts both in love while they can't find each other.
      */
-    // BUG E2E-FRM-06-1: the herder feeds both chickens although they are 8-10 blocks apart. They are in love but never look for each other
-    // (vanilla mate search: 8 blocks), the food is wasted and the herder waits 60 s (breedTimeOut) before he tries again. Upstream code
-    // (AbstractEntityAIHerder.java:78 DISTANCE_TO_BREED = 10, used at :454), not Fabric-specific. In a normal pen the animals wander and
-    // a later try usually works, so the impact is small.
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 6000, skyAccess = true, required = false)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 6000, skyAccess = true)
     public void frm06_herderFeedsPairOutOfMateRange(final GameTestHelper helper)
     {
         final ColonyFixture fixture = ColonyFixture.create(helper);
@@ -1178,9 +1174,43 @@ public class FarmingGatheringTests
     // ------------------------------------------------------------------------------------------------------------------------------------
 
     /**
+     * FRM-03 Compost on a bed that sat idle (E2E-FRM-03-1): a composted dirt block that was not composted for more than the compost's
+     * lifetime (300 s, simulated by ticking its block entity directly) gets compost; the compost must still be active a few seconds later.
+     * Was a bug: the timer counted while the bed was idle, so the first update after composting expired the new compost at once.
+     */
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 400, skyAccess = true)
+    public void frm03_compostLastsOnIdleBed(final GameTestHelper helper)
+    {
+        final ColonyFixture fixture = ColonyFixture.create(helper);
+        final BlockPos bed = fixture.abs(ColonyFixture.ARENA_CENTER.offset(3, 0, 3));
+        final com.minecolonies.core.tileentities.TileEntityCompostedDirt[] dirt = new com.minecolonies.core.tileentities.TileEntityCompostedDirt[1];
+
+        fixture.flow()
+          .run("place a plant bed and let it sit idle for 301 s", () -> {
+              fixture.level().setBlockAndUpdate(bed, com.minecolonies.api.blocks.ModBlocks.blockCompostedDirt.defaultBlockState());
+              fixture.level().setBlockAndUpdate(bed.above(), Blocks.AIR.defaultBlockState());
+              if (!(fixture.level().getBlockEntity(bed) instanceof final com.minecolonies.core.tileentities.TileEntityCompostedDirt d))
+              {
+                  throw new IllegalStateException("no composted dirt block entity at " + bed + ": " + fixture.level().getBlockEntity(bed));
+              }
+              dirt[0] = d;
+              for (int i = 0; i < 301 * 20; i++)
+              {
+                  d.tick();
+              }
+          })
+          .check("the idle bed is not composted", () -> !dirt[0].isComposted(), () -> "composted")
+          // Chance 0: no flower grows, so only the compost's lifetime decides whether it stays composted.
+          .run("compost the bed", () -> dirt[0].compost(0.0, new ItemStack(Items.POPPY)))
+          .idle(100)
+          .check("the compost is still active 5 s later", () -> dirt[0].isComposted(), () -> "compost expired at once")
+          .succeed();
+    }
+
+    /**
      * FRM-03 Florist. A level 2 flower shop (small flowers allowed) with shears and one compost per plant bed; every small flower except
      * poppy and dandelion is on the hut's "don't grow" list. The florist composts the beds and harvests the flowers that grow; the test
-     * runs the composted beds at double speed (more would make every compost expire at once, see the protocol). Only poppies and dandelions grow, the compost is used up, flowers
+     * runs the composted beds at double speed. Only poppies and dandelions grow, the compost is used up, flowers
      * end up in the hut, and when the compost is gone the florist requests more.
      */
     @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 24000, skyAccess = true)
@@ -1541,11 +1571,7 @@ public class FarmingGatheringTests
      * node, inside the range the miner checks for liquids before a node (EntityAIStructureMiner.executeStructurePlacement). After the first
      * node is built the source must be replaced by the fill block.
      */
-    // BUG E2E-GAT-04-1: the miner never removes liquids around a node. EntityAIStructureMiner.executeStructurePlacement
-    // (EntityAIStructureMiner.java:794-820) only reaches its liquid check when the node's blueprint is already loaded; on the first call it
-    // starts loading the blueprint and returns LOAD_STRUCTURE, after loading the AI goes on with BUILDING_STEP and never comes back to the
-    // check before the node is done. The water source stays and flows into the tunnel.
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 54000, skyAccess = true, required = false)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 54000, skyAccess = true)
     public void gat04_minerSealsWater(final GameTestHelper helper)
     {
         minerNodes(helper, true);
@@ -2069,9 +2095,9 @@ public class FarmingGatheringTests
      * GAT-06 Nether expedition. A level 1 nether mine with a nether worker, the "nether expedition log" research done, the trip's inputs
      * (64 cobblestone, 32 torches, 16 ladders: the level 1 trip recipe), wooden axe, pickaxe, shovel and sword, flint and steel, leather armor
      * and bread on the hut's menu. The worker lights the hut's portal and leaves through it (the citizen entity is removed and travels); the
-     * test skips the travel time. Back at the portal the returned worker only goes on (and works off the trip: fights and finds are simulated)
-     * once the hut allows a new trip, i.e. after the 3-day trip period (E2E-GAT-06-1); the test runs the hut's morning update four times, as
-     * four mornings would. Passes when the trip is logged and either the worker comes back and the loot reaches the hut, or the worker died
+     * test skips the travel time. Back at the portal the returned worker works off the trip (fights and finds are simulated); this variant
+     * also runs the hut's morning update four times, as four mornings would (the trip period starts over), which once was needed to get
+     * the worker going (E2E-GAT-06-1, fixed; {@link #gat06_netherWorkerReturnsAfterTravel} covers it). Passes when the trip is logged and either the worker comes back and the loot reaches the hut, or the worker died
      * on the way and the log says so (the expedition rules).
      */
     @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 40000, skyAccess = true)
@@ -2084,11 +2110,7 @@ public class FarmingGatheringTests
      * GAT-06b Nether worker works off the trip when the travel ends. Same as GAT-06 without the four mornings: when the travel time is over
      * the returned worker should process the trip and bring the loot home.
      */
-    // BUG E2E-GAT-06-1: a returning nether worker idles at the portal until the next trip is allowed (3 days). EntityAIWorkNether.hasWorkToDo
-    // (EntityAIWorkNether.java:156) is "crafting task or building.isReadyForTrip()", and the trip was just recorded (BuildingNetherWorker
-    // .recordTrip, 1 trip per 3 days), so the respawned worker's AI stays in IDLE (AbstractEntityAICrafting.java:162) and decide() with its
-    // "job.isInNether() -> NETHER_AWAY" branch is never reached. The expedition log stays IN_PROGRESS, the loot stays in the job.
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 24000, skyAccess = true, required = false)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 24000, skyAccess = true)
     public void gat06_netherWorkerReturnsAfterTravel(final GameTestHelper helper)
     {
         netherExpedition(helper, false);

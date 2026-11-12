@@ -74,9 +74,9 @@ public class EntityAIWorkBeekeeper extends AbstractEntityAIInteract<JobBeekeeper
     private static final double EXP_PER_HARVEST = 5.0;
 
     /**
-     * Distance two animals need to be inside to breed.
+     * Distance two animals need to be inside to breed. Vanilla BreedGoal only looks for a partner within 8 blocks.
      */
-    private static final int DISTANCE_TO_BREED = 10;
+    private static final int DISTANCE_TO_BREED = 8;
 
     /**
      * Distance around a hive wher bees wander.
