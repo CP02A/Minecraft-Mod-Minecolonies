@@ -30,6 +30,20 @@ import com.minecolonies.gametest.framework.IntegratedTestRun;
 import com.minecolonies.gametest.ui.UiBridge;
 import com.minecolonies.gametest.ui.UiColonySetup;
 import com.mojang.blaze3d.platform.SDLEventHandler;
+import com.minecolonies.api.MinecoloniesAPIProxy;
+import com.minecolonies.api.client.render.modeltype.CitizenModel;
+import com.minecolonies.api.client.render.modeltype.CitizenRenderState;
+import com.minecolonies.api.crafting.IGenericRecipe;
+import com.minecolonies.api.crafting.registry.CraftingType;
+import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
+import com.minecolonies.api.items.ModItems;
+import com.minecolonies.core.client.render.CitizenArmorModel;
+import com.minecolonies.core.colony.crafting.RecipeAnalyzer;
+import net.minecraft.client.CameraType;
+import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext;
@@ -50,6 +64,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.transformer.meta.MixinMerged;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
@@ -120,6 +136,8 @@ public class UiClientGameTest implements FabricClientGameTest
             final boolean ready = waitForColony(context, server, run);
             final UiBridge.Colony colony = UiBridge.colony;
             runCase("UI-09", "Brewing teaching computes the potion", true, shots -> brewingOutput(context));
+            runCase("UI-12", "JEI draws blocks in 3D", true, shots -> jeiBlocks(context, shots));
+            runCase("UI-13", "JEI crafter recipes from synced recipes", true, shots -> jeiSyncedRecipes(context, server));
             if (ready && colony != null)
             {
                 runCase("UI-01", "Town hall window", true, shots -> townHall(context, server, colony, shots));
@@ -129,11 +147,12 @@ public class UiClientGameTest implements FabricClientGameTest
                 runCase("UI-05", "Research tree", true, shots -> researchTree(context, server, colony, shots));
                 runCase("UI-06", "Post box request window", true, shots -> postBox(context, colony, shots));
                 runCase("UI-07", "Warehouse window", true, shots -> warehouse(context, server, colony, shots));
+                runCase("UI-11", "Child citizen proportions", true, shots -> childCitizen(context, server, colony, shots));
             }
             else
             {
                 final String reason = "UI colony setup did not finish: " + (UiBridge.setupError != null ? UiBridge.setupError : server.computeOnServer(s -> run.report()));
-                for (final String id : List.of("UI-01", "UI-02", "UI-03", "UI-04", "UI-05", "UI-06", "UI-07"))
+                for (final String id : List.of("UI-01", "UI-02", "UI-03", "UI-04", "UI-05", "UI-06", "UI-07", "UI-11"))
                 {
                     if (E2EMode.uiTestSelected(id))
                     {
@@ -141,6 +160,8 @@ public class UiClientGameTest implements FabricClientGameTest
                     }
                 }
             }
+
+            runCase("UI-10", "Spear item renders in 3D", true, shots -> spear(context, server, shots));
 
             closeScreen(context);
             UiBridge.clientDone = true;
@@ -417,6 +438,278 @@ public class UiClientGameTest implements FabricClientGameTest
           "Water bottle + nether wart should brew an awkward potion, got " + awkward + " " + awkward.getComponents());
         final ItemStack none = context.computeOnClient(mc -> WindowBrewingstandCrafting.getBrewingOutput(mc.level, water, new ItemStack(Items.DIRT)));
         assertThat(none.isEmpty(), "Water bottle + dirt should brew nothing, got " + none);
+    }
+
+    // --------------------------------------------------------------------------------------------------------------------------------------
+    // UI-10 .. UI-13: client rendering and JEI support
+    // --------------------------------------------------------------------------------------------------------------------------------------
+
+    /**
+     * UI-10: the spear item uses its special 3D model renderer in hand and in item frames, and the flat sprite in the GUI. Builds a small
+     * scene away from the colony (a wall with the spear in an item frame, an armor stand holding it, the player holding it) and takes
+     * screenshots in first and third person.
+     */
+    private static void spear(final ClientGameTestContext context, final TestServerContext server, final List<Path> shots)
+    {
+        // Scene in the air west of the colony arena: floor y 19, wall z 31, player at (26.5, 20, 24.5) looking south.
+        server.runCommand("fill 18 19 22 34 19 31 minecraft:smooth_stone");
+        server.runCommand("fill 18 20 31 34 25 31 minecraft:white_concrete");
+        server.runCommand("summon item_frame 27 21 30 {Facing:2b,Fixed:1b,Item:{id:\"minecolonies:spear\",count:1}}");
+        server.runCommand("summon armor_stand 24.5 20 28.5 {ShowArms:1b,NoGravity:1b,Rotation:[180f,0f],equipment:{mainhand:{id:\"minecolonies:spear\",count:1}}}");
+        server.runCommand("item replace entity @a weapon.mainhand with minecolonies:spear");
+        server.runCommand("tp @a 26.5 20 24.5 0 15");
+        context.waitTicks(60);
+
+        // Item model check: 3D (the spear model is about two blocks long) in hand and in item frames, the flat sprite (one block) in the GUI.
+        final double[] sizes = context.computeOnClient(mc -> new double[] {
+          itemModelSize(mc, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND),
+          itemModelSize(mc, ItemDisplayContext.FIRST_PERSON_RIGHT_HAND),
+          itemModelSize(mc, ItemDisplayContext.FIXED),
+          itemModelSize(mc, ItemDisplayContext.GUI)});
+        LOGGER.info("UI-10 spear item model sizes (third person, first person, item frame, GUI): {}", java.util.Arrays.toString(sizes));
+
+        shots.add(screenshot(context, "ui10-spear-first-person"));
+        context.runOnClient(mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT));
+        context.waitTicks(5);
+        shots.add(screenshot(context, "ui10-spear-third-person"));
+        context.runOnClient(mc -> mc.options.setCameraType(CameraType.FIRST_PERSON));
+        server.runCommand("item replace entity @a weapon.mainhand with minecraft:air");
+
+        assertThat(sizes[0] > 1.3 && sizes[1] > 1.3 && sizes[2] > 1.3,
+          "The spear should use its 3D model in hand and in item frames (longest side > 1.3 blocks), sizes " + java.util.Arrays.toString(sizes));
+        assertThat(sizes[3] < 1.1, "The spear should use its flat sprite in the GUI, size " + sizes[3]);
+    }
+
+    /**
+     * @return the longest side of the spear's item model bounding box in this display context, in blocks.
+     */
+    private static double itemModelSize(final Minecraft mc, final ItemDisplayContext displayContext)
+    {
+        final ItemStackRenderState state = new ItemStackRenderState();
+        mc.getItemModelResolver().updateForTopItem(state, new ItemStack(ModItems.spear), displayContext, mc.level, mc.player, 0);
+        final net.minecraft.world.phys.AABB box = state.getModelBoundingBox();
+        return Math.max(box.getXsize(), Math.max(box.getYsize(), box.getZsize()));
+    }
+
+    /**
+     * UI-11: a child citizen is drawn with child proportions (head scaled by 0.75, body by 0.5, like 1.21.1's HumanoidModel#young), an adult
+     * of the same gender with full size. Spawns both in front of the player, frozen, with a sword in hand (held items follow the scaled
+     * arm), takes a screenshot and checks the posed citizen models and the citizen armor model (armor must follow the child scaling too).
+     */
+    private static void childCitizen(final ClientGameTestContext context, final TestServerContext server, final UiBridge.Colony colony, final List<Path> shots)
+    {
+        final BlockPos th = colony.townHall();
+        // The player stands 14 blocks north of the town hall looking south; both stand 4 blocks in front of him.
+        final BlockPos childPos = th.offset(-1, 0, -10);
+        final BlockPos adultPos = th.offset(1, 0, -10);
+        final int[] citizenIds = server.computeOnServer(s -> {
+            final IColony serverColony = serverColony(s, colony);
+            final ICitizenData child = serverColony.getCitizenManager().createAndRegisterCivilianData();
+            child.setIsChild(true);
+            child.setGenderAndGenerateName(false);
+            serverColony.getCitizenManager().spawnOrCreateCivilian(child, s.overworld(), List.of(childPos), true);
+            final ICitizenData adult = serverColony.getCitizenManager().createAndRegisterCivilianData();
+            adult.setGenderAndGenerateName(false);
+            serverColony.getCitizenManager().spawnOrCreateCivilian(adult, s.overworld(), List.of(adultPos), true);
+            return new int[] {child.getId(), adult.getId()};
+        });
+        try
+        {
+            server.waitFor(s -> citizenEntity(s, colony, citizenIds[0]) != null && citizenEntity(s, colony, citizenIds[1]) != null, 200);
+            final int[] entityIds = server.computeOnServer(s -> new int[] {
+              poseCitizen(citizenEntity(s, colony, citizenIds[0]), childPos), poseCitizen(citizenEntity(s, colony, citizenIds[1]), adultPos)});
+            context.waitFor(mc -> mc.level.getEntity(entityIds[0]) instanceof final AbstractEntityCitizen child && child.isBaby()
+                                    && child.getCitizenDataView() != null
+                                    && mc.level.getEntity(entityIds[1]) instanceof final AbstractEntityCitizen adult && adult.getCitizenDataView() != null, 200);
+            context.waitTicks(20);
+            server.runOnServer(s -> {
+                poseCitizen(citizenEntity(s, colony, citizenIds[0]), childPos);
+                poseCitizen(citizenEntity(s, colony, citizenIds[1]), adultPos);
+            });
+            context.waitTicks(5);
+            shots.add(screenshot(context, "ui11-child-citizen"));
+
+            final float[] child = context.computeOnClient(mc -> posedScales(mc, entityIds[0]));
+            final float[] adult = context.computeOnClient(mc -> posedScales(mc, entityIds[1]));
+            LOGGER.info("UI-11 posed part scales (head, body, arm, leg, armor head, armor body): child {}, adult {}",
+              java.util.Arrays.toString(child), java.util.Arrays.toString(adult));
+            assertThat(near(child[0], 0.75F) && near(child[1], 0.5F) && near(child[2], 0.5F) && near(child[3], 0.5F),
+              "Child citizen should be drawn with head 0.75 and body 0.5, model part scales " + java.util.Arrays.toString(child));
+            assertThat(near(child[4], 0.75F) && near(child[5], 0.5F),
+              "The child's armor model should follow the child proportions, scales " + java.util.Arrays.toString(child));
+            assertThat(near(adult[0], 1F) && near(adult[1], 1F) && near(adult[4], 1F) && near(adult[5], 1F),
+              "Adult citizen should be drawn full size, scales " + java.util.Arrays.toString(adult));
+        }
+        finally
+        {
+            server.runOnServer(s -> {
+                final IColony serverColony = serverColony(s, colony);
+                for (final int id : citizenIds)
+                {
+                    final ICitizenData data = serverColony.getCitizenManager().getCivilian(id);
+                    if (data != null)
+                    {
+                        data.getEntity().ifPresent(e -> e.remove(net.minecraft.world.entity.Entity.RemovalReason.DISCARDED));
+                        serverColony.getCitizenManager().removeCivilian(data);
+                    }
+                }
+            });
+        }
+    }
+
+    @Nullable
+    private static AbstractEntityCitizen citizenEntity(final net.minecraft.server.MinecraftServer server, final UiBridge.Colony colony, final int citizenId)
+    {
+        final ICitizenData data = serverColony(server, colony).getCitizenManager().getCivilian(citizenId);
+        return data == null ? null : data.getEntity().orElse(null);
+    }
+
+    /**
+     * Freezes a citizen at a position, looking north (at the player), with an iron sword in hand.
+     *
+     * @return the entity id.
+     */
+    private static int poseCitizen(final AbstractEntityCitizen citizen, final BlockPos pos)
+    {
+        citizen.setNoAi(true);
+        citizen.getNavigation().stop();
+        citizen.snapTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 180F, 0F);
+        citizen.setYHeadRot(180F);
+        citizen.setYBodyRot(180F);
+        citizen.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_SWORD));
+        return citizen.getId();
+    }
+
+    /**
+     * Poses the citizen's model and an armor model the way rendering does and returns the part scales: head, body, right arm, right leg of
+     * the citizen model, head and body of the armor model.
+     */
+    private static float[] posedScales(final Minecraft mc, final int entityId)
+    {
+        final net.minecraft.world.entity.Entity entity = mc.level.getEntity(entityId);
+        final CitizenRenderState state = (CitizenRenderState) mc.getEntityRenderDispatcher().getRenderer(entity).createRenderState(entity, 1.0F);
+        final CitizenModel<?> model = state.citizenModel;
+        model.setupAnim(state);
+        final float[] result = {model.head.xScale, model.body.xScale, model.rightArm.xScale, model.rightLeg.xScale, 0, 0};
+        final CitizenArmorModel armor = new CitizenArmorModel(mc.getEntityModels().bakeLayer(ModelLayers.PLAYER_ARMOR.head()));
+        armor.setupAnim(state);
+        result[4] = armor.head.xScale;
+        result[5] = armor.body.xScale;
+        return result;
+    }
+
+    private static boolean near(final float value, final float expected)
+    {
+        return Math.abs(value - expected) < 0.001F;
+    }
+
+    /**
+     * UI-12: blocks in JEI recipe categories are drawn as turned 3D block models of the exact block state (1.21.1 behavior), not as item
+     * icons: three composting barrels with different fill levels, a furnace and a grown wheat crop (whose item would be seeds).
+     */
+    private static void jeiBlocks(final ClientGameTestContext context, final List<Path> shots) throws IOException
+    {
+        context.runOnClient(mc -> mc.gui.setScreen(new BlockRenderTestScreen()));
+        context.waitFor(mc -> mc.gui.screen() instanceof BlockRenderTestScreen, 100);
+        context.waitTicks(10);
+        final Path shot = screenshot(context, "ui12-jei-blocks");
+        shots.add(shot);
+        final int guiWidth = context.computeOnClient(mc -> mc.getWindow().getGuiScaledWidth());
+        closeScreen(context);
+
+        // Check the pixels: each block covers its anchor, and the blocks of one draw are each drawn with their own state (the empty and
+        // the finished barrel look different at the top; one shared picture would make them equal).
+        final BufferedImage image = ImageIO.read(shot.toFile());
+        final double scale = (double) image.getWidth() / guiWidth;
+        int x = BlockRenderTestScreen.FIRST_X;
+        final List<Integer> barrelX = new ArrayList<>();
+        for (int i = 0; i < BlockRenderTestScreen.barrels().size(); i++)
+        {
+            barrelX.add(x);
+            assertThat(coverage(image, scale, x - 8, BlockRenderTestScreen.BARREL_Y - 8, 16, 16) > 0.9,
+              "Barrel " + i + " is not drawn at its anchor (" + x + ", " + BlockRenderTestScreen.BARREL_Y + ")");
+            x += BlockRenderTestScreen.STEP_X;
+        }
+        x = BlockRenderTestScreen.FIRST_X;
+        for (int i = 0; i < BlockRenderTestScreen.intermediates().size(); i++)
+        {
+            assertThat(coverage(image, scale, x - 10, BlockRenderTestScreen.INTERMEDIATE_Y - 10, 20, 20) > 0.1,
+              "Intermediate block " + i + " is not drawn at its anchor (" + x + ", " + BlockRenderTestScreen.INTERMEDIATE_Y + ")");
+            x += BlockRenderTestScreen.STEP_X;
+        }
+        final double topDifference = difference(image, scale, barrelX.getFirst() - 10, barrelX.getLast() - 10, BlockRenderTestScreen.BARREL_Y - 16, 20, 8);
+        LOGGER.info("UI-12 mean color difference of the empty and the finished barrel's top: {}", topDifference);
+        assertThat(topDifference > 10, "The empty and the finished composting barrel look the same at the top (difference " + topDifference + ")");
+    }
+
+    /**
+     * @return the share of pixels in the GUI rectangle that are not the test screen's background.
+     */
+    private static double coverage(final BufferedImage image, final double scale, final int x, final int y, final int w, final int h)
+    {
+        int drawn = 0;
+        int all = 0;
+        for (int px = (int) (x * scale); px < (int) ((x + w) * scale); px++)
+        {
+            for (int py = (int) (y * scale); py < (int) ((y + h) * scale); py++)
+            {
+                all++;
+                if ((image.getRGB(px, py) & 0xFFFFFF) != (BlockRenderTestScreen.BACKGROUND & 0xFFFFFF))
+                {
+                    drawn++;
+                }
+            }
+        }
+        return all == 0 ? 0 : (double) drawn / all;
+    }
+
+    /**
+     * @return the mean color difference per channel between two GUI rectangles of the same size.
+     */
+    private static double difference(final BufferedImage image, final double scale, final int x1, final int x2, final int y, final int w, final int h)
+    {
+        long sum = 0;
+        int count = 0;
+        for (int dx = 0; dx < (int) (w * scale); dx++)
+        {
+            for (int dy = 0; dy < (int) (h * scale); dy++)
+            {
+                final int a = image.getRGB((int) (x1 * scale) + dx, (int) (y * scale) + dy);
+                final int b = image.getRGB((int) (x2 * scale) + dx, (int) (y * scale) + dy);
+                for (int shift = 0; shift <= 16; shift += 8)
+                {
+                    sum += Math.abs(((a >> shift) & 0xFF) - ((b >> shift) & 0xFF));
+                }
+                count += 3;
+            }
+        }
+        return count == 0 ? 0 : (double) sum / count;
+    }
+
+    /**
+     * UI-13: on a dedicated server JEI's crafter categories get their vanilla-derived recipes from the recipes the server synchronizes to the
+     * client (there is no integrated server). Builds the recipe map from the client's synchronized recipes like JEIPlugin does without an
+     * integrated server and compares it with the map built from the server's recipe manager (the singleplayer path): the same number of
+     * recipes for every crafting type.
+     */
+    private static void jeiSyncedRecipes(final ClientGameTestContext context, final TestServerContext server)
+    {
+        final Map<String, Integer> onServer = server.computeOnServer(s -> recipeCounts(RecipeAnalyzer.buildVanillaRecipesMap(s.getRecipeManager(), s.overworld())));
+        final Map<String, Integer> onClient = context.computeOnClient(mc -> recipeCounts(RecipeAnalyzer.buildVanillaRecipesMap(
+          RecipeAnalyzer.createRecipeManager(mc.level.recipeAccess().getSynchronizedRecipes().recipes(), mc.level.registryAccess()), mc.level)));
+        LOGGER.info("UI-13 vanilla crafter recipes per crafting type: server {}, client (synced) {}", onServer, onClient);
+        for (final String type : List.of("minecolonies:smallcrafting", "minecolonies:largecrafting", "minecolonies:smelting"))
+        {
+            assertThat(onServer.getOrDefault(type, 0) > 0, "The server should have recipes for " + type + ": " + onServer);
+        }
+        assertThat(onServer.equals(onClient), "Recipes from the synchronized client recipes differ from the server's: server " + onServer + ", client " + onClient);
+    }
+
+    private static Map<String, Integer> recipeCounts(final Map<CraftingType, List<IGenericRecipe>> recipes)
+    {
+        final Map<String, Integer> counts = new java.util.TreeMap<>();
+        recipes.forEach((type, list) -> counts.put(String.valueOf(MinecoloniesAPIProxy.getInstance().getCraftingTypeRegistry().getKey(type)), list.size()));
+        return counts;
     }
 
     /**

@@ -9,17 +9,22 @@ import com.minecolonies.api.crafting.registry.CraftingType;
 import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.core.colony.buildings.modules.AnimalHerdingModule;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +33,25 @@ import java.util.Map;
  */
 public final class RecipeAnalyzer
 {
+    /**
+     * Wrap recipes into a {@link RecipeManager}, e.g. the recipes a client received from the server, so that
+     * {@link #buildVanillaRecipesMap} can work on them.
+     * FABRIC-PORT: 26.x clients only have the recipes the server synchronizes (Fabric's RecipeSynchronization, see MineColoniesFabric) and no
+     * recipe manager; recipes are a registry now, so a client-side manager is built from a recipe registry made of them (as JEI does).
+     *
+     * @param recipes    the recipes.
+     * @param registries the registries (e.g. the client level's registry access).
+     * @return a recipe manager holding exactly these recipes.
+     */
+    @NotNull
+    public static RecipeManager createRecipeManager(@NotNull final Collection<RecipeHolder<?>> recipes, @NotNull final HolderLookup.Provider registries)
+    {
+        final HolderLookup.Provider withRecipes = new RegistrySetBuilder()
+          .add(Registries.RECIPE, context -> recipes.forEach(holder -> context.register(holder.id(), holder.value())))
+          .build(registries);
+        return new RecipeManager(withRecipes);
+    }
+
     /**
      * Build a map of all potentially learnable vanilla recipes, converted to {@link IGenericRecipe}.
      *

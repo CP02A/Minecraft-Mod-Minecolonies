@@ -24,9 +24,12 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.crafting.DyeRecipe;
+import net.minecraft.world.item.crafting.ImbueRecipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
+import net.minecraft.world.item.crafting.TransmuteRecipe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,9 +118,13 @@ public class MineColoniesFabric implements ModInitializer
         com.ldtteam.shim.fabric.ShimItemHooks.init();
         MineColoniesCompostables.init();
 
-        // 26.x no longer syncs recipes to clients: request the ones the client UIs look up.
+        // 26.x no longer syncs recipes to clients: request the ones the client UIs look up. The crafting ones (all non-special crafting
+        // serializers) also feed JEI's crafter recipe categories on dedicated servers (JEIPlugin#onRecipesLoaded).
         RecipeSynchronization.synchronizeRecipeSerializer(ShapedRecipe.SERIALIZER);
         RecipeSynchronization.synchronizeRecipeSerializer(ShapelessRecipe.SERIALIZER);
+        RecipeSynchronization.synchronizeRecipeSerializer(TransmuteRecipe.SERIALIZER);
+        RecipeSynchronization.synchronizeRecipeSerializer(DyeRecipe.SERIALIZER);
+        RecipeSynchronization.synchronizeRecipeSerializer(ImbueRecipe.SERIALIZER);
         RecipeSynchronization.synchronizeRecipeSerializer(SmeltingRecipe.SERIALIZER);
         RecipeSynchronization.synchronizeRecipeSerializer(ModRecipeSerializers.ARCHITECTS_CUTTER.get());
 

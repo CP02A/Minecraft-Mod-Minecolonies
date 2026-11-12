@@ -1,5 +1,6 @@
 package com.minecolonies.core.compatibility.jei;
 
+import com.minecolonies.core.client.render.GuiBlockRenderer;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -8,9 +9,8 @@ import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import org.joml.Matrix3x2fStack;
+import org.joml.Matrix3x2f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -33,21 +33,11 @@ public class RenderHelper
      */
     public static void renderBlock(final GuiGraphicsExtractor ctx, final BlockState block, final float x, final float y, final float z, final float pitch, final float yaw, final float scale)
     {
-        // FABRIC-PORT TODO: 26.x GUI has no immediate-mode 3D block rendering; the block is drawn via its item model
-        // (isometric GUI transform) instead of a custom pitch/yaw rendered block model.
-        final ItemStack stack = new ItemStack(block.getBlock());
-        if (stack.isEmpty())
-        {
-            return;
-        }
-
-        final Matrix3x2fStack pose = ctx.pose();
-        pose.pushMatrix();
-        pose.translate(x, y);
-        final float itemScale = scale / 16.0F * 1.25F;
-        pose.scale(itemScale, itemScale);
-        ctx.item(stack, -8, -8);
-        pose.popMatrix();
+        // FABRIC-PORT: 1.21.1 rendered the block model straight into the GUI. The 26.x GUI draws 3D content through picture-in-picture
+        // renderers, so the block state goes through GuiBlockRenderer with the same pose (anchor, pitch, yaw, scale); z only ordered the
+        // old immediate draw calls and is not needed any more.
+        ctx.guiRenderState.addPicturesInPictureState(
+          GuiBlockRenderer.State.of(block, x, y, pitch, yaw, scale, new Matrix3x2f(ctx.pose()), ctx.scissorStack.peek()));
     }
 
     /**

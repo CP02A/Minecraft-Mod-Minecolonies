@@ -89,6 +89,60 @@ public class CitizenModel<T extends AbstractEntityCitizen> extends HumanoidModel
                     break;
             }
         }
+
+        if (citizen.isChild)
+        {
+            applyChildProportions(this);
+        }
+    }
+
+    /**
+     * Head scale of children: 1.21.1 AgeableListModel of HumanoidModel (scaleHead, babyHeadScale 2): 1.5 / 2.
+     */
+    private static final float CHILD_HEAD_SCALE = 0.75F;
+
+    /**
+     * Head offset of children before scaling, in model units (babyYHeadOffset of HumanoidModel).
+     */
+    private static final float CHILD_HEAD_Y_OFFSET = 16.0F;
+
+    /**
+     * Body scale of children: 1 / babyBodyScale (2).
+     */
+    private static final float CHILD_BODY_SCALE = 0.5F;
+
+    /**
+     * Body offset of children before scaling, in model units (bodyYOffset of HumanoidModel).
+     */
+    private static final float CHILD_BODY_Y_OFFSET = 24.0F;
+
+    /**
+     * Draw a humanoid model with child proportions, like 1.21.1 did for {@code HumanoidModel#young} (AgeableListModel): the head (with the
+     * hat layer and everything attached to it) shifted down by 16 and scaled by 0.75, body, arms and legs shifted down by 24 and scaled by 0.5.
+     * FABRIC-PORT: 26.x dropped the young flag (vanilla bakes separate baby meshes with BabyModelTransform). This applies the same transform
+     * to the current part poses, after all animations, which is exactly what the old render-time matrices did (offset + rotation + scale of
+     * each part, scaled around the model origin). Items held in hand follow the scaled arm. Call at the end of setupAnim.
+     *
+     * @param model the model, posed for this frame.
+     */
+    public static void applyChildProportions(final HumanoidModel<?> model)
+    {
+        scalePart(model.head, CHILD_HEAD_Y_OFFSET, CHILD_HEAD_SCALE);
+        scalePart(model.body, CHILD_BODY_Y_OFFSET, CHILD_BODY_SCALE);
+        scalePart(model.rightArm, CHILD_BODY_Y_OFFSET, CHILD_BODY_SCALE);
+        scalePart(model.leftArm, CHILD_BODY_Y_OFFSET, CHILD_BODY_SCALE);
+        scalePart(model.rightLeg, CHILD_BODY_Y_OFFSET, CHILD_BODY_SCALE);
+        scalePart(model.leftLeg, CHILD_BODY_Y_OFFSET, CHILD_BODY_SCALE);
+    }
+
+    private static void scalePart(final ModelPart part, final float yOffset, final float scale)
+    {
+        part.x *= scale;
+        part.y = (part.y + yOffset) * scale;
+        part.z *= scale;
+        part.xScale *= scale;
+        part.yScale *= scale;
+        part.zScale *= scale;
     }
 
     public static LayerDefinition createMesh()

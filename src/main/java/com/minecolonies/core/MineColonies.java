@@ -488,9 +488,9 @@ public class MineColonies
         ItemSettingMessage.TYPE.register(registry);
     }
 
-    // FABRIC-PORT TODO: the spear's custom item renderer (SpearItemTileEntityRenderer via IClientItemExtensions#getCustomRenderer)
-    // no longer exists in 26.x (BlockEntityWithoutLevelRenderer was removed). It must be re-registered as a SpecialModelRenderer
-    // referenced from the spear's item model definition (client area).
+    // FABRIC-PORT: the spear's custom item renderer (was IClientItemExtensions#getCustomRenderer, a BlockEntityWithoutLevelRenderer) is a
+    // special model renderer in 26.x: SpearItemTileEntityRenderer, used by assets/minecolonies/items/spear.json and registered in
+    // ClientRegistryHandler#doClientStuff.
 
     /**
      * Report known incompatibilities to the log.

@@ -219,3 +219,113 @@ covered by `crf01_alchemist`).
 **Screenshots:** none.
 
 **Time budget:** instant.
+
+---
+
+## UI-10 Spear item renders in 3D
+
+**Tests:** the spear item is drawn with its 3D model (special item model renderer `SpearItemTileEntityRenderer`) in hand, on armor
+stands and in item frames, and with its flat sprite in the GUI, like the NeoForge version.
+
+**Setup**
+- The test world. A small scene 20 blocks west of the UI colony's arena (in the air, y 19-25): a stone floor, a concrete wall, an item
+  frame with a spear on the wall, an armor stand holding a spear. The player holds a spear and stands at (26.5, 20, 24.5) looking at the
+  wall. Runs after the other UI tests (it moves the player).
+
+**What happens**
+1. Resolves the spear's item model on the client for third person, first person, item frame and GUI and measures its bounding box.
+2. Takes a screenshot in first person, then one in third person (front view), then empties the player's hand.
+
+**Passes when**
+- In hand (first and third person) and in the item frame the model's longest side is over 1.3 blocks (the 3D spear is about two blocks
+  long; the flat sprite and the missing model are one block); in the GUI it is the flat one-block sprite.
+
+**Look at the screenshots:** the spear in the hand, held by the armor stand and in the item frame is the 3D model; the hotbar shows the
+flat sprite. Like in 1.21.1 the item frame transform (`models/item/spear_in_hand.json`, `fixed`) pushes most of the spear into the wall,
+only the tip shows below the frame. Like in 1.21.1 the 3D spear is the trident mesh with the spear texture (the spear's own mesh
+`SpearModel#createLayer` was never registered upstream).
+
+**Screenshots:** `ui10-spear-first-person.png`, `ui10-spear-third-person.png`.
+
+**Time budget:** about 4 seconds.
+
+---
+
+## UI-11 Child citizen proportions
+
+**Tests:** child citizens are drawn with child proportions (1.21.1 `HumanoidModel#young`: head scaled by 0.75, body, arms and legs by
+0.5), adults at full size.
+
+**Setup**
+- The shared UI colony. Spawns a male child and a male adult citizen 10 blocks north of the town hall (4 blocks in front of the player),
+  frozen (`NoAI`), facing the player, each holding an iron sword. Both are removed again at the end. Runs after UI-07 (the citizen count
+  check of UI-01 must not see them).
+
+**What happens**
+1. Waits until the client has both citizen entities and their data, takes a screenshot.
+2. On the client, creates each citizen's render state with its renderer, poses the citizen model with it, and poses a citizen armor model
+   (`CitizenArmorModel`) with it, like rendering does.
+
+**Passes when**
+- Child: head scale 0.75, body, arm and leg scale 0.5 in the citizen model, head 0.75 and body 0.5 in the armor model.
+- Adult: all scales 1.
+
+**Look at the screenshot:** the child is about half as tall as the adult with a large head; its sword is small and in its hand.
+
+**Screenshots:** `ui11-child-citizen.png`.
+
+**Time budget:** about 3 seconds.
+
+---
+
+## UI-12 JEI draws blocks in 3D
+
+**Tests:** `compatibility.jei.RenderHelper#renderBlock`, which MineColonies' JEI recipe categories use for the composting barrel and the
+crafters' intermediate blocks (e.g. furnace), draws the exact block state as a turned 3D block model (through the picture-in-picture
+renderer `GuiBlockRenderer`), like 1.21.1, instead of the block's item icon. JEI itself is not in the test runtime; `RenderHelper` doesn't
+need it.
+
+**Setup**
+- The test world (no colony needed).
+
+**What happens**
+1. Opens a test screen (`client/BlockRenderTestScreen`) that calls `RenderHelper.renderBlock` with the arguments of the composting
+   category (barrel at 0 %, 60 % and done) and the generic crafter category (furnace, grown wheat crop), each with its item icon below.
+2. Takes a screenshot and reads it back.
+
+**Passes when**
+- Every block covers its anchor point in the screenshot.
+- The empty and the finished barrel differ at the top (each block is drawn with its own state; one shared picture would make them equal).
+
+**Look at the screenshot:** turned 3D blocks, the barrels with different fill levels and fill gauges, a grown wheat crop (its item icon
+below is wheat seeds).
+
+**Screenshots:** `ui12-jei-blocks.png`.
+
+**Time budget:** about 1 second.
+
+---
+
+## UI-13 JEI crafter recipes from synced recipes
+
+**Tests:** on a dedicated server, the vanilla recipes that MineColonies' JEI crafter categories show (crafting, smelting, brewing,
+architect's cutter) come from the recipes the server synchronizes to the client (Fabric `RecipeSynchronization`); the client builds a
+recipe manager from them (`RecipeAnalyzer#createRecipeManager`). In singleplayer JEI uses the integrated server's recipe manager.
+
+**Setup**
+- The test world (no colony needed).
+
+**What happens**
+1. On the server, builds the crafter recipe map from the server's recipe manager (`RecipeAnalyzer#buildVanillaRecipesMap`, the
+   singleplayer path).
+2. On the client, builds the same map from the client's synchronized recipes, exactly like `JEIPlugin` does without an integrated server.
+
+**Passes when**
+- The server has small crafting, large crafting and smelting recipes, and both maps have the same number of recipes for every crafting
+  type (so every serializer the crafters need is synchronized).
+
+**Not covered:** JEI itself (not in the test runtime) and a real dedicated server (the integrated server synchronizes the same way).
+
+**Screenshots:** none.
+
+**Time budget:** instant.

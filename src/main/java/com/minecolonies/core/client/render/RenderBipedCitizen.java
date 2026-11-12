@@ -10,7 +10,6 @@ import com.minecolonies.api.entity.citizen.AbstractEntityCitizen;
 import com.minecolonies.apiimp.initializer.ModModelTypeInitializer;
 import com.minecolonies.core.client.render.worldevent.RenderTypes;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.ArmorModelSet;
@@ -59,7 +58,7 @@ public class RenderBipedCitizen extends MobRenderer<AbstractEntityCitizen, Citiz
         super(context, new CitizenModel<>(context.bakeLayer(ModelLayers.PLAYER)), (float) SHADOW_SIZE);
         this.defaultModel = this.model;
         this.addLayer(new CitizenArmorLayer<>(this,
-          ArmorModelSet.bake(ModelLayers.PLAYER_ARMOR, context.getModelSet(), HumanoidModel::new),
+          ArmorModelSet.bake(ModelLayers.PLAYER_ARMOR, context.getModelSet(), CitizenArmorModel::new),
           context.getEquipmentRenderer(),
           context.getModelSet(),
           context.getPlayerSkinRenderCache()));
@@ -83,7 +82,12 @@ public class RenderBipedCitizen extends MobRenderer<AbstractEntityCitizen, Citiz
         state.rightArmPose = RenderUtils.getArmPose(citizen, InteractionHand.MAIN_HAND);
         state.leftArmPose = RenderUtils.getArmPose(citizen, InteractionHand.OFF_HAND);
 
-        // FABRIC-PORT TODO: 1.21.1 HumanoidModel#young scaled head/body of child citizens (AgeableListModel); 26.x needs baby meshes (MeshTransformer), only the entity age scale applies now.
+        // FABRIC-PORT: 1.21.1 set HumanoidModel#young, so AgeableListModel drew child citizens with a smaller head and a half size body.
+        // 26.x has no young flag (vanilla uses separate baby meshes); the citizen models apply the same scaling to their part poses instead
+        // (CitizenModel#applyChildProportions), and so do the armor models and, through the arm pose, the held items. Vanilla's isBaby is
+        // cleared: with it the item in hand and armor layers would switch to offsets and textures made for vanilla's baby meshes.
+        state.isChild = citizen.isBaby();
+        state.isBaby = false;
         state.citizenModel = selectModel(citizen);
         state.texture = getTexture(citizen);
 

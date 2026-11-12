@@ -109,11 +109,11 @@ Features of the NeoForge original that the port doesn't have yet. None of them i
 
 | What | Where |
 |---|---|
-| The spear's custom item renderer is not registered (`SpearItemTileEntityRenderer`; 26.x needs a `SpecialModelRenderer` in the item model definition). | `MineColonies.java:491` |
-| Child citizens use adult proportions (1.21.1 scaled head and body via `HumanoidModel#young`; 26.x needs baby meshes). | `RenderBipedCitizen.java:86` |
+| **DONE:** the spear's custom item renderer. It already was a `SpecialModelRenderer` registered in `ClientRegistryHandler#doClientStuff` and used by `items/spear.json` (the TODO was stale); item frames now use the 3D model like 1.21.1 (they showed the flat sprite). Test UI-10. | `SpearItemTileEntityRenderer.java`, `items/spear.json` |
+| **DONE:** child citizens are drawn with child proportions again: `CitizenModel#applyChildProportions` applies 1.21.1's `young` scaling (head 0.75, body 0.5) to the posed parts, also on the armor model (`CitizenArmorModel`); held items follow the arm. Test UI-11. | `CitizenModel.java`, `RenderBipedCitizen.java` |
 | Structurize's solid placeholder blocks ignore worldgen surface rules (26.x replaced `SurfaceRules`); they fall back to the dimension's default block or dirt. | `vendor/structurize/.../BlockUtils.java:166` |
-| JEI: crafter recipes derived from vanilla recipes are missing on dedicated servers (needs a recipe sync). | `JEIPlugin.java:203` |
-| JEI: blocks are drawn from their item model (26.x GUI has no immediate-mode 3D block rendering). | `compatibility/jei/RenderHelper.java:36` |
+| **DONE:** JEI crafter recipes derived from vanilla recipes on dedicated servers: built from the recipes the server synchronizes (Fabric `RecipeSynchronization`, now also transmute/dye/imbue crafting) via `RecipeAnalyzer#createRecipeManager`. Test UI-13 (JEI itself is not in the test runtime). | `JEIPlugin.java`, `MineColoniesFabric.java` |
+| **DONE:** JEI categories draw blocks as turned 3D block models of the exact state again, through a picture-in-picture renderer (`GuiBlockRenderer`). Test UI-12. | `compatibility/jei/RenderHelper.java`, `GuiBlockRenderer.java` |
 | Dynamic Trees compatibility removed (no Fabric 26.x release); the no-op proxy stays. | `CompatibilityManager.java:838` |
 | NeoForge's `PreventRemoteMovement` flag is ignored. | `AbstractEntityAIInteract.java:375` |
 | `ItemFireArrow`: the `createEntity` hook (custom item entity) is never called. | `ItemFireArrow.java:28` |

@@ -41,6 +41,12 @@ public class CitizenRenderState extends HumanoidRenderState
     public boolean female;
 
     /**
+     * If the citizen is a child: the models then draw it with child proportions (see {@link CitizenModel#applyChildProportions}).
+     * FABRIC-PORT: replaces 1.21.1's HumanoidModel#young. Vanilla's {@link #isBaby} stays false for citizens, see RenderBipedCitizen.
+     */
+    public boolean isChild;
+
+    /**
      * Texture to use.
      */
     @Nullable
