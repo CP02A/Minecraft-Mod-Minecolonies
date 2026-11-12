@@ -30,7 +30,7 @@ public class E2EBootstrap implements ModInitializer
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             if (isTestServer(server))
             {
-                ColonyFixture.endLeisureBreaks();
+                ColonyFixture.shortenLeisureBreaks(server.getTickCount());
             }
         });
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> {

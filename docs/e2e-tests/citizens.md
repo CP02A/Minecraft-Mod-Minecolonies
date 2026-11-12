@@ -306,3 +306,31 @@ Everyday needs and reactions of citizens: food, sleep, weather, happiness, healt
 **Time budget:** 30 seconds.
 
 **As tested (`cit14_answeringACitizen`):** a lumberjack creates a synchronous request for a diamond (blocking `RequestBasedInteraction`); the test triggers the "cancel" answer via `ICitizenData.onResponseTriggered` (the server side of the GUI answer). The request is cancelled at once, the interaction is removed at the next citizen update.
+
+---
+
+## CIT-15 Leisure break
+
+**Tests:** a working citizen takes a leisure break: it leaves work, spends the break on its leisure and goes back to work afterwards.
+
+**Setup**
+- A lumberjack (no trees, so it never goes idle by itself) with a home, working.
+
+**What happens**
+1. A leisure break starts, as the random roll in `CitizenData.update` starts one (about once per 144,000 ticks in a level 1 home).
+2. The break lasts 3 minutes in the game; the test mod ends every break after 3 seconds (60 ticks, see
+   [framework.md](framework.md#test-configuration)).
+
+**Passes when**
+- Within 2 seconds the citizen AI leaves work for its leisure: state `IDLE`, where the wander AI runs (walk around, or go to a
+  leisure site, the home or the town hall, and sit or read there).
+- While at leisure the worker AI is paused (its state doesn't change) and the status shows "house".
+- The break ends after 60 ticks (±2) and the citizen was at leisure for at least 40 of them.
+- The citizen goes back to work (citizen AI `WORK`/`WORKING`) within 5 seconds.
+
+**Time budget:** 1 minute.
+
+**As tested (`cit15_leisureBreak`):** the break is started with `fixture.startLeisureBreak(citizen)` (sets the remaining leisure time
+to 3,600 ticks like the mod's roll; the test mod ends it 60 ticks later). In `CitizenAI.calculateNextState` a citizen with leisure time
+left goes `IDLE` instead of `WORK` (unless its job can't be interrupted); the wander AI (`EntityAICitizenWander`) decides every 100
+ticks in `IDLE`, so in 3 seconds the citizen may or may not start walking; the test checks the states, not a walk.

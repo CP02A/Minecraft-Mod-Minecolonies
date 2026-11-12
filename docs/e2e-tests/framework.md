@@ -9,8 +9,11 @@ see (colony data, citizen data, the request system, AI states, work orders).
 ## Where they run
 
 - They are **server game tests** in the test mod in `src/gametest` (mod id `minecolonies-gametest`, not part of the release jar).
-- `./gradlew runGameTest` starts a headless test server, runs every test and writes `build/gametest-report.xml`. `./gradlew build`
-  runs them too. `-Pe2eFilter=<prefix>` runs only some of them (see the [agent guide](AGENT-GUIDE.md)).
+- `./gradlew runGameTest` starts a headless test server, runs every test and writes `build/gametest-report.xml`.
+  `-Pe2eFilter=<prefix>` runs only some of them (see the [agent guide](AGENT-GUIDE.md)).
+- `./gradlew build` does **not** run them. They are for whoever works on a behavior (run the tests about it while programming) and
+  for a full run now and then. (Fabric Loom's `configureTests` makes `check` depend on `runGameTest`; `build.gradle` removes that
+  dependency again. `check` keeps the isolation checks `checkJarIsolation` and `checkInjectedMembers`.)
 - No real player and no game window are needed. Colonies are owned by a fixed fake player profile (a fixed UUID and name), so
   ownership and permissions work as they would for a real owner.
 - The fake owner is a Fabric `FakePlayer` standing at the town hall. A MineColonies colony only runs (citizens work, requests are
@@ -25,7 +28,7 @@ see (colony data, citizen data, the request system, AI states, work orders).
 | `./gradlew runGameTest -Pe2eWatch` | the same server game tests | integrated server of a game window, 20 ticks per second | `build/gametest-report.xml` |
 | `./gradlew runClientGameTest` | UI tests ([ui.md](ui.md)) | game window | `build/e2e-ui-report.xml`, screenshots in `build/e2e-screenshots/` |
 
-All three accept the filters described below; `./gradlew build` runs only the first.
+All three accept the filters described below; `./gradlew build` runs none of them.
 
 ## Test areas
 
@@ -61,10 +64,13 @@ The test server starts with a test config so results don't depend on chance or o
 | `diseaseModifier` | 100 | Almost no random diseases. The config's minimum is 1, so 0 is impossible; higher means rarer, and 100 (the maximum) means about one disease per 1,000,000 checks. Disease tests infect a citizen on purpose. |
 | `minDistanceFromWorldSpawn` | 0 | Test areas are near the world spawn. |
 
-Besides the config, `ColonyFixture.create` sets the time to morning and clears the weather, and the test mod **ends citizens' leisure
-breaks** on every server tick (`E2EBootstrap`, `ColonyFixture.endLeisureBreaks`): each
-citizen takes a random 3-minute break now and then (`CitizenData.update`, about once per 144,000 ticks in a level 1 home). No test
-checks leisure, and a break hit one or two tests per full run at random (a courier, healer or student off work while the test waited).
+Besides the config, `ColonyFixture.create` sets the time to morning and clears the weather, and the test mod **shortens citizens'
+leisure breaks to 3 seconds** (60 ticks; `E2EBootstrap` calls `ColonyFixture.shortenLeisureBreaks` at the end of every server tick):
+each citizen takes a random 3-minute break now and then (`CitizenData.update`, about once per 144,000 ticks in a level 1 home), and a
+full break hit one or two tests per full run at random (a courier, healer or student off work while the test waited). The leisure
+behavior still runs: the citizen leaves work, idles and comes back after 60 ticks. The test mod remembers the tick each break started
+and sets the remaining leisure time to 0 60 ticks later (the mod counts it down only every 60 ticks). CIT-15 checks a break;
+`fixture.startLeisureBreak(citizen)` starts one.
 
 The values are set in memory when the test server has started (`E2EBootstrap`), before the first test. A test can change a value for
 its own run with `fixture.setConfig(...)`; it is restored when the test ends.
@@ -211,16 +217,23 @@ changes: `runGameTest` is headless as before.
   every integrated server tick, like `GameTestServerMixin` does headless. Differences: the test areas start at (64, 4, 64) instead of a
   random spot millions of blocks out (the client renders with jitter that far out), and a spectator player (`E2EViewer`) is in the
   world near the running test. Spectators are ignored by mobs and can't touch blocks.
-- **Camera:** the player is a spectator. Every 10 ticks the test checks which test is running; when a new one starts, the camera jumps
-  to a corner above its area, looking at the center, and 40 ticks later takes one screenshot,
-  `build/e2e-screenshots/watch-<test path>.png`. A chat line says watch mode is on; vanilla prints test results in chat.
+- **Camera:** automatic; nobody steers it and there is no free camera. The player is a spectator that the client test
+  (`client/WatchClientGameTest`) moves itself. Every 10 ticks the server works out the *focus* of the running test
+  (`framework/WatchFocus`): in a colony test the town hall, every citizen, the huts they work or live in, and every other living entity
+  in the area (animals, raiders, visitors); before the colony exists, and in a test without a colony, the whole test area (a small
+  8×8×8 test gives a close-up). The camera looks down at 50° from the south-east (yaw 135) at the center of the focus box and stands
+  just far enough back that all 8 corners of the box are in view (92% of the field of view). When a new test starts it jumps there; while the test runs it glides after the focus (6% of the way per
+  tick), so walking citizens stay in view. Screenshots: `build/e2e-screenshots/watch-<test path>.png` 100 ticks after a test
+  started, and `watch-<test path>-2.png` after 1200 ticks if it still runs (taken without the HUD; the log line with the focus
+  box and camera position is next to it in `latest.log`). A chat line says watch mode is on; vanilla prints test
+  results in chat.
 - **Speed:** normal game speed, 20 ticks per second (Fabric's client test framework runs client and server in lockstep at the normal
   tick rate). `-Pe2eWatchSpeed=2` doubles it, `0.5` halves it (`/tick rate`). A colony test with a budget of 3000 ticks can take
   2.5 minutes to watch; filter to the tests you want to see.
 - **End:** when all tests are done the log shows the same summary as headless ("All N required tests passed" or the failed tests),
   `build/gametest-report.xml` is written, the window closes, and the Gradle task fails if a required test failed.
-- **Input:** keyboard and mouse can't change anything (see [No human input](#no-human-input)); you can only watch. Closing the window
-  ends the run.
+- **Input:** keyboard and mouse can't change anything, not even the camera (see [No human input](#no-human-input)); you can only
+  watch. Closing the window ends the run.
 
 ## UI tests
 
@@ -229,7 +242,7 @@ Structurize's build tool) in a real game window, take screenshots and check what
 The tests are in [ui.md](ui.md).
 
 - **Run:** `./gradlew runClientGameTest` (opens a window for about a minute). Only some: `-Pe2eUiFilter=UI-01,UI-03`. Not part of
-  `./gradlew build`; run it when you change UI code. Needs a desktop session (a real window and a GPU); it works on Windows.
+  `./gradlew build` (neither are the server game tests); run it when you change UI code. Needs a desktop session (a real window and a GPU); it works on Windows.
 - **How:** Fabric's client game test API (`fabric-client-gametest-api-v1`, enabled with `enableClientGameTests = true` in
   `build.gradle`, entrypoint `fabric-client-gametest` in the test mod's `fabric.mod.json`). The client test `client/UiClientGameTest`
   creates a flat world and starts the `manualOnly` server game test `ui/UiColonySetup` on the integrated server; it builds the colony with
@@ -251,7 +264,8 @@ A person at the computer must not be able to change a test by accident (for exam
   `mixin/SDLEventHandlerMixin` does the same so the guarantee doesn't depend on Fabric, and UI-08 checks that both are applied.
   Simulated input from tests (`context.getInput()`) goes straight to Minecraft's keyboard and mouse handlers and still works.
 - Losing window focus doesn't pause the game (Fabric ignores focus events in client test runs).
-- In watch mode the player is a spectator, so even without the input blocker it couldn't break or place blocks or hit entities.
+- In watch mode the player is a spectator, so even without the input blocker it couldn't break or place blocks or hit entities. The
+  camera is moved by the test only.
 - These mixins are only active in client game test runs (`fabric.client.gametest` is set); a normal `runClient` game is not affected.
   MineColonies code is never changed.
 

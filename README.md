@@ -40,9 +40,11 @@ Only one jar is needed on Fabric: Structurize, BlockUI and Domum Ornamentum are 
 ./gradlew build
 ```
 
-(On Windows, `gradlew build` in cmd or PowerShell.) The mod jar ends up in `build/libs/minecolonies-fabric-<version>.jar`. Put it in your `mods` folder with [Fabric Loader](https://fabricmc.net/use/) 0.20.1+ and [Fabric API](https://modrinth.com/mod/fabric-api) for Minecraft 26.3. The same jar works on clients and dedicated servers.
+(On Windows, `gradlew build` in cmd or PowerShell.) The build compiles the mod and runs the isolation checks, not the game tests (see below). The mod jar ends up in `build/libs/minecolonies-fabric-<version>.jar`. Put it in your `mods` folder with [Fabric Loader](https://fabricmc.net/use/) 0.20.1+ and [Fabric API](https://modrinth.com/mod/fabric-api) for Minecraft 26.3. The same jar works on clients and dedicated servers.
 
 Requirements: any JDK 17 or newer to start the Gradle wrapper, plus an internet connection on the first run. Minecraft 26.3 needs Java 25, and Gradle downloads a Java 25 JDK automatically if you don't have one. The first build takes several minutes because it downloads and sets up Minecraft.
+
+`src/main/resources/assets/minecolonies/lang/en_us.json` is not in git: the Gradle task `mergeTranslations` (run by every build and run task) generates it from `manual_en_us.json` and the datagen lang files, as the NeoForge build did. Without it MineColonies crashes at start, so keep the task and don't commit the file.
 
 ### Development and testing
 
@@ -50,7 +52,7 @@ Requirements: any JDK 17 or newer to start the Gradle wrapper, plus an internet 
 - The dev client always logs in as **Player875** (set in `build.gradle`). Offline player IDs are derived from the name, so a changing name would make you a stranger in colonies you founded earlier: no ownership and no colony chat messages.
 - Don't run `gradlew build`/`compileJava` while the dev client is open: it rewrites the classes the running game loads from and crashes it with `ClassNotFoundException`.
 - [`FABRIC_TESTING.md`](FABRIC_TESTING.md) is a step-by-step manual test plan.
-- `./gradlew runGameTest` runs the automated server game tests in `src/gametest` (a separate test mod, not part of the jar). The report goes to `build/gametest-report.xml`. Add `-Pe2eWatch` to watch the same tests in a game window. `./gradlew runClientGameTest` runs the UI tests (MineColonies windows in a game window, screenshots in `build/e2e-screenshots/`). See [`docs/E2E-tests.md`](docs/E2E-tests.md).
+- `./gradlew runGameTest` runs the automated server game tests in `src/gametest` (a separate test mod, not part of the jar). They are not part of `./gradlew build`: run them while working on a behavior (`-Pe2eFilter=<prefix>`) or as a full run now and then. The report goes to `build/gametest-report.xml`. Add `-Pe2eWatch` to watch the same tests in a game window. `./gradlew runClientGameTest` runs the UI tests (MineColonies windows in a game window, screenshots in `build/e2e-screenshots/`). See [`docs/E2E-tests.md`](docs/E2E-tests.md).
 - `./gradlew build` also runs the isolation checks from [`docs/Isolation-rules.md`](docs/Isolation-rules.md): `checkJarIsolation` (packages and mixin config names in the jar) and `checkInjectedMembers` (members mixins add to vanilla classes).
 
 ### Upgrading a 1.21.1 (NeoForge) world

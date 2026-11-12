@@ -74,6 +74,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.EnumMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -227,30 +228,72 @@ public final class ColonyFixture
     }
 
     /**
+     * Length of a leisure break in the tests: 3 seconds instead of 3 minutes.
+     */
+    public static final int LEISURE_BREAK_TICKS = 60;
+
+    /**
      * Citizens take random 3-minute leisure breaks (CitizenData.update: about once per 144,000 ticks per citizen in a level 1 home, then
-     * 3,600 ticks off work). Over a full run that hit one or two tests per run at random (a courier, a healer or a student off work while
-     * the test waited). No test checks leisure, so every break is ended on the tick it starts, like time and weather are fixed. Called
-     * at the end of every server tick of a test server ({@link E2EBootstrap}); all colonies there are test colonies. (Not with
+     * 3,600 ticks off work, counted down by 60 every 60 ticks). Over a full run that hit one or two tests per run at random (a courier, a
+     * healer or a student off work while the test waited). So every break is ended {@link #LEISURE_BREAK_TICKS} ticks after it started:
+     * the leisure behavior still runs (the citizen leaves work, idles and comes back, CIT-15), it just can't eat a test's budget. The
+     * break is ended by setting the remaining leisure time to 0 (the mod's own count-down only moves every 60 ticks, so a shorter value
+     * alone would make the break last anything from 1 to 60 ticks).
+     * <p>
+     * Called at the end of every server tick of a test server ({@link E2EBootstrap}); all colonies there are test colonies. (Not with
      * {@code helper.onEachTick}: that puts one entry per tick of the budget into a map the test scans every tick, which doubled the run time.)
      */
-    static void endLeisureBreaks()
+    static void shortenLeisureBreaks(final int serverTick)
     {
+        final Map<ICitizenData, Integer> stillOnBreak = new IdentityHashMap<>();
         for (final IColony c : IColonyManager.getInstance().getAllColonies())
         {
             for (final ICitizenData citizen : c.getCitizenManager().getCitizens())
             {
                 if (citizen.getLeisureTime() > 0)
                 {
-                    try
+                    final Integer start = LEISURE_STARTS.get(citizen);
+                    if (start == null)
                     {
-                        LEISURE_TIME.setInt(citizen, 0);
+                        stillOnBreak.put(citizen, serverTick);
                     }
-                    catch (final IllegalAccessException e)
+                    else if (serverTick - start >= LEISURE_BREAK_TICKS)
                     {
-                        throw new IllegalStateException(e);
+                        setLeisureTime(citizen, 0);
+                    }
+                    else
+                    {
+                        stillOnBreak.put(citizen, start);
                     }
                 }
             }
+        }
+        LEISURE_STARTS = stillOnBreak;
+    }
+
+    /**
+     * Server tick at which each citizen's current leisure break was first seen (only citizens on a break).
+     */
+    private static Map<ICitizenData, Integer> LEISURE_STARTS = new IdentityHashMap<>();
+
+    /**
+     * Starts a leisure break now, as the random roll in {@code CitizenData.update} does (3 minutes; ended after
+     * {@link #LEISURE_BREAK_TICKS} like every break in the tests).
+     */
+    public void startLeisureBreak(final ICitizenData citizen)
+    {
+        setLeisureTime(citizen, 20 * 60 * 3);
+    }
+
+    private static void setLeisureTime(final ICitizenData citizen, final int ticks)
+    {
+        try
+        {
+            LEISURE_TIME.setInt(citizen, ticks);
+        }
+        catch (final IllegalAccessException e)
+        {
+            throw new IllegalStateException(e);
         }
     }
 
