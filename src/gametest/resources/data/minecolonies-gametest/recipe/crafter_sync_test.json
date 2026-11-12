@@ -1,0 +1,17 @@
+{
+  "type": "minecolonies-gametest:test_shaped",
+  "category": "building",
+  "key": {
+    "L": "minecraft:spruce_log",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "LSL",
+    "SLS",
+    "LSL"
+  ],
+  "result": {
+    "count": 7,
+    "id": "minecraft:spruce_planks"
+  }
+}

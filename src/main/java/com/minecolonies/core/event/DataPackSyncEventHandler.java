@@ -78,6 +78,10 @@ public class DataPackSyncEventHandler
             QuestJsonListener.sendGlobalQuestPackets(player);
             DiseasesListener.sendGlobalDiseasesPackets(player);
 
+            // FABRIC-PORT: the crafter recipes the Fabric recipe sync doesn't cover, for JEI on dedicated servers (only to clients with
+            // MineColonies). Before the custom recipes: their arrival makes JEI rebuild its crafter categories.
+            com.minecolonies.fabric.CrafterRecipeSync.sendTo(player);
+
             // always send this last; we rely on CustomRecipesReloadedEvent signalling that all packets are processed
             CustomRecipeManager.getInstance().sendCustomRecipeManagerPackets(player);
         }

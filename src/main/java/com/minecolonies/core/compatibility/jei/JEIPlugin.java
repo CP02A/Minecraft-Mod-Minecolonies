@@ -202,11 +202,12 @@ public class JEIPlugin implements IModPlugin
             // FABRIC-PORT: 26.x clients no longer receive the full vanilla recipe set (1.21.1 used the client level's recipe manager).
             // In singleplayer the integrated server's recipe manager has all recipes; on a dedicated server the recipes of the crafting,
             // smelting, brewing and architect's cutter serializers are synchronized to the client (MineColoniesFabric / MineColonies#preInit,
-            // Fabric RecipeSynchronization) and wrapped into a client-side recipe manager.
+            // Fabric RecipeSynchronization); the crafter recipes of other mods' serializers come through MineColonies' own payload
+            // (CrafterRecipeSync). Both are wrapped into a client-side recipe manager.
             final net.minecraft.client.server.IntegratedServer server = Minecraft.getInstance().getSingleplayerServer();
             final net.minecraft.world.item.crafting.RecipeManager vanillaRecipes = server != null
                 ? server.getRecipeManager()
-                : RecipeAnalyzer.createRecipeManager(level.recipeAccess().getSynchronizedRecipes().recipes(), level.registryAccess());
+                : RecipeAnalyzer.createRecipeManager(com.minecolonies.fabric.CrafterRecipeSync.withReceivedRecipes(level.recipeAccess().getSynchronizedRecipes().recipes()), level.registryAccess());
             final Map<CraftingType, List<IGenericRecipe>> vanilla = RecipeAnalyzer.buildVanillaRecipesMap(vanillaRecipes, level);
             final List<Animal> animals = RecipeAnalyzer.createAnimals(level);
 

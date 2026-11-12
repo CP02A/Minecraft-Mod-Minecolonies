@@ -70,7 +70,6 @@ import com.minecolonies.core.placementhandlers.main.SuppliesHandler;
 import com.minecolonies.core.placementhandlers.main.SurvivalHandler;
 import com.minecolonies.core.research.GlobalResearchTreeMessage;
 import com.minecolonies.core.structures.MineColoniesStructures;
-import net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization;
 import net.minecraft.world.entity.animal.equine.Horse;
 import net.minecraft.world.item.crafting.BrewingRecipe;
 import com.minecolonies.api.crafting.registry.ModRecipeSerializer;
@@ -228,9 +227,9 @@ public class MineColonies
 
         // FABRIC-PORT: 26.x does not sync recipes to the client anymore. The vanilla crafting/smelting and the Domum cutter serializers are
         // synced by the Fabric entrypoint; additionally sync brewing (brewing teaching / crafting GUIs) and our own recipe types.
-        RecipeSynchronization.synchronizeRecipeSerializer(BrewingRecipe.SERIALIZER);
-        RecipeSynchronization.synchronizeRecipeSerializer(BuiltInRegistries.RECIPE_SERIALIZER.getValue(ModRecipeSerializer.CompostRecipeSerializer.getId()));
-        RecipeSynchronization.synchronizeRecipeSerializer(BuiltInRegistries.RECIPE_SERIALIZER.getValue(ModRecipeSerializer.ZeroWasteRecipeSerializer.getId()));
+        com.minecolonies.fabric.CrafterRecipeSync.synchronizeSerializer(BrewingRecipe.SERIALIZER);
+        com.minecolonies.fabric.CrafterRecipeSync.synchronizeSerializer(BuiltInRegistries.RECIPE_SERIALIZER.getValue(ModRecipeSerializer.CompostRecipeSerializer.getId()));
+        com.minecolonies.fabric.CrafterRecipeSync.synchronizeSerializer(BuiltInRegistries.RECIPE_SERIALIZER.getValue(ModRecipeSerializer.ZeroWasteRecipeSerializer.getId()));
     }
 
     /**

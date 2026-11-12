@@ -29,6 +29,11 @@ public class MineColoniesFabricClient implements ClientModInitializer
         ShimGameEventsClient.init();
         callHook("init");
 
+        // JEI crafter recipes of serializers outside the Fabric recipe sync, sent by a dedicated server (see CrafterRecipeSync).
+        net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(CrafterRecipeSync.Payload.TYPE,
+          (payload, context) -> CrafterRecipeSync.receive(payload));
+        net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((listener, client) -> CrafterRecipeSync.clearClient());
+
         // Development aid: log screen changes (a headless run can then tell which screen the client is sitting on).
         if (net.fabricmc.loader.api.FabricLoader.getInstance().isDevelopmentEnvironment())
         {

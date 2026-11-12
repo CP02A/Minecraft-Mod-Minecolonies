@@ -26,6 +26,7 @@ public class E2EBootstrap implements ModInitializer
     @Override
     public void onInitialize()
     {
+        TestShapedRecipe.register();
         ServerLifecycleEvents.SERVER_STARTED.register(E2EBootstrap::onServerStarted);
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             if (isTestServer(server))
