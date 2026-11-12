@@ -17,9 +17,13 @@ import org.joml.Vector3fc;
 import java.util.function.Consumer;
 
 /**
- * Special item renderer for the spear (was a BlockEntityWithoutLevelRenderer before 26.x).
- * FABRIC-PORT TODO: now a {@link SpecialModelRenderer}; it has to be referenced from the spear's item model definition
- * ("type": "minecraft:special", "model": {"type": "minecolonies:spear"}) and {@link #register()} has to be called during client init.
+ * Special item renderer for the spear: draws the 3D spear model in hand, on the head and in item frames (the GUI, the ground and shelves
+ * use the flat sprite, like 1.21.1's separate_transforms model did for GUI and ground).
+ * FABRIC-PORT: was a BlockEntityWithoutLevelRenderer (IClientItemExtensions#getCustomRenderer) before 26.x; now a {@link SpecialModelRenderer}
+ * referenced from assets/minecolonies/items/spear.json ("type": "minecraft:special", "model": {"type": "minecolonies:spear"}), registered
+ * by {@link #register()} during client init (ClientRegistryHandler#doClientStuff, before the first resource load). The display transforms
+ * come from models/item/spear_in_hand.json and spear_throwing.json, as before; like 1.21.1 the model is drawn without the trident's
+ * (1, -1, -1) flip.
  */
 public class SpearItemTileEntityRenderer implements NoDataSpecialModelRenderer
 {

@@ -236,3 +236,7 @@ Details: [e2e-tests/ui.md](e2e-tests/ui.md). Run with `./gradlew runClientGameTe
 | [UI-07](e2e-tests/ui.md#ui-07-warehouse-window) | Warehouse window | The warehouse window opens with the right title. | ✅ Passing |
 | [UI-08](e2e-tests/ui.md#ui-08-human-input-is-ignored) | Human input is ignored | Real keyboard and mouse input can't reach a test window. | ✅ Passing |
 | [UI-09](e2e-tests/ui.md#ui-09-brewing-teaching-computes-the-potion) | Brewing teaching computes the potion | The brewing teaching window finds the brewed potion from the synced recipes. | ✅ Passing |
+| [UI-10](e2e-tests/ui.md#ui-10-spear-item-renders-in-3d) | Spear item renders in 3D | The spear is drawn with its 3D model in hand and in item frames, flat in the GUI. | ✅ Passing |
+| [UI-11](e2e-tests/ui.md#ui-11-child-citizen-proportions) | Child citizen proportions | Child citizens (and their armor) are drawn with child proportions, adults full size. | ✅ Passing |
+| [UI-12](e2e-tests/ui.md#ui-12-jei-draws-blocks-in-3d) | JEI draws blocks in 3D | The JEI categories' block drawing shows each block state as a turned 3D model. | ✅ Passing |
+| [UI-13](e2e-tests/ui.md#ui-13-jei-crafter-recipes-from-synced-recipes) | JEI crafter recipes from synced recipes | The crafter recipes built from the client's synced recipes equal the server's. | ✅ Passing |

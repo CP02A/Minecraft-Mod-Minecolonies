@@ -199,12 +199,15 @@ public class JEIPlugin implements IModPlugin
             recipeManager.addRecipes(ModRecipeTypes.FISHING, FishermanRecipeCategory.findRecipes());
 
             final ClientLevel level = Objects.requireNonNull(Minecraft.getInstance().level);
-            // 26.x clients no longer receive the full vanilla recipe set; use the integrated server's recipe manager when available.
-            // FABRIC-PORT TODO: on dedicated servers vanilla-derived crafter recipes are not shown in JEI (needs a recipe sync, e.g. Fabric RecipeSynchronization).
+            // FABRIC-PORT: 26.x clients no longer receive the full vanilla recipe set (1.21.1 used the client level's recipe manager).
+            // In singleplayer the integrated server's recipe manager has all recipes; on a dedicated server the recipes of the crafting,
+            // smelting, brewing and architect's cutter serializers are synchronized to the client (MineColoniesFabric / MineColonies#preInit,
+            // Fabric RecipeSynchronization) and wrapped into a client-side recipe manager.
             final net.minecraft.client.server.IntegratedServer server = Minecraft.getInstance().getSingleplayerServer();
-            final Map<CraftingType, List<IGenericRecipe>> vanilla = server == null
-                ? Map.of()
-                : RecipeAnalyzer.buildVanillaRecipesMap(server.getRecipeManager(), level);
+            final net.minecraft.world.item.crafting.RecipeManager vanillaRecipes = server != null
+                ? server.getRecipeManager()
+                : RecipeAnalyzer.createRecipeManager(level.recipeAccess().getSynchronizedRecipes().recipes(), level.registryAccess());
+            final Map<CraftingType, List<IGenericRecipe>> vanilla = RecipeAnalyzer.buildVanillaRecipesMap(vanillaRecipes, level);
             final List<Animal> animals = RecipeAnalyzer.createAnimals(level);
 
             for (final JobBasedRecipeCategory<?> category : this.categories)

@@ -49,6 +49,7 @@ import com.ldtteam.shim.bus.api.SubscribeEvent;
 import com.ldtteam.shim.neoforge.client.event.EntityRenderersEvent;
 import com.ldtteam.shim.neoforge.client.event.RegisterItemDecorationsEvent;
 import com.ldtteam.shim.neoforge.client.event.RegisterKeyMappingsEvent;
+import com.ldtteam.shim.neoforge.client.event.RegisterPictureInPictureRenderersEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -385,5 +386,15 @@ public class ClientRegistryHandler
     public static void registerKeys(final RegisterKeyMappingsEvent event)
     {
         ModKeyMappings.register(event);
+    }
+
+    /**
+     * GUI renderer of block models (JEI recipe categories, RenderHelper#renderBlock).
+     */
+    @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
+    @SubscribeEvent
+    public static void registerPictureInPictureRenderers(final RegisterPictureInPictureRenderersEvent event)
+    {
+        event.register(GuiBlockRenderer.State.class, GuiBlockRenderer::new);
     }
 }
