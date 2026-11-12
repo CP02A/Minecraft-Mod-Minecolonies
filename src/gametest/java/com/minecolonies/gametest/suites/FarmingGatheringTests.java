@@ -14,6 +14,12 @@ import com.minecolonies.core.colony.buildingextensions.FarmField;
 import com.minecolonies.core.colony.buildings.modules.ItemListModule;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingComposter;
 import com.minecolonies.core.colony.buildings.workerbuildings.BuildingLumberjack;
+import com.minecolonies.core.colony.buildings.workerbuildings.BuildingMiner;
+import com.minecolonies.core.colony.buildings.modules.MinerLevelManagementModule;
+import com.minecolonies.core.entity.ai.workers.util.MineNode;
+import com.minecolonies.core.entity.ai.workers.util.MinerLevel;
+import com.minecolonies.api.util.Log;
+import com.minecolonies.api.util.Vec2i;
 import com.minecolonies.core.entity.ai.workers.production.agriculture.EntityAIWorkComposter;
 import com.minecolonies.core.entity.ai.workers.production.EntityAIWorkLumberjack;
 import com.minecolonies.core.tileentities.TileEntityBarrel;
@@ -1334,6 +1340,804 @@ public class FarmingGatheringTests
             }
         }
         return new GrownTree(base, Blocks.OAK_LOG, Blocks.OAK_SAPLING, blocks, height);
+    }
+
+    // ------------------------------------------------------------------------------------------------------------------------------------
+    // GAT-03 / GAT-04 Miner
+    // ------------------------------------------------------------------------------------------------------------------------------------
+
+    /**
+     * Miner's hut position: south of the arena center, so the shaft and the first ring of nodes lie under the middle of the deep arena.
+     */
+    private static final BlockPos MINE_POS = new BlockPos(32, ColonyFixture.GROUND_Y, 44);
+
+    /**
+     * Town hall position for the mine tests (out of the way of the mine).
+     */
+    private static final BlockPos MINE_TOWN_HALL_POS = new BlockPos(12, ColonyFixture.GROUND_Y, 12);
+
+    /**
+     * GAT-03 Miner digs the shaft. A level 1 mine in the deep arena (stone down to y -32) with ladders, cobblestone, torches, wooden
+     * pickaxes and shovels and four extra racks. The miner digs the 7x7 shaft with a ladder and a cobblestone column behind it down to the
+     * first mining level and builds the level's main shaft structure; the dug blocks end up in the hut. Materials the hut doesn't have are
+     * handed over by the creative owner ("fulfil" in the request window, see {@link OwnerFulfils}); without that the framed blocks of the
+     * main shaft come from the retrying resolver only after about 40,000 ticks. The "no fall, no damage" part is GAT-03b.
+     */
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 40000, skyAccess = true)
+    public void gat03_minerDigsShaft(final GameTestHelper helper)
+    {
+        minerShaft(helper, false);
+    }
+
+    /**
+     * GAT-03b The miner digs the shaft safely. Same as GAT-03; the miner must never fall more than three blocks and never take damage.
+     */
+    // BUG E2E-GAT-03-1: the miner falls off the shaft ladder. Climbing up to the hut for a new tool (worker AI NEEDS_ITEM, the shovel broke at
+    // the shaft bottom) he leaves the ladder sideways at y ~8 (the block next to the ladder, over the open shaft) and falls 3.3-4 blocks onto
+    // the shaft floor (1 fall damage at 4 blocks). Seen in most runs between tick 7,500 and 10,200 (log lines "[MINE] tick N: falling ...").
+    // The miner AI only asks to walk to the hut (AbstractEntityAIBasic.walkToBuilding), so the cause is the citizen pathing/ladder movement.
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 40000, skyAccess = true, required = false)
+    public void gat03_minerDigsShaftSafely(final GameTestHelper helper)
+    {
+        minerShaft(helper, true);
+    }
+
+    private static void minerShaft(final GameTestHelper helper, final boolean safety)
+    {
+        final ColonyFixture fixture = ColonyFixture.create(helper);
+        final Mine mine = new Mine(fixture);
+
+        final com.minecolonies.gametest.framework.TestFlow flow = fixture.flow()
+          .run("set up deep arena, colony and level 1 mine", () -> mine.setUp(1));
+        if (safety)
+        {
+            flow.awaitUntil("the miner digs the shaft and builds the first mining level without a fall or damage", 34000, () -> {
+                mine.tick();
+                if (mine.maxDamage > 0.0f || mine.maxFall > 3.0)
+                {
+                    throw new IllegalStateException("the miner fell " + mine.maxFall + " blocks and took " + mine.maxDamage + " damage / " + mine.describe());
+                }
+                return mine.levels() >= 1;
+            }, mine::describe).succeed();
+            return;
+        }
+        flow.awaitUntil("the miner digs the shaft and builds the first mining level", 34000, () -> mine.tick() && mine.levels() >= 1, mine::describe)
+          .check("ladders and the cobblestone column go all the way down to the level", () -> mine.shaftProblems().isEmpty(), () -> mine.shaftProblems() + " / " + mine.describe())
+          .awaitUntil("mined blocks reach the hut", 4000, () -> mine.tick() && mine.minedInHut() >= 64, mine::describe)
+          .succeed();
+    }
+
+    /**
+     * GAT-04 Miner mines a level. Same mine as GAT-03; when the first level is built, the test limits the mine's depth (the hut's "max
+     * depth" setting) to that level, puts two iron ores into each of the level's first nodes and a cave hole (air) into a wall corner of the
+     * first node. The miner builds out two nodes with their supports (framed blocks, fences, torch); the hole is closed and the ores of those
+     * nodes end up in the hut.
+     */
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 64000, skyAccess = true)
+    public void gat04_minerMinesNodes(final GameTestHelper helper)
+    {
+        minerNodes(helper, false);
+    }
+
+    /**
+     * GAT-04b Miner seals water next to a node. Like GAT-04 with a water source (a flooded cave) one block past the open end of the first
+     * node, inside the range the miner checks for liquids before a node (EntityAIStructureMiner.executeStructurePlacement). After the first
+     * node is built the source must be replaced by the fill block.
+     */
+    // BUG E2E-GAT-04-1: the miner never removes liquids around a node. EntityAIStructureMiner.executeStructurePlacement
+    // (EntityAIStructureMiner.java:794-820) only reaches its liquid check when the node's blueprint is already loaded; on the first call it
+    // starts loading the blueprint and returns LOAD_STRUCTURE, after loading the AI goes on with BUILDING_STEP and never comes back to the
+    // check before the node is done. The water source stays and flows into the tunnel.
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 54000, skyAccess = true, required = false)
+    public void gat04_minerSealsWater(final GameTestHelper helper)
+    {
+        minerNodes(helper, true);
+    }
+
+    private static void minerNodes(final GameTestHelper helper, final boolean water)
+    {
+        final ColonyFixture fixture = ColonyFixture.create(helper);
+        final Mine mine = new Mine(fixture);
+        final List<MineNode> prepared = new ArrayList<>();
+        final List<MineNode> firstNode = new ArrayList<>();
+        final BlockPos[] source = new BlockPos[1];
+        final BlockPos[] hole = new BlockPos[1];
+
+        final com.minecolonies.gametest.framework.TestFlow flow = fixture.flow()
+          .run("set up deep arena, colony and level 1 mine", () -> mine.setUp(1))
+          .awaitUntil("the miner builds the first mining level", 34000, () -> mine.tick() && mine.levels() >= 1, mine::describe)
+          .run("keep the miner on this level; ores, a cave hole " + (water ? "and water " : "") + "in the first nodes", () -> {
+              final MinerLevel level = mine.level();
+              mine.hut.getSetting(BuildingMiner.MAX_DEPTH).setValue(level.getDepth() + 3);
+              final MineNode ladder = level.getLadderNode();
+              for (final MineNode node : level.getNodes().values())
+              {
+                  if (node.getStatus() != MineNode.NodeStatus.COMPLETED && node.getStyle() == MineNode.NodeType.TUNNEL)
+                  {
+                      prepared.add(node);
+                      fixture.level().setBlockAndUpdate(new BlockPos(node.getX(), level.getDepth() + 1, node.getZ()), Blocks.IRON_ORE.defaultBlockState());
+                      fixture.level().setBlockAndUpdate(new BlockPos(node.getX(), level.getDepth() + 2, node.getZ()), Blocks.IRON_ORE.defaultBlockState());
+                  }
+              }
+              if (prepared.isEmpty())
+              {
+                  throw new IllegalStateException("no open node on the level: " + level);
+              }
+              // The first node the miner builds is the head of the open-node queue (MinerLevel.getRandomNode).
+              final MineNode first = mine.module().getActiveNode();
+              firstNode.add(first);
+              // Wall corners of a tunnel node are solid in every rotation.
+              hole[0] = new BlockPos(first.getX() + 3, level.getDepth() + 2, first.getZ() + 3);
+              fixture.level().setBlockAndUpdate(hole[0], Blocks.AIR.defaultBlockState());
+              if (water)
+              {
+                  final int dx = Integer.signum(first.getX() - ladder.getX());
+                  final int dz = Integer.signum(first.getZ() - ladder.getZ());
+                  source[0] = new BlockPos(first.getX() + 4 * dx, level.getDepth() + 2, first.getZ() + 4 * dz);
+                  fixture.level().setBlockAndUpdate(source[0], Blocks.WATER.defaultBlockState());
+              }
+              Log.getLogger().info("[GAT-04] prepared nodes {}, first {}, water {}, hole {}", prepared, first, source[0], hole[0]);
+          });
+        if (water)
+        {
+            flow.awaitUntil("the miner builds the first node", 16000, () -> mine.tick() && mine.completedNodes(firstNode) >= 1, mine::describe)
+              .check("the water next to the first node is replaced by the fill block", () -> mine.isFill(source[0]) && !hasFluidNear(fixture, source[0], 4),
+                () -> "at the source " + fixture.level().getBlockState(source[0]) + ", fluid within 4 blocks " + hasFluidNear(fixture, source[0], 4))
+              .succeed();
+            return;
+        }
+        flow.awaitUntil("the miner builds out two nodes", 24000, () -> mine.tick() && mine.completedNodes(prepared) >= 2, mine::describe)
+          .check("built nodes have their supports (framed blocks, fences, torch)", () -> mine.unsupportedNodes(prepared).isEmpty(),
+            () -> mine.unsupportedNodes(prepared) + " / " + mine.describe())
+          .check("the cave hole in the first node's wall is closed", () -> fixture.level().getBlockState(hole[0]).isSolid(),
+            () -> "at hole " + fixture.level().getBlockState(hole[0]))
+          .awaitUntil("the ores of the built nodes reach the hut", 6000,
+            () -> mine.tick() && mine.oresInHut() >= 2 * mine.completedNodes(prepared),
+            () -> "iron ores in hut " + mine.oresInHut() + ", with the miner " + countInCitizen(mine.worker, FarmingGatheringTests::isIronOre) + ", expected "
+                    + 2 * mine.completedNodes(prepared) + " / " + mine.describe())
+          .succeed();
+    }
+
+    private static boolean isIronOre(final ItemStack stack)
+    {
+        return stack.is(Items.IRON_ORE) || stack.is(Items.RAW_IRON) || stack.is(Items.DEEPSLATE_IRON_ORE);
+    }
+
+    private static boolean hasFluidNear(final ColonyFixture fixture, final BlockPos center, final int range)
+    {
+        for (final BlockPos p : BlockPos.betweenClosed(center.offset(-range, -range, -range), center.offset(range, range, range)))
+        {
+            if (!fixture.level().getFluidState(p).isEmpty())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * A level 1+ mine with its miner in the deep arena, and what the test observes every tick (damage, fall distance, requests).
+     */
+    private static final class Mine
+    {
+        final ColonyFixture fixture;
+        final OwnerFulfils owner;
+        BuildingMiner hut;
+        ICitizenData worker;
+        float maxDamage = 0;
+        double maxFall = 0;
+        int ticks = 0;
+        int fallLines = 0;
+
+        Mine(final ColonyFixture fixture)
+        {
+            this.fixture = fixture;
+            this.owner = new OwnerFulfils(fixture);
+        }
+
+        void setUp(final int hutLevel)
+        {
+            fixture.makeDeepGround();
+            fixture.createColony(MINE_TOWN_HALL_POS);
+            fixture.setMoveIn(false);
+            hut = (BuildingMiner) fixture.placeBuilding(ModBuildings.miner.get(), hutLevel, MINE_POS);
+            // Room for what the miner digs out: four racks next to the hut, registered like racks a player places.
+            for (int i = 0; i < 4; i++)
+            {
+                addRack(fixture, hut, new BlockPos(40 + i, ColonyFixture.GROUND_Y, 48));
+            }
+            fixture.fillBuilding(hut, new ItemStack(Items.LADDER, 64), new ItemStack(Items.COBBLESTONE, 64), new ItemStack(Items.TORCH, 64),
+              new ItemStack(Items.WOODEN_PICKAXE), new ItemStack(Items.WOODEN_PICKAXE), new ItemStack(Items.WOODEN_PICKAXE), new ItemStack(Items.WOODEN_PICKAXE),
+              new ItemStack(Items.WOODEN_SHOVEL), new ItemStack(Items.WOODEN_SHOVEL));
+            worker = fixture.spawnCitizen(50, hut, null);
+            Log.getLogger().info("[MINE] hut {} corners {} ladder {} cobble {} depth limit {}", hut.getPosition(), hut.getCorners(), hut.getLadderLocation(),
+              hut.getCobbleLocation(), hut.getDepthLimit(fixture.level()));
+        }
+
+        /**
+         * Called every tick from the waits: tracks damage and falls, hands over requested materials. Always true.
+         */
+        boolean tick()
+        {
+            ticks++;
+            worker.getEntity().ifPresent(e -> {
+                final float damage = e.getMaxHealth() - e.getHealth();
+                if (damage > maxDamage || (e.fallDistance > 3.0 && e.fallDistance > maxFall))
+                {
+                    Log.getLogger().info("[MINE] tick {}: damage {} fall {} at {} on {} / {}", ticks, damage, e.fallDistance, e.blockPosition(),
+                      fixture.level().getBlockState(e.blockPosition().below()), describe());
+                }
+                if (e.fallDistance > 0.5 && fallLines++ < 80)
+                {
+                    Log.getLogger().info("[MINE] tick {}: falling {} y {} climbable {} state {} pos {}", ticks, e.fallDistance, e.getY(), e.onClimbable(),
+                      worker.getJob().getWorkerAI() == null ? "-" : worker.getJob().getWorkerAI().getState(), e.blockPosition());
+                }
+                maxDamage = Math.max(maxDamage, damage);
+                maxFall = Math.max(maxFall, e.fallDistance);
+            });
+            owner.fulfil(hut, worker);
+            if (ticks % 2000 == 0)
+            {
+                Log.getLogger().info("[MINE] tick {}: {}", ticks, describe());
+            }
+            return true;
+        }
+
+        MinerLevelManagementModule module()
+        {
+            return hut.getFirstModuleOccurance(MinerLevelManagementModule.class);
+        }
+
+        int levels()
+        {
+            return module().getNumberOfLevels();
+        }
+
+        MinerLevel level()
+        {
+            return module().getLevels().get(0);
+        }
+
+        int lastLadder()
+        {
+            return com.minecolonies.core.util.WorkerUtil.getLastLadder(hut.getLadderLocation(), fixture.level());
+        }
+
+        /**
+         * Positions between the hut's top ladder and the first level where the ladder or the cobblestone column behind it is missing.
+         */
+        List<String> shaftProblems()
+        {
+            final List<String> problems = new ArrayList<>();
+            final BlockPos ladder = hut.getLadderLocation();
+            final BlockPos cobble = hut.getCobbleLocation();
+            final int bottom = level().getDepth();
+            for (int y = ladder.getY(); y >= bottom; y--)
+            {
+                final BlockState l = fixture.level().getBlockState(new BlockPos(ladder.getX(), y, ladder.getZ()));
+                if (!l.is(BlockTags.CLIMBABLE))
+                {
+                    problems.add("y " + y + " ladder column " + l.getBlock().getName().getString());
+                }
+                final BlockState c = fixture.level().getBlockState(new BlockPos(cobble.getX(), y, cobble.getZ()));
+                if (!c.isSolid())
+                {
+                    problems.add("y " + y + " back column " + c.getBlock().getName().getString());
+                }
+            }
+            return problems;
+        }
+
+        /**
+         * Mined blocks in the hut: cobblestone, stone and dirt, minus the 64 cobblestone the test put in and what the owner handed over.
+         */
+        int minedInHut()
+        {
+            final int mined = fixture.countItems(hut, s -> s.is(Items.COBBLESTONE) || s.is(Items.STONE) || s.is(Items.DIRT));
+            return mined - 64 - owner.given(Items.COBBLESTONE);
+        }
+
+        int oresInHut()
+        {
+            return fixture.countItems(hut, FarmingGatheringTests::isIronOre);
+        }
+
+        int completedNodes(final List<MineNode> nodes)
+        {
+            int done = 0;
+            for (final MineNode node : nodes)
+            {
+                final MineNode current = level().getNodes().get(new Vec2i(node.getX(), node.getZ()));
+                if (current != null && current.getStatus() == MineNode.NodeStatus.COMPLETED)
+                {
+                    done++;
+                }
+            }
+            return done;
+        }
+
+        /**
+         * Completed nodes whose 7x7x5 box lacks the tunnel blueprint's supports (16 framed blocks, 4 fences, a torch).
+         */
+        List<String> unsupportedNodes(final List<MineNode> nodes)
+        {
+            final List<String> problems = new ArrayList<>();
+            for (final MineNode node : nodes)
+            {
+                final MineNode current = level().getNodes().get(new Vec2i(node.getX(), node.getZ()));
+                if (current == null || current.getStatus() != MineNode.NodeStatus.COMPLETED)
+                {
+                    continue;
+                }
+                int framed = 0;
+                int fences = 0;
+                int torches = 0;
+                int air = 0;
+                final BlockPos base = new BlockPos(node.getX(), level().getDepth(), node.getZ());
+                for (final BlockPos p : BlockPos.betweenClosed(base.offset(-3, 0, -3), base.offset(3, 4, 3)))
+                {
+                    final BlockState s = fixture.level().getBlockState(p);
+                    final String id = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(s.getBlock()).toString();
+                    if (id.startsWith("domum_ornamentum:"))
+                    {
+                        framed++;
+                    }
+                    else if (s.is(BlockTags.FENCES))
+                    {
+                        fences++;
+                    }
+                    else if (s.is(Blocks.TORCH) || s.is(Blocks.WALL_TORCH))
+                    {
+                        torches++;
+                    }
+                    else if (s.isAir())
+                    {
+                        air++;
+                    }
+                }
+                if (framed < 16 || fences < 4 || torches < 1 || air < 20)
+                {
+                    problems.add("node " + node.getX() + "," + node.getZ() + ": framed " + framed + ", fences " + fences + ", torches " + torches + ", air " + air);
+                }
+            }
+            return problems;
+        }
+
+        boolean isFill(final BlockPos pos)
+        {
+            return fixture.level().getBlockState(pos).is(hut.getSetting(BuildingMiner.FILL_BLOCK).getValue().getBlock());
+        }
+
+        String describe()
+        {
+            final MinerLevelManagementModule module = module();
+            final StringBuilder sb = new StringBuilder();
+            sb.append("last ladder y ").append(lastLadder()).append(", top ladder ").append(hut.getLadderLocation()).append(", levels ").append(module.getNumberOfLevels());
+            for (final MinerLevel l : module.getLevels())
+            {
+                sb.append(" [depth ").append(l.getDepth()).append(", nodes ").append(l.getNumberOfNodes()).append(", built ").append(l.getNumberOfBuiltNodes()).append(']');
+            }
+            sb.append(", active node ").append(module.getLevels().isEmpty() ? "-" : String.valueOf(module.getActiveNode()));
+            sb.append(", damage ").append(maxDamage).append(", fall ").append(maxFall);
+            sb.append(", owner gave ").append(owner.given);
+            sb.append(", hut cobble ").append(fixture.countItems(hut, s -> s.is(Items.COBBLESTONE))).append(" free slots ").append(freeSlots(fixture, hut));
+            sb.append(" / ").append(describeWork(hut, worker));
+            return sb.toString();
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------------------------------------------
+    // GAT-05 Quarrier
+    // ------------------------------------------------------------------------------------------------------------------------------------
+
+    /**
+     * Simple quarry position: its 18x23 footprint (x -9..+8, z -19..+3 around the hut block) lies in the middle of the arena.
+     */
+    private static final BlockPos QUARRY_POS = new BlockPos(36, ColonyFixture.GROUND_Y, 40);
+
+    /**
+     * Number of shaft layers (from the top) the test waits for.
+     */
+    private static final int QUARRY_LAYERS = 3;
+
+    /**
+     * GAT-05 Quarrier. A level 1 mine (the quarrier's workplace) and a simple quarry on stone (stone floor and deep arena). The quarrier is
+     * hired in the mine and assigned to the quarry. He loads the quarry's shaft blueprint and digs it out layer by layer from the top. The test
+     * waits for the top three layers: every position the blueprint has as air is dug out, a lower layer is only touched after the layer above
+     * is done, the stone right outside the shaft's footprint is untouched, and the dug blocks end up in the quarry (where the quarrier dumps).
+     * Materials the colony can't supply (framed blocks of the shaft, more tools) are handed over by the creative owner ({@link OwnerFulfils}).
+     */
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 40000, skyAccess = true)
+    public void gat05_quarrierDigsLayers(final GameTestHelper helper)
+    {
+        final ColonyFixture fixture = ColonyFixture.create(helper);
+        final Quarry quarry = new Quarry(fixture);
+
+        fixture.flow()
+          .run("set up stone ground, colony, mine and simple quarry", quarry::setUp)
+          .awaitUntil("the quarrier loads the shaft blueprint", 4000, () -> quarry.tick() && quarry.blueprintLoaded(), quarry::describe)
+          .run("record the shaft's layers and the stone around it", quarry::recordLayers)
+          .awaitUntil("the top " + QUARRY_LAYERS + " layers are dug out", 34000, () -> quarry.tick() && quarry.layersDone() >= QUARRY_LAYERS, quarry::describe)
+          .check("layers were dug top down", () -> quarry.orderProblems.isEmpty(), () -> quarry.orderProblems + " / " + quarry.describe())
+          .check("nothing outside the quarry area was dug", () -> quarry.changedOutside().isEmpty(), () -> quarry.changedOutside() + " / " + quarry.describe())
+          .awaitUntil("the dug blocks reach the quarry", 4000, () -> quarry.tick() && quarry.dugInQuarry() >= 64, quarry::describe)
+          .succeed();
+    }
+
+    /**
+     * Quarry test state: buildings, the shaft layers to dig and the stone around them.
+     */
+    private static final class Quarry
+    {
+        final ColonyFixture fixture;
+        final OwnerFulfils owner;
+        BuildingMiner mine;
+        IBuilding quarry;
+        ICitizenData worker;
+        int ticks = 0;
+        /**
+         * Positions the blueprint has as air, per layer (index 0 = top layer).
+         */
+        final List<List<BlockPos>> layers = new ArrayList<>();
+        final java.util.Map<BlockPos, BlockState> outside = new java.util.HashMap<>();
+        final List<String> orderProblems = new ArrayList<>();
+        int done = 0;
+
+        Quarry(final ColonyFixture fixture)
+        {
+            this.fixture = fixture;
+            this.owner = new OwnerFulfils(fixture);
+        }
+
+        void setUp()
+        {
+            fixture.fillFloor(Blocks.STONE.defaultBlockState(), Blocks.STONE.defaultBlockState());
+            fixture.makeDeepGround();
+            fixture.createColony(MINE_TOWN_HALL_POS);
+            fixture.setMoveIn(false);
+            mine = (BuildingMiner) fixture.placeBuilding(ModBuildings.miner.get(), 1, new BlockPos(12, ColonyFixture.GROUND_Y, 52));
+            quarry = fixture.placeBuilding(ModBuildings.simpleQuarry.get(), 1, QUARRY_POS);
+            fixture.fillBuilding(mine, new ItemStack(Items.WOODEN_PICKAXE), new ItemStack(Items.WOODEN_PICKAXE), new ItemStack(Items.WOODEN_PICKAXE),
+              new ItemStack(Items.WOODEN_PICKAXE), new ItemStack(Items.WOODEN_SHOVEL), new ItemStack(Items.COBBLESTONE, 64), new ItemStack(Items.TORCH, 32));
+            worker = fixture.spawnCitizen(50, null, null);
+            fixture.hire(worker, mine, com.minecolonies.api.colony.jobs.ModJobs.quarrier.get());
+            if (!quarry.getFirstModuleOccurance(com.minecolonies.core.colony.buildings.modules.QuarryModule.class).assignCitizen(worker))
+            {
+                throw new IllegalStateException("quarrier could not be assigned to the quarry");
+            }
+        }
+
+        boolean tick()
+        {
+            ticks++;
+            owner.fulfil(mine, worker);
+            if (!layers.isEmpty())
+            {
+                // Top down: no position of a lower layer may be dug while the layer above still has undug positions.
+                while (done < layers.size() && remaining(done) == 0)
+                {
+                    done++;
+                }
+                for (int i = done + 1; i < layers.size(); i++)
+                {
+                    final int dug = layers.get(i).size() - remaining(i);
+                    if (dug > 0 && orderProblems.size() < 5)
+                    {
+                        orderProblems.add("tick " + ticks + ": layer " + i + " has " + dug + " dug while layer " + done + " has " + remaining(done) + " left");
+                    }
+                }
+            }
+            if (ticks % 2000 == 0)
+            {
+                Log.getLogger().info("[QUARRY] tick {}: {}", ticks, describe());
+            }
+            return true;
+        }
+
+        boolean blueprintLoaded()
+        {
+            return mine.getWorkOrder() != null && mine.getWorkOrder().getBlueprint() != null;
+        }
+
+        void recordLayers()
+        {
+            final var workOrder = mine.getWorkOrder();
+            final var blueprint = workOrder.getBlueprint();
+            final BlockPos origin = workOrder.getLocation().subtract(blueprint.getPrimaryBlockOffset());
+            Log.getLogger().info("[QUARRY] blueprint {} size {}x{}x{} offset {} location {} quarry {} corners {}", blueprint.getName(), blueprint.getSizeX(), blueprint.getSizeY(),
+              blueprint.getSizeZ(), blueprint.getPrimaryBlockOffset(), workOrder.getLocation(), quarry.getPosition(), quarry.getCorners());
+            for (int layer = 0; layer < QUARRY_LAYERS + 1; layer++)
+            {
+                final int y = blueprint.getSizeY() - 1 - layer;
+                final List<BlockPos> air = new ArrayList<>();
+                for (int x = 0; x < blueprint.getSizeX(); x++)
+                {
+                    for (int z = 0; z < blueprint.getSizeZ(); z++)
+                    {
+                        final BlockPos local = new BlockPos(x, y, z);
+                        final BlockState state = blueprint.getBlockState(local);
+                        if (state != null && state.isAir())
+                        {
+                            air.add(origin.offset(local));
+                        }
+                    }
+                }
+                layers.add(air);
+            }
+            // The stone right outside the footprint, from the floor down to two layers below the last checked layer.
+            final int top = origin.getY() + blueprint.getSizeY() - 1;
+            final int bottom = top - QUARRY_LAYERS - 2;
+            for (int x = -1; x <= blueprint.getSizeX(); x++)
+            {
+                for (int z = -1; z <= blueprint.getSizeZ(); z++)
+                {
+                    if (x >= 0 && x < blueprint.getSizeX() && z >= 0 && z < blueprint.getSizeZ())
+                    {
+                        continue;
+                    }
+                    for (int y = bottom; y < top; y++)
+                    {
+                        final BlockPos p = new BlockPos(origin.getX() + x, y, origin.getZ() + z);
+                        outside.put(p, fixture.level().getBlockState(p));
+                    }
+                }
+            }
+        }
+
+        int remaining(final int layer)
+        {
+            int left = 0;
+            for (final BlockPos p : layers.get(layer))
+            {
+                if (!fixture.level().getBlockState(p).isAir())
+                {
+                    left++;
+                }
+            }
+            return left;
+        }
+
+        int layersDone()
+        {
+            return done;
+        }
+
+        List<String> changedOutside()
+        {
+            final List<String> changed = new ArrayList<>();
+            for (final var e : outside.entrySet())
+            {
+                final BlockState now = fixture.level().getBlockState(e.getKey());
+                if (now != e.getValue() && changed.size() < 10)
+                {
+                    changed.add(fixture.rel(e.getKey()).toShortString() + " " + e.getValue().getBlock().getName().getString() + " -> " + now.getBlock().getName().getString());
+                }
+            }
+            return changed;
+        }
+
+        int dugInQuarry()
+        {
+            return fixture.countItems(quarry, s -> s.is(Items.COBBLESTONE) || s.is(Items.STONE));
+        }
+
+        String describe()
+        {
+            final StringBuilder sb = new StringBuilder();
+            sb.append("layers done ").append(done).append('/').append(layers.size());
+            for (int i = 0; i < layers.size(); i++)
+            {
+                sb.append(" [").append(i).append(": ").append(remaining(i)).append('/').append(layers.get(i).size()).append(" left]");
+            }
+            sb.append(", work order ").append(mine.getWorkOrder() == null ? "-" : mine.getWorkOrder().getStructurePath());
+            sb.append(", progress ").append(mine.getProgress() == null ? "-" : mine.getProgress().toString());
+            sb.append(", quarry stone/cobble ").append(dugInQuarry()).append(", owner gave ").append(owner.given);
+            sb.append(" / ").append(describeWork(mine, worker));
+            return sb.toString();
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------------------------------------------
+    // GAT-06 Nether worker
+    // ------------------------------------------------------------------------------------------------------------------------------------
+
+    /**
+     * Nether mine position (its footprint is x -11..+5, z -9..+4 around the hut block).
+     */
+    private static final BlockPos NETHER_POS = new BlockPos(20, ColonyFixture.GROUND_Y, 14);
+
+    /**
+     * GAT-06 Nether expedition. A level 1 nether mine with a nether worker, the "nether expedition log" research done, the trip's inputs
+     * (64 cobblestone, 32 torches, 16 ladders: the level 1 trip recipe), wooden axe, pickaxe, shovel and sword, flint and steel, leather armor
+     * and bread on the hut's menu. The worker lights the hut's portal and leaves through it (the citizen entity is removed and travels); the
+     * test skips the travel time. Back at the portal the returned worker only goes on (and works off the trip: fights and finds are simulated)
+     * once the hut allows a new trip, i.e. after the 3-day trip period (E2E-GAT-06-1); the test runs the hut's morning update four times, as
+     * four mornings would. Passes when the trip is logged and either the worker comes back and the loot reaches the hut, or the worker died
+     * on the way and the log says so (the expedition rules).
+     */
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 40000, skyAccess = true)
+    public void gat06_netherExpedition(final GameTestHelper helper)
+    {
+        netherExpedition(helper, true);
+    }
+
+    /**
+     * GAT-06b Nether worker works off the trip when the travel ends. Same as GAT-06 without the four mornings: when the travel time is over
+     * the returned worker should process the trip and bring the loot home.
+     */
+    // BUG E2E-GAT-06-1: a returning nether worker idles at the portal until the next trip is allowed (3 days). EntityAIWorkNether.hasWorkToDo
+    // (EntityAIWorkNether.java:156) is "crafting task or building.isReadyForTrip()", and the trip was just recorded (BuildingNetherWorker
+    // .recordTrip, 1 trip per 3 days), so the respawned worker's AI stays in IDLE (AbstractEntityAICrafting.java:162) and decide() with its
+    // "job.isInNether() -> NETHER_AWAY" branch is never reached. The expedition log stays IN_PROGRESS, the loot stays in the job.
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 24000, skyAccess = true, required = false)
+    public void gat06_netherWorkerReturnsAfterTravel(final GameTestHelper helper)
+    {
+        netherExpedition(helper, false);
+    }
+
+    private static void netherExpedition(final GameTestHelper helper, final boolean passTripPeriod)
+    {
+        final ColonyFixture fixture = ColonyFixture.create(helper);
+        final com.minecolonies.core.colony.buildings.workerbuildings.BuildingNetherWorker[] hut = new com.minecolonies.core.colony.buildings.workerbuildings.BuildingNetherWorker[1];
+        final ICitizenData[] worker = new ICitizenData[1];
+        final java.util.function.Supplier<com.minecolonies.core.colony.buildings.modules.expedition.ExpeditionLog> log =
+          () -> hut[0].getFirstModuleOccurance(com.minecolonies.core.colony.buildings.modules.ExpeditionLogModule.class).getLog();
+        final java.util.function.Supplier<String> describe = () -> {
+            final StringBuilder sb = new StringBuilder("log ").append(log.get().getStatus()).append(", loot ").append(log.get().getLoot().size())
+              .append(", mobs ").append(log.get().getMobs().size())
+              .append(", travelling ").append(fixture.colony().getTravellingManager().isTravelling(worker[0]))
+              .append(", portal ").append(hut[0].getPortalLocation() == null ? "-" : fixture.level().getBlockState(hut[0].getPortalLocation()).getBlock().getName().getString())
+              .append(", citizen in colony ").append(fixture.colony().getCitizenManager().getCivilian(worker[0].getId()) != null);
+            if (worker[0].getJob() instanceof final com.minecolonies.core.colony.jobs.JobNetherWorker job)
+            {
+                sb.append(", job in nether ").append(job.isInNether()).append(", trip results to work off ").append(job.getCraftedResults().size())
+                  .append(", to bring home ").append(job.getProcessedResults().size());
+            }
+            worker[0].getEntity().ifPresent(e -> sb.append(", invisible ").append(e.isInvisible()));
+            return sb.append(" / ").append(describeWork(hut[0], worker[0])).toString();
+        };
+
+        final com.minecolonies.gametest.framework.TestFlow flow = fixture.flow()
+          .run("set up colony and nether mine", () -> {
+              fixture.createColony();
+              fixture.setMoveIn(false);
+              fixture.completeResearch(net.minecraft.resources.Identifier.parse("minecolonies:technology/netherlog"));
+              hut[0] = (com.minecolonies.core.colony.buildings.workerbuildings.BuildingNetherWorker) fixture.placeBuilding(ModBuildings.netherWorker.get(), 1, NETHER_POS);
+              hut[0].getModule(com.minecolonies.core.colony.buildings.modules.BuildingModules.NETHERMINER_MENU).addMenuItem(new ItemStack(Items.BREAD));
+              fixture.fillBuilding(hut[0], new ItemStack(Items.COBBLESTONE, 64), new ItemStack(Items.TORCH, 32), new ItemStack(Items.LADDER, 16),
+                new ItemStack(Items.WOODEN_AXE), new ItemStack(Items.WOODEN_PICKAXE), new ItemStack(Items.WOODEN_SHOVEL), new ItemStack(Items.WOODEN_SWORD),
+                new ItemStack(Items.FLINT_AND_STEEL), new ItemStack(Items.BREAD, 32), new ItemStack(Items.LEATHER_HELMET), new ItemStack(Items.LEATHER_CHESTPLATE),
+                new ItemStack(Items.LEATHER_LEGGINGS), new ItemStack(Items.LEATHER_BOOTS));
+              worker[0] = fixture.spawnCitizen(50, hut[0], null);
+          })
+          .check("the hut has a portal", () -> hut[0].getPortalLocation() != null, () -> "no portal tag")
+          .awaitUntil("the nether worker lights the portal and leaves through it", 6000,
+            () -> fixture.colony().getTravellingManager().isTravelling(worker[0]) && worker[0].getEntity().isEmpty(), describe)
+          .check("the expedition is logged as in progress", () -> log.get().getStatus() == com.minecolonies.core.colony.buildings.modules.expedition.ExpeditionLog.Status.IN_PROGRESS, describe)
+          .run("skip the travel time", () -> fixture.colony().getTravellingManager().startTravellingTo(worker[0],
+            fixture.colony().getTravellingManager().getTravellingTargetFor(worker[0]).orElseThrow(), 0))
+          .awaitUntil("the worker is back at the portal", 8000, () -> worker[0].getEntity().isPresent(), describe);
+        if (passTripPeriod)
+        {
+            flow.idle(200)
+              .run("four mornings: the hut's trip period starts over", () -> {
+                  for (int i = 0; i < 4; i++)
+                  {
+                      hut[0].onWakeUp();
+                  }
+              });
+        }
+        flow.awaitUntil("the expedition ends", passTripPeriod ? 12000 : 4000,
+            () -> log.get().getStatus() == com.minecolonies.core.colony.buildings.modules.expedition.ExpeditionLog.Status.COMPLETED
+                  || log.get().getStatus() == com.minecolonies.core.colony.buildings.modules.expedition.ExpeditionLog.Status.KILLED, describe)
+          .awaitUntil("the worker is back and the loot is in the hut (or the worker died and the log says so)", 8000, () -> {
+              if (log.get().getStatus() == com.minecolonies.core.colony.buildings.modules.expedition.ExpeditionLog.Status.KILLED)
+              {
+                  return true;
+              }
+              final boolean back = worker[0].getEntity().map(e -> !e.isInvisible() && e.blockPosition().closerThan(hut[0].getPosition(), 10)).orElse(false);
+              return back && lootInHut(fixture, hut[0], log.get()) > 0;
+          }, () -> "loot in hut " + lootInHut(fixture, hut[0], log.get()) + " / " + describe.get())
+          .check("the log lists the trip's loot or the death", () -> log.get().getStatus() == com.minecolonies.core.colony.buildings.modules.expedition.ExpeditionLog.Status.KILLED
+                                                                   || !log.get().getLoot().isEmpty(), describe)
+          .run("report the outcome", () -> Log.getLogger().info("[GAT-06] expedition outcome: {}", describe.get()))
+          .succeed();
+    }
+
+    /**
+     * Items in the hut that the expedition log lists as loot and that the test didn't put into the hut.
+     */
+    private static int lootInHut(final ColonyFixture fixture, final IBuilding hut, final com.minecolonies.core.colony.buildings.modules.expedition.ExpeditionLog log)
+    {
+        int count = 0;
+        for (final ItemStorage loot : log.getLoot())
+        {
+            final ItemStack stack = loot.getItemStack();
+            if (stack.is(Items.COBBLESTONE) || stack.is(Items.TORCH) || stack.is(Items.LADDER) || stack.is(Items.BREAD))
+            {
+                continue;
+            }
+            count += fixture.countItems(hut, s -> ItemStack.isSameItem(s, stack));
+        }
+        return count;
+    }
+
+    /**
+     * Places a rack at a relative position and registers it with the building, as when a player places a rack for a hut.
+     */
+    private static void addRack(final ColonyFixture fixture, final IBuilding building, final BlockPos rel)
+    {
+        final BlockPos pos = fixture.abs(rel);
+        final BlockState rack = ModBlocks.blockRack.defaultBlockState();
+        fixture.level().setBlock(pos, rack, Block.UPDATE_ALL);
+        building.registerBlockPosition(rack, pos, fixture.level());
+    }
+
+    /**
+     * The creative owner pressing "fulfil" in a worker's request window for every request the colony can't resolve (assigned to the
+     * retrying or the player resolver): the requested stack goes into the worker's inventory (into the hut if that is full) and the request
+     * is overruled, as {@code RequestWindowCitizen} + {@code TransferItemsToCitizenRequestMessage} + {@code UpdateRequestStateMessage} do.
+     * For tests whose subject isn't logistics.
+     */
+    private static final class OwnerFulfils
+    {
+        final ColonyFixture fixture;
+        final java.util.Map<String, Integer> given = new java.util.TreeMap<>();
+
+        OwnerFulfils(final ColonyFixture fixture)
+        {
+            this.fixture = fixture;
+        }
+
+        int given(final Item item)
+        {
+            return given.getOrDefault(net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(item).toString(), 0);
+        }
+
+        void fulfil(final IBuilding building, final ICitizenData citizen)
+        {
+            final var manager = fixture.colony().getRequestManager();
+            for (final var request : new ArrayList<>(building.getOpenRequests(citizen.getId())))
+            {
+                if (request.getState() != com.minecolonies.api.colony.requestsystem.request.RequestState.IN_PROGRESS
+                      || !(request.getRequest() instanceof final com.minecolonies.api.colony.requestsystem.requestable.IDeliverable deliverable))
+                {
+                    continue;
+                }
+                final Object resolver;
+                try
+                {
+                    resolver = manager.getResolverForRequest(request.getId());
+                }
+                catch (final IllegalArgumentException e)
+                {
+                    continue;
+                }
+                if (!(resolver instanceof com.minecolonies.api.colony.requestsystem.resolver.retrying.IRetryingRequestResolver)
+                      && !(resolver instanceof com.minecolonies.api.colony.requestsystem.resolver.player.IPlayerRequestResolver))
+                {
+                    continue;
+                }
+                final List<ItemStack> display = request.getDisplayStacks();
+                if (display.isEmpty() || display.get(0).isEmpty())
+                {
+                    continue;
+                }
+                final ItemStack stack = display.get(0).copy();
+                stack.setCount(Math.max(1, Math.min(deliverable.getCount(), stack.getMaxStackSize())));
+                ItemStack rest = com.minecolonies.api.util.InventoryUtils.addItemStackToItemHandlerWithResult(citizen.getInventory(), stack.copy());
+                if (!rest.isEmpty())
+                {
+                    rest = com.minecolonies.api.util.InventoryUtils.addItemStackToItemHandlerWithResult(fixture.inventory(building), rest);
+                }
+                if (!rest.isEmpty())
+                {
+                    continue;
+                }
+                manager.overruleRequest(request.getId(), stack.copy());
+                given.merge(net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem()).toString(), stack.getCount(), Integer::sum);
+            }
+        }
     }
 
     // ------------------------------------------------------------------------------------------------------------------------------------

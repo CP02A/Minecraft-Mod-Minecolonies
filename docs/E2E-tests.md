@@ -4,7 +4,7 @@ Automated tests that check MineColonies behaves as intended, without anyone play
 it needs (a colony, huts, citizens, items, time of day), lets the colony run on its own, then checks the result, including internal
 state a player can't see.
 
-- **Progress:** 100 of 109 tests implemented: 98 ✅ passing (10 of them with an optional part that fails because of a mod bug), 2 ❌ failing because of a mod bug, 5 ⛔ not implementable, 4 📝 planned. A headless run has 141 game tests (11 optional ones fail on known mod bugs, see the protocols in [e2e-tests/protocol](e2e-tests/protocol/)); the 8 UI tests run with `runClientGameTest`.
+- **Progress:** 104 of 109 tests implemented: 102 ✅ passing (13 of them with an optional part that fails because of a mod bug), 2 ❌ failing because of a mod bug, 5 ⛔ not implementable. A headless run has 148 game tests (14 optional ones fail on known mod bugs, see the protocols in [e2e-tests/protocol](e2e-tests/protocol/)); the 8 UI tests run with `runClientGameTest`.
 - **How the tests work** (setup helpers, test areas, config, time budgets): [e2e-tests/framework.md](e2e-tests/framework.md)
 - **Run them:** `./gradlew runGameTest` (report in `build/gametest-report.xml`); only some: `./gradlew runGameTest -Pe2eFilter=<prefix>`
 - **Watch them in a game window:** `./gradlew runGameTest -Pe2eWatch` (combine with `-Pe2eFilter`); **UI tests** with screenshots: `./gradlew runClientGameTest`
@@ -109,10 +109,10 @@ Details: [e2e-tests/jobs-gathering.md](e2e-tests/jobs-gathering.md)
 |---|---|---|---|
 | [GAT-01](e2e-tests/jobs-gathering.md#gat-01-lumberjack-fells-and-replants) | Lumberjack fells and replants | The lumberjack cuts whole trees and replants them. | ✅ Passing |
 | [GAT-02](e2e-tests/jobs-gathering.md#gat-02-lumberjack-follows-its-settings) | Lumberjack follows its settings | The lumberjack only cuts allowed trees in its area. | ✅ Passing |
-| [GAT-03](e2e-tests/jobs-gathering.md#gat-03-miner-digs-the-shaft) | Miner digs the shaft | The miner digs the shaft safely with ladders. | 📝 Planned |
-| [GAT-04](e2e-tests/jobs-gathering.md#gat-04-miner-mines-a-level) | Miner mines a level | The miner digs out nodes and collects ores. | 📝 Planned |
-| [GAT-05](e2e-tests/jobs-gathering.md#gat-05-quarrier) | Quarrier | The quarrier digs its quarry layer by layer. | 📝 Planned |
-| [GAT-06](e2e-tests/jobs-gathering.md#gat-06-nether-expedition) | Nether expedition | The nether worker returns from an expedition with loot and a log entry. | 📝 Planned |
+| [GAT-03](e2e-tests/jobs-gathering.md#gat-03-miner-digs-the-shaft) | Miner digs the shaft | The miner digs the shaft safely with ladders. | ✅ Passing; optional part ❌ (E2E-GAT-03-1) |
+| [GAT-04](e2e-tests/jobs-gathering.md#gat-04-miner-mines-a-level) | Miner mines a level | The miner digs out nodes and collects ores. | ✅ Passing; optional part ❌ (E2E-GAT-04-1) |
+| [GAT-05](e2e-tests/jobs-gathering.md#gat-05-quarrier) | Quarrier | The quarrier digs its quarry layer by layer. | ✅ Passing |
+| [GAT-06](e2e-tests/jobs-gathering.md#gat-06-nether-expedition) | Nether expedition | The nether worker returns from an expedition with loot and a log entry. | ✅ Passing; optional part ❌ (E2E-GAT-06-1) |
 
 ## Jobs: crafting and processing
 

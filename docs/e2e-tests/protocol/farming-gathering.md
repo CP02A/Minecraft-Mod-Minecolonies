@@ -3,7 +3,7 @@
 # Protocol: farming and gathering tests
 
 Suite: `src/gametest/java/com/minecolonies/gametest/suites/FarmingGatheringTests.java`, run with
-`./gradlew --no-daemon runGameTest -Pe2eFilter=farming_gathering_tests`. Last two runs: all 21 required tests passed; optional: the two bug tests fail, the flaky swine breeding test passed in one of the two. Runtimes are the game tick of each test's last step in that run. They vary between runs because the AI uses
+`./gradlew --no-daemon runGameTest -Pe2eFilter=farming_gathering_tests`. Last two runs: all 21 required tests passed; optional: the two bug tests fail, the flaky swine breeding test passed in one of the two. GAT-03..06 added later (4 required, 3 optional bug tests): passed in 5 GAT runs and the full run, the 3 bug tests failed every time. In that full run `frm06_chickenHerderBreeds` timed out once (no baby in 6000 ticks); it passed on its own twice right after (454 / 374 ticks), so it is flaky (not investigated). Runtimes are the game tick of each test's last step in that run. They vary between runs because the AI uses
 random numbers.
 
 | ID | Test method(s) | Status | Runtime (ticks) | Notes |
@@ -20,12 +20,53 @@ random numbers.
 | FRM-07 | `frm07_fisherman` (optional) | ❌ mod bug | 8000 (timeout) | E2E-FRM-07-1: every catch throws, no loot ever. Rod/request part never reached. |
 | GAT-01 | `gat01_lumberjackFellsAndReplants` | ✅ | 8440 | One oak + one birch, defoliation on. |
 | GAT-02 | `gat02_lumberjackFollowsSettings` | ✅ | ~5650 | 3245 until the oak is replanted, then a fixed 2400-tick wait (it checks that something does *not* happen). |
-| GAT-03 | – | 📝 planned | – | Was ⛔: Mining levels are absolute heights (48/16/-16/-100); the first level under the arena (y≈6-10) is y -16, below the arena's barrier floor. Since the merge the fixture has a deep arena (`makeDeepGround`, stone down to y -32). A first attempt (not committed) dug from y 11 down to y 0 within its 38,000-tick budget, then stalled: the shaft needs framed planks (Domum Ornamentum) that only arrive via the retrying resolver (~40,000 ticks, see LOG-04) and the hut fills up. |
-| GAT-04 | – | 📝 planned | – | Needs the deep arena like GAT-03. |
-| GAT-05 | – | 📝 not done | – | Time box. Looks feasible: quarry building with `QuarryModule`, `creativeResolve` for the shaft materials, stone floor via `fillFloor`; only the 5 floor layers can be dug. |
-| GAT-06 | – | 📝 not done | – | Time box. Needs food, 5 tools, the crafting-module trip inputs, the "ready for trip" day period and the travel manager; worth its own session. |
+| GAT-03 | `gat03_minerDigsShaft` | ✅ | 18630 / 18795 | Deep arena, level 1 mine; the first level is built right under the hut (y 6), not at y -16. Owner fulfils the main shaft's framed blocks etc. (`OwnerFulfils`). |
+| GAT-03 | `gat03_minerDigsShaftSafely` (optional) | ❌ mod bug | fails at about 7500-10200 | E2E-GAT-03-1: the miner falls off the shaft ladder (3.3-4 blocks, 1 damage). |
+| GAT-04 | `gat04_minerMinesNodes` | ✅ | 31310 / 31885 | First level as in GAT-03 (~18000), then max depth = that level; two tunnel nodes built (~13500), supports, cave hole closed, iron ores in the hut. |
+| GAT-04 | `gat04_minerSealsWater` (optional) | ❌ mod bug | 24975 / 28625 (check fails) | E2E-GAT-04-1: the water source next to the first node is never removed. |
+| GAT-05 | `gat05_quarrierDigsLayers` | ✅ | 28990 / 24910 | Simple quarry on stone; top layer is open from the hut paste, the quarrier digs the next two (~235 blocks each), top down, nothing outside. |
+| GAT-06 | `gat06_netherExpedition` | ✅ | 7280 | Simulated trip (no real nether): leaves after ~1250, travel skipped, respawn after ~4900 (colony's 5-minute citizen check), four `onWakeUp` calls (E2E-GAT-06-1), 3 fights, 10 loot types, loot in the hut. |
+| GAT-06 | `gat06_netherWorkerReturnsAfterTravel` (optional) | ❌ mod bug | 10083 (timeout) | E2E-GAT-06-1: the returned worker idles until the next trip is allowed. |
 
 ## Bugs found
+
+### E2E-GAT-03-1 Miner falls off the shaft ladder
+
+- **Severity:** medium: fall damage (1 heart at 4 blocks) every time the miner climbs out of the shaft at the wrong moment; deeper shafts
+  could hurt more.
+- **Port-specific: unclear.** The miner AI only asks to walk to the hut (`AbstractEntityAIBasic.walkToBuilding`, from
+  `EntityAIStructureMiner.startWorkingAtOwnBuilding` / NEEDS_ITEM); the fall happens in the citizen's path following on the ladder
+  (MineColonies pathfinding, which the port changed in places, e.g. `PathfindingUtils.blocksMotion`). Not checked against upstream.
+- **Evidence:** `gat03_minerDigsShaftSafely` logs "[MINE] tick N: falling ..." every tick of the fall: at about tick 10,150 the miner
+  (worker AI NEEDS_ITEM: his shovel broke at the shaft bottom, he climbs up to fetch a new one) is at y 7.43 next to the ladder (ladder
+  x, ladder z + 1, over the open shaft), not on a climbable block, falls to y 4 (fall distance 4.06) and takes 1 damage. Same tick range in
+  4 of the first 5 runs; in run 4 a 3.35-block fall at tick 7,492.
+- **Reproduce:** `-Pe2eFilter=minecolonies-gametest:farming_gathering_tests_gat03_miner_digs_shaft_safely`.
+
+### E2E-GAT-04-1 Miner never removes liquids around a node
+
+- **Severity:** medium: water or lava next to a node is not sealed and flows into the tunnels (lava: the miner can burn).
+- **Likely upstream too** (code unchanged by the port). `EntityAIStructureMiner.executeStructurePlacement`
+  (`EntityAIStructureMiner.java:794-820`) checks a 9x9x7 box around the node for liquid sources and replaces them with the fill block,
+  but only when the node's blueprint is already loaded. On the first call it starts loading the blueprint and returns LOAD_STRUCTURE
+  (line 801); after loading, the AI goes on with BUILDING_STEP (`afterStructureLoading`) and does not come back before the node is done
+  (`executeSpecificCompleteActions` clears the blueprint), so the check is not reached.
+- **Evidence:** `gat04_minerSealsWater`: water source one block past the open end of the first node (inside the checked box); after the
+  node is COMPLETED: "at the source Block{minecraft:water}[level=0], fluid within 4 blocks true" (3 runs).
+- **Reproduce:** `-Pe2eFilter=minecolonies-gametest:farming_gathering_tests_gat04_miner_seals_water`.
+
+### E2E-GAT-06-1 Nether worker idles after returning until the next trip is allowed
+
+- **Severity:** medium: an expedition takes up to 3 colony days instead of the travel time; the worker stands at the portal, the log
+  says IN_PROGRESS and the loot stays in the job meanwhile.
+- **Likely upstream too** (code unchanged by the port). The respawned worker's AI starts in IDLE; `AbstractEntityAICrafting` leaves IDLE
+  only when `hasWorkToDo()` (`AbstractEntityAICrafting.java:162`), and `EntityAIWorkNether.hasWorkToDo` (`EntityAIWorkNether.java:156`) is
+  "crafting task or `building.isReadyForTrip()`". The trip was just recorded (`BuildingNetherWorker.recordTrip`, 1 trip per 3-day
+  period, reset in `onWakeUp`), so `decide()` with its "`job.isInNether()` → NETHER_AWAY" branch is not reached until the period resets.
+- **Evidence:** `gat06_netherWorkerReturnsAfterTravel`: 4000 ticks after the respawn: "log IN_PROGRESS, job in nether true, trip
+  results to work off 40, worker AI IDLE, job status IDLE". With four `onWakeUp` calls (required `gat06_netherExpedition`) the worker
+  carries on at once and the trip completes within about 1000 ticks.
+- **Reproduce:** `-Pe2eFilter=minecolonies-gametest:farming_gathering_tests_gat06_nether_worker_returns_after_travel`.
 
 ### E2E-FRM-01-1 Farmer never tills grass blocks
 
@@ -79,6 +120,17 @@ All changes are written into the test sections of `jobs-farming.md` / `jobs-gath
 - **GAT-01:** leaves are cut (defoliation) because random ticks are 0; the lumberjack needs hoes for leaves. Trees must be within 50 blocks
   of the hut (search range).
 - **GAT-02:** the sapling list is a "don't cut" list.
+- **GAT-03:** the first mining level is 5 blocks under the hut's shaft start (then one every 6 blocks down to the hut level's mining
+  depth), not at the absolute heights 48/16/-16/-100 (those are the depth limits per hut level). The test waits for the first level.
+  Materials the colony can't deliver come from the creative owner (`OwnerFulfils`, like the request window's "fulfil" button) instead
+  of the retrying resolver's ~40,000 ticks. Fall/damage part split off as an optional test (bug).
+- **GAT-04:** no pre-built shaft: the test runs the GAT-03 mine to its first level, then caps the hut's max depth to keep the miner on it.
+  Ores are placed in the first three tunnel nodes; the cave hole is an air pocket in a node's wall corner. Water/lava part split off as an
+  optional test (bug).
+- **GAT-05:** the quarrier is hired in a mine (quarrier job) and assigned to the quarry; he dumps into the quarry. The quarry hut's
+  blueprint already opens the top layer; "first layers" = the next two.
+- **GAT-06:** the trip is simulated (entity removed, travelling manager); the test skips the travel time and, because of
+  E2E-GAT-06-1, runs the hut's morning update four times. Death is allowed by the rules (log KILLED) but did not happen.
 
 ## Framework issues
 
@@ -94,5 +146,7 @@ All changes are written into the test sections of `jobs-farming.md` / `jobs-gath
   the building's corners). The suite closes the area's border with fence gates and slows the animals (`fenceArea`, `spawnAnimal`).
 - **Shared scratchpad / git-ignored lang file:** the worktree needed `src/main/resources/assets/minecolonies/lang/en_us.json` copied from
   the main checkout (git-ignored, server NPE otherwise), and the session scratchpad is shared between agents, so logs went to `build/`.
-- Helpers that could move to the framework: `spawnAnimal` (absolute), `DayPump` (pass nights while a worker idles), `describeWork`
+- **Mine tests need room for the dug blocks:** a level 1 mine's own rack fills up during the shaft; the suite adds four racks next to the
+  hut (`addRack`, registered like player-placed racks).
+- Helpers that could move to the framework: `OwnerFulfils` (creative owner fulfils requests the colony can't), `addRack`, `spawnAnimal` (absolute), `DayPump` (pass nights while a worker idles), `describeWork`
   (inventory + open requests in failure messages), `growTree` (vanilla tree grower), `fenceArea`.

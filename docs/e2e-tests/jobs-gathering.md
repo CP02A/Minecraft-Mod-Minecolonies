@@ -65,7 +65,21 @@ Workers who collect raw materials from the world: wood, stone, ores and nether r
 
 **Time budget:** 15 minutes.
 
-**As implemented:** not yet. Mining levels are absolute heights (y 48, 16, -16, -100; `BuildingMiner.MINING_LEVELS`), below the normal arena's barrier floor (ground at about y 9); use the deep arena (`ColonyFixture.makeDeepGround()`, stone down to y -32). Supply the shaft's framed planks yourself: the request otherwise waits for the retrying resolver (about 40,000 ticks).
+**As implemented** (`FarmingGatheringTests`, `gat03_minerDigsShaft` + optional `gat03_minerDigsShaftSafely`): deep arena
+(`makeDeepGround`), town hall at (12, 5, 12), level 1 mine at (32, 5, 44) with four extra racks next to it (room for what the miner digs
+out), 64 ladders, 64 cobblestone, 64 torches, 4 wooden pickaxes and 2 wooden shovels in the hut; miner with all skills 50.
+- **The first mining level is right under the hut**, not at an absolute height: the miner builds a level 5 blocks below where the shaft
+  starts (`MinerLevelManagementModule.startingLevelShaft` = first ladder - 4; here y 6 absolute, the hut's top ladder is at y 11), then one
+  every 6 blocks further down until the hut level's mining depth (`BuildingMiner.getDepthLimit`: the first of y 48/16/-16/-100 below the
+  hut per hut level, y -16 for a level 1 hut on the arena), where it switches to nodes. The test waits for the first level.
+- Materials the hut doesn't have (framed blocks, slabs, fences, stairs and signs of the level's main shaft structure, replacement tools)
+  are handed over by the creative owner like the request window's "fulfil" button (`OwnerFulfils`: only requests waiting at the retrying
+  or player resolver; stack into the worker's inventory, request overruled). Without it the framed blocks come from the retrying resolver
+  only after about 40,000 ticks.
+- Checks: ladders from the hut's top ladder down to the level and a solid column behind them; at least 64 dug blocks (cobblestone, stone,
+  dirt, minus what the test put in) in the hut.
+- "Never falls more than three blocks, no damage" is the optional `gat03_minerDigsShaftSafely` (fails on bug E2E-GAT-03-1: the miner
+  falls off the shaft ladder).
 
 ---
 
@@ -86,7 +100,17 @@ Workers who collect raw materials from the world: wood, stone, ores and nether r
 
 **Time budget:** 15 minutes.
 
-**As implemented:** not yet; needs the deep arena like GAT-03.
+**As implemented** (`FarmingGatheringTests`, `gat04_minerMinesNodes` + optional `gat04_minerSealsWater`): the GAT-03 mine runs until
+its first level exists (no pre-built shaft). Then the test sets the hut's "max depth" setting to the level's depth + 3 (otherwise the
+miner goes on with the shaft to the next level), puts two iron ore blocks into the middle of each of the level's three first tunnel nodes
+and an air pocket (cave hole) into a wall corner of the first node (corners are solid in every rotation of the tunnel blueprint).
+- Waits until two of these nodes are completed. Each built node's 7x7x5 box must have the tunnel blueprint's supports (at least 16 framed
+  blocks, 4 fences, a torch) and be open (at least 20 air); the hole is solid again; the hut holds 2 iron ores per built node (the miner
+  mines ores with silk touch, so they arrive as ore blocks).
+- Lava/water: the optional `gat04_minerSealsWater` puts a water source one block past the open end of the first node (inside the range
+  the miner checks for liquids before a node) and expects the fill block there after the node is built. Fails on bug E2E-GAT-04-1 (the
+  check is never reached).
+- Supplies as in GAT-03 (`OwnerFulfils` for what the colony can't deliver).
 
 ---
 
@@ -107,7 +131,18 @@ Workers who collect raw materials from the world: wood, stone, ores and nether r
 
 **Time budget:** 15 minutes.
 
-**As implemented** (`FarmingGatheringTests`): not done (time box).
+**As implemented** (`FarmingGatheringTests`, `gat05_quarrierDigsLayers`): stone floor (`fillFloor`) and deep arena; level 1 mine at
+(12, 5, 52) as the quarrier's workplace, simple quarry at (36, 5, 40); a citizen with all skills 50 is hired in the mine with the quarrier
+job and assigned to the quarry (its quarry module, like the hut window's assign list). The mine holds wooden pickaxes and shovel,
+cobblestone and torches; framed blocks and further tools (golden pickaxes for a level 1 mine) come from the creative owner
+(`OwnerFulfils`).
+- The quarrier digs the quarry's shaft blueprint (`simplequarryshaft1`, 18x26x23, from 2 below the quarry hut block downward) layer by
+  layer: solid frame, decoration of the layer above, then clear. The test reads the blueprint from the mine's work order once loaded and
+  takes the positions it has as air in the top three layers. The top layer (ground level) is already open: the quarry hut's own blueprint
+  has the hole. So the quarrier digs the next two layers (about 235 blocks each).
+- Passes when every air position of the three layers is air; per tick no position of a lower layer may be dug while the layer above still
+  has undug positions (top down); the blocks one step outside the shaft's footprint (all columns around it, from ground level 5 layers
+  down) are unchanged; at least 64 stone/cobblestone are in the quarry (the quarrier dumps into the quarry, not the mine).
 
 ---
 
@@ -129,5 +164,17 @@ Workers who collect raw materials from the world: wood, stone, ores and nether r
 
 **Time budget:** 15 minutes.
 
-**As implemented** (`FarmingGatheringTests`): not done (time box).
-
+**As implemented** (`FarmingGatheringTests`, `gat06_netherExpedition` + optional `gat06_netherWorkerReturnsAfterTravel`): the trip is
+simulated, there is no real nether travel: the worker walks to the hut's portal (obsidian frame from the blueprint, lit with the flint and
+steel), the level's trip recipe is "crafted" into a list of finds and adventure tokens (fights), the citizen entity is removed and the
+colony's travelling manager counts down the travel time (400 ticks per result). When it is over the entity respawns at the portal (at the
+colony's next citizen check, up to 6000 ticks later), works off the list (fights mobs, mines finds, all in a few ticks), logs it and
+walks home to dump the loot.
+- Setup: level 1 nether mine at (20, 5, 14), research `technology/netherlog` completed (the log's view is gated by it), the level 1 trip
+  inputs (64 cobblestone, 32 torches, 16 ladders), wooden axe, pickaxe, shovel and sword, flint and steel, leather armor, bread on the
+  hut's menu; worker with all skills 50.
+- The test skips the travel time (re-registers the trip with 0 ticks left). The returned worker then idles until the hut allows a new trip
+  (1 trip per 3 days, bug E2E-GAT-06-1); the required test runs the hut's morning update (`onWakeUp`) four times, as four mornings would,
+  and the worker carries on. The optional `gat06_netherWorkerReturnsAfterTravel` expects the trip to be worked off without that.
+- Passes when the log says COMPLETED with loot, the worker is back near the hut (visible) and items of the logged loot are in the hut; or
+  the worker died and the log says KILLED (allowed by the rules; not seen so far: the worker fought 3 mobs and came back).
