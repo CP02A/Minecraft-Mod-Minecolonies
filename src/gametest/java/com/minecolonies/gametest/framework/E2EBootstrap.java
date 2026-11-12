@@ -27,7 +27,7 @@ public class E2EBootstrap implements ModInitializer
     {
         ServerLifecycleEvents.SERVER_STARTED.register(E2EBootstrap::onServerStarted);
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
-            if (server instanceof GameTestServer)
+            if (isTestServer(server))
             {
                 LOGGER.info("MineColonies e2e: pathfinding wait: {}", PathfindingSync.statistics());
             }
@@ -36,7 +36,7 @@ public class E2EBootstrap implements ModInitializer
 
     private static void onServerStarted(final MinecraftServer server)
     {
-        if (!(server instanceof GameTestServer))
+        if (!isTestServer(server))
         {
             return;
         }
@@ -44,6 +44,15 @@ public class E2EBootstrap implements ModInitializer
         applyGameRules(server);
         applyTestConfig();
         LOGGER.info("MineColonies e2e: test game rules and test config applied");
+    }
+
+    /**
+     * @return true for the servers the e2e tests run on: the headless game test server, and the integrated server of a client game test
+     *     run (watch mode and UI tests, see {@link E2EMode}). A normal game ({@code runClient}) is never touched.
+     */
+    public static boolean isTestServer(final MinecraftServer server)
+    {
+        return server instanceof GameTestServer || (E2EMode.isClientTestRun() && !server.isDedicatedServer());
     }
 
     /**

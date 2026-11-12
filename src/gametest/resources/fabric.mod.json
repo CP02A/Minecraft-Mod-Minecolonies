@@ -3,7 +3,7 @@
   "id": "minecolonies-gametest",
   "version": "1.0.0",
   "name": "MineColonies Game Tests",
-  "description": "Server game tests for the MineColonies Fabric port. Development only, not shipped.",
+  "description": "End-to-end tests for the MineColonies Fabric port: server game tests, watch mode and UI tests. Development only, not shipped.",
   "license": "GPL-3.0",
   "environment": "*",
   "entrypoints": {
@@ -18,7 +18,12 @@
       "com.minecolonies.gametest.suites.CitizensServicesTests",
       "com.minecolonies.gametest.suites.LogisticsCraftingTests",
       "com.minecolonies.gametest.suites.FarmingGatheringTests",
-      "com.minecolonies.gametest.suites.DefenseVisitorsTests"
+      "com.minecolonies.gametest.suites.DefenseVisitorsTests",
+      "com.minecolonies.gametest.ui.UiColonySetup"
+    ],
+    "fabric-client-gametest": [
+      "com.minecolonies.gametest.client.WatchClientGameTest",
+      "com.minecolonies.gametest.client.UiClientGameTest"
     ]
   },
   "mixins": [

@@ -63,29 +63,67 @@ loom {
     }
 }
 
-// Server game tests in their own source set and test mod (src/gametest, mod id minecolonies-gametest); not part of the mod jar.
-// Run with ./gradlew runGameTest.
+// End-to-end tests in their own source set and test mod (src/gametest, mod id minecolonies-gametest); not part of the mod jar.
+// See docs/e2e-tests/framework.md and docs/e2e-tests/AGENT-GUIDE.md.
+//   ./gradlew runGameTest                    server game tests, headless (also part of ./gradlew build)
+//   ./gradlew runGameTest -Pe2eWatch         the same server game tests in a game window, to watch them (watch mode)
+//   ./gradlew runClientGameTest              UI tests: MineColonies windows in a game window, with screenshots (not part of build)
 fabricApi {
     configureTests {
         createSourceSet = true
         modId = 'minecolonies-gametest'
         enableGameTests = true
-        enableClientGameTests = false
+        enableClientGameTests = true
         eula = true
+        // Fixed name: the client player of watch mode and UI tests (the colony owner is still the fake player E2EOwner).
+        username = 'E2EViewer'
     }
 }
+
+// Run only some tests: -Pe2eFilter=<prefix>, e.g. -Pe2eFilter=colony_connections_robustness_tests.
+// A value without ':' matches test ids "minecolonies-gametest:<prefix>*"; a value with ':' is passed on as a vanilla test selector
+// (namespaced id with * and ? wildcards, e.g. "minecolonies-gametest:*_col01_*"). See docs/e2e-tests/AGENT-GUIDE.md.
+def e2eFilter = project.findProperty('e2eFilter')
+def e2eSelector = e2eFilter ? (e2eFilter.toString().contains(':') ? e2eFilter.toString() : "minecolonies-gametest:${e2eFilter}*") : null
+def e2eWatch = project.hasProperty('e2eWatch') && project.findProperty('e2eWatch')?.toString() != 'false'
 
 loom.runs.matching { it.name == 'gameTest' }.configureEach {
     // JUnit-style report listing every test that ran.
     vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('gametest-report.xml').get().asFile.absolutePath}"
+    if (e2eSelector) {
+        vmArg "-Dfabric-api.gametest.filter=${e2eSelector}"
+    }
+}
 
-    // Run only some tests: ./gradlew runGameTest -Pe2eFilter=<prefix>, e.g. -Pe2eFilter=colony_connections_robustness_tests.
-    // A value without ':' matches test ids "minecolonies-gametest:<prefix>*"; a value with ':' is passed on as a vanilla test selector
-    // (namespaced id with * and ? wildcards, e.g. "minecolonies-gametest:*_col01_*"). See docs/e2e-tests/AGENT-GUIDE.md.
-    def e2eFilter = project.findProperty('e2eFilter')
-    if (e2eFilter) {
-        def selector = e2eFilter.toString().contains(':') ? e2eFilter.toString() : "minecolonies-gametest:${e2eFilter}*"
-        vmArg "-Dfabric-api.gametest.filter=${selector}"
+loom.runs.matching { it.name == 'clientGameTest' }.configureEach {
+    vmArg '-Xmx3G'
+    // UI tests: screenshots and report (docs/e2e-tests/ui.md). Only some: -Pe2eUiFilter=UI-01,UI-03.
+    vmArg "-Dminecolonies.e2e.screenshotDir=${layout.buildDirectory.dir('e2e-screenshots').get().asFile.absolutePath}"
+    vmArg "-Dminecolonies.e2e.uiReport=${layout.buildDirectory.file('e2e-ui-report.xml').get().asFile.absolutePath}"
+    def e2eUiFilter = project.findProperty('e2eUiFilter')
+    if (e2eUiFilter) {
+        vmArg "-Dminecolonies.e2e.uiFilter=${e2eUiFilter}"
+    }
+    // Watch mode: the client game test run runs the server game tests instead of the UI tests (WatchClientGameTest).
+    if (e2eWatch) {
+        vmArg '-Dminecolonies.e2e.watch=true'
+        vmArg "-Dminecolonies.e2e.watchReport=${layout.buildDirectory.file('gametest-report.xml').get().asFile.absolutePath}"
+        def speed = project.findProperty('e2eWatchSpeed')
+        if (speed) {
+            vmArg "-Dminecolonies.e2e.watchSpeed=${speed}"
+        }
+        if (e2eSelector) {
+            vmArg "-Dminecolonies.e2e.watchFilter=${e2eSelector}"
+        }
+    }
+}
+
+// Watch mode: ./gradlew runGameTest -Pe2eWatch [-Pe2eFilter=...] [-Pe2eWatchSpeed=2] runs the server game tests in a game window
+// (runClientGameTest in watch mode) instead of the headless server. Without -Pe2eWatch nothing changes.
+if (e2eWatch) {
+    tasks.matching { it.name == 'runGameTest' }.configureEach {
+        dependsOn 'runClientGameTest'
+        enabled = false
     }
 }
 

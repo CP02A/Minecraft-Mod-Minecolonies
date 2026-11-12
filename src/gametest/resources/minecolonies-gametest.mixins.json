@@ -8,6 +8,10 @@
     "GameTestHelperAccessor",
     "GameTestServerMixin"
   ],
+  "client": [
+    "IntegratedServerMixin",
+    "SDLEventHandlerMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }
