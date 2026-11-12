@@ -23,6 +23,8 @@ Everyday needs and reactions of citizens: food, sleep, weather, happiness, healt
 
 **Time budget:** 1 minute.
 
+**As tested (`cit01_eatingWhenHungry`):** "full" is `MAX_SATURATION` = 60, not 20: a citizen eats one item after the other until it reaches 60 or runs out (16 bread → about 12 eaten). The test waits until the citizen has left the eating states, then checks for 200 ticks that no more bread is eaten.
+
 ---
 
 ## CIT-02 Eating at the restaurant
@@ -43,6 +45,8 @@ Everyday needs and reactions of citizens: food, sleep, weather, happiness, healt
 
 **Time budget:** 3 minutes.
 
+**As tested (`cit02_eatingAtTheRestaurant`):** bread is put on the restaurant menu and into the restaurant. The food happiness factor only counts once a citizen has a home and a full history of 10 meals (`CitizenHappinessHandler.getFoodFactor`), so instead the test checks that bread is in each guest's food history, that the colony's `food_served` statistic went up (food came from the cook) and that bread left the restaurant.
+
 ---
 
 ## CIT-03 No food anywhere
@@ -61,6 +65,8 @@ Everyday needs and reactions of citizens: food, sleep, weather, happiness, healt
 - After the test puts food in its inventory, it eats and the interaction goes away.
 
 **Time budget:** 2 minutes.
+
+**As tested (`cit03_noFoodAnywhere`):** the interaction is `com.minecolonies.coremod.ai.norestaurant`. The food happiness factor is about meal diversity and quality, not hunger (see CIT-02), so the test checks the *social* factor instead, which counts citizens with saturation ≤ 1.
 
 ---
 
@@ -83,6 +89,8 @@ Everyday needs and reactions of citizens: food, sleep, weather, happiness, healt
 
 **Time budget:** one night.
 
+**As tested (`cit04_sleepingAtNight`):** two level 2 residences (2 beds each). "Slept tonight" is a day counter that `EntityAISleep` resets to 0 when the citizen lies down; the test first advances it to 3 days and checks it is 0 after sleeping. Night = `setTime(13000)`, morning = `setTime(1000)`.
+
 ---
 
 ## CIT-05 Rain
@@ -102,6 +110,8 @@ Everyday needs and reactions of citizens: food, sleep, weather, happiness, healt
 - In the second run they keep working in the rain.
 
 **Time budget:** 3 minutes.
+
+**As tested (`cit05_rain`):** a lumberjack (no trees needed, its AI never goes idle) and a teacher instead of a farmer (a farmer without a field goes idle anyway). The teacher's hut allows rain work (`WorkerBuildingModule.canWorkDuringTheRain`), so it is the "keeps working" contrast. There is no "take shelter" behaviour: in the rain the worker switches to the citizen AI state IDLE with the BAD_WEATHER status. Both runs are in one test (config switched on for the second part).
 
 ---
 
@@ -123,6 +133,8 @@ Everyday needs and reactions of citizens: food, sleep, weather, happiness, healt
 
 **Time budget:** 2 minutes.
 
+**As tested (`cit06_happinessReactsToConditions`, `cit06b_negativeFactorsLowerHappiness`):** the health factor is about *disease* (sick = 0.5), not injury, so the "health" citizen is infected. Security, social and mystical site factors are colony wide, so they can't be isolated per citizen: security (no guards) is only checked to be below neutral; the mystical site is SRV-05. The baseline needs a level 3 home (housing factor = home level / 3) and a job in a hut of level ≤ 3. Good food = ten different MineColonies meals in the food history and a home. The total happiness is checked for the homeless (lower) and well fed (higher) citizens; that the unemployed and the sick citizen are less happy is `cit06b`, which fails because of bug E2E-CIT06-1 (see protocol). Checks run in the tick after the infection, because with more than four citizens the disease spreads on contact.
+
 ---
 
 ## CIT-07 Healing
@@ -140,6 +152,8 @@ Everyday needs and reactions of citizens: food, sleep, weather, happiness, healt
 - The one at the hospital goes there and heals faster.
 
 **Time budget:** 3 minutes.
+
+**As tested (`cit07_healing`):** the healer heals *any* citizen under 10 health within 40 × hut level blocks of the hospital, so two patients in one arena can't be compared. The test injures one citizen (health 4) without a hospital and measures the ticks to 12 health, then builds a hospital with a healer, injures it again and checks it heals faster (typically 765 vs. 265–365 ticks).
 
 ---
 
@@ -162,6 +176,8 @@ Everyday needs and reactions of citizens: food, sleep, weather, happiness, healt
 
 **Time budget:** 5 minutes.
 
+**As tested (`cit08_diseaseAndCure`, `cit08b_healerRequestsCure`):** influenza (carrot + potato). `CitizenDiseaseHandler.setDisease` refuses while the colony has no more than `initialCitizenAmount` (4) citizens, so the test sets the disease directly. "Cure items used up" = one carrot and one potato fewer in hospital + healer + patient together. The second run is the separate test `cit08b`.
+
 ---
 
 ## CIT-09 Death, grave and mourning
@@ -181,6 +197,8 @@ Everyday needs and reactions of citizens: food, sleep, weather, happiness, healt
 - The dead citizen is removed from the citizen list.
 
 **Time budget:** 1 minute.
+
+**As tested (`cit09_deathGraveMourning`):** a citizen's damage per hit is capped, so the test hits it every tick until it dies. The mourn list is filled at death (partner only); the *mourning state* starts at the next wake-up (`CitizenManager.onWakeUp`), so the test sets night, then morning, and checks the partner is in the MOURN AI state. The partner relation is cleared at death.
 
 ---
 
@@ -203,6 +221,8 @@ Everyday needs and reactions of citizens: food, sleep, weather, happiness, healt
 
 **Time budget:** 2 minutes.
 
+**As tested (`cit10_childrenBornAndGrowUp`):** the reproduction timer (`ReproductionManager.childCreationTimer`) is set to 0 by reflection, with move-in on, a level 3 residence (one spare bed) and a woman and a man. A free lumberjack place exists while the child lives, to show it isn't hired. Growing up: the child AI's active time (`EntityAICitizenChild.aiActiveTime`) is set past 70000 by reflection; the child grows at the next check (every 500 ticks). Afterwards it is hired (or already auto-hired) into the free place.
+
 ---
 
 ## CIT-11 Workers gain experience
@@ -221,6 +241,8 @@ Everyday needs and reactions of citizens: food, sleep, weather, happiness, healt
 - A level up raises the skill level exactly once per threshold.
 
 **Time budget:** 10 minutes.
+
+**As tested (`cit11_workersGainExperience`):** the lumberjack needs an axe *and* a hoe (or shears), and a level 1 hut only accepts low-level tools (wooden tools are used). Trees are built from logs and leaves. Experience also goes to the complementary skill of the primary and secondary skill (Athletics, Mana) and is taken from their adverse skills (Agility, Adaptability) (`CitizenExperienceHandler.addExperience`); only the remaining skills stay unchanged. The level-up rule is checked by adding exactly one threshold of XP to a skill. Note: citizens without a home get no XP for skills at level ≥ 10 (`CitizenSkillHandler.addXpToSkill`), so the test uses level 5.
 
 ---
 
@@ -243,6 +265,8 @@ Everyday needs and reactions of citizens: food, sleep, weather, happiness, healt
 
 **Time budget:** 2 minutes.
 
+**As tested (`cit12_findingTheWay`):** the course is built by the test in the west half of the arena (house with door, stone platform with oak stairs, stone tower with a ladder, a 2 deep river with a plank bridge and a 1 deep ford). The walk uses the same mechanism as `/mc citizens walk` (an AI event calling `EntityNavigationUtils.walkToPos` until it arrives) with an arrival distance of 1 instead of 4. "No damage" = health never below 20.
+
 ---
 
 ## CIT-13 Getting unstuck
@@ -261,6 +285,8 @@ Everyday needs and reactions of citizens: food, sleep, weather, happiness, healt
 
 **Time budget:** 2 minutes.
 
+**As tested (`cit13_gettingUnstuck`):** the hole is dug into the floor; the worker (a lumberjack whose hut is about 40 blocks away) is teleported into it. It gets out through the stuck handler's last resort (teleport) after roughly 2300–2800 ticks, which is longer than the 2 minute budget; the test allows 5000 ticks.
+
 ---
 
 ## CIT-14 Answering a citizen
@@ -278,3 +304,5 @@ Everyday needs and reactions of citizens: food, sleep, weather, happiness, healt
 - The citizen's state changes as the answer says (for example the request is cancelled when the player chooses to cancel).
 
 **Time budget:** 30 seconds.
+
+**As tested (`cit14_answeringACitizen`):** a lumberjack creates a synchronous request for a diamond (blocking `RequestBasedInteraction`); the test triggers the "cancel" answer via `ICitizenData.onResponseTriggered` (the server side of the GUI answer). The request is cancelled at once, the interaction is removed at the next citizen update.

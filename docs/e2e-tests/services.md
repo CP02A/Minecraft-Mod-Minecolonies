@@ -24,6 +24,8 @@ Buildings that look after citizens rather than producing goods.
 
 **Time budget:** 10 minutes.
 
+**As tested (`srv01_school`):** two children with all skills at 1 (homeless citizens get no XP for skills ≥ 10) and two sheets of paper. Class is before noon (pupils idle after 6000). "Sitting at a desk" = riding a sitting entity. An adult put into a pupil place isn't refused, it is removed again on the next colony tick (`ChildrenBuildingModule.onColonyTick`). After both sheets are used up, the teacher has an open request for paper.
+
 ---
 
 ## SRV-02 Library
@@ -42,6 +44,8 @@ Buildings that look after citizens rather than producing goods.
 - Studying without study items still works, but slower.
 
 **Time budget:** 10 minutes.
+
+**As tested (`srv02_library`, `srv02b_studyItemsHelp`):** paper (break chance 100%) is used, so its use is visible. A student studies once per 1200 ticks. Whether studying without items is slower is checked in `srv02b` with the exact chances `EntityAIStudy` passes to `CitizenSkillHandler.tryLevelUpIntelligence` (4000 rolls each); it fails because of bug E2E-SRV02-1: items make studying *less* likely to succeed.
 
 ---
 
@@ -64,6 +68,8 @@ Buildings that look after citizens rather than producing goods.
 
 **Time budget:** 10 minutes.
 
+**As tested (`srv03_hospital`):** a level 2 hospital; influenza (cure in stock) and measles (no cure). "Each in its own bed" = both sick patients were seen asleep in a hospital bed and never in the same bed. The injured citizen counts as healed at 10 health. Also checked: no influenza items were requested.
+
 ---
 
 ## SRV-04 Graveyard
@@ -83,6 +89,8 @@ Buildings that look after citizens rather than producing goods.
 
 **Time budget:** 10 minutes.
 
+**As tested (`srv04_graveyard`, `srv04b_resurrection`):** the undertaker gets a wooden shovel (a level 1 hut refuses better tools). Resurrection has a base chance without research; the test completes `civilian/resurrectchance1` and forces the roll by replacing the undertaker AI's `random` with one that returns 0. Resurrection takes about 6000 ticks (the "effort" counter grows with the Mana skill), so `srv04b` allows 14000.
+
 ---
 
 ## SRV-05 Mystical site
@@ -100,3 +108,5 @@ Buildings that look after citizens rather than producing goods.
 - The higher level site gives a bigger bonus.
 
 **Time budget:** 2 minutes.
+
+**As tested (`srv05_mysticalSite`):** one colony instead of three: sites of level 1, 3 and 5 are added one after the other and the factor is read after each. The factor is `max(1, highest site level / 2)`, so a level 1 (or 2) site gives *no* bonus; levels 3 and 5 give 1.5 and 2.5. The factor is colony wide (same for every citizen); total happiness grows with it.
