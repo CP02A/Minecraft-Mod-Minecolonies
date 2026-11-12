@@ -594,10 +594,7 @@ public class LogisticsCraftingTests
     }
 
     /** CRF-01 Crusher: cobblestone to gravel (built-in recipe, 2 cobblestone per gravel). */
-    // BUG E2E-CRF01-1: the crusher over-crafts a request: after reaching the request's crafting count, EntityAIWorkCrusher.craft() only
-    // resets its counters (resetValues) and keeps calling crush(), which falls back to the crusher-mode recipe and crafts again until the
-    // worker dumps. Request for 2 gravel uses 8 cobblestone instead of 4; the extra gravel stays in the crusher's inventory.
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 12000, skyAccess = true, required = false)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 12000, skyAccess = true)
     public void crf01_crusher(final GameTestHelper helper)
     {
         // The crusher also crushes on its own up to its daily limit (setting); set to 0 so only the request is crafted.
@@ -957,10 +954,7 @@ public class LogisticsCraftingTests
     /**
      * CRF-07 Enchanter, drain target: the citizen the enchanter drains must be a worker of the assigned station, not the enchanter himself.
      */
-    // BUG E2E-CRF07-1: EntityAIWorkEnchanter.gatherAndDrain() picks the citizen to drain from getModuleForJob().getAssignedEntities(),
-    // i.e. the enchanter's own work module, so the enchanter "drains" himself (and the random enchant goes to his own inventory) instead of
-    // a worker of the station building it walked to.
-    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 8000, skyAccess = true, required = false)
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 8000, skyAccess = true)
     public void crf07_enchanterDrainsStationWorker(final GameTestHelper helper)
     {
         enchanterTest(helper, true);

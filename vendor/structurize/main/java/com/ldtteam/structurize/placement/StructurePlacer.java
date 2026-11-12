@@ -350,6 +350,8 @@ public class StructurePlacer
       final ChangeStorage storage,
       final boolean simulate)
     {
+        // Several entities can share a block position (e.g. two item frames on different faces): collect the items of all of them.
+        final List<ItemStack> simulatedItems = new ArrayList<>();
         for (final CompoundTag compound : this.iterator.getBluePrintPositionInfo(localPos).getEntities())
         {
             if (compound != null)
@@ -404,7 +406,13 @@ public class StructurePlacer
                                     continue;
                                 }
 
-                                if (simulate || !this.handler.hasRequiredItems(requiredItems))
+                                if (simulate)
+                                {
+                                    simulatedItems.addAll(requiredItems);
+                                    continue;
+                                }
+
+                                if (!this.handler.hasRequiredItems(requiredItems))
                                 {
                                     return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, requiredItems);
                                 }
@@ -434,6 +442,10 @@ public class StructurePlacer
             }
         }
 
+        if (!simulatedItems.isEmpty())
+        {
+            return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.MISSING_ITEMS, simulatedItems);
+        }
         return new BlockPlacementResult(worldPos, BlockPlacementResult.Result.SUCCESS);
     }
 

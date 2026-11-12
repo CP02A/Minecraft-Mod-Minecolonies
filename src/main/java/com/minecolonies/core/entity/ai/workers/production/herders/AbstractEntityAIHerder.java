@@ -73,9 +73,9 @@ public abstract class AbstractEntityAIHerder<J extends AbstractJob<?, J>, B exte
     protected static final int BUTCHERING_ATTACK_DAMAGE = 5;
 
     /**
-     * Distance two animals need to be inside to breed.
+     * Distance two animals need to be inside to breed. Vanilla BreedGoal only looks for a partner within 8 blocks.
      */
-    private static final int DISTANCE_TO_BREED = 10;
+    private static final int DISTANCE_TO_BREED = 8;
 
     /**
      * Delays used to setDelay()

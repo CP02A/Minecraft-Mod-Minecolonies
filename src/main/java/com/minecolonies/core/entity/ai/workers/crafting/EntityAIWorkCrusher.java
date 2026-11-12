@@ -223,16 +223,9 @@ public class EntityAIWorkCrusher extends AbstractEntityAICrafting<JobCrusher, Bu
             if (job.getCraftCounter() >= job.getMaxCraftingCount())
             {
                 incrementActionsDone(getActionRewardForCraftingSuccess());
-                currentRecipeStorage = null;
                 worker.decreaseSaturationForAction();
-                resetValues();
-                if (inventoryNeedsDump())
-                {
-                    if (job.getMaxCraftingCount() == 0 && job.getProgress() == 0 && job.getCraftCounter() == 0 && currentRequest != null)
-                    {
-                        job.finishRequest(true);
-                    }
-                }
+                // Dump now: afterDump() finishes the request. Staying in CRAFT with the request still open would craft it again.
+                return finalizeCraftingTask();
             }
         }
         else

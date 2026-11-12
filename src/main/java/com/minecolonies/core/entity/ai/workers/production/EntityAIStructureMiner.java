@@ -790,17 +790,6 @@ public class EntityAIStructureMiner extends AbstractEntityAIStructureWithWorkOrd
     {
         mineNode.setStatus(MineNode.NodeStatus.IN_PROGRESS);
         building.markDirty();
-        //Preload structures
-        if (building.getWorkOrder() == null || building.getWorkOrder().getBlueprint() == null)
-        {
-            initStructure(mineNode,
-              new BlockPos(mineNode.getX(), building.getFirstModuleOccurance(MinerLevelManagementModule.class).getCurrentLevel().getDepth(), mineNode.getZ()),
-              building,
-              world,
-              job);
-            return LOAD_STRUCTURE;
-        }
-
         //Check for liquids
         for (int x = -NODE_DISTANCE / 2 - 1; x <= NODE_DISTANCE / 2 + 1; x++)
         {
@@ -817,6 +806,17 @@ public class EntityAIStructureMiner extends AbstractEntityAIStructureWithWorkOrd
                     }
                 }
             }
+        }
+
+        //Preload structures (after the liquid check: once loaded, the AI builds the node and doesn't come back here)
+        if (building.getWorkOrder() == null || building.getWorkOrder().getBlueprint() == null)
+        {
+            initStructure(mineNode,
+              new BlockPos(mineNode.getX(), building.getFirstModuleOccurance(MinerLevelManagementModule.class).getCurrentLevel().getDepth(), mineNode.getZ()),
+              building,
+              world,
+              job);
+            return LOAD_STRUCTURE;
         }
 
         workingNode = null;

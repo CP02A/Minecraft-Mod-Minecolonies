@@ -12,12 +12,13 @@ random numbers.
 | FRM-01 | `frm01_farmerTillsGrass` | ✅ | 5440 | Was optional (E2E-FRM-01-1, grass never tilled); bug FIXED, test required. |
 | FRM-01 | `frm01_farmerTillsOtherSoils` | ✅ | 5765 | Field of coarse dirt, rooted dirt, podzol, mycelium (in turn); all tilled and planted, as on 1.21.1 (added with the E2E-FRM-01-1 fix). |
 | FRM-02 | `frm02_planterSugarCane`, `frm02_planterCactus`, `frm02_planterBamboo` | ✅ | 6135 / 6145 / 12190 | One test per field type (level 1 owns one field). Bamboo is slow and leaves one position very long; the test accepts all but one position. Final step: wait budget 20,000 → 40,000 (bamboo took 11,200-19,700 ticks and once ran out). |
-| FRM-03 | `frm03_florist` | ✅ | 10620 | Level 2 shop, "don't grow" list, compost at 3 per bed, double-speed beds. Observation E2E-FRM-03-1. |
+| FRM-03 | `frm03_florist` | ✅ | 10620 | Level 2 shop, "don't grow" list, compost at 3 per bed, double-speed beds. Observation E2E-FRM-03-1 (fixed). |
+| FRM-03 | `frm03_compostLastsOnIdleBed` | ✅ | 100 | E2E-FRM-03-1 (**FIXED**): a bed idle for 301 s (block entity ticked directly) keeps new compost. Failed before the fix. |
 | FRM-04 | `frm04_composter` | ✅ | 370 | Exact seed use checked; apples (not allowed) untouched. |
 | FRM-05 | `frm05_beekeeper` | ✅ | 740 | Honeycomb, then honey (the "both" mode needs research). Dexterity 99. |
 | FRM-06 | `frm06_*Breeds*` (chicken, cow, sheep, rabbit) | ✅ | 349 / 1014 / 660 / 479 | Baby born + egg picked up from the ground (the item entity is gone; in one run it was afterwards in neither the hut nor the herder, not investigated) / milk (large bottle) / wool. |
 | FRM-06 | `frm06_swineHerderBreeds` | ✅ | 459 (median of 100) | Was optional and flaky: the pigs drifted apart and the herder fed them anyway (E2E-FRM-06-1). Required again since the test keeps the pair within 6 blocks. |
-| FRM-06 | `frm06_herderFeedsPairOutOfMateRange` (optional) | ❌ mod bug | ~400 | E2E-FRM-06-1: two chickens that can't move, 9 blocks apart; the herder puts both in love ("both in love 9.3 blocks apart"). Failed 22 of 22 runs. |
+| FRM-06 | `frm06_herderFeedsPairOutOfMateRange` | ✅ (was ❌ mod bug) | 3000 | **FIXED** E2E-FRM-06-1; required now, the herder no longer feeds the pair. Before the fix: E2E-FRM-06-1: two chickens that can't move, 9 blocks apart; the herder puts both in love ("both in love 9.3 blocks apart"). Failed 22 of 22 runs. |
 | FRM-06 | `frm06_*ButchersAboveLimit` (chicken, cow, sheep, pig, rabbit) | ✅ | 955 / 1405 / 840 / 1005 / 1265 | 6 adults → at most 3 adults, drops in hut, outsider alive. Limit is soft by design. |
 | FRM-07 | `frm07_fisherman` | ✅ | 1250 | Was optional (E2E-FRM-07-1, every catch threw); bug FIXED, test required. Loot after 895 ticks, rod breaks and is requested after 1250. |
 | GAT-01 | `gat01_lumberjackFellsAndReplants` | ✅ | 8440 | One oak + one birch, defoliation on. |
@@ -25,10 +26,10 @@ random numbers.
 | GAT-03 | `gat03_minerDigsShaft` | ✅ | 18630 / 18795 | Deep arena, level 1 mine; the first level is built right under the hut (y 6), not at y -16. Owner fulfils the main shaft's framed blocks etc. (`OwnerFulfils`). |
 | GAT-03 | `gat03_minerDigsShaftSafely` | ✅ | 17330-19335 | Was optional (E2E-GAT-03-1, the miner fell off the shaft ladder); fixed in `MovementHandler`, required again. 8 of 8 single runs passed after the fix. |
 | GAT-04 | `gat04_minerMinesNodes` | ✅ | 31310 / 31885 | First level as in GAT-03 (~18000), then max depth = that level; two tunnel nodes built (~13500), supports, cave hole closed, iron ores in the hut. |
-| GAT-04 | `gat04_minerSealsWater` (optional) | ❌ mod bug | 24975 / 28625 (check fails) | E2E-GAT-04-1: the water source next to the first node is never removed. |
+| GAT-04 | `gat04_minerSealsWater` | ✅ | ~25000 | E2E-GAT-04-1 (**FIXED**): the water source next to the first node is replaced by the fill block. Required now; before the fix the source was never removed. |
 | GAT-05 | `gat05_quarrierDigsLayers` | ✅ | 28990 / 24910 (budget raised to 60,000 after a run that needed more than 34,000) | Simple quarry on stone; top layer is open from the hut paste, the quarrier digs the next two (~235 blocks each), top down, nothing outside. |
 | GAT-06 | `gat06_netherExpedition` | ✅ | 7280 | Simulated trip (no real nether): leaves after ~1250, travel skipped, respawn after ~4900 (colony's 5-minute citizen check), four `onWakeUp` calls (E2E-GAT-06-1), 3 fights, 10 loot types, loot in the hut. |
-| GAT-06 | `gat06_netherWorkerReturnsAfterTravel` (optional) | ❌ mod bug | 10083 (timeout) | E2E-GAT-06-1: the returned worker idles until the next trip is allowed. |
+| GAT-06 | `gat06_netherWorkerReturnsAfterTravel` | ✅ | – | E2E-GAT-06-1 (**FIXED**): the returned worker works off the trip at once. Required now; before the fix he idled until the next trip was allowed (timeout 10083). |
 
 ## Bugs found
 
@@ -59,6 +60,9 @@ random numbers.
 
 ### E2E-GAT-04-1 Miner never removes liquids around a node
 
+- **FIXED:** `executeStructurePlacement` now runs the liquid check before it starts loading the node's blueprint. `gat04_minerSealsWater`
+  is required. Present on upstream `version/1.21` (and `version/main`); [upstream issue](../../upstream-bugs/jobs.md).
+
 - **Severity:** medium: water or lava next to a node is not sealed and flows into the tunnels (lava: the miner can burn).
 - **Likely upstream too** (code unchanged by the port). `EntityAIStructureMiner.executeStructurePlacement`
   (`EntityAIStructureMiner.java:794-820`) checks a 9x9x7 box around the node for liquid sources and replaces them with the fill block,
@@ -70,6 +74,9 @@ random numbers.
 - **Reproduce:** `-Pe2eFilter=minecolonies-gametest:farming_gathering_tests_gat04_miner_seals_water`.
 
 ### E2E-GAT-06-1 Nether worker idles after returning until the next trip is allowed
+
+- **FIXED:** `EntityAIWorkNether.hasWorkToDo()` is also true while `job.isInNether()` (trip results still to work off), so the AI leaves
+  IDLE and `decide()` goes to NETHER_AWAY. `gat06_netherWorkerReturnsAfterTravel` is required. Present on upstream `version/1.21` (and `version/main`); [upstream issue](../../upstream-bugs/jobs.md).
 
 - **Severity:** medium: an expedition takes up to 3 colony days instead of the travel time; the worker stands at the portal, the log
   says IN_PROGRESS and the loot stays in the job meanwhile.
@@ -122,6 +129,10 @@ random numbers.
 
 ### E2E-FRM-06-1 Herder feeds animals that are too far apart to mate
 
+- **FIXED:** `DISTANCE_TO_BREED` is 8 (vanilla's mate search range) in `AbstractEntityAIHerder` and, same constant, `EntityAIWorkBeekeeper`.
+  `frm06_herderFeedsPairOutOfMateRange` is required. The test-side `keepWithinMateRange` stays (slowed animals). Present on upstream
+  `version/1.21` (and `version/main`); [upstream issue](../../upstream-bugs/jobs.md).
+
 - **Severity:** low: the breeding food is wasted and the herder waits 60 s (`breedTimeOut`) before the next try. Animals in a normal pen
   wander, so a later try usually works.
 - **Likely upstream too** (code unchanged by the port). `AbstractEntityAIHerder.breedAnimals` pairs animals up to `DISTANCE_TO_BREED` = 10
@@ -138,6 +149,9 @@ random numbers.
 - **Reproduce:** `-Pe2eFilter=minecolonies-gametest:farming_gathering_tests_frm06_herder_feeds_pair_out_of_mate_range`.
 
 ### E2E-FRM-03-1 Composted bed expires at once after it sat idle (minor, observation)
+
+- **FIXED:** `TileEntityCompostedDirt.compost()` resets the timer. New required test `frm03_compostLastsOnIdleBed` (failed before the
+  fix). Present on upstream `version/1.21` (and `version/main`); [upstream issue](../../upstream-bugs/jobs.md).
 
 - **Severity:** low (each bed needs two composts after idling; the first is wasted).
 - **Likely upstream too** (plain MineColonies logic, nothing port-specific). `TileEntityCompostedDirt.tick()` increments `ticker` on every
@@ -174,7 +188,7 @@ All changes are written into the test sections of `jobs-farming.md` / `jobs-gath
 - **GAT-05:** the quarrier is hired in a mine (quarrier job) and assigned to the quarry; he dumps into the quarry. The quarry hut's
   blueprint already opens the top layer; "first layers" = the next two.
 - **GAT-06:** the trip is simulated (entity removed, travelling manager); the test skips the travel time and, because of
-  E2E-GAT-06-1, runs the hut's morning update four times. Death is allowed by the rules (log KILLED) but did not happen.
+  E2E-GAT-06-1 (now fixed), runs the hut's morning update four times. Death is allowed by the rules (log KILLED) but did not happen.
 
 ## Framework issues
 

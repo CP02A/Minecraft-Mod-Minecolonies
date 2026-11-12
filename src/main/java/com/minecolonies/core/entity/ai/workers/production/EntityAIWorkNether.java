@@ -153,7 +153,8 @@ public class EntityAIWorkNether extends AbstractEntityAICrafting<JobNetherWorker
     @Override
     public boolean hasWorkToDo()
     {
-        return super.hasWorkToDo() || building.isReadyForTrip();
+        // A worker back from a trip still has its results to work off (decide() -> NETHER_AWAY), even if the next trip isn't allowed yet.
+        return super.hasWorkToDo() || building.isReadyForTrip() || job.isInNether();
     }
 
     @Override

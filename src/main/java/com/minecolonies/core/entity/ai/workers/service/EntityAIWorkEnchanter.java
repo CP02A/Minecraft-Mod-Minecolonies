@@ -3,6 +3,7 @@ package com.minecolonies.core.entity.ai.workers.service;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColonyManager;
 import com.minecolonies.api.colony.buildings.IBuilding;
+import com.minecolonies.api.colony.buildings.modules.IAssignsJob;
 import com.minecolonies.api.colony.interactionhandling.ChatPriority;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.crafting.IRecipeStorage;
@@ -321,9 +322,12 @@ public class EntityAIWorkEnchanter extends AbstractEntityAICrafting<JobEnchanter
         if (citizenToGatherFrom == null)
         {
             final List<AbstractEntityCitizen> workers = new ArrayList<>();
-            for (final Optional<AbstractEntityCitizen> citizen : getModuleForJob().getAssignedEntities())
+            for (final IAssignsJob module : buildingWorker.getModulesByType(IAssignsJob.class))
             {
-                citizen.ifPresent(workers::add);
+                for (final Optional<AbstractEntityCitizen> citizen : module.getAssignedEntities())
+                {
+                    citizen.ifPresent(workers::add);
+                }
             }
 
             final AbstractEntityCitizen citizen;
