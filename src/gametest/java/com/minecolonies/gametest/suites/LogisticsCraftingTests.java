@@ -855,6 +855,151 @@ public class LogisticsCraftingTests
     }
 
     /**
+     * CRF-01 Kitchen (chef): a MineColonies meal (stew trencher: manchet bread, tomato, cabbage, 2 onions) from its built-in recipe. The chef's
+     * meals need a level 4 kitchen; the default pack has no kitchen, so the hut comes from the "Dark Oak Treehouse" pack.
+     */
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 8000, skyAccess = true)
+    public void crf01_kitchen(final GameTestHelper helper)
+    {
+        final Item tomato = modItem("tomato");
+        final Item cabbage = modItem("cabbage");
+        final Item onion = modItem("onion");
+        crafterTest(helper, new Craft(ModBuildings.kitchen.get(), 4, hut -> {},
+          List.of(new ItemStack(com.minecolonies.api.items.ModItems.manchet_bread, 2), new ItemStack(tomato, 2), new ItemStack(cabbage, 2), new ItemStack(onion, 4)),
+          new ItemStack(com.minecolonies.api.items.ModItems.stew_trencher), Map.of(com.minecolonies.api.items.ModItems.manchet_bread, 1, tomato, 1, cabbage, 1, onion, 2),
+          KITCHEN_PACK), 7500);
+    }
+
+    /**
+     * CRF-06 Alchemist harvesting: grown nether wart on the hut's soul sand is harvested and replanted, and mistletoe is gathered from the
+     * hut's leaves (with shears from the warehouse). Brewing in the brewing stands is covered by {@link #crf01_alchemist}.
+     */
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 45000, skyAccess = true, maxAttempts = 3, requiredSuccesses = 1)
+    public void crf06_alchemistHarvests(final GameTestHelper helper)
+    {
+        final ColonyFixture fixture = ColonyFixture.create(helper);
+        final Logistics lg = new Logistics(fixture);
+        final IBuilding[] hut = new IBuilding[1];
+        final ICitizenData[] worker = new ICitizenData[1];
+        final List<BlockPos> grown = new ArrayList<>();
+        final boolean[] harvested = new boolean[1];
+
+        fixture.flow()
+          .run("colony with warehouse (shears), courier, alchemist's tower with grown nether wart and leaves", () -> {
+              lg.setUp(1);
+              hut[0] = placeInBox(fixture, ModBuildings.alchemist.get(), 1, NORTH_WEST_BOX);
+              fixture.fillWarehouse(new ItemStack(Items.SHEARS), new ItemStack(Items.NETHER_WART, 16), new ItemStack(Items.BLAZE_POWDER, 8));
+              final var alchemist = (com.minecolonies.core.colony.buildings.workerbuildings.BuildingAlchemist) hut[0];
+              if (alchemist.getAllSoilPositions().isEmpty())
+              {
+                  addBlockInHut(fixture, hut[0], Blocks.SOUL_SAND.defaultBlockState());
+              }
+              if (alchemist.getAllLeavePositions().isEmpty())
+              {
+                  addBlockInHut(fixture, hut[0], Blocks.OAK_LEAVES.defaultBlockState().setValue(net.minecraft.world.level.block.LeavesBlock.PERSISTENT, true));
+              }
+              for (final BlockPos soil : alchemist.getAllSoilPositions())
+              {
+                  if (fixture.level().getBlockState(soil).is(Blocks.SOUL_SAND))
+                  {
+                      fixture.level().setBlockAndUpdate(soil.above(),
+                        Blocks.NETHER_WART.defaultBlockState().setValue(net.minecraft.world.level.block.NetherWartBlock.AGE, 3));
+                      grown.add(soil.above());
+                  }
+              }
+              worker[0] = fixture.spawnCitizen(skills(50), hut[0], null, null);
+          })
+          .check("the hut has soul sand with grown nether wart and leaves", () -> !grown.isEmpty()
+              && !((com.minecolonies.core.colony.buildings.workerbuildings.BuildingAlchemist) hut[0]).getAllLeavePositions().isEmpty(),
+            () -> "grown wart " + grown + ", leaves " + ((com.minecolonies.core.colony.buildings.workerbuildings.BuildingAlchemist) hut[0]).getAllLeavePositions().size())
+          .awaitUntil("a grown nether wart was harvested and replanted, and mistletoe was gathered", 43000, () -> {
+              for (final BlockPos pos : grown)
+              {
+                  final BlockState state = fixture.level().getBlockState(pos);
+                  if (!state.is(Blocks.NETHER_WART) || state.getValue(net.minecraft.world.level.block.NetherWartBlock.AGE) < 3)
+                  {
+                      harvested[0] = true;
+                  }
+              }
+              return harvested[0] && replanted(fixture, grown) && colonyTotal(fixture, com.minecolonies.api.items.ModItems.mistletoe) > 0;
+          }, () -> "harvested " + harvested[0] + ", replanted " + replanted(fixture, grown) + ", wart blocks " + grown.stream().map(p -> {
+              final BlockState state = fixture.level().getBlockState(p);
+              return state.is(Blocks.NETHER_WART) ? "age " + state.getValue(net.minecraft.world.level.block.NetherWartBlock.AGE) : state.getBlock().toString();
+          }).toList() + ", mistletoe " + whereIs(fixture, com.minecolonies.api.items.ModItems.mistletoe) + ", shears " + whereIs(fixture, Items.SHEARS) + "; "
+                     + ColonyFixture.describe(worker[0]))
+          .succeed();
+    }
+
+    /**
+     * CRF-07 Enchanter: with a station (a lumberjack's hut with its worker) assigned, the enchanter visits it, uses a book to gain mana, and
+     * once he has enough mana turns an ancient tome into an enchanted book in the hut. (The drain gives the enchanter mana; it takes no XP
+     * from anyone, see the design notes.) Which citizen is drained is checked in {@link #crf07_enchanterDrainsStationWorker}.
+     */
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 16000, skyAccess = true)
+    public void crf07_enchanter(final GameTestHelper helper)
+    {
+        enchanterTest(helper, false);
+    }
+
+    /**
+     * CRF-07 Enchanter, drain target: the citizen the enchanter drains must be a worker of the assigned station, not the enchanter himself.
+     */
+    // BUG E2E-CRF07-1: EntityAIWorkEnchanter.gatherAndDrain() picks the citizen to drain from getModuleForJob().getAssignedEntities(),
+    // i.e. the enchanter's own work module, so the enchanter "drains" himself (and the random enchant goes to his own inventory) instead of
+    // a worker of the station building it walked to.
+    @GameTest(environment = ColonyFixture.COLONY_ENVIRONMENT, structure = ColonyFixture.ARENA, maxTicks = 8000, skyAccess = true, required = false)
+    public void crf07_enchanterDrainsStationWorker(final GameTestHelper helper)
+    {
+        enchanterTest(helper, true);
+    }
+
+    private static void enchanterTest(final GameTestHelper helper, final boolean checkDrainTarget)
+    {
+        final ColonyFixture fixture = ColonyFixture.create(helper);
+        final IBuilding[] huts = new IBuilding[2];
+        final ICitizenData[] citizens = new ICitizenData[2];
+        final int[] mana = new int[1];
+        final Set<String> drained = new LinkedHashSet<>();
+        final double[] sourceXp = new double[1];
+
+        fixture.flow()
+          .run("colony with an enchanter's tower (16 books, 2 ancient tomes) and a lumberjack's hut with a lumberjack as station", () -> {
+              fixture.createColony();
+              fixture.setMoveIn(false);
+              huts[0] = placeInBox(fixture, ModBuildings.enchanter.get(), 1, NORTH_WEST_BOX);
+              huts[1] = placeInBox(fixture, ModBuildings.lumberjack.get(), 1, NORTH_EAST_BOX);
+              fixture.fillBuilding(huts[0], new ItemStack(Items.BOOK, 16), new ItemStack(com.minecolonies.api.items.ModItems.ancientTome, 2));
+              final Map<Skill, Integer> enchanterSkills = skills(30);
+              enchanterSkills.put(Skill.Mana, 9);
+              enchanterSkills.put(Skill.Knowledge, 50);
+              citizens[0] = fixture.spawnCitizen(enchanterSkills, huts[0], null, null);
+              citizens[1] = fixture.spawnCitizen(skills(30), huts[1], null, null);
+              huts[0].getModule(BuildingModules.ENCHANTER_STATIONS).addWorker(huts[1].getPosition());
+          })
+          .awaitUntil("entities exist", 200, () -> citizens[0].getEntity().isPresent() && citizens[1].getEntity().isPresent(), () -> "no entity yet")
+          .run("remember mana and the station worker's XP", () -> {
+              mana[0] = citizens[0].getCitizenSkillHandler().getLevel(Skill.Mana);
+              sourceXp[0] = citizens[1].getCitizenSkillHandler().getTotalXP();
+          })
+          .awaitUntil("the enchanter drained once (a book used)", 6000, () -> {
+              recordDrainTarget(citizens[0], drained);
+              return colonyTotal(fixture, Items.BOOK) < 16;
+          }, () -> "books " + colonyTotal(fixture, Items.BOOK) + ", mana " + citizens[0].getCitizenSkillHandler().getLevel(Skill.Mana) + ", drained " + drained
+                     + "; " + ColonyFixture.describe(citizens[0]))
+          .check(checkDrainTarget ? "the drained citizen is the station's worker" : "the drain raised the enchanter's mana",
+            () -> checkDrainTarget ? drained.contains(citizens[1].getName()) && !drained.contains(citizens[0].getName())
+                    : citizens[0].getCitizenSkillHandler().getLevel(Skill.Mana) > mana[0] || colonyTotal(fixture, Items.ENCHANTED_BOOK) > 0,
+            () -> "drained " + drained + " (enchanter " + citizens[0].getName() + ", station worker " + citizens[1].getName() + "), mana "
+                    + citizens[0].getCitizenSkillHandler().getLevel(Skill.Mana))
+          .awaitUntil("an enchanted book is in the hut", 9000, () -> checkDrainTarget || count(fixture, huts[0], Items.ENCHANTED_BOOK) > 0,
+            () -> "enchanted books " + whereIs(fixture, Items.ENCHANTED_BOOK) + ", tomes " + whereIs(fixture, com.minecolonies.api.items.ModItems.ancientTome)
+                    + ", mana " + citizens[0].getCitizenSkillHandler().getLevel(Skill.Mana) + "; " + ColonyFixture.describe(citizens[0]))
+          .check("the station worker lost no XP", () -> citizens[1].getCitizenSkillHandler().getTotalXP() >= sourceXp[0],
+            () -> "xp " + citizens[1].getCitizenSkillHandler().getTotalXP() + ", before " + sourceXp[0])
+          .succeed();
+    }
+
+    /**
      * A crafter test for one hut (CRF-01): the hut with a worker, the recipe taught (or built in), ingredients in the warehouse, a courier,
      * and a lumberjack's hut that requests the product.
      *
@@ -866,8 +1011,13 @@ public class LogisticsCraftingTests
      * @param uses     how many of each ingredient the request must use up, exactly.
      */
     private record Craft(BuildingEntry type, int level, java.util.function.Consumer<IBuilding> teach, List<ItemStack> stock, ItemStack product,
-                         Map<Item, Integer> uses)
+                         Map<Item, Integer> uses, String pack)
     {
+        Craft(final BuildingEntry type, final int level, final java.util.function.Consumer<IBuilding> teach, final List<ItemStack> stock,
+          final ItemStack product, final Map<Item, Integer> uses)
+        {
+            this(type, level, teach, stock, product, uses, ColonyFixture.DEFAULT_PACK);
+        }
     }
 
     private static void crafterTest(final GameTestHelper helper, final Craft craft)
@@ -891,7 +1041,9 @@ public class LogisticsCraftingTests
         fixture.flow()
           .run("colony with warehouse, courier, the crafter's hut with a worker, and a requesting lumberjack's hut", () -> {
               lg.setUp(1);
-              huts[0] = placeInBox(fixture, craft.type(), craft.level(), NORTH_WEST_BOX);
+              fixture.usePack(craft.pack());
+              huts[0] = placeInBox(fixture, craft.type(), craft.level(), NORTH_WEST_BOX, craft.pack());
+              fixture.usePack(ColonyFixture.DEFAULT_PACK);
               huts[1] = placeInBox(fixture, ModBuildings.lumberjack.get(), 1, NORTH_EAST_BOX);
               worker[0] = fixture.spawnCitizen(skills(50), huts[0], null, null);
               for (final ItemStack stack : craft.stock())
@@ -1196,6 +1348,57 @@ public class LogisticsCraftingTests
         return module.addRecipe(IColonyManager.getInstance().getRecipeManager().checkOrAddRecipe(storage));
     }
 
+    /** Structure pack with a kitchen (the default pack has none). */
+    static final String KITCHEN_PACK = "Dark Oak Treehouse";
+
+    static Item modItem(final String path)
+    {
+        final Item item = net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(net.minecraft.resources.Identifier.fromNamespaceAndPath("minecolonies", path));
+        if (item == null || item == Items.AIR)
+        {
+            throw new IllegalStateException("No item minecolonies:" + path);
+        }
+        return item;
+    }
+
+    static boolean replanted(final ColonyFixture fixture, final List<BlockPos> wartPositions)
+    {
+        for (final BlockPos pos : wartPositions)
+        {
+            final BlockState state = fixture.level().getBlockState(pos);
+            if (state.is(Blocks.NETHER_WART) && state.getValue(net.minecraft.world.level.block.NetherWartBlock.AGE) < 3)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Records the citizen the enchanter's AI is currently draining (private field {@code citizenToGatherFrom}).
+     */
+    static void recordDrainTarget(final ICitizenData enchanter, final Set<String> drained)
+    {
+        if (enchanter.getJob() == null || enchanter.getJob().getWorkerAI() == null)
+        {
+            return;
+        }
+        try
+        {
+            final var field = com.minecolonies.core.entity.ai.workers.service.EntityAIWorkEnchanter.class.getDeclaredField("citizenToGatherFrom");
+            field.setAccessible(true);
+            final Object target = field.get(enchanter.getJob().getWorkerAI());
+            if (target instanceof final ICitizenData data)
+            {
+                drained.add(data.getName());
+            }
+        }
+        catch (final ReflectiveOperationException e)
+        {
+            throw new IllegalStateException(e);
+        }
+    }
+
     static int courierHolds(final ICitizenData citizen, final Item item)
     {
         final var inv = citizen.getInventory();
@@ -1492,14 +1695,23 @@ public class LogisticsCraftingTests
      */
     static IBuilding placeInBox(final ColonyFixture fixture, final BuildingEntry type, final int level, final int[] minCorner)
     {
+        return placeInBox(fixture, type, level, minCorner, ColonyFixture.DEFAULT_PACK);
+    }
+
+    /**
+     * Same as {@link #placeInBox(ColonyFixture, BuildingEntry, int, int[])} with the blueprint from the given pack (the fixture must be set
+     * to the same pack with {@code usePack}).
+     */
+    static IBuilding placeInBox(final ColonyFixture fixture, final BuildingEntry type, final int level, final int[] minCorner, final String pack)
+    {
         final String name = type.getRegistryName().getPath() + level;
-        final Path file = StructurePacks.findBlueprint(ColonyFixture.DEFAULT_PACK, name);
+        final Path file = StructurePacks.findBlueprint(pack, name);
         if (file == null)
         {
-            throw new IllegalStateException("No blueprint " + name);
+            throw new IllegalStateException("No blueprint " + name + " in " + pack);
         }
-        final String subPath = StructurePacks.getStructurePack(ColonyFixture.DEFAULT_PACK).getSubPath(file).replace('\\', '/');
-        final Blueprint blueprint = StructurePacks.getBlueprint(ColonyFixture.DEFAULT_PACK, subPath, fixture.level().registryAccess());
+        final String subPath = StructurePacks.getStructurePack(pack).getSubPath(file).replace('\\', '/');
+        final Blueprint blueprint = StructurePacks.getBlueprint(pack, subPath, fixture.level().registryAccess());
         final BlockPos offset = blueprint.getPrimaryBlockOffset();
         final int y = Math.max(GROUND_Y, offset.getY());
         final BlockPos anchor = new BlockPos(minCorner[0] + offset.getX(), y, minCorner[1] + offset.getZ());

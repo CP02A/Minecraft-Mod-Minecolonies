@@ -19,7 +19,7 @@ One test per hut, all following the same steps:
 | Blacksmith | iron ingots + sticks → iron pickaxe |
 | Fletcher | flint + stick + feather → arrows |
 | Baker | wheat → bread |
-| Kitchen (chef) | MineColonies meal from its ingredients (*not done*) |
+| Kitchen (chef) | MineColonies meal from its ingredients (*as implemented:* stew trencher from manchet bread, tomato, cabbage, 2 onions; the chef's meals need a level 4 kitchen, and the default pack has no kitchen, so the hut comes from the "Dark Oak Treehouse" pack) |
 | Glassblower | glass → glass panes |
 | Dyer | white wool + dye → colored wool |
 | Mechanic | redstone recipe (for example a piston) |
@@ -153,6 +153,11 @@ flowing).
 - The brewing stands are fueled with blaze powder.
 - The grown nether wart and mistletoe are harvested and replanted.
 
+*As implemented:* brewing (request, blaze powder fuel) is covered by CRF-01 "Alchemist". This test sets the nether wart on the hut's soul
+sand to fully grown and passes when a grown wart was harvested, a wart was replanted (age 0) and mistletoe was gathered. Mistletoe isn't
+replanted: the alchemist hits the hut's leaves with shears (from the warehouse) until one drops (1 in 40 per hit). The alchemist picks
+these jobs at random (about 2 in 30 decisions each, a decision every ~400 ticks), so the budget is large (43,000 ticks per attempt, up to 3 attempts; 21,000-57,000 ticks seen).
+
 **Time budget:** 10 minutes.
 
 ---
@@ -171,6 +176,12 @@ flowing).
 - The source citizens' XP goes down and the enchanter's mana or progress goes up.
 - Enchanted books end up in the hut.
 - Citizens not assigned as sources keep their XP.
+
+*As implemented:* the "drain" takes no XP from anyone: it uses up a book, gives the enchanter 1 mana and may enchant a random item in the
+drained citizen's inventory. Sources are huts (`EnchanterStationsModule`), not citizens. The test: a lumberjack's hut with its worker as
+station, 16 books and 2 ancient tomes in the tower, enchanter mana 9 (the level 1 threshold is 10). Passes when a book was used, mana went
+up, an enchanted book (from an ancient tome) is in the hut, and the station worker lost no XP. A second test checks that the drained
+citizen is the station's worker; it fails (bug E2E-CRF07-1: the enchanter drains himself).
 
 **Time budget:** 10 minutes.
 

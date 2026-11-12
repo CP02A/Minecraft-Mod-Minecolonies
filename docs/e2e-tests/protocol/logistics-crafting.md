@@ -3,8 +3,8 @@
 # Protocol: logistics and crafting tests
 
 Suite class: `src/gametest/java/com/minecolonies/gametest/suites/LogisticsCraftingTests.java`
-(filter `-Pe2eFilter=logistics_crafting_tests`). Final run: 27 required tests passed, 2 optional (bug) tests; whole suite about 80 s
-real time (LOG-04 alone runs about 40,500 game ticks).
+(filter `-Pe2eFilter=logistics_crafting_tests`). Final run: 31 required tests passed; optional (bug) tests: LOG-06 and CRF-07 drain target failed, the crusher
+(intermittent) passed; whole suite about 1-2 minutes real time (LOG-04 runs about 40,500 game ticks, CRF-06 21,000-57,000).
 
 Runtime = game ticks of the main wait in the final run (ticks vary from run to run by roughly ±30 %).
 
@@ -25,11 +25,11 @@ Runtime = game ticks of the main wait in the final run (ticks vary from run to r
 | CRF-01 Blacksmith (iron pickaxe) | ✅ | 5,090 | Slowest crafter (1,630 in an earlier run). |
 | CRF-01 Fletcher (arrows) | ✅ | 1,365 | |
 | CRF-01 Baker (wheat → dough → bread) | ✅ | 1,955 | Built-in recipe chain, coal fuel. |
-| CRF-01 Kitchen (chef) | 📝 | – | Not done (needs MineColonies crops as ingredients). |
+| CRF-01 Kitchen (chef) | ✅ | 1,200-1,620 | Stew trencher (built-in, needs a level 4 kitchen); kitchen from the "Dark Oak Treehouse" pack (none in the default pack); MineColonies crop items put straight into the warehouse. |
 | CRF-01 Glassblower (glass → panes) | ✅ | 1,445 | |
 | CRF-01 Dyer (white wool + red dye → red wool) | ✅ | 1,500 | |
 | CRF-01 Mechanic (piston) | ✅ | 1,845 | |
-| CRF-01 Crusher (cobblestone → gravel) | ❌ | 1,015 | BUG E2E-CRF01-1, intermittent (failed 3 of 5 runs; passed in the final run). `required = false`. Daily limit set to 0. |
+| CRF-01 Crusher (cobblestone → gravel) | ❌ | 1,015 | BUG E2E-CRF01-1, intermittent (failed 6 of 9 runs; passed in the final run). `required = false`. Daily limit set to 0. |
 | CRF-01 Sifter | ✅ | – | Covered by CRF-05 (the sifter is not a request crafter). |
 | CRF-01 Smeltery (raw iron → ingot) | ✅ | – | Not a request crafter (refuses taught recipes, requests ores itself); covered by CRF-03. |
 | CRF-01 Stone smeltery (cobblestone → stone) | ✅ | 2,235 | Furnace recipe, coal fuel. |
@@ -39,11 +39,12 @@ Runtime = game ticks of the main wait in the final run (ticks vary from run to r
 | CRF-03 Furnaces and fuel | ✅ | 9,330 | 80 raw iron + 128 coal; second furnace placed in the level 1 hut; fuel requested only from the fuel list. |
 | CRF-04 Concrete mixer and water | ✅ | 5,230 | Water compared as source blocks. |
 | CRF-05 Sifter meshes | ✅ | 455 (+1,200 idle) | Mesh with 3 uses left; drops only iron nugget/flint/coal; nothing sifted without mesh. |
-| CRF-06 Alchemist (brew + harvest) | 📝 | – | Brewing is covered by CRF-01 alchemist; harvesting nether wart/mistletoe not done (time). |
-| CRF-07 Enchanter | 📝 | – | Not done (time). |
+| CRF-06 Alchemist (brew + harvest) | ✅ | 21,120 | Brewing covered by CRF-01 alchemist. Grown wart harvested and replanted, mistletoe gathered with shears from the warehouse. Random job choice (seen 21,120 / 29,110 / 57,145 ticks, one miss at 13,000): budget 43,000 per attempt, `maxAttempts = 3, requiredSuccesses = 1`. |
+| CRF-07 Enchanter | ✅ | 1,195 + 6,615 | `crf07_enchanter`: book used, mana up, ancient tome → enchanted book in the hut, station worker keeps XP. Drain takes no XP (design change). |
+| CRF-07 Enchanter, drain target | ❌ | 1,115 | BUG E2E-CRF07-1: the enchanter drains himself. `crf07_enchanterDrainsStationWorker`, `required = false`. |
 | CRF-08 Cook keeps the restaurant stocked | ✅ | 5,335 | Menu foods made, no cooked chicken; citizens eating not checked (CIT-02). |
 
-Counts by row: ✅ 27, ❌ 2, ⛔ 0, 📝 3 (29 test methods: 27 required, all passing; 2 optional bug tests).
+Counts by row: ✅ 30, ❌ 3, ⛔ 0, 📝 0 (34 test methods: 31 required, all passing; 3 optional bug tests).
 
 ## Bugs found
 
@@ -57,7 +58,7 @@ Counts by row: ✅ 27, ❌ 2, ⛔ 0, 📝 3 (29 test methods: 27 required, all p
   `craftCounter >= maxCraftingCount` it only calls `resetValues()` (line 228) and leaves the request open until the worker dumps. On the
   next tick `crush()` finds `currentRecipeStorage == null`, takes the crusher-mode recipe (line 117) and, because the state is `CRAFT`,
   skips the daily-limit check (line 120) and crafts again.
-- **Reproduction:** `crf01_crusher` (fails about 3 of 5 runs).
+- **Reproduction:** `crf01_crusher` (fails about 2 of 3 runs; twice the requester got no gravel at all, "requester has 0 of 2; where: crusher 2").
 
 ### E2E-LOG06-1 Orphaned delivery: a tool request is never delivered
 - **Severity:** high (the worker is stuck for good; here a miner never gets to work).
@@ -75,6 +76,17 @@ Counts by row: ✅ 27, ❌ 2, ⛔ 0, 📝 3 (29 test methods: 27 required, all p
   data-driven … the output cannot be computed here"; `primaryOutput` is always empty, so the window never sends `AddRemoveRecipeMessage`.
 - **Evidence:** code reading; the server side works (`crf01_alchemist` teaches through it and passes). Not testable headless (client GUI).
 
+### E2E-CRF07-1 Enchanter drains himself instead of the station's workers
+- **Severity:** medium (the enchanter still gains mana, but the station mechanic is meaningless; the "random enchant" lands in the
+  enchanter's own inventory instead of the visited worker's).
+- **Upstream or port:** most likely upstream (shared code, no port changes in
+  `core/entity/ai/workers/service/EntityAIWorkEnchanter.java`).
+- **Evidence:** `gatherAndDrain()` walks to the station building (`job.getPosToDrainFrom()`) but picks the citizen from
+  `getModuleForJob().getAssignedEntities()`, which is the enchanter's own work module (`AbstractEntityAIBasic.getModuleForJob()` returns
+  `job.getWorkModule()`), not `buildingWorker`'s workers. Test output: "drained [Kai T. Allard] (enchanter Kai T. Allard, station worker
+  Emilia A. Crisp)" (AI field `citizenToGatherFrom`, read by reflection). Seen in 2 of 2 runs.
+- **Reproduction:** `crf07_enchanterDrainsStationWorker`.
+
 ## Design changes
 
 All recorded as "*As implemented*" notes in [logistics.md](../logistics.md) and [jobs-crafting.md](../jobs-crafting.md):
@@ -89,6 +101,9 @@ All recorded as "*As implemented*" notes in [logistics.md](../logistics.md) and 
 - CRF-03: level 1 smeltery has one furnace (second one placed); one stack goes into one furnace, so 80 ore / 128 coal are used.
 - CRF-04: water compared as source blocks; production is request-driven.
 - CRF-05: the sifter shows a "no mesh" interaction instead of requesting a mesh.
+- CRF-01 kitchen: chef meals need kitchen level 4; no kitchen in the default pack (Dark Oak Treehouse used).
+- CRF-06: mistletoe isn't replanted, it is gathered from leaves with shears; jobs are chosen at random (large budget).
+- CRF-07: the drain takes no XP; it uses a book and gives the enchanter mana. Sources are station huts.
 
 ## Framework issues
 
@@ -97,6 +112,8 @@ All recorded as "*As implemented*" notes in [logistics.md](../logistics.md) and 
   tick 6002") instead of the "Still waiting … Found: …" text. Workaround in this suite: every wait has its own budget below `maxTicks`.
 - **Worktree setup:** `src/main/resources/assets/minecolonies/lang/en_us.json` is git-ignored, so a fresh worktree crashes at server start
   (NPE in `LanguageHandler$LanguageCache.load`); copied from the main checkout (not committed).
+- **Chance-heavy AI:** the alchemist chooses harvesting at random (CRF-06 took 13,000+ ticks without success once, 29,110 when it
+  passed); no seeded random source is available, so only a large budget helps.
 - **Missing helpers** (written as private helpers in the suite, candidates for the fixture): placing a hut by footprint
   (`placeInBox`, reads blueprint size/offset), single-block buildings (stash/postbox via `setPlacedBy`), courier setup (courier's hut +
   warehouse assignment), request-system inspection (resolver per request, all requests), recipe teaching (grid/furnace/brewing),
