@@ -72,7 +72,7 @@ import static com.ldtteam.structurize.blockentities.interfaces.IBlueprintDataPro
 /**
  * Item used to scan structures.
  */
-public class ItemScanTool extends AbstractItemWithPosSelector implements IScrollableItem, ISpecialBlockPickItem
+public class ItemScanTool extends AbstractItemWithPosSelector implements IScrollableItem, ISpecialBlockPickItem, com.ldtteam.shim.neoforge.common.extensions.IItemExtension
 {
     private static final String ANCHOR_POS_TKEY = "item.possetter.anchorpos";
 
@@ -254,7 +254,7 @@ public class ItemScanTool extends AbstractItemWithPosSelector implements IScroll
         }
     }
 
-    // FABRIC-PORT TODO: NeoForge IItemExtension#getHighlightTip has no Fabric/vanilla hook (selected item name overlay)
+    @Override // shim IItemExtension, shown by the selected item name overlay (shim HudMixin)
     public Component getHighlightTip(@NotNull final ItemStack stack, @NotNull final Component displayName)
     {
         return Component.empty()

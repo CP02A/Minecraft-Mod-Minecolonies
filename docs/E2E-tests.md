@@ -224,6 +224,8 @@ Details: [e2e-tests/fabric-port.md](e2e-tests/fabric-port.md)
 | [FAB-06](e2e-tests/fabric-port.md#fab-06-a-dropped-fire-arrow-stays-an-item) | A dropped fire arrow stays an item | Dropped fire arrows don't vanish (NeoForge 1.21.1 lost them). | ✅ Passing |
 | [FAB-07](e2e-tests/fabric-port.md#fab-07-creative-tab-additions-of-other-mods-reach-minecolonies) | Creative tab additions of other mods reach MineColonies | Items other mods add to creative tabs are in MineColonies' item lists. | ✅ Passing |
 | [FAB-08](e2e-tests/fabric-port.md#fab-08-tag-conditions-see-the-loaded-tags) | Tag conditions see the loaded tags | `tag_empty` conditions in MineColonies data see the loaded tags. | ✅ Passing |
+| [PRT-01](e2e-tests/fabric-port.md#prt-01-solid-placeholders-follow-the-worldgen-surface-rules) | Solid placeholders follow the worldgen surface rules | A pasted solid placeholder becomes the block the biome's surface rule gives (nylium in Nether forests). | ✅ Passing |
+| [PRT-02](e2e-tests/fabric-port.md#prt-02-domum-ornamentum-blocks-sound-like-their-material) | Domum Ornamentum blocks sound like their material | Place, step and fall sounds of Domum blocks are those of their main material. | ✅ Passing |
 
 ## User interface
 
@@ -246,3 +248,4 @@ Details: [e2e-tests/ui.md](e2e-tests/ui.md). Run with `./gradlew runClientGameTe
 | [UI-13](e2e-tests/ui.md#ui-13-jei-crafter-recipes-from-synced-recipes) | JEI crafter recipes from synced recipes | The crafter recipes built from the client's synced recipes equal the server's. | ✅ Passing |
 | [UI-14](e2e-tests/ui.md#ui-14-config-screen-client-settings) | Config screen: client settings | The config screen (Mod Menu) saves client values to the config file; server settings are read-only in the main menu. | ✅ Passing |
 | [UI-15](e2e-tests/ui.md#ui-15-config-screen-server-settings) | Config screen: server settings | In a singleplayer world server values changed in the config screen reach the server and its serverconfig file. | ✅ Passing |
+| [UI-16](e2e-tests/ui.md#ui-16-structurize-highlight-tips) | Structurize highlight tips | The selected item name shows the scan tool's slot and the tag substitution's block. | ✅ Passing |

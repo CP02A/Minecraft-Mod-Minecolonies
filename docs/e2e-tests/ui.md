@@ -387,3 +387,30 @@ world's `serverconfig` file. The list editor opens for a list value.
 **Screenshots:** `ui15-config-server.png`, `ui15-config-server-list.png`, `ui15-config-server-edited.png`.
 
 **Time budget:** about 3 seconds.
+
+---
+
+## UI-16 Structurize highlight tips
+
+**Tests:** the selected item name above the hotbar shows Structurize's highlight tips (NeoForge `IItemExtension#getHighlightTip`; on
+Fabric the shim's `HudMixin`): the scan tool adds its current slot, the tag substitution item adds the absorbed block. When the tip
+changes while the same item stays selected (scan tool slot switched), the name shows again.
+
+**Setup**
+- The test world (no colony needed). On the server the player gets a scan tool whose current slot 1 is named "tower" (first hotbar
+  slot) and a tag substitution item that absorbed oak planks (second hotbar slot). The test mod's `HudSelectedItemNameCaptureMixin`
+  records the text the HUD draws; `HudAccessor` reads how long the name is still shown.
+
+**What happens**
+1. Selects the scan tool, waits 5 ticks.
+2. Waits until the name has faded out, then the server switches the scan tool to slot 2 (the item stays selected).
+3. Selects the tag substitution item, waits 5 ticks.
+
+**Passes when**
+- Step 1 shows "Scan Tool - 1: tower".
+- After step 2 the name shows again, as "Scan Tool - 2".
+- Step 3 shows "Tag Anchor Block - Oak Planks" (names as translated on the client).
+
+**Screenshots:** `ui16-scan-tool-highlight.png`, `ui16-tag-substitution-highlight.png`.
+
+**Time budget:** about 3 seconds.

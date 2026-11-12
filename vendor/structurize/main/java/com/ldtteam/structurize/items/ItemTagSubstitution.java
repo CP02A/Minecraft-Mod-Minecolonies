@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickItem
+public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickItem, com.ldtteam.shim.neoforge.common.extensions.IItemExtension
 {
     public ItemTagSubstitution(final Properties properties)
     {
@@ -113,7 +113,7 @@ public class ItemTagSubstitution extends BlockItem implements ISpecialBlockPickI
         return blockentity.getType().builtInRegistryHolder().is(ModTags.SUBSTITUTION_ABSORB_WHITELIST);
     }
 
-    // FABRIC-PORT TODO: NeoForge IItemExtension#getHighlightTip has no Fabric/vanilla hook (selected item name overlay)
+    @Override // shim IItemExtension, shown by the selected item name overlay (shim HudMixin)
     public Component getHighlightTip(@NotNull final ItemStack stack, @NotNull final Component displayName)
     {
         final ItemStack absorbed = CapturedBlock.readFromItemStack(stack).itemStack();

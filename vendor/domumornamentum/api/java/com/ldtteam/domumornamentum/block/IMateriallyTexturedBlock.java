@@ -110,6 +110,16 @@ public interface IMateriallyTexturedBlock
         return inputFunction.apply(state, player, level, pos);
     }
 
+    /**
+     * Positional sound type (NeoForge's {@code IBlockExtension#getSoundType(state, level, pos, entity)}): the sound of the block's main
+     * material. The blocks override this with the same signature. On Fabric, vanilla only knows the state-only lookup, so the sound
+     * lookups for step, fall, place, hit and break sounds call this through
+     * {@code com.ldtteam.domumornamentum.fabric.MaterialSoundTypes} (mixins in {@code com.ldtteam.domumornamentum.fabric.mixin}).
+     */
+    default SoundType getSoundType(BlockState state, LevelReader level, BlockPos pos, @Nullable Entity entity) {
+        return getDOSoundType((s, l, p, e) -> s.getSoundType(), state, level, pos, entity);
+    }
+
     default SoundType getDOSoundType(final QuadFunction<BlockState, LevelReader, BlockPos, Entity, SoundType> inputFunction, BlockState state, LevelReader level, BlockPos pos, @Nullable Entity entity) {
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof IMateriallyTexturedBlockEntity mtbe) {

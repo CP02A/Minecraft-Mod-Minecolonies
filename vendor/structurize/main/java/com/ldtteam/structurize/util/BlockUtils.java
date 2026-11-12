@@ -161,12 +161,9 @@ public final class BlockUtils
         if (level instanceof ServerLevel serverLevel)
         {
             final ChunkGenerator generator = serverLevel.getChunkSource().getGenerator();
-            if (generator instanceof NoiseBasedChunkGenerator)
+            if (generator instanceof NoiseBasedChunkGenerator chunkGenerator)
             {
-                // FABRIC-PORT TODO: 26.x replaced SurfaceRules with the MaterialSystem/MaterialRuleContext (package-private ctor,
-                // requires a NoiseChunk built by a private generator method). Surface-rule evaluation for solid placeholders is not
-                // ported yet; callers fall back to the dimension default block / dirt.
-                return null;
+                return getMaterialRuleBlock(serverLevel, chunkGenerator, location, virtualBlocks);
             }
             else if (generator instanceof FlatLevelSource chunkGenerator)
             {
@@ -180,6 +177,95 @@ public final class BlockUtils
         }
 
         return null;
+    }
+
+    /**
+     * Evaluates the dimension's worldgen material rule (26.x name of the surface rule) at one position, the way world generation
+     * ({@code MaterialSystem#buildSurface}) does for that column: grass/sand/nylium on top, dirt/sandstone below, the dimension's base
+     * block deeper down. Port of upstream's {@code SurfaceRules.Context} evaluation.
+     *
+     * @return the block the material rule picks, or null if the rule picks none (callers then use the dimension's default block).
+     */
+    @Nullable
+    private static BlockState getMaterialRuleBlock(
+        final ServerLevel serverLevel,
+        final NoiseBasedChunkGenerator chunkGenerator,
+        final BlockPos location,
+        @Nullable final Function<BlockPos, BlockState> virtualBlocks)
+    {
+        final NoiseGeneratorSettings generatorSettings = chunkGenerator.generatorSettings().value();
+        final RandomState randomState = serverLevel.getChunkSource().randomState();
+
+        // VANILLA INLINE: MaterialSystem#buildSurface / MaterialSystem#topMaterial (single-position context).
+        final ChunkAccess chunk = serverLevel.getChunk(location);
+        final int locX = location.getX();
+        final int locY = location.getY();
+        final int locZ = location.getZ();
+
+        final net.minecraft.world.level.levelgen.material.MaterialRuleContext ctx =
+            com.ldtteam.structurize.fabric.mixin.MaterialRuleContextInvoker.structurize$create(randomState.surfaceSystem(),
+                randomState,
+                new net.minecraft.world.level.levelgen.densityfunction.DensityVolume(1, 1, 1, locX, locY, locZ),
+                randomState.samplersWithContext(net.minecraft.world.level.levelgen.densityfunction.SamplerContext.EMPTY_UNCACHED),
+                serverLevel.getBiomeManager()::getBiome,
+                new WorldGenerationContext(chunkGenerator, serverLevel),
+                null);
+        final com.ldtteam.structurize.fabric.mixin.MaterialRuleContextInvoker ctxAccess =
+            (com.ldtteam.structurize.fabric.mixin.MaterialRuleContextInvoker) (Object) ctx;
+        final net.minecraft.world.level.levelgen.material.rule.RuleEvaluator rule = generatorSettings.materialRule().value().compile(ctx);
+
+        // Same as buildSurface: blocks counted downwards from the open surface (fluids don't count, the topmost fluid sets the water
+        // height), and the distance to the next air/fluid gap below.
+        int stoneDepthAbove = 1;
+        int stoneDepthBelow = DimensionType.WAY_BELOW_MIN_Y;
+        int waterHeight = Integer.MIN_VALUE;
+
+        final MutableBlockPos temp = new MutableBlockPos(locX, locY, locZ);
+        for (int tempY = locY + 1; tempY <= chunk.getMaxY() + 1; ++tempY)
+        {
+            temp.setY(tempY);
+            final BlockState bs = virtualBlocks == null ? chunk.getBlockState(temp) :
+                Objects.requireNonNullElseGet(virtualBlocks.apply(temp), () -> chunk.getBlockState(temp));
+            if (bs.isAir())
+            {
+                break;
+            }
+            else if (!bs.getFluidState().isEmpty())
+            {
+                waterHeight = tempY + 1;
+            }
+            else
+            {
+                stoneDepthAbove++;
+            }
+        }
+
+        for (int tempY = locY - 1; tempY >= chunk.getMinY() - 1; --tempY)
+        {
+            temp.setY(tempY);
+            final BlockState bs = virtualBlocks == null ? chunk.getBlockState(temp) :
+                Objects.requireNonNullElseGet(virtualBlocks.apply(temp), () -> chunk.getBlockState(temp));
+            if (bs.isAir() || !bs.getFluidState().isEmpty())
+            {
+                stoneDepthBelow = tempY + 1;
+                break;
+            }
+        }
+
+        stoneDepthBelow = locY - stoneDepthBelow + 1;
+
+        // 26.x material rules can check the steepness of the terrain (surface gradient across the column's neighbours).
+        final int x = location.getX() & 15;
+        final int z = location.getZ() & 15;
+        final int gradientX = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, Math.min(x + 1, 15), z)
+                                - chunk.getHeight(Heightmap.Types.WORLD_SURFACE, Math.max(x - 1, 0), z);
+        final int gradientZ = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, x, Math.min(z + 1, 15))
+                                - chunk.getHeight(Heightmap.Types.WORLD_SURFACE, x, Math.max(z - 1, 0));
+
+        ctxAccess.structurize$updateXZ(locX, locZ, gradientX, gradientZ);
+        ctxAccess.structurize$updateY(stoneDepthAbove, stoneDepthBelow, waterHeight, locY);
+
+        return rule.tryApply(locX, locY, locZ);
     }
 
     private static java.lang.reflect.Field hasCollisionField;

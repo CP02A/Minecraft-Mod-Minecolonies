@@ -2,6 +2,8 @@ package com.minecolonies.gametest.client;
 
 import com.ldtteam.blockui.views.BOWindow;
 import com.ldtteam.structurize.client.gui.WindowExtendedBuildTool;
+import com.ldtteam.structurize.component.CapturedBlock;
+import com.ldtteam.structurize.util.ScanToolData;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.ICitizenDataView;
 import com.minecolonies.api.colony.IColony;
@@ -27,6 +29,7 @@ import com.minecolonies.core.colony.buildings.workerbuildings.BuildingTownHall;
 import com.minecolonies.core.colony.buildings.workerbuildings.PostBox;
 import com.minecolonies.gametest.framework.E2EMode;
 import com.minecolonies.gametest.framework.IntegratedTestRun;
+import com.minecolonies.gametest.mixin.HudAccessor;
 import com.minecolonies.gametest.ui.UiBridge;
 import com.minecolonies.gametest.ui.UiColonySetup;
 import com.mojang.blaze3d.platform.SDLEventHandler;
@@ -58,7 +61,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,6 +145,7 @@ public class UiClientGameTest implements FabricClientGameTest
             runCase("UI-12", "JEI draws blocks in 3D", true, shots -> jeiBlocks(context, shots));
             runCase("UI-13", "JEI crafter recipes from synced recipes", true, shots -> jeiSyncedRecipes(context, server));
             runCase("UI-15", "Config screen: server settings", true, shots -> ConfigScreenUiTests.serverSettings(context, server, shots));
+            runCase("UI-16", "Structurize highlight tips", true, shots -> highlightTips(context, server, shots));
             if (ready && colony != null)
             {
                 runCase("UI-01", "Town hall window", true, shots -> townHall(context, server, colony, shots));
@@ -712,6 +718,72 @@ public class UiClientGameTest implements FabricClientGameTest
         final Map<String, Integer> counts = new java.util.TreeMap<>();
         recipes.forEach((type, list) -> counts.put(String.valueOf(MinecoloniesAPIProxy.getInstance().getCraftingTypeRegistry().getKey(type)), list.size()));
         return counts;
+    }
+
+    /**
+     * UI-16: the selected item name above the hotbar shows Structurize's highlight tips (NeoForge {@code IItemExtension#getHighlightTip}):
+     * the scan tool adds its current slot ("&lt;name&gt; - 1: tower"), the tag substitution item adds the absorbed block. When the scan tool's
+     * slot changes while it stays selected, the name shows again with the new slot.
+     */
+    private static void highlightTips(final ClientGameTestContext context, final TestServerContext server, final List<Path> shots)
+    {
+        closeScreen(context);
+        context.runOnClient(mc -> mc.player.getInventory().setSelectedSlot(8));
+        server.runOnServer(s -> {
+            final ServerPlayer player = s.getPlayerList().getPlayers().getFirst();
+            final ItemStack scan = new ItemStack(com.ldtteam.structurize.items.ModItems.scanTool.get());
+            new ScanToolData(List.of(ScanToolData.Slot.EMPTY, ScanToolData.Slot.EMPTY.withName("tower")), 1, null, null).writeToItemStack(scan);
+            final ItemStack tag = new ItemStack(com.ldtteam.structurize.items.ModItems.blockTagSubstitution.get());
+            new CapturedBlock(Blocks.OAK_PLANKS.defaultBlockState(), null, s.registryAccess(), new ItemStack(Items.OAK_PLANKS)).writeToItemStack(tag);
+            player.getInventory().setItem(0, scan);
+            player.getInventory().setItem(1, tag);
+            player.getInventory().setItem(8, ItemStack.EMPTY);
+        });
+        context.waitFor(mc -> mc.player.getInventory().getItem(0).is(com.ldtteam.structurize.items.ModItems.scanTool.get())
+                                && mc.player.getInventory().getItem(1).is(com.ldtteam.structurize.items.ModItems.blockTagSubstitution.get()), 200);
+        context.waitTicks(2);
+
+        // Scan tool: name + current slot.
+        UiTestSupport.lastSelectedItemName = null;
+        context.runOnClient(mc -> mc.player.getInventory().setSelectedSlot(0));
+        context.waitTicks(5);
+        final String scanName = context.computeOnClient(mc -> mc.player.getInventory().getItem(0).getHoverName().getString());
+        final String scanShown = UiTestSupport.lastSelectedItemName;
+        assertThat((scanName + " - 1: tower").equals(scanShown), "Scan tool should show '" + scanName + " - 1: tower', shows '" + scanShown + "'");
+        shots.add(screenshot(context, "ui16-scan-tool-highlight"));
+
+        // Same item, other slot: the name must show again (NeoForge compares the highlight tips, not only the hover name).
+        context.waitFor(mc -> ((HudAccessor) mc.gui.hud).minecoloniesGametest$getToolHighlightTimer() == 0, 600);
+        server.runOnServer(s -> {
+            final ServerPlayer player = s.getPlayerList().getPlayers().getFirst();
+            final ItemStack scan = player.getInventory().getItem(0).copy();
+            ScanToolData.updateItemStack(scan, data -> data.moveTo(2));
+            player.getInventory().setItem(0, scan);
+        });
+        context.waitFor(mc -> ScanToolData.readFromItemStack(mc.player.getInventory().getItem(0)).currentSlotId() == 2, 200);
+        UiTestSupport.lastSelectedItemName = null;
+        context.waitTicks(3);
+        final int timer = context.computeOnClient(mc -> ((HudAccessor) mc.gui.hud).minecoloniesGametest$getToolHighlightTimer());
+        final String slotShown = UiTestSupport.lastSelectedItemName;
+        assertThat(timer > 0, "Scan tool name should show again after its slot changed (timer " + timer + ")");
+        assertThat((scanName + " - 2").equals(slotShown), "Scan tool should show '" + scanName + " - 2', shows '" + slotShown + "'");
+
+        // Tag substitution: name + absorbed block.
+        UiTestSupport.lastSelectedItemName = null;
+        context.runOnClient(mc -> mc.player.getInventory().setSelectedSlot(1));
+        context.waitTicks(5);
+        final String tagName = context.computeOnClient(mc -> mc.player.getInventory().getItem(1).getHoverName().getString());
+        final String planks = context.computeOnClient(mc -> new ItemStack(Items.OAK_PLANKS).getHoverName().getString());
+        final String tagShown = UiTestSupport.lastSelectedItemName;
+        assertThat((tagName + " - " + planks).equals(tagShown), "Tag substitution should show '" + tagName + " - " + planks + "', shows '" + tagShown + "'");
+        shots.add(screenshot(context, "ui16-tag-substitution-highlight"));
+
+        context.runOnClient(mc -> mc.player.getInventory().setSelectedSlot(8));
+        server.runOnServer(s -> {
+            final ServerPlayer player = s.getPlayerList().getPlayers().getFirst();
+            player.getInventory().setItem(0, ItemStack.EMPTY);
+            player.getInventory().setItem(1, ItemStack.EMPTY);
+        });
     }
 
     /**

@@ -4,9 +4,16 @@
   "package": "com.ldtteam.domumornamentum.fabric.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
-    "ExplosionDamageCalculatorMixin"
+    "AbstractHorseStepSoundMixin",
+    "BlockItemPlaceSoundMixin",
+    "EntityStepSoundMixin",
+    "ExplosionDamageCalculatorMixin",
+    "LivingEntityFallSoundMixin"
   ],
-  "client": [],
+  "client": [
+    "client.ClientLevelHitSoundMixin",
+    "client.LevelEventHandlerBreakSoundMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

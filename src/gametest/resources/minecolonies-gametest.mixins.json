@@ -6,10 +6,16 @@
   "mixins": [
     "GameTestBatchFactoryMixin",
     "GameTestHelperAccessor",
+    "EntitySoundInvoker",
     "GameTestServerMixin",
-    "MultipleTestTrackerAccessor"
+    "GameTestServerNetherMixin",
+    "LivingEntitySoundInvoker",
+    "MultipleTestTrackerAccessor",
+    "SoundCaptureMixin"
   ],
   "client": [
+    "HudAccessor",
+    "HudSelectedItemNameCaptureMixin",
     "IntegratedServerMixin",
     "SDLEventHandlerMixin"
   ],
