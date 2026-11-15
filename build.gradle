@@ -476,3 +476,54 @@ tasks.named('check') {
     dependsOn checkJarIsolation
     dependsOn checkInjectedMembers
 }
+
+// ------------------------------------------------------------------------------------------------------------------------------------------
+// Standard commands, the same in every port (see FABRIC_TESTING.md, "Standard Gradle commands"):
+//   ./gradlew uiTest        UI tests in a game window (client game tests). Real keyboard/mouse input is ignored, the window never captures
+//                           the mouse and doesn't take the focus, and the sound engine is off (src/gametest mixins, docs/e2e-tests/framework.md).
+//   ./gradlew nonUiTest     everything that needs no window: the build checks (jar isolation, injected members) and the headless server
+//                           game tests. JUnit XML reports land in build/test-results/ (for CI).
+//   ./gradlew buildFabric   the release Fabric jar, copied to build/dist/fabric/.
+// There is no NeoForge/Forge build of this port, so there is no buildForge.
+// ------------------------------------------------------------------------------------------------------------------------------------------
+
+// The game test runs write their JUnit-style reports to fixed files (see above); a copy goes to build/test-results/<task>/ where CI picks up
+// JUnit XML. Finalizers, so the report is collected when tests failed too.
+def collectGameTestReport = tasks.register('collectGameTestReport', Copy) {
+    from(layout.buildDirectory.file('gametest-report.xml'))
+    into(layout.buildDirectory.dir('test-results/runGameTest'))
+    rename { 'TEST-minecolonies-gametest.xml' }
+}
+def collectUiTestReport = tasks.register('collectUiTestReport', Copy) {
+    from(layout.buildDirectory.file('e2e-ui-report.xml'))
+    into(layout.buildDirectory.dir('test-results/runClientGameTest'))
+    rename { 'TEST-minecolonies-ui.xml' }
+}
+tasks.matching { it.name == 'runGameTest' }.configureEach {
+    // A stale report from an earlier run must not be reported as this run's result.
+    doFirst { delete(layout.buildDirectory.file('gametest-report.xml'), layout.buildDirectory.dir('test-results/runGameTest')) }
+    finalizedBy collectGameTestReport
+}
+tasks.matching { it.name == 'runClientGameTest' }.configureEach {
+    doFirst { delete(layout.buildDirectory.file('e2e-ui-report.xml'), layout.buildDirectory.dir('test-results/runClientGameTest')) }
+    finalizedBy collectUiTestReport
+}
+
+tasks.register('uiTest') {
+    group = 'standard'
+    description = 'Runs all UI tests (Fabric client game tests) in a game window that ignores real input, never captures the mouse and plays no sound.'
+    dependsOn 'runClientGameTest'
+}
+
+tasks.register('nonUiTest') {
+    group = 'standard'
+    description = 'Runs every test that needs no window: build checks and the headless server game tests (JUnit XML in build/test-results/).'
+    dependsOn 'check', 'runGameTest'
+}
+
+tasks.register('buildFabric', Sync) {
+    group = 'standard'
+    description = 'Builds the release Fabric mod jar and copies it to build/dist/fabric/.'
+    from(tasks.named('jar'))
+    into(layout.buildDirectory.dir('dist/fabric'))
+}

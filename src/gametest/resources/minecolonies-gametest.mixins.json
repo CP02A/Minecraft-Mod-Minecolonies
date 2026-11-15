@@ -21,7 +21,9 @@
     "MainMixin",
     "MinecraftMixin",
     "MouseHandlerMixin",
+    "RenderSystemMixin",
     "SDLEventHandlerMixin",
+    "SoundEngineMixin",
     "WindowMixin"
   ],
   "injectors": {

@@ -4,12 +4,14 @@ import com.minecolonies.gametest.framework.E2EMode;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.SDLEventHandler;
 import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.main.Main;
+import net.minecraft.client.sounds.SoundEngine;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -170,6 +172,9 @@ final class HumanInputUiTests
         assertApplied(MouseHandler.class, OWN + "MouseHandlerMixin");
         assertApplied(Main.class, OWN + "MainMixin");
         assertThat(injectTargets(Window.class, OWN + "WindowMixin").contains("requestClose"), "WindowMixin doesn't watch requestClose (window closed by hand)");
+        assertThat(injectTargets(Window.class, OWN + "WindowMixin").contains("updateWindowMouseGrab"), "WindowMixin doesn't stop the window mouse grab");
+        assertApplied(SoundEngine.class, OWN + "SoundEngineMixin");
+        assertApplied(RenderSystem.class, OWN + "RenderSystemMixin");
     }
 
     private static Set<String> appliedMixins(final Class<?> target)
@@ -554,6 +559,26 @@ final class HumanInputUiTests
         context.waitTicks(2);
         assertThat(!context.computeOnClient(mc -> SDLMouse.SDL_GetWindowRelativeMouseMode(mc.getWindow().handle())),
           "The test window captured the mouse (relative mouse mode is on)");
+        assertThat(!context.computeOnClient(mc -> SDLVideo.SDL_GetWindowMouseGrab(mc.getWindow().handle())),
+          "The test window confines the mouse (window mouse grab is on)");
+        // No sound in a test run (mixin/SoundEngineMixin): the sound engine never opened the audio device.
+        assertThat(!context.computeOnClient(HumanInputUiTests::soundEngineLoaded), "The sound engine is loaded: a test run would play sounds");
+    }
+
+    private static boolean soundEngineLoaded(final Minecraft mc)
+    {
+        try
+        {
+            final java.lang.reflect.Field engineField = net.minecraft.client.sounds.SoundManager.class.getDeclaredField("soundEngine");
+            engineField.setAccessible(true);
+            final java.lang.reflect.Field loadedField = SoundEngine.class.getDeclaredField("loaded");
+            loadedField.setAccessible(true);
+            return loadedField.getBoolean(engineField.get(mc.getSoundManager()));
+        }
+        catch (final ReflectiveOperationException e)
+        {
+            throw new IllegalStateException("Can't read the sound engine state", e);
+        }
     }
 
     // --------------------------------------------------------------------------------------------------------------------------------------

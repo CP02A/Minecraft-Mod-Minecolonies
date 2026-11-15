@@ -76,6 +76,19 @@ public abstract class WindowMixin
         }
     }
 
+    /**
+     * The window never confines the cursor (SDL mouse grab, used by exclusive fullscreen): together with {@link InputConstantsMixin} the
+     * test window can't hold on to the mouse in any mode.
+     */
+    @Inject(method = "updateWindowMouseGrab", at = @At("HEAD"), cancellable = true)
+    private void minecoloniesGametest$neverConfineCursor(final CallbackInfo ci)
+    {
+        if (E2EMode.isClientTestRun())
+        {
+            ci.cancel();
+        }
+    }
+
     @Inject(method = "requestClose", at = @At("HEAD"))
     private void minecoloniesGametest$logClose(final CallbackInfo ci)
     {

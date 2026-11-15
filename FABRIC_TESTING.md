@@ -9,6 +9,20 @@ Start the client with `./gradlew runClient --no-daemon`.
 
 ---
 
+## Standard Gradle commands
+
+The same commands exist in every port:
+
+| Command | What it does |
+|---|---|
+| `./gradlew buildFabric` | Builds the release Fabric jar and copies it to `build/dist/fabric/` (the folder is cleared first). |
+| `./gradlew nonUiTest` | Everything that needs no window: the build checks (`check`: jar isolation, injected members) and the headless server game tests (`runGameTest`). JUnit XML lands in `build/test-results/`. Fails if a test fails. |
+| `./gradlew uiTest` | The UI tests (`runClientGameTest`) in a game window. Real keyboard and mouse input is ignored, the window never captures the mouse and doesn't take the focus when it opens, and the sound engine is off for the whole run. Report: `build/test-results/runClientGameTest/`, screenshots: `build/e2e-screenshots/`. |
+
+There is no `buildForge`: this port has no NeoForge/Forge build.
+
+---
+
 ## A. Setup
 
 **A1. New test world**
